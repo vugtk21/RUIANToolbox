@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Name:        module1
+# Name:        tableDef
 # Purpose:
 #
 # Author:      ruzickao
@@ -15,25 +15,41 @@ def main():
 if __name__ == '__main__':
     main()
 
-tabledef={
-    "obce":{
+# if removeNamespace is set to true, than removes namespace prefix from XMLTagName
+# additionally, it converts CamelCase RUIAN name to underscore notation
+# obi:Kod -> Kod -> kod
+# obi:GlobalniIdNavrhuZmeny -> GlobalniIdNavrhuZmeny -> globalni_id_navrhuZmeny
+def ruianToPostGISColumnName(XMLTagName, removeNamespace):
+    return XMLTagName
+
+# RUIAN to PostGIS SQL conversion table 
+ruianToPostGISDBTypes = {
+ "string"    : "text",
+ "integer"   : "integer",
+ "datetime"  : "date",
+ "long"      : "bigint",
+ "MultiPointPropertyType"  : "string",
+ "MultiSurfacePropertyType" : "string"
+}
+    
+tableDef = {
+    "obec":{
+        "skipNamespacePrefix" : "true", # remove namespace prefix obi, oki etc
         "field":{
-            "obi_kod":{"dbtype":"integer","notNull":"yes","pkey":"yes"},
-            "obi_nazev":{"dbtype":"text"},
-            "obi_status_kod":{"dbtype":"integer"},
-            "oki_kod":{"dbtype":"integer"},
-            "pui_kod":{"dbtype":"integer"},
-            "obi_plati_od":{"dbtype":"date"},
-            "obi_plati_do":{"dbtype":"date"},
-            "obi_id_transakce":{"dbtype:bigint"},
-            "obi_globalni_id_navrhu_zmeny":{"dbtype":"bigint"},
-            "obi_vlajka_text":{"dbtype":"text"},
-            "obi_znak_text":{"dbtype":"text"},
-            "obi_nuts_lau":{"dbtype":"text"},
-            "obi_definicni_bod":{"dbtype":"text"},
-            "obi_originalni_hranice":{"dbtype":"text"}
-            },
-        "index":{"obi_nazev":{"idxtype":"btree","cluster":"yes"}}
+            "Kod":                   {"type":"integer", "notNull" : "yes", "pkey" : "yes"},
+            "Nazev":                 {"type":"string"},
+            "StatusKod":             {"type":"integer"},
+            "PlatiOd":               {"type":"datetime"},
+            "PlatiDo":               {"type":"datetime"},
+            "IdTransakce":           {"type :long"},
+            "GlobalniIdNavrhuZmeny": {"type":"long"},
+            "VlajkaText":            {"type":"string"},
+            "ZnakText":              {"type":"string"},
+            "DefinicniBod":          {"type":"MultiPointPropertyType" },
+            "OriginalniHranice":     {"type":"MultiSurfacePropertyType"}
+        },
+        # indexy definuje ota
+        "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         }
     }
 print (tabledef)
