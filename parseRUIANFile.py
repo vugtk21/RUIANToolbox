@@ -11,30 +11,26 @@
 #-------------------------------------------------------------------------------
 import xml.parsers.expat
 #import euradinConfig
-import tableDef
-import DBTools
+import configRUIAN, DBHandlers, textFile_DBHandler
 import os
-
-# CONSTANTS
-GML_FILEEXT = ".gml"
 
 elemCount = 0
 elemPath = []
 elemLevel = 0;
 elemPathStr = ""
 elemName = ""
-maxPrintLevel = 0
-vfFileName = "20130331_OB_539228_UKSH.xml"
-vfFileName = "20130331_OB_554782_UKSH.xml"
+vfFileName = "G:\\02_OpenIssues\\07_Euradin\\01_Data\\20130331_OB_539228_UKSH.xml"
+#vfFileName = "G:\02_OpenIssues\07_Euradin\01_Data\20130331_OB_554782_UKSH.xml"
 
-outXML = None
-tableCloseTagName = None
+insideTable = False
+tableName = None
 allowedColumns = None
 recordCloseTagName = ""
 removeNamespace = True
 recordValues = {}
 columnName = ""
 
+dbHandler = textFile_DBHandler.Handler("G:\\02_OpenIssues\\07_Euradin\\01_Data\\")
 
 class ExpatNode:
     def __init__(self, aLevel):
@@ -55,9 +51,6 @@ def removeFileExt(fileName):
     else:
         return fileName
 
-def gmlFileName(tableName):
-    return tableName + GML_FILEEXT
-
 def newRecord():
     global recordValues, columnName
     recordValues = {}
@@ -68,7 +61,7 @@ def newRecord():
 # Start element Handler
 # ##############################################################################
 def start_element(name, attrs):
-    global elemCount, elemLevel, elemPath, elemPathStr, elemName, outXML, allowedColumns, recordCloseTagName, removeNamespace, recordValues, columnName
+    global elemCount, elemLevel, elemPath, elemPathStr, elemName, allowedColumns, recordCloseTagName, removeNamespace, recordValues, columnName, insideTable, tableName
     elemCount = elemCount + 1
     elemLevel = elemLevel + 1
     elemName = name
@@ -76,31 +69,30 @@ def start_element(name, attrs):
 
     # Jestliže jsme na úrovni datových tabulek, založíme ji
     if elemPathStr == "VymennyFormat\\Data":
-        if (tableDef.tableDef.has_key(name)):
-            config = tableDef.tableDef[name]
+        if (configRUIAN.tableDef.has_key(name)):
+            tableName = name
+            dbHandler.createTable(tableName, True)
+            insideTable = True
+
+            config = configRUIAN.tableDef[name]
             removeNamespace = config["skipNamespacePrefix"]
+
+            # Najdeme sloupce k importu
             if config.has_key("field"):
                  fieldDefs = config["field"]
                  allowedColumns = fieldDefs.keys()
             else:
                 allowedColumns = None
             print "allowedColumns:", allowedColumns
-            tableCloseTagName = name
+
             recordCloseTagName = ""
-            gmlFileName = removeFileExt(vfFileName) + "_" + name + GML_FILEEXT
-            print (name + "->" + gmlFileName)
-            if os.path.exists(gmlFileName):
-                fileMode = "w" # musí být nastaveno na "a"
-            else:
-                fileMode = "w"
-            outXML = open(gmlFileName, fileMode)
         else:
-            print "Table", name, " is not defined."
-    elif outXML: # jsme uvnitø tabulky
+            print name, "properties are not configured."
+
+    elif insideTable: # jsme uvnitø tabulky
         if recordCloseTagName == "": # new table record
             recordCloseTagName = name
             newRecord()
-            #outXML.write(name + ":")
         elif (allowedColumns != None):
             if removeNamespace:
                 doubleDotPos = name.find(":")
@@ -108,7 +100,6 @@ def start_element(name, attrs):
                     name = name[doubleDotPos + 1:]
 
             if name in allowedColumns: # start of allowed column
-                #outXML.write(name + ":")
                 columnName = name
     else:
         # Skipped tags
@@ -117,30 +108,25 @@ def start_element(name, attrs):
     elemPath.append(name)
     elemPathStr = "\\".join(elemPath)
 
-    if elemLevel < maxPrintLevel:
-        print (getTabs(elemLevel) + "<" + name + ">") #+ " (" + elemPathStr +  ")"
 
 # ##############################################################################
 # End element Handler
 # ##############################################################################
 def end_element(name):
-    global elemLevel, elemPath, elemPathStr, outXML, tableCloseTagName, allowedColumns, recordCloseTagName, columnName, recordValues
+    global elemLevel, elemPath, elemPathStr, insideTable, tableName, allowedColumns, recordCloseTagName, columnName, recordValues
     name = name.replace("vf:", "")  # remove namespace prefix
-    if tableCloseTagName == name:
-        outXML.close()
-        outXML == None
-        tableCloseTagName = None
+    if tableName == name:
+        insideTable = False
+        tableName = None
         allowedColumns = None
     elif recordCloseTagName == name:
         recordCloseTagName = ""
-        if outXML:
-            outXML.write(str(recordValues) + "\n")
+        if insideTable:
+            dbHandler.writeRowToTable(tableName, recordValues)
             recordValues = {}
 
     elemPath.remove(elemPath[len(elemPath) - 1])
     elemPathStr = "\\".join(elemPath)
-    if elemLevel < maxPrintLevel:
-        print (getTabs(elemLevel) + "</" + name + ">")
     elemLevel = elemLevel - 1
     pass
 
@@ -148,8 +134,8 @@ def char_data(data):
     global columnName, recordValues
     if columnName != "":
         recordValues[columnName] = repr(data)
-        #columnName = ""
 
+# MAIN ROUTINE
 p = xml.parsers.expat.ParserCreate()
 
 # Assign event handlers to expat parser
