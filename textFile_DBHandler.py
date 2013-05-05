@@ -91,9 +91,5 @@ class TestHandler(DBHandlers.TestHandler):
         DBHandlers.TestHandler.setUp(self)
         self.h = Handler("")
 
-    def testmytest(self):
-        self.assertEqual("ff", "aa", "nee")
-        pass
-
 if __name__ == '__main__':
     unittest.main()

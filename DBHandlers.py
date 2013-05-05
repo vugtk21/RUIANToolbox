@@ -1,6 +1,6 @@
 # -*- coding: cp1250 -*-
 #-------------------------------------------------------------------------------
-# Name:        DBTools
+# Name:        DBHandlers
 # Purpose:     Definuje abstraktní třídu pro ovládání databáze
 #              a testovací balíček k ní
 #
@@ -11,8 +11,7 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 class DatabaseHandler:
-    """ Abstraktní definice databáze.
-    """
+    """ Abstraktní definice databáze. """
 
     def deleteTable(self, tableName):
         ''' Uvolňuje tabulku tableName, vrací True pokud se podařilo  '''
@@ -40,7 +39,7 @@ import unittest
 import configRUIAN
 
 class TestHandler(unittest.TestCase):
-    """ Abstraktní definice testování databáze.
+    """ Definice databáze pomocí testunit.
     """
     testTableName = "testTable"
 

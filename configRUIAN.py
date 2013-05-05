@@ -1,19 +1,32 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
+# Name:        configRUIAN
+# Purpose:     Definuje hodnoty načítané z exportního souboru RÚIAN
 #
-# Author:      Augustyn
+# Author:      Radek Augustýn, Tomáš Vacek, Otakar Růžička
 #
 # Created:     03.05.2013
-# Copyright:   (c) Augustyn 2013
+# Copyright:   (c) VÚGTK 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
+SKIPNAMESPACEPREFIX = True
+
+""" Slovník definující jednotlivé načítané tabulky. Pro každou tabulku je jeden
+záznam, jehož název (klíč) je shodný s názvem XML tagu. Např. <vf:Obce> budou uloženy
+v tabulce Obce.
+
+Tento záznam je opět dictionary, obsahující:
+"fields" ... definice jednotlivých sloupců v tabulce
+"index"  ... definice indexů
+
+Obec -> Obce
+Field -> Fields
+"skipNamespacePrefix" -> SKIPNAMESPACEPREFIX
+"""
 tableDef = {
-    "Obec":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix obi, oki etc
-        "field":{
+    "Obce":{
+        "fields":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
             "StatusKod":             {"type":"Integer"},
@@ -29,9 +42,8 @@ tableDef = {
         # indexy se nadefinuji podle toho, jak se bude vyhledavat
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
-    "CastObce":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix coi, obi, oki etc
-        "field":{
+    "CastiObci": {
+        "fields":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
             "Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"}, # nadrazena obec
@@ -41,12 +53,11 @@ tableDef = {
             "GlobalniIdNavrhuZmeny": {"type":"Long"},
             "DefinicniBod":          {"type":"MultiPointPropertyType",   "xmlSubPath" : "Geometrie/DefinicniBod"},
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"Momc":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix mci, coi, obi, oki etc
-        "field":{
+        "fields":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
             "MOP":                   {"type":"Integer", "xmlSubPath" : "Mop/Kod"},
@@ -59,12 +70,11 @@ tableDef = {
             "ZnakText":              {"type":"String"},
             "DefinicniBod":          {"type":"MultiPointPropertyType",   "xmlSubPath" : "Geometrie/DefinicniBod"},
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"Mop":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix mci, mpi, coi, obi, oki etc
-        "field":{
+        "fields":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
 			"Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"},  # nadrazena obec
@@ -74,12 +84,11 @@ tableDef = {
             "GlobalniIdNavrhuZmeny": {"type":"Long"},
             "DefinicniBod":          {"type":"MultiPointPropertyType",   "xmlSubPath" : "Geometrie/DefinicniBod"},
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"Ulice":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix uli, mci, mpi, coi, obi, oki etc
-        "field":{
+        "fields":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
 			"Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"},  # nadrazena obec
@@ -89,11 +98,10 @@ tableDef = {
             "GlobalniIdNavrhuZmeny": {"type":"Long"},
             "DefinicniCara":         {"type":"MultiCurvePropertyType",   "xmlSubPath" : "Geometrie/DefinicniCara"},
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"KatastralniUzemi":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix obi, oki etc
         "field":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
@@ -107,11 +115,10 @@ tableDef = {
             "DefinicniBod":          {"type":"MultiPointPropertyType",   "xmlSubPath" : "Geometrie/DefinicniBod"},
             "OriginalniHranice":     {"type":"MultiSurfacePropertyType", "xmlSubPath" : "Geometrie/OriginalniHranice"}
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
-	"Parcela":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix obi, oki etc
+	"Parcely":{
         "field":{
             "Id":                    {"type":"Long", "notNull" : "yes", "pkey" : "yes"},
             "KmenoveCislo":          {"type":"Integer"},
@@ -128,19 +135,18 @@ tableDef = {
             "DefinicniBod":          {"type":"MultiPointPropertyType",   "xmlSubPath" : "Geometrie/DefinicniBod"},
             "OriginalniHranice":     {"type":"MultiSurfacePropertyType", "xmlSubPath" : "Geometrie/OriginalniHranice"}
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
-	"StavebniObjekt":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix soi, com, mci, mpi, coi, obi, oki etc
+	"StavebniObjekty":{
         "field":{
             "Kod":                     {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "CislaDomovni":            {"type":"Integer", "xmlSubPath" : "CislaDomovni/CisloDomovni"},  # kolekce cisel domovnich
-            "IdentifikacniParcela":    {"type":"Long", "xmlSubPath" : "IdentifikacniParcela/Id"},  # parcela nebo jedna z parcel, na nich ...  je stavebni objekt postaven, zvolena pro identifikaci objektu
-			"TypStavebnihoObjektuKod": {"type":"Integer"},  # muze nabyvat hodnot: 1-budova s cislem popisnym, 2-budova s cislem evidencnim, 3-budova bez cisla popisneho ci evidencniho
+            "IdentifikacniParcela":    {"type":"Long", "xmlSubPath" : "IdentifikacniParcela/Id"},       # parcela nebo jedna z parcel, na nich ...  je stavebni objekt postaven, zvolena pro identifikaci objektu
+			"TypStavebnihoObjektuKod": {"type":"Integer"},                                              # muze nabyvat hodnot: 1-budova s cislem popisnym, 2-budova s cislem evidencnim, 3-budova bez cisla popisneho ci evidencniho
             "ZpusobyVyuzitiKod":       {"type":"Integer"},
-			"CastObce":                {"type":"Integer", "xmlSubPath" : "CastObce/Kod"},  # nadrazena cast obce
-			"Momc":                    {"type":"Integer", "xmlSubPath" : "Momc/Kod"},  # nadrazeny MOMC
+			"CastObce":                {"type":"Integer", "xmlSubPath" : "CastObce/Kod"},               # nadrazena cast obce
+			"Momc":                    {"type":"Integer", "xmlSubPath" : "Momc/Kod"},                   # nadrazeny MOMC
 			"PlatiOd":                 {"type":"DateTime"},
             "PlatiDo":                 {"type":"DateTime"},
             "GlobalniIdNavrhuZmeny":   {"type":"Long"},
@@ -149,11 +155,10 @@ tableDef = {
             "DefinicniBod":            {"type":"MultiPointPropertyType",   "xmlSubPath" : "Geometrie/DefinicniBod"},
 			"OriginalniHranice":       {"type":"MultiSurfacePropertyType", "xmlSubPath" : "Geometrie/OriginalniHranice"}
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
+
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
-	"AdresniMisto":{
-        "skipNamespacePrefix" : "true", # remove namespace prefix obi, oki etc
+	"AdresniMista":{
         "field":{
             "Kod":                    {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "CisloDomovni":           {"type":"Integer"},
@@ -161,14 +166,13 @@ tableDef = {
 			"CisloOrientacniPismeno": {"type":"String"},
 			"Psc":                    {"type":"Integer"},
 			"StavebniObjekt":         {"type":"Integer", "xmlSubPath" : "StavebniObjekt/Kod"},  # nadrazeny stavebni objekt
-			"Ulice":                  {"type":"Long", "xmlSubPath" : "Ulice/Kod"},  # nadrazena ulice
+			"Ulice":                  {"type":"Long", "xmlSubPath" : "Ulice/Kod"},              # nadrazena ulice
             "PlatiOd":                {"type":"DateTime"},
             "PlatiDo":                {"type":"DateTime"},
             "IdTransakce":            {"type":"Long"},
             "GlobalniIdNavrhuZmeny":  {"type":"Long"},
             "AdresniBod":             {"type":"MultiPointPropertyType", "xmlSubPath" : "Geometrie/DefinicniBod/AdresniBod"}
         },
-        # indexy se nadefinuji podle toho, jak se bude vyhledavat
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         }
 	}

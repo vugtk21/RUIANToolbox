@@ -1,12 +1,21 @@
 ﻿# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        RUIAN2DB
+# Purpose:
+#
+# Author:      DiblikT
+#
+# Created:     05/05/2013
+# Copyright:   (c) DiblikT 2013
+# Licence:     <your licence>
+#-------------------------------------------------------------------------------
 
 from PyQt4.QtGui import (QApplication, QWizard, QWizardPage, QPixmap, QLabel,
                          QRadioButton, QVBoxLayout, QLineEdit, QGridLayout,
                          QRegExpValidator, QCheckBox, QPrinter, QPrintDialog,
-                         QMessageBox,QTextBrowser,QPushButton)
-from PyQt4.QtCore import (pyqtSlot, pyqtSignal, QRegExp, QObject)
-import sys
-
+                         QMessageBox,QTextBrowser,QPushButton, QIcon, QFileDialog)
+from PyQt4.QtCore import (pyqtSlot, pyqtSignal, QRegExp, QObject, SIGNAL)
+import sys,os
 
 class LicenseWizard(QWizard):
     NUM_PAGES = 6
@@ -25,19 +34,24 @@ class LicenseWizard(QWizard):
 
         self.setStartId(self.PageIntro)
 
-        # images won't show in Windows 7 if style not set
         self.setWizardStyle(self.ModernStyle)
-        #self.setOption(self.HaveHelpButton, True)
-        #self.setPixmap(QWizard.LogoPixmap, QPixmap(":/images/logo.png"))
+        self.setWindowTitle(u'EURADIN - Import RÚIAN')
+        self.curDir = os.path.dirname(__file__)
+        self.pictureName = os.path.join(self.curDir, 'img\\pyProject.png')
+        self.setWindowIcon(QIcon(self.pictureName))
+
+        self.setButtonText(self.NextButton, QApplication.translate("LicenseWizard", 'Další >>', None, QApplication.UnicodeUTF8))
+        self.setButtonText(self.BackButton, QApplication.translate("LicenseWizard", '<< Zpět', None, QApplication.UnicodeUTF8))
+        self.setButtonText(self.CancelButton, QApplication.translate("LicenseWizard", 'Storno', None, QApplication.UnicodeUTF8))
+        self.setButtonText(self.FinishButton,QApplication.translate("LicenseWizard", 'Konec', None, QApplication.UnicodeUTF8))
 
 class IntroPage(QWizardPage):
     def __init__(self, parent=None):
         super(IntroPage, self).__init__(parent)
 
         self.setTitle(self.tr(u"Úvod"))
-        #self.setPixmap(QWizard.WatermarkPixmap, QPixmap("cuzk.jpg"))
-        topLabel = QLabel(self.tr(u'Tady bude neco napsaného <i>treba kurzívou</i> nebo <br>na novém rádku a <b style="font-size: large">tucne</b>,<br>protoze zde funguji HTML tagy.'))
-        topLabel.setWordWrap(True)
+        topLabel = QLabel()
+        topLabel.setText(QApplication.translate("IntroPage", 'Tady bude neco napsaného <i>třeba kurzívou</i> nebo na <br> novém řádku a <b style="font-size: large">tučne</b>,<br>protože zde fungují HTML tagy.', None, QApplication.UnicodeUTF8))
 
         layout = QVBoxLayout()
         layout.addWidget(topLabel)
@@ -51,34 +65,50 @@ class ImportPage(QWizardPage):
     def __init__(self, parent=None):
         super(ImportPage, self).__init__(parent)
 
-        self.setTitle(self.tr(u"Vytvorení databázové struktury"))
+        self.setTitle(QApplication.translate("ImportPage", 'Vytvoření databázové struktury', None, QApplication.UnicodeUTF8))
 
-        serverAddressLabel = QLabel("Adresa serveru: ")
-        serverAddress = QLineEdit()
-        serverAddressLabel.setBuddy(serverAddress)
+        self.serverAddressLabel = QLabel("Adresa serveru: ")
+        self.serverAddress = QLineEdit()
+        self.serverAddressLabel.setBuddy(self.serverAddress)
 
-        SQLPathLabel = QLabel(self.tr("Cesta k SQLPlus:"))
-        SQLPath = QLineEdit()
-        SQLPathLabel.setBuddy(SQLPath)
+        self.SQLPathLabel = QLabel(self.tr("Cesta k SQLPlus:"))
+        self.SQLPath = QLineEdit()
+        self.SQLPathLabel.setBuddy(self.SQLPath)
 
-        userLabel = QLabel(self.tr(u"Uzivatel:"))
-        user = QLineEdit()
-        userLabel.setBuddy(user)
+        self.userLabel = QLabel(QApplication.translate("ImportPage", 'Uživatel', None, QApplication.UnicodeUTF8))
+        self.user = QLineEdit()
+        self.userLabel.setBuddy(self.user)
 
-        passwordLabel = QLabel(self.tr("Heslo:"))
-        password = QLineEdit()
-        passwordLabel.setBuddy(password)
+        self.passwordLabel = QLabel(self.tr("Heslo:"))
+        self.password = QLineEdit()
+        self.passwordLabel.setBuddy(self.password)
+
+        self.openButton = QPushButton()
+        self.curDir = os.path.dirname(__file__)
+        self.pictureName = os.path.join(self.curDir, 'img\\dir.png')
+        self.openButton.setIcon(QIcon(self.pictureName))
+
+        self.registerField("details.serverAddress*", self.serverAddress)
+        self.registerField("details.SQLPath*", self.SQLPath)
 
         grid = QGridLayout()
-        grid.addWidget(serverAddressLabel, 0, 0)
-        grid.addWidget(serverAddress, 0, 1)
-        grid.addWidget(SQLPathLabel, 1, 0)
-        grid.addWidget(SQLPath, 1, 1)
-        grid.addWidget(userLabel, 2, 0)
-        grid.addWidget(user, 2, 1)
-        grid.addWidget(passwordLabel, 3, 0)
-        grid.addWidget(password, 3, 1)
+        grid.addWidget(self.serverAddressLabel, 0, 0)
+        grid.addWidget(self.serverAddress, 0, 1)
+        grid.addWidget(self.SQLPathLabel, 1, 0)
+        grid.addWidget(self.SQLPath, 1, 1)
+        grid.addWidget(self.openButton, 1, 2)
+        grid.addWidget(self.userLabel, 2, 0)
+        grid.addWidget(self.user, 2, 1)
+        grid.addWidget(self.passwordLabel, 3, 0)
+        grid.addWidget(self.password, 3, 1)
         self.setLayout(grid)
+
+        self.connect(self.openButton, SIGNAL("clicked()"), self.setPath)
+
+    def setPath(self):
+        filedialog = QFileDialog.getOpenFileName(self, 'Open file','/home')
+        self.SQLPath.setText(filedialog)
+
 
     def nextId(self):
         return LicenseWizard.PageSetupDB
@@ -87,9 +117,7 @@ class SetupDBPage(QWizardPage):
     def __init__(self, parent=None):
         super(SetupDBPage, self).__init__(parent)
 
-        self.setTitle(self.tr(u"Nastavení vytvárené databáze"))
-        #self.setSubTitle(self.tr("If you have an upgrade key, please fill in "
-        #                         "the appropriate field."))
+        self.setTitle(QApplication.translate("SetupDBPage", 'Nastavení vytvářené databáze', None, QApplication.UnicodeUTF8))
 
         keyLabel = QLabel("<b>KEY<\b>")
         valueLable = QLabel("<b>value<\b>")
@@ -106,7 +134,7 @@ class SetupDBPage(QWizardPage):
         obce = QLineEdit('obce')
         obceLabel.setBuddy(obce)
 
-        nazvyObceLabel = QLabel(self.tr(u"Cásti obce"))
+        nazvyObceLabel = QLabel(QApplication.translate("SetupDBPage", 'Části obce', None, QApplication.UnicodeUTF8))
         nazvyObce = QLineEdit('casti_obce')
         nazvyObceLabel.setBuddy(nazvyObce)
 
@@ -161,30 +189,29 @@ class CreateDBStructurePage(QWizardPage):
     def __init__(self, parent=None):
         super(CreateDBStructurePage, self).__init__(parent)
 
-        self.setTitle(self.tr(u"Vytvorení databázové struktury"))
+        self.setTitle(QApplication.translate("CreateDBStructurePage", 'Vytvoření databázové struktury', None, QApplication.UnicodeUTF8))
 
-        # setup the ui
         self._console = QTextBrowser(self)
         self._button  = QPushButton(self)
         self._button.setText('Test Me')
 
         def prepareSQL(status):
             if status == '0':
-                return QLabel(self.tr(u"<font color=red>Pripraviji dávku SQL</font>"))
+                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=red>Připraviji dávku SQL</font>', None, QApplication.UnicodeUTF8))
             else:
-                return QLabel(self.tr(u"<font color=green>Pripraviji dávku SQL</font>"))
+                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=green>Připraviji dávku SQL</font>', None, QApplication.UnicodeUTF8))
 
         def runSQL(status):
             if status == '0':
-                return QLabel(self.tr(u"<font color=red>Spoustím dávku SQL</font>"))
+                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=red>Spouštím dávku SQL</font>', None, QApplication.UnicodeUTF8))
             else:
-                return QLabel(self.tr(u"<font color=green>Spoustím dávku SQL</font>"))
+                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=green>Spouštím dávku SQL</font>', None, QApplication.UnicodeUTF8))
 
         def done(status):
             if status == '0':
-                return QLabel(self.tr(u"<font color=red>Hotovo</font>"))
+                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=red>Hotovo</font>', None, QApplication.UnicodeUTF8))
             else:
-                return QLabel(self.tr(u"<font color=green>Hotovo</font>"))
+                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=green>Hotovo</font>', None, QApplication.UnicodeUTF8))
 
         grid = QGridLayout()
         grid.addWidget(prepareSQL('1'), 0, 0)
@@ -202,8 +229,8 @@ class CreateDBStructurePage(QWizardPage):
 
     def test( self ):
         # print some stuff
-        #print 'testing'
-        #print 'testing2'
+        print 'testing'
+        print 'testing2'
 
         # log some stuff
         logger.debug('Testing debug')
@@ -212,7 +239,7 @@ class CreateDBStructurePage(QWizardPage):
         logger.error('Testing error')
 
         # error out something
-        #print blah
+        print blah
 
 
     def nextId(self):
@@ -225,30 +252,40 @@ class ImportParametersPage(QWizardPage):
 
         self.setTitle(self.tr("Parametry importu"))
 
-        dirLabel = QLabel(self.tr(u"Adresár s daty RÚIAN"))
-        setDir = QLineEdit()
-        dirLabel.setBuddy(setDir)
+        self.dirLabel = QLabel(QApplication.translate("ImportParametersPage", 'Adresář s daty RÚIAN', None, QApplication.UnicodeUTF8))
+        self.setDir = QLineEdit()
+        self.dirLabel.setBuddy(self.setDir)
 
-        suffixLabel = QLabel(self.tr(u"Prípona souboru"))
-        suffix = QLineEdit('.xml')
-        suffixLabel.setBuddy(suffix)
+        self.suffixLabel = QLabel(QApplication.translate("CreateDBStructurePage", 'Přípona souboru', None, QApplication.UnicodeUTF8))
+        self.suffix = QLineEdit('.xml')
+        self.suffixLabel.setBuddy(self.suffix)
+
+        self.openButton1 = QPushButton()
+        self.curDir = os.path.dirname(__file__)
+        self.pictureName = os.path.join(self.curDir, 'img\\dir.png')
+        self.openButton1.setIcon(QIcon(self.pictureName))
 
         self.bottomLabel = QLabel()
         self.bottomLabel.setWordWrap(True)
 
-        walkDir = QCheckBox(self.tr(u"Vcetne podadresáru"))
-
-        #self.registerField("walkDir.agree*", walkDir)
+        self.walkDir = QCheckBox(QApplication.translate("ImportParametersPage", 'Včetně podadresářů', None, QApplication.UnicodeUTF8))
 
         grid = QGridLayout()
-        grid.addWidget(dirLabel, 0, 0)
-        grid.addWidget(setDir, 0, 1)
-        grid.addWidget(suffixLabel, 1, 0)
-        grid.addWidget(suffix, 1, 1)
+        grid.addWidget(self.dirLabel, 0, 0)
+        grid.addWidget(self.setDir, 0, 1)
+        grid.addWidget(self.openButton1, 0, 2)
+        grid.addWidget(self.suffixLabel, 1, 0)
+        grid.addWidget(self.suffix, 1, 1)
         grid.addWidget(self.bottomLabel, 2, 0)
-        grid.addWidget(walkDir, 2, 1)
+        grid.addWidget(self.walkDir, 2, 1)
 
         self.setLayout(grid)
+        self.connect(self.openButton1, SIGNAL("clicked()"), self.setPath1)
+
+    def setPath1(self):
+        dirDialog = QFileDialog.getExistingDirectory(self, QApplication.translate("CreateDBStructurePage", 'Výběr adrešáře', None, QApplication.UnicodeUTF8))
+        if not dirDialog.isNull():
+            self.setDir.setText(dirDialog)
 
     def nextId(self):
         return LicenseWizard.PageImportDB
@@ -269,22 +306,6 @@ class ImportDBPage(QWizardPage):
 
     def nextId(self):
         return -1
-
-
-    def _configWizBtns(self, state):
-        # position the Print button (CustomButton1) before the Finish button
-        if state:
-            btnList = [QWizard.Stretch, QWizard.BackButton, QWizard.NextButton,
-                       QWizard.CustomButton1, QWizard.FinishButton,
-                       QWizard.CancelButton]
-            self.wizard().setButtonLayout(btnList)
-        else:
-            # remove it if it's not visible
-            btnList = [QWizard.Stretch, QWizard.BackButton, QWizard.NextButton,
-                       QWizard.FinishButton,
-                       QWizard.CancelButton]
-            self.wizard().setButtonLayout(btnList)
-
 
 class XStream(QObject):
     _stdout = None
@@ -324,7 +345,7 @@ def main():
     wiz = LicenseWizard()
     wiz.show()
 
-    #print 'Console..'
+    print 'Console..'
 
     sys.exit(app.exec_())
 
