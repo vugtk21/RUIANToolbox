@@ -16,17 +16,21 @@ from PyQt4.QtGui import (QApplication, QWizard, QWizardPage, QPixmap, QLabel,
                          QMessageBox,QTextBrowser,QPushButton, QIcon, QFileDialog)
 from PyQt4.QtCore import (pyqtSlot, pyqtSignal, QRegExp, QObject, SIGNAL)
 import sys,os
+import configGUI as c
+import importInterface
 
 class LicenseWizard(QWizard):
-    NUM_PAGES = 6
+    NUM_PAGES = 8
 
-    (PageIntro, PageImport, PageSetupDB, PageCreateDBStructure, PageImportParameters, PageImportDB) = range(NUM_PAGES)
+    (PageIntro, PageDatabaseType, PageTextFileDBHandler, PagePostGISDBHandler, PageSetupDB, PageCreateDBStructure, PageImportParameters, PageImportDB) = range(NUM_PAGES)
 
     def __init__(self, parent=None):
         super(LicenseWizard, self).__init__(parent)
 
         self.setPage(self.PageIntro, IntroPage(self))
-        self.setPage(self.PageImport, ImportPage())
+        self.setPage(self.PageDatabaseType, DatabaseTypePage())
+        self.setPage(self.PageTextFileDBHandler, TextFileDBHandlerPage())
+        self.setPage(self.PagePostGISDBHandler, PostGISDBHandlerPage())
         self.setPage(self.PageSetupDB, SetupDBPage())
         self.setPage(self.PageCreateDBStructure, CreateDBStructurePage())
         self.setPage(self.PageImportParameters, ImportParametersPage())
@@ -59,55 +63,108 @@ class IntroPage(QWizardPage):
         self.setLayout(layout)
 
     def nextId(self):
-            return LicenseWizard.PageImport
+            return LicenseWizard.PageDatabaseType
 
-class ImportPage(QWizardPage):
+class DatabaseTypePage(QWizardPage):
     def __init__(self, parent=None):
-        super(ImportPage, self).__init__(parent)
+        super(DatabaseTypePage, self).__init__(parent)
 
-        self.setTitle(QApplication.translate("ImportPage", 'Vytvoření databázové struktury', None, QApplication.UnicodeUTF8))
+        self.setTitle(self.tr(u"Typ databáze"))
+        self.textRBName = QApplication.translate("DatabaseTypePage", c.configData['databaseTypes']['textFile_DBHandler'], None, QApplication.UnicodeUTF8)
+        self.pgRBName = QApplication.translate("DatabaseTypePage", c.configData['databaseTypes']['postGIS_DBHandler'], None, QApplication.UnicodeUTF8)
+        self.textRB = QRadioButton(self.tr(self.textRBName), self)
+        self.pgRB = QRadioButton(self.tr(self.pgRBName), self)
+        self.pgRB.setChecked(True)
 
-        self.serverAddressLabel = QLabel("Adresa serveru: ")
-        self.serverAddress = QLineEdit()
-        self.serverAddressLabel.setBuddy(self.serverAddress)
+        #self.registerField("details.textRB*", self.textRB) or self.registerField("details.pgRB*", self.pgRB)
 
-        self.SQLPathLabel = QLabel(self.tr("Cesta k SQLPlus:"))
-        self.SQLPath = QLineEdit()
+        grid = QGridLayout()
+        grid.addWidget(self.textRB, 0, 0)
+        grid.addWidget(self.pgRB, 1, 0)
+        self.setLayout(grid)
+
+    def nextId(self):
+        if self.textRB.isChecked():
+            return LicenseWizard.PageTextFileDBHandler
+        else:
+            return LicenseWizard.PagePostGISDBHandler
+
+class TextFileDBHandlerPage(QWizardPage):
+    def __init__(self, parent=None):
+        super(TextFileDBHandlerPage, self).__init__(parent)
+
+        self.setTitle(QApplication.translate("TextFileDBHandlerPage", 'Načtení databáze', None, QApplication.UnicodeUTF8))
+
+        self.SQLPathLabel = QLabel(QApplication.translate("TextFileDBHandlerPage", 'Načíst z adresáře', None, QApplication.UnicodeUTF8))
+        self.path = c.configData['textFile_DBHandler']['dataDirectory']
+        self.SQLPath = QLineEdit(self.path)
         self.SQLPathLabel.setBuddy(self.SQLPath)
-
-        self.userLabel = QLabel(QApplication.translate("ImportPage", 'Uživatel', None, QApplication.UnicodeUTF8))
-        self.user = QLineEdit()
-        self.userLabel.setBuddy(self.user)
-
-        self.passwordLabel = QLabel(self.tr("Heslo:"))
-        self.password = QLineEdit()
-        self.passwordLabel.setBuddy(self.password)
 
         self.openButton = QPushButton()
         self.curDir = os.path.dirname(__file__)
         self.pictureName = os.path.join(self.curDir, 'img\\dir.png')
         self.openButton.setIcon(QIcon(self.pictureName))
 
-        self.registerField("details.serverAddress*", self.serverAddress)
-        self.registerField("details.SQLPath*", self.SQLPath)
-
         grid = QGridLayout()
-        grid.addWidget(self.serverAddressLabel, 0, 0)
-        grid.addWidget(self.serverAddress, 0, 1)
-        grid.addWidget(self.SQLPathLabel, 1, 0)
-        grid.addWidget(self.SQLPath, 1, 1)
-        grid.addWidget(self.openButton, 1, 2)
-        grid.addWidget(self.userLabel, 2, 0)
-        grid.addWidget(self.user, 2, 1)
-        grid.addWidget(self.passwordLabel, 3, 0)
-        grid.addWidget(self.password, 3, 1)
+        grid.addWidget(self.SQLPathLabel, 0, 0)
+        grid.addWidget(self.SQLPath, 0, 1)
+        grid.addWidget(self.openButton, 0, 2)
         self.setLayout(grid)
 
         self.connect(self.openButton, SIGNAL("clicked()"), self.setPath)
 
     def setPath(self):
-        filedialog = QFileDialog.getOpenFileName(self, 'Open file','/home')
+        filedialog = QFileDialog.getExistingDirectory(self,QApplication.translate("TextFileDBHandlerPage", 'Výběr adresáře', None, QApplication.UnicodeUTF8))
         self.SQLPath.setText(filedialog)
+
+
+    def nextId(self):
+        return LicenseWizard.PageSetupDB
+
+class PostGISDBHandlerPage(QWizardPage):
+    def __init__(self, parent=None):
+        super(PostGISDBHandlerPage, self).__init__(parent)
+
+        self.setTitle(QApplication.translate("PostGISDBHandlerPage", 'Připojení databáze PostGIS', None, QApplication.UnicodeUTF8))
+
+        dbNameLabel = QLabel("dbname")
+        dbName = QLineEdit(c.configData['postGIS_DBHandler']['dbname'])
+        dbNameLabel.setBuddy(dbName)
+
+        hostLabel = QLabel("host")
+        host = QLineEdit(c.configData['postGIS_DBHandler']['host'])
+        hostLabel.setBuddy(host)
+
+        portLabel = QLabel("port")
+        port = QLineEdit(c.configData['postGIS_DBHandler']['port'])
+        portLabel.setBuddy(port)
+
+        userLabel = QLabel("user")
+        user = QLineEdit(c.configData['postGIS_DBHandler']['user'])
+        userLabel.setBuddy(user)
+
+        passwordLabel = QLabel("password")
+        password = QLineEdit(c.configData['postGIS_DBHandler']['password'])
+        passwordLabel.setBuddy(password)
+
+        schemaNameLabel = QLabel("schemaName")
+        schemaName = QLineEdit(c.configData['postGIS_DBHandler']['schemaName'])
+        schemaNameLabel.setBuddy(schemaName)
+
+        grid = QGridLayout()
+        grid.addWidget(dbNameLabel, 0, 0)
+        grid.addWidget(dbName, 0, 1)
+        grid.addWidget(hostLabel, 1, 0)
+        grid.addWidget(host, 1, 1)
+        grid.addWidget(portLabel, 2, 0)
+        grid.addWidget(port, 2, 1)
+        grid.addWidget(userLabel, 3, 0)
+        grid.addWidget(user, 3, 1)
+        grid.addWidget(passwordLabel, 4, 0)
+        grid.addWidget(password, 4, 1)
+        grid.addWidget(schemaNameLabel, 5, 0)
+        grid.addWidget(schemaName, 5, 1)
+        self.setLayout(grid)
 
 
     def nextId(self):
@@ -117,7 +174,7 @@ class SetupDBPage(QWizardPage):
     def __init__(self, parent=None):
         super(SetupDBPage, self).__init__(parent)
 
-        self.setTitle(QApplication.translate("SetupDBPage", 'Nastavení vytvářené databáze', None, QApplication.UnicodeUTF8))
+        self.setTitle(QApplication.translate("SetupDBPage", 'Sem patří treeView', None, QApplication.UnicodeUTF8))
 
         keyLabel = QLabel("<b>KEY<\b>")
         valueLable = QLabel("<b>value<\b>")
@@ -182,7 +239,11 @@ class SetupDBPage(QWizardPage):
         self.setLayout(grid)
 
     def nextId(self):
-        return LicenseWizard.PageCreateDBStructure
+        # Radecek
+        if importInterface.databaseExists():
+            return LicenseWizard.PageImportParameters
+        else:
+            return LicenseWizard.PageCreateDBStructure
 
 
 class CreateDBStructurePage(QWizardPage):
@@ -229,17 +290,19 @@ class CreateDBStructurePage(QWizardPage):
 
     def test( self ):
         # print some stuff
-        print 'testing'
-        print 'testing2'
+##        print 'testing'
+##        print 'testing2'
+##
+##        # log some stuff
+##        logger.debug('Testing debug')
+##        logger.info('Testing info')
+##        logger.warning('Testing warning')
+##        logger.error('Testing error')
+##
+##        # error out something
+##        print blah
 
-        # log some stuff
-        logger.debug('Testing debug')
-        logger.info('Testing info')
-        logger.warning('Testing warning')
-        logger.error('Testing error')
-
-        # error out something
-        print blah
+        importInterface.createDatabase()
 
 
     def nextId(self):
@@ -340,13 +403,9 @@ class XStream(QObject):
 
 # main ========================================================================
 def main():
-
     app = QApplication(sys.argv)
     wiz = LicenseWizard()
     wiz.show()
-
-    print 'Console..'
-
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
