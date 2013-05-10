@@ -1,4 +1,4 @@
-# -*- coding: cp1250 -*-
+# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        importInterface
 # Purpose:
@@ -38,9 +38,9 @@ def onDatabaseExistsProc():
     return False
 
 """
-Tato procedura by mìla vypisovat do konzole obsah parametru message. Vzhledem k
-tomu, e jste pøesmìroval standardní vıstup do textového pole, teda aspoò myslím,
-tak by nemìlo bıt potøeba na to sahat.
+Tato procedura by mÃ¬la vypisovat do konzole obsah parametru message. Vzhledem k
+tomu, Å¾e jste pÃ¸esmÃ¬roval standardnÃ­ vÃ½stup do textovÃ©ho pole, teda aspoÃ² myslÃ­m,
+tak by nemÃ¬lo bÃ½t potÃ¸eba na to sahat.
 
         # create connections
         XStream.stdout().messageWritten.connect( self._console.insertPlainText )
@@ -49,18 +49,18 @@ tak by nemìlo bıt potøeba na to sahat.
 """
 displayMessage = dummyMessageProc
 
-""" Procedura, kterou vyuijeme pro testování, jestli ze stránky vyplnìní
-parametrù databáze pøejít na vytváøení databáze nebo pøímo na import.
+""" Procedura, kterou vyuÅ¾ijeme pro testovÃ¡nÃ­, jestli ze strÃ¡nky vyplnÃ¬nÃ­
+parametrÃ¹ databÃ¡ze pÃ¸ejÃ­t na vytvÃ¡Ã¸enÃ­ databÃ¡ze nebo pÃ¸Ã­mo na import.
 """
 databaseExists = onDatabaseExistsProc
 
 """
-Tuto proceduru spustíme, kdy pøejdeme na stránku vytváøení databáze (databaseExists = false)
+Tuto proceduru spustÃ­me, kdyÅ¾ pÃ¸ejdeme na strÃ¡nku vytvÃ¡Ã¸enÃ­ databÃ¡ze (databaseExists = false)
 """
 createDatabase = dummyCreateDatabaseProc
 
 """
-Tuto proceduru spustíme, kdy pøejdeme na stránku import
+Tuto proceduru spustÃ­me, kdyÅ¾ pÃ¸ejdeme na strÃ¡nku import
 """
 importDatabase = onImportDatabaseProc
 
