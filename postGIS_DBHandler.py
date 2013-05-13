@@ -162,7 +162,7 @@ import unittest
 class TestHandler(DBHandlers.TestHandler):
     def setUp(self):
         DBHandlers.TestHandler.setUp(self)
-        self.h = Handler("")
+        self.h = Handler("", "")
 
 class TestGlobalFunctions(unittest.TestCase):
 

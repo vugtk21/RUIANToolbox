@@ -50,6 +50,18 @@ class LicenseWizard(QWizard):
         self.setButtonText(self.CancelButton, QApplication.translate("LicenseWizard", 'Storno', None, QApplication.UnicodeUTF8))
         self.setButtonText(self.FinishButton,QApplication.translate("LicenseWizard", 'Konec', None, QApplication.UnicodeUTF8))
 
+        self.prevId = None
+        self.currentIdChanged.connect(self.onIDChanged)
+
+    def onIDChanged(self, id):
+        if self.prevId <> None and self.prevId < id:
+            if id == 5:
+                importInterface.createDatabase()
+            elif id == 7:
+                importInterface.importDatabase()
+
+        self.prevId = id
+
 class IntroPage(QWizardPage):
     def __init__(self, parent=None):
         super(IntroPage, self).__init__(parent)
@@ -321,13 +333,10 @@ class CreateDBStructurePage(QWizardPage):
         grid.addWidget(self._console,3,0)
         self.setLayout(grid)
 
+    def initializePage(self):
         # create connections
         XStream.stdout().messageWritten.connect( self._console.insertPlainText )
         XStream.stderr().messageWritten.connect( self._console.insertPlainText )
-
-        #importInterface.createDatabase()
-        self.connect(self, SIGNAL('__init__'), SLOT(importInterface.createDatabase()))
-
 
     def nextId(self):
         return LicenseWizard.PageImportParameters
@@ -398,14 +407,18 @@ class ImportDBPage(QWizardPage):
         self.setTitle(self.tr(u"Import"))
 
         self._console = QTextBrowser(self)
-        XStream.stdout().messageWritten.connect( self._console.insertPlainText )
-        XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 
         grid = QGridLayout()
         grid.addWidget(self._console,0,0)
         self.setLayout(grid)
 
-        self.connect(self, SIGNAL('__init__'), SLOT(importInterface.importDatabase()))
+    def initializePage(self):
+        # create connections
+        XStream.stdout().messageWritten.connect( self._console.insertPlainText )
+        XStream.stderr().messageWritten.connect( self._console.insertPlainText )
+
+    def completeChanged(self):
+        importInterface.importDatabase()
 
     def saveNewConfig(self):
         curDir = os.path.dirname(__file__)
