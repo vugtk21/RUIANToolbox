@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        RUIAN2DB
 # Purpose:
@@ -14,7 +14,7 @@ from PyQt4.QtGui import (QApplication, QWizard, QWizardPage, QPixmap, QLabel,
                          QRadioButton, QVBoxLayout, QLineEdit, QGridLayout,
                          QRegExpValidator, QCheckBox, QPrinter, QPrintDialog,
                          QMessageBox,QTextBrowser,QPushButton, QIcon, QFileDialog,QTreeWidget,QTreeWidgetItem)
-from PyQt4.QtCore import (pyqtSlot, pyqtSignal, QRegExp, QObject, SIGNAL, Qt)
+from PyQt4.QtCore import (pyqtSlot, pyqtSignal, QRegExp, QObject, SIGNAL, SLOT, Qt)
 import sys,os
 import configGUI as c
 import importInterface
@@ -43,6 +43,7 @@ class LicenseWizard(QWizard):
         self.curDir = os.path.dirname(__file__)
         self.pictureName = os.path.join(self.curDir, 'img\\pyProject.png')
         self.setWindowIcon(QIcon(self.pictureName))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)  #  smazani tlacitka Help z
 
         self.setButtonText(self.NextButton, QApplication.translate("LicenseWizard", 'Další >>', None, QApplication.UnicodeUTF8))
         self.setButtonText(self.BackButton, QApplication.translate("LicenseWizard", '<< Zpět', None, QApplication.UnicodeUTF8))
@@ -70,16 +71,30 @@ class DatabaseTypePage(QWizardPage):
         super(DatabaseTypePage, self).__init__(parent)
 
         self.setTitle(self.tr(u"Typ databáze"))
-        self.textRBName = QApplication.translate("DatabaseTypePage", c.configData['databaseTypes']['textFile_DBHandler'], None, QApplication.UnicodeUTF8)
-        self.pgRBName = QApplication.translate("DatabaseTypePage", c.configData['databaseTypes']['postGIS_DBHandler'], None, QApplication.UnicodeUTF8)
-        self.textRB = QRadioButton(self.tr(self.textRBName), self)
-        self.pgRB = QRadioButton(self.tr(self.pgRBName), self)
-        self.pgRB.setChecked(True)
+        self.textRB = QRadioButton(QApplication.translate("DatabaseTypePage", 'Databáze uložena do souborů v adresáři', None, QApplication.UnicodeUTF8), None)
+        self.pgRB = QRadioButton(QApplication.translate("DatabaseTypePage", 'Databáze PostGIS', None, QApplication.UnicodeUTF8), None)
+        self.setCheckedButton()
 
         grid = QGridLayout()
         grid.addWidget(self.textRB, 0, 0)
         grid.addWidget(self.pgRB, 1, 0)
         self.setLayout(grid)
+
+        self.connect(self.textRB, SIGNAL("clicked()"), self.updateDatabaseTypeText)
+        self.connect(self.pgRB, SIGNAL("clicked()"), self.updateDatabaseTypePG)
+
+    def setCheckedButton(self):
+        dbType = c.configData['selectedDatabaseType']
+        if dbType == 'textFile_DBHandler':
+            return self.textRB.setChecked(True)
+        elif dbType == 'postGIS_DBHandler':
+            return self.pgRB.setChecked(True)
+
+    def updateDatabaseTypeText(self):
+        c.configData['selectedDatabaseType'] = 'textFile_DBHandler'
+
+    def updateDatabaseTypePG(self):
+        c.configData['selectedDatabaseType'] = 'postGIS_DBHandler'
 
     def nextId(self):
         if self.textRB.isChecked():
@@ -114,7 +129,6 @@ class TextFileDBHandlerPage(QWizardPage):
 
     def updateSQLPath(self, value):
         c.configData['textFile_DBHandler']['dataDirectory'] = str(value)
-        print 'Hodnota zmenena :' + str(value)
 
     def setPath(self):
         filedialog = QFileDialog.getExistingDirectory(self,QApplication.translate("TextFileDBHandlerPage", 'Výběr adresáře', None, QApplication.UnicodeUTF8))
@@ -260,7 +274,6 @@ class SetupDBPage(QWizardPage):
                 myChild.setCheckState (column, item.checkState(column))
 
     def hasParent(self, item, column):
-        #return item.childCount() == 0
         try:
             parent =  item.parent()
             parent.text(column)
@@ -303,60 +316,21 @@ class CreateDBStructurePage(QWizardPage):
         self.setTitle(QApplication.translate("CreateDBStructurePage", 'Vytvoření databázové struktury', None, QApplication.UnicodeUTF8))
 
         self._console = QTextBrowser(self)
-        #self._button  = QPushButton(self)
-        #self._button.setText('Test Me')
-
-##        def prepareSQL(status):
-##            if status == '0':
-##                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=red>Připraviji dávku SQL</font>', None, QApplication.UnicodeUTF8))
-##            else:
-##                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=green>Připraviji dávku SQL</font>', None, QApplication.UnicodeUTF8))
-##
-##        def runSQL(status):
-##            if status == '0':
-##                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=red>Spouštím dávku SQL</font>', None, QApplication.UnicodeUTF8))
-##            else:
-##                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=green>Spouštím dávku SQL</font>', None, QApplication.UnicodeUTF8))
-##
-##        def done(status):
-##            if status == '0':
-##                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=red>Hotovo</font>', None, QApplication.UnicodeUTF8))
-##            else:
-##                return QLabel(QApplication.translate("CreateDBStructurePage", '<font color=green>Hotovo</font>', None, QApplication.UnicodeUTF8))
 
         grid = QGridLayout()
-        #grid.addWidget(prepareSQL('1'), 0, 0)
-        #grid.addWidget(runSQL('0'), 1, 0)
-        #grid.addWidget(done('0'), 2, 0)
         grid.addWidget(self._console,3,0)
-        #grid.addWidget(self._button,6,0)
         self.setLayout(grid)
 
         # create connections
         XStream.stdout().messageWritten.connect( self._console.insertPlainText )
         XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 
-        importInterface.createDatabase()
-        #self._button.clicked.connect(self.test)
-
-    def test( self ):
-        # print some stuff
-        print 'testing'
-        print 'testing2'
-
-        # log some stuff
-        logger.debug('Testing debug')
-        logger.info('Testing info')
-        logger.warning('Testing warning')
-        logger.error('Testing error')
-
-        # error out something
-        print blah
+        #importInterface.createDatabase()
+        self.connect(self, SIGNAL('__init__'), SLOT(importInterface.createDatabase()))
 
 
     def nextId(self):
         return LicenseWizard.PageImportParameters
-        #return -1
 
 class ImportParametersPage(QWizardPage):
     def __init__(self, parent=None):
@@ -427,24 +401,20 @@ class ImportDBPage(QWizardPage):
         XStream.stdout().messageWritten.connect( self._console.insertPlainText )
         XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 
-        self.saveButton = QPushButton(self)
-        self.saveButton.setText(QApplication.translate("ImportDBPage", 'Uložit nastavení', None, QApplication.UnicodeUTF8))
-
         grid = QGridLayout()
         grid.addWidget(self._console,0,0)
-        grid.addWidget(self.saveButton,1,0)
         self.setLayout(grid)
 
-        self.connect(self.saveButton, SIGNAL("clicked()"), self.saveNewConfig)
-
-        importInterface.importDatabase()
+        self.connect(self, SIGNAL('__init__'), SLOT(importInterface.importDatabase()))
 
     def saveNewConfig(self):
-        f = open('configGUI.py','w')
-        f.write('configData = ' + str(c.configData))
+        curDir = os.path.dirname(__file__)
+        f = open(curDir + 'configGUI.py','w')
+        newText = '# -*- coding: utf-8 -*-\nconfigData = ' + str(c.configData)
+        newText = newText.encode("utf-8")
+        f.write(newText)
         f.close()
         print 'Config file saved.'
-
 
     def nextId(self):
         return -1
@@ -481,13 +451,18 @@ class XStream(QObject):
 
 
 # main ========================================================================
-def main():
 
+
+def saveAndExit(app):
+    ImportDBPage.saveNewConfig
+    app.exec_()
+
+def main():
     app = QApplication(sys.argv)
     wiz = LicenseWizard()
     wiz.show()
 
-    sys.exit(app.exec_())
+    sys.exit(saveAndExit(app))
 
 if __name__ == '__main__':
     main()

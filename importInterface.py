@@ -65,9 +65,8 @@ Tuto proceduru spustíme, když pøejdeme na stránku import
 importDatabase = onImportDatabaseProc
 
 def main():
-    createDatabase()
-    importDatabase()
+   #createDatabase()
+   #importDatabase()
     pass
-
 if __name__ == '__main__':
     main()
