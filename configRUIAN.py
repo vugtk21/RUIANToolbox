@@ -11,6 +11,7 @@
 #-------------------------------------------------------------------------------
 
 SKIPNAMESPACEPREFIX = True
+FIELDS_KEY_NAME     = "fields"
 
 """ Slovník definující jednotlivé načítané tabulky. Pro každou tabulku je jeden
 záznam, jehož název (klíč) je shodný s názvem XML tagu. Např. <vf:Obce> budou uloženy
@@ -102,7 +103,7 @@ tableDef = {
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"KatastralniUzemi":{
-        "field":{
+        "fields":{
             "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "Nazev":                 {"type":"String"},
             "ExistujeDigitalniMapa": {"type":"Boolean"},
@@ -119,7 +120,7 @@ tableDef = {
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"Parcely":{
-        "field":{
+        "fields":{
             "Id":                    {"type":"Long", "notNull" : "yes", "pkey" : "yes"},
             "KmenoveCislo":          {"type":"Integer"},
             "PododdeleniCisla":      {"type":"Integer"},
@@ -139,7 +140,7 @@ tableDef = {
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"StavebniObjekty":{
-        "field":{
+        "fields":{
             "Kod":                     {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "CislaDomovni":            {"type":"Integer", "xmlSubPath" : "CislaDomovni/CisloDomovni"},  # kolekce cisel domovnich
             "IdentifikacniParcela":    {"type":"Long", "xmlSubPath" : "IdentifikacniParcela/Id"},       # parcela nebo jedna z parcel, na nich ...  je stavebni objekt postaven, zvolena pro identifikaci objektu
@@ -159,7 +160,7 @@ tableDef = {
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
 	"AdresniMista":{
-        "field":{
+        "fields":{
             "Kod":                    {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
             "CisloDomovni":           {"type":"Integer"},
             "CisloOrientacni":        {"type":"Integer"},

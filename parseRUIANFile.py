@@ -12,6 +12,9 @@
 import os, xml.parsers.expat
 import configRUIAN, DBHandlers, textFile_DBHandler
 
+# @TODO Doøešit duplicitní vnoøené názvy coi:Kod vs obi:Kod
+# @TODO Jak vyøešit UTF-8
+
 def getTabs(numTabs):
     result = ""
     for i in range(1, numTabs):
@@ -39,62 +42,64 @@ class RUIANParser:
         pass
 
     def importData(self, inputFileName, dbHandler):
-        self.dbHandler = dbHandler
+        """ Tato procedura importuje data ze souboru ve formátu výmìnného souboru
+            RUIAN inputFileName a uloží jednotlivé záznamy pomocí ovladaèe dbHandler.
+
+            @param {String} inputFileName Vstupní soubor ve formátu výmìnného souboru RÚIAN.
+            @param {String} inputFileName Vstupní soubor ve formátu výmìnného souboru RÚIAN.
+        """
         self.elemCount = 0
         self.elemPath = []
         self.elemLevel = 0;
         self.elemPathStr = ""
-        self.elemName = ""
-        self.insideTable = False
+        self.insideImportedTable = False # True, jestliže právì zpracovávanou tabulku máme zaškrtnutu importovat
         self.tableName = None
         self.allowedColumns = None
-        self.recordCloseTagName = ""
-        self.removeNamespace = True
+        self.recordTagName = ""
         self.recordValues = {}
         self.columnName = ""
 
         def start_element(name, attrs):
             """ Start element Handler. """
-            global allowedColumns, recordCloseTagName, removeNamespace, recordValues, columnName,  tableName
             self.elemCount = self.elemCount + 1
             self.elemLevel = self.elemLevel + 1
-            self.elemName = name
             name = name.replace("vf:", "")  # remove the namespace prefix
 
             # Jestliže jsme na úrovni datových tabulek, založíme ji
             if self.elemPathStr == "VymennyFormat\\Data":
-                if (configRUIAN.tableDef.has_key(name)):
-                    tableName = name
-                    self.dbHandler.createTable(tableName, True)
-                    self.insideTable = True
-
+                self.insideImportedTable = configRUIAN.tableDef.has_key(name)
+                self.tableName = name
+                self.insideTable = True
+                if self.insideImportedTable:
+                    dbHandler.createTable(self.tableName, True)
                     config = configRUIAN.tableDef[name]
-                    removeNamespace = configRUIAN.SKIPNAMESPACEPREFIX
+                    self.recordTagName = ""
 
                     # Najdeme sloupce k importu
-                    if config.has_key("field"):
-                         fieldDefs = config["field"]
-                         allowedColumns = fieldDefs.keys()
+                    if config.has_key(configRUIAN.FIELDS_KEY_NAME):
+                         fieldDefs = config[configRUIAN.FIELDS_KEY_NAME]
+                         self.allowedColumns = fieldDefs.keys()
                     else:
-                        allowedColumns = None
-                    print "allowedColumns:", allowedColumns
-
-                    recordCloseTagName = ""
+                        self.allowedColumns = None
+                    print self.tableName, ":", self.allowedColumns
                 else:
                     print name, "properties are not configured."
 
-            elif self.insideTable: # jsme uvnitø tabulky
-                if recordCloseTagName == "": # new table record
-                    recordCloseTagName = name
+            elif self.insideImportedTable: # jsme uvnitø tabulky
+                if self.recordTagName == "": # new table record
+                    self.recordTagName = name
                     self.newRecord()
-                elif (allowedColumns != None):
-                    if removeNamespace:
+                elif (self.allowedColumns != None):
+                    # Remove namespace prefix, if needed
+                    if configRUIAN.SKIPNAMESPACEPREFIX:
                         doubleDotPos = name.find(":")
                         if doubleDotPos >= 0:
                             name = name[doubleDotPos + 1:]
 
-                    if name in allowedColumns: # start of allowed column
-                        columnName = name
+                    if name in self.allowedColumns: # start of allowed column
+                        self.columnName = name
+                    else:
+                        self.columnName = ""
             else:
                 # Skipped tags
                 pass
@@ -104,16 +109,19 @@ class RUIANParser:
 
         def end_element(name):
             """ End element Handler """
-            #global    tableName, allowedColumns, recordCloseTagName, columnName, recordValues
-            name = name.replace("vf:", "")  # remove namespace prefix
-            if self.tableName == name:
-                self.insideTable = False
-                tableName = None
-                allowedColumns = None
-            elif self.recordCloseTagName == name:
-                self.recordCloseTagName = ""
-                if self.insideTable:
-                    self.dbHandler.writeRowToTable(self.tableName, self.recordValues)
+            name = name.replace("vf:", "")          # remove namespace prefix
+
+            # close table
+            if self.insideImportedTable and self.tableName == name and self.elemLevel == 3:
+                self.insideImportedTable = False
+                self.tableName = None
+                self.allowedColumns = None
+
+            # close record
+            elif self.recordTagName == name:
+                self.recordTagName = ""
+                if self.insideImportedTable:
+                    dbHandler.writeRowToTable(self.tableName, self.recordValues)
                     self.recordValues = {}
 
             self.elemPath.remove(self.elemPath[len(self.elemPath) - 1])
@@ -122,8 +130,12 @@ class RUIANParser:
             pass
 
         def char_data(data):
-            if self.columnName != "":
-                self.recordValues[self.columnName] = repr(data)
+            if self.columnName <> "" and not self.recordValues.has_key(self.columnName):
+                #value = repr(data)
+                #if isinstance(value, unicode):
+                #    value = value.encode('ascii','ignore')
+
+                self.recordValues[self.columnName] = data
 
         p = xml.parsers.expat.ParserCreate()
 
@@ -141,9 +153,10 @@ class RUIANParser:
         pass
 
 
-
-vfFileName = "G:\\02_OpenIssues\\07_Euradin\\01_Data\\20130331_OB_539228_UKSH.xml"
-#vfFileName = "G:\02_OpenIssues\07_Euradin\01_Data\20130331_OB_554782_UKSH.xml"
+vfDataPath = "I:\\02_OpenIssues\\07_Euradin\\01_Data\\"
+vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
+vfFileName = vfDataPath + "20130331_OB_554782_UKSH.xml"
+#vfFileName = vfDataPath + "20130331_OB_554782_UZSZ.xml"
 
 parser = RUIANParser()
-parser.importData(vfFileName, textFile_DBHandler.Handler("G:\\02_OpenIssues\\07_Euradin\\01_Data\\"))
+parser.importData(vfFileName, textFile_DBHandler.Handler(vfDataPath))

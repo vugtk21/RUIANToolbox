@@ -9,7 +9,31 @@
 # Copyright:   (c) Radecek 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import configRUIAN, configReader
+import configRUIAN, configReader, configGUI
+#import textFile_DBHandler, postGIS_DBHandler
+
+databaseHandlers = {}
+databaseHandler = None
+
+##def postGISParams():
+##    result = ""
+##    for key in configGUI.configData['postGIS_DBHandler']:
+##        if key <> 'schemaName':
+##            if result <> "":
+##                result = result + ' '
+##            result = result + key + "=" + configGUI.configData['postGIS_DBHandler'][key]
+##    return result
+##
+##def databaseTypeChanged():
+##    global databaseExists
+##    databaseType = configGUI.configData['selectedDatabaseType']
+##    if databaseType == "postGIS_DBHandler":
+##        databaseHandler = textFile_DBHandler.Handler(configGUI.configData['textFile_DBHandler']['dataDirectory'])
+##    elif databaseType == "postGIS_DBHandler":
+##        databaseHandler = postGIS_DBHandler.Handler(postGISParams(), configGUI.configData['postGIS_DBHandler']['schemaName'])
+##    else:
+##        databaseHandler = None
+##    pass
 
 def dummyMessageProc(message, tabLevel = 0):
     tabStr = ""
@@ -19,23 +43,40 @@ def dummyMessageProc(message, tabLevel = 0):
     pass
 
 def dummyCreateDatabaseProc():
-    displayMessage("Creating database")
-    for tableName in configRUIAN.tableDef:
-        displayMessage("Creating table " + tableName, 1)
-        fields = configReader.getTableFields(tableName)
-        displayMessage("fields:" + str(fields), 2)
-    displayMessage("Done")
+    if databaseHandler == None:
+        displayMessage("Creating database")
+        for tableName in configRUIAN.tableDef:
+            displayMessage("Creating table " + tableName, 1)
+            fields = configReader.getTableFields(tableName)
+            displayMessage("fields:" + str(fields), 2)
+        displayMessage("Done")
+    else:
+        #databaseHandler.c
+        # @TODO
+        pass
+
     pass
 
 def onImportDatabaseProc():
-    displayMessage("Importing database")
-    displayMessage("Importing file file1.xml", 1)
-    displayMessage("Importing file file2.xml", 1)
-    displayMessage("Done")
+    if databaseHandler == None:
+        displayMessage("Importing database")
+        displayMessage("Importing file file1.xml", 1)
+        displayMessage("Importing file file2.xml", 1)
+        displayMessage("Done")
+    else:
+        #databaseHandler.c
+        # @TODO
+        pass
+
     pass
 
 def onDatabaseExistsProc():
-    return False
+    if databaseHandler == None:
+        return False
+    else:
+        #databaseHandler.c
+        # @TODO
+        pass
 
 """
 Tato procedura by mìla vypisovat do konzole obsah parametru message. Vzhledem k

@@ -9,9 +9,8 @@
 # Copyright:   (c) Radek Augustýn 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import os
-import DBHandlers
-import configRUIAN, configReader
+import os, codecs
+import DBHandlers, configRUIAN, configReader, importInterface
 
 DATAFILEEXTENSION = ".txt"
 
@@ -55,6 +54,8 @@ class Handler:
 
     def tableNameToFileName(self, tableName):
         ''' '''
+        if isinstance(tableName, unicode):
+            tableName = tableName.encode('ascii','ignore')
         return self.databasePath + tableName + DATAFILEEXTENSION
 
     def tableExists(self, tableName):
@@ -69,18 +70,36 @@ class Handler:
                 fileMode = "a"
             else:
                 fileMode = "w"
-            self.openedFiles[tableName] = open(self.tableNameToFileName(tableName), fileMode)
-        fields = configReader.getTableFields(tableName)
-        if fields != None:
-            self.openedFiles[tableName].write(str(fields))
+            self.openedFiles[tableName] = codecs.open(self.tableNameToFileName(tableName), fileMode, "utf-8")
+            fields = configReader.getTableFields(tableName)
+            if fields != None:
+                f = self.openedFiles[tableName]
+                f.write(",".join(fields) + "\n")
+                f.flush()
 
         return True
 
     def writeRowToTable(self, tableName, columnValues):
         ''' Zapíše nový řádek do databáze s hodnotami uloženými v dictionary columnValues '''
-        self.createTable(tablename, false)
+        self.createTable(tableName, False)
         f = self.openedFiles[tableName]
-        f.write(str(columnValues) + "\n")
+        fields = configReader.getTableFields(tableName)
+        if fields != None:
+            values = []
+            for key in fields:
+                if columnValues.has_key(key):
+                    value = columnValues[key]
+                else:
+                    value = ""
+
+                #if isinstance(value, unicode):
+                #    value = value.encode('ascii','ignore')
+
+                values.append(value)
+
+            f.write(",".join(values) + "\n")
+        #f.write(",".join(columnValues.values()) + "\n")
+        #f.write(str(columnValues) + "\n")
 
         return True
 
