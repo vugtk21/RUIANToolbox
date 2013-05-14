@@ -33,12 +33,12 @@ class RUIANParser:
         souborù'''
         pass
 
-    def newRecord():
+    def newRecord(self):
         self.recordValues = {}
         self.columnName = ""
         pass
 
-    def importData(inputFileName, dbHandler):
+    def importData(self, inputFileName, dbHandler):
         self.dbHandler = dbHandler
         self.elemCount = 0
         self.elemPath = []
@@ -52,21 +52,6 @@ class RUIANParser:
         self.removeNamespace = True
         self.recordValues = {}
         self.columnName = ""
-
-        p = xml.parsers.expat.ParserCreate()
-
-        # Assign event handlers to expat parser
-        p.StartElementHandler = start_element
-        p.EndElementHandler = end_element
-        p.CharacterDataHandler = char_data
-
-        # Open and process XML file
-        f = open(inputFileName, "rt")
-        p.ParseFile(f)
-        f.close()
-
-        print (self.elemCount, "xml elements read")
-        pass
 
         def start_element(name, attrs):
             """ Start element Handler. """
@@ -84,7 +69,7 @@ class RUIANParser:
                     self.insideTable = True
 
                     config = configRUIAN.tableDef[name]
-                    removeNamespace = config["skipNamespacePrefix"]
+                    removeNamespace = configRUIAN.SKIPNAMESPACEPREFIX
 
                     # Najdeme sloupce k importu
                     if config.has_key("field"):
@@ -119,17 +104,17 @@ class RUIANParser:
 
         def end_element(name):
             """ End element Handler """
-            global    tableName, allowedColumns, recordCloseTagName, columnName, recordValues
+            #global    tableName, allowedColumns, recordCloseTagName, columnName, recordValues
             name = name.replace("vf:", "")  # remove namespace prefix
-            if tableName == name:
+            if self.tableName == name:
                 self.insideTable = False
                 tableName = None
                 allowedColumns = None
-            elif recordCloseTagName == name:
-                recordCloseTagName = ""
+            elif self.recordCloseTagName == name:
+                self.recordCloseTagName = ""
                 if self.insideTable:
-                    self.dbHandler.writeRowToTable(tableName, recordValues)
-                    recordValues = {}
+                    self.dbHandler.writeRowToTable(self.tableName, self.recordValues)
+                    self.recordValues = {}
 
             self.elemPath.remove(self.elemPath[len(self.elemPath) - 1])
             self.elemPathStr = "\\".join(self.elemPath)
@@ -137,9 +122,24 @@ class RUIANParser:
             pass
 
         def char_data(data):
-            global columnName, recordValues
-            if columnName != "":
-                recordValues[columnName] = repr(data)
+            if self.columnName != "":
+                self.recordValues[self.columnName] = repr(data)
+
+        p = xml.parsers.expat.ParserCreate()
+
+        # Assign event handlers to expat parser
+        p.StartElementHandler = start_element
+        p.EndElementHandler = end_element
+        p.CharacterDataHandler = char_data
+
+        # Open and process XML file
+        f = open(inputFileName, "rt")
+        p.ParseFile(f)
+        f.close()
+
+        print (self.elemCount, "xml elements read")
+        pass
+
 
 
 vfFileName = "G:\\02_OpenIssues\\07_Euradin\\01_Data\\20130331_OB_539228_UKSH.xml"
