@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        configReader
 # Purpose:     Pomocné funkce pro interpretaci knihovny configRUIAN.py

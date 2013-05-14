@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        configRUIAN
 # Purpose:     Definuje hodnoty načítané z exportního souboru RÚIAN

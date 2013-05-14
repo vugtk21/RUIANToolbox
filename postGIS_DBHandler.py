@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        textFile_DBHandler
 # Purpose:     Implementuje ovladač pro souborovou databázi.
@@ -56,6 +56,36 @@ def ruianToPostGISColumnName(XMLTagName, removeNamespace):
 
     return result
 
+def ruianPostGISTablesStructure(schemaName, tableName):
+    tableCreateSQL = "CREATE TABLE " + schemaName + '.' + ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX) + "("
+    for item in configRUIAN.tableDef[tableName]:
+            if item == 'fields':
+                numFields = 1
+                pKey = ''
+                for fieldName in configRUIAN.tableDef[tableName][item]:
+                    if numFields < len(configRUIAN.tableDef[tableName][item]):
+                        separator = ','
+                    else:
+                        separator = ''
+                    numFields = numFields + 1
+                    fieldDef = ruianToPostGISColumnName(
+                       fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + ' ' + \
+                       ruianToPostGISDBTypes[configRUIAN.tableDef[tableName][item][fieldName]['type']]
+                    if configRUIAN.tableDef[tableName][item][fieldName].has_key('notNull'):
+                        if configRUIAN.tableDef[tableName][item][fieldName]['notNull'] == 'yes':
+                            fieldDef = fieldDef + ' NOT NULL'
+                        if configRUIAN.tableDef[tableName][item][fieldName]['pkey'] == 'yes':
+                            pKey = ',CONSTRAINT ' + \
+                                   ruianToPostGISColumnName(
+                                     (tableName + '_' +   fieldName),
+                                     configRUIAN.SKIPNAMESPACEPREFIX) + \
+                                     '_pk PRIMARY KEY (' + \
+                                     ruianToPostGISColumnName(fieldName,configRUIAN.SKIPNAMESPACEPREFIX) + ')'
+                    fieldDef = fieldDef + separator
+                    tableCreateSQL = tableCreateSQL + fieldDef
+                tableCreateSQL = tableCreateSQL + pKey + ") WITH (OIDS=FALSE);"
+    return tableCreateSQL
+
 def getRuianPostGISTableStructure():
     """ """
     result = {}
@@ -98,10 +128,9 @@ class Handler:
     def __init__(self, connectionParams, schemaName):
         ''' Nastavuje proměnnou databasePath a inicializuje seznam otevřených
         souborů'''
-        self.connection = psycopg2.connect(connectionParams)
-        self.cursor = connection.cursor()
-        self.cursor = cursor
         self.schemaName = schemaName
+        self.connection = psycopg2.connect(connectionParams)
+        self.cursor = self.connection.cursor()
 
         pass
 
@@ -119,7 +148,7 @@ class Handler:
 
     def __del__(self):
         ''' Destruktor, volá odpojení od databáze. '''
-        _disconnect()
+        self._disconnect
 
     def closeTable(self, tableName):
         ''' Uzavírá tabulku tableName '''
@@ -129,15 +158,16 @@ class Handler:
     def deleteTable(self, tableName):
         ''' Uvolňuje tabulku tableName, vrací True pokud se podařilo  '''
         if self.tableExists(tableName):
-            SQL = ("DROP TABLE %s;") %(tableName)
-            cursor.execute(SQL)
-            return True # ??? Nevraci nahodou cursor.execute chybu???
+            SQL = ("DROP TABLE %s;") %(ruianToPostGISColumnName(tableName, True))
+            self.cursor.execute(SQL)
+            self.connection.commit()
+            return True
         else:
             return False
 
     def tableExists(self, tableName):
         ''' Vrací True, jestliže tabulka tableName v databázi existuje. '''
-        SQL= ("select * from pg_tables where (schemaname = '%s' and tablename = '%s');") % (self.schemaName,tableName)
+        SQL= ("select * from pg_tables where (schemaname = '%s' and tablename = '%s');") % (self.schemaName,ruianToPostGISColumnName(tableName, True))
         self.cursor.execute(SQL)
         return self.cursor.rowcount > 0
 
@@ -145,24 +175,38 @@ class Handler:
         ''' Vytvoří tabulku tableName, pokud ještě neexistuje, se sloupci podle definice v
         configRUIAN.tableDef.'''
         if overwriteIfExists and self.tableExists(tableName):
-            deleteTable(tableName)
+            self.deleteTable(ruianToPostGISColumnName(tableName, True))
 
         if not self.tableExists(tableName):
-            cursor.execute(getTablesSQDef(self.schemaName, tableName, ruianPostGISTablesStructure[tableName]))
+            SQL = ruianPostGISTablesStructure(self.schemaName, tableName)
+            self.cursor.execute(SQL)
+            self.connection.commit()
 
         return True
 
     def writeRowToTable(self, tableName, columnValues):
         ''' Zapíše nový řádek do databáze s hodnotami uloženými v dictionary columnValues '''
+        self.createTable(tableName,False)
+        comma = ''
+        fieldsList = ''
+        valuesList = ''
+        for field in columnValues:
+            fieldsList = fieldsList + comma + ruianToPostGISColumnName(field,True)
+            valuesList = valuesList + comma + "'" + columnValues[field] + "'"
+            comma = ','
 
-        return False
+        SQL = "INSERT INTO " + ruianToPostGISColumnName(tableName,True) + "(" + fieldsList + ") VALUES (" + valuesList +  ");"
+        self.cursor.execute(SQL)
+        self.connection.commit()
+
+        return True
 
 import unittest
 
 class TestHandler(DBHandlers.TestHandler):
     def setUp(self):
         DBHandlers.TestHandler.setUp(self)
-        self.h = Handler("", "")
+        self.h = Handler("dbname=euradin host=localhost port=5432 user=postgres password=postgres","public")
 
 class TestGlobalFunctions(unittest.TestCase):
 
