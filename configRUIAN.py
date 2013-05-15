@@ -41,7 +41,9 @@ tableDef = {
             "OriginalniHranice":     {"type":"MultiSurfacePropertyType", "xmlSubPath" : "Geometrie/OriginalniHranice"}
         },
         # indexy se nadefinuji podle toho, jak se bude vyhledavat
-        "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
+        "indexes":{
+             "Nazev":{"fields":"Nazev","idxtype":"btree","cluster":"yes"}
+        }
         },
     "CastiObci": {
         "fields":{

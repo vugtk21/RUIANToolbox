@@ -10,8 +10,14 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import psycopg2
-import os
+import os, string
 import DBHandlers, configRUIAN, configReader
+
+fieldPostGISGeom = {
+ "MultiPointPropertyType"  : "point",
+ "MultiCurvePropertyType"  : "line",
+ "MultiSurfacePropertyType" : "poly"
+}
 
 # RUIAN to PostGIS SQL conversion table
 ruianToPostGISDBTypes = {
@@ -24,6 +30,14 @@ ruianToPostGISDBTypes = {
  "MultiCurvePropertyType"  : "text",
  "MultiSurfacePropertyType" : "text"
 }
+
+def ruianToPostGISMultipoint(elementXML):
+    if string.find(elementXML,'pointMembers'):
+        result = string.replace(elementXML,'pointMembers','pointMember')
+
+    return result
+    pass
+
 
 def ruianToPostGISColumnName(XMLTagName, removeNamespace):
     """ if removeNamespace is set to true, than removes namespace prefix from XMLTagName
@@ -71,6 +85,9 @@ def ruianPostGISTablesStructure(schemaName, tableName):
                     fieldDef = ruianToPostGISColumnName(
                        fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + ' ' + \
                        ruianToPostGISDBTypes[configRUIAN.tableDef[tableName][item][fieldName]['type']]
+                    if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName][item][fieldName]['type']):
+                        fieldDef = fieldDef + ', ' + ruianToPostGISColumnName(fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']] + ' geometry'
+
                     if configRUIAN.tableDef[tableName][item][fieldName].has_key('notNull'):
                         if configRUIAN.tableDef[tableName][item][fieldName]['notNull'] == 'yes':
                             fieldDef = fieldDef + ' NOT NULL'
@@ -85,40 +102,6 @@ def ruianPostGISTablesStructure(schemaName, tableName):
                     tableCreateSQL = tableCreateSQL + fieldDef
                 tableCreateSQL = tableCreateSQL + pKey + ") WITH (OIDS=FALSE);"
     return tableCreateSQL
-
-def getRuianPostGISTableStructure():
-    """ """
-    result = {}
-    for tableName in configRUIAN.tableDef:
-        tableCreateSQL = "CREATE TABLE " + ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX) + "("
-        for item in tableDef[tableName]:
-            if item == 'fields':
-                numFields = 1
-                pKey = ''
-                for fieldName in tableDef[tableName][item]:
-                    if numFields < len(tableDef[tableName][item]):
-                        separator = ','
-                    else:
-                        separator = ''
-                    numFields = numFields + 1
-                    fieldDef = ruianToPostGISColumnName(
-                       fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + ' ' + \
-                       ruianToPostGISDBTypes[tableDef[tableName][item][fieldName]['type']]
-                    if tableDef[tableName][item][fieldName].has_key('notNull'):
-                        if tableDef[tableName][item][fieldName]['notNull'] == 'yes':
-                            fieldDef = fieldDef + ' NOT NULL'
-                        if tableDef[tableName][item][fieldName]['pkey'] == 'yes':
-                            pKey = ',CONSTRAINT ' + \
-                                   ruianToPostGISColumnName(
-                                     (tableName + '_' +   fieldName),
-                                     configRUIAN.SKIPNAMESPACEPREFIX) + \
-                                     '_pk PRIMARY KEY (' + \
-                                     ruianToPostGISColumnName(fieldName,configRUIAN.SKIPNAMESPACEPREFIX) + ')'
-                    fieldDef = fieldDef + separator
-                    tableCreateSQL = tableCreateSQL + fieldDef
-                tableCreateSQL = tableCreateSQL + pKey + ") WITH (OIDS=FALSE);"
-                result[tableName] = tableCreateSQL
-    return result
 
 class Handler:
     """ Implementace souborové databáze. Databáze je celá uložena v jednom
@@ -158,7 +141,7 @@ class Handler:
     def deleteTable(self, tableName):
         ''' Uvolňuje tabulku tableName, vrací True pokud se podařilo  '''
         if self.tableExists(tableName):
-            SQL = ("DROP TABLE %s;") %(ruianToPostGISColumnName(tableName, True))
+            SQL = ("DROP TABLE %s CASCADE;") %(ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
             self.cursor.execute(SQL)
             self.connection.commit()
             return True
@@ -167,15 +150,40 @@ class Handler:
 
     def tableExists(self, tableName):
         ''' Vrací True, jestliže tabulka tableName v databázi existuje. '''
-        SQL= ("select * from pg_tables where (schemaname = '%s' and tablename = '%s');") % (self.schemaName,ruianToPostGISColumnName(tableName, True))
+        SQL= ("select * from pg_tables where (schemaname = '%s' and tablename = '%s');") % (self.schemaName,ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
         self.cursor.execute(SQL)
         return self.cursor.rowcount > 0
+
+    def createIndexes(self, tableName):
+        ''' Vytvori index'''
+        SQL = '''
+            SELECT
+            a.attname::text AS f_geometry_column
+            FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
+            WHERE
+            t.typname = 'geometry'::name AND a.attisdropped = false AND a.atttypid = t.oid
+            AND a.attrelid = c.oid AND c.relnamespace = n.oid
+            AND (c.relkind = 'r'::"char" OR c.relkind = 'v'::"char")
+            AND NOT pg_is_other_temp_schema(c.relnamespace)
+            AND NOT (n.nspname = 'public'::name AND c.relname = 'raster_columns'::name)
+            AND has_table_privilege(c.oid, 'SELECT'::text)
+            '''
+        SQL = SQL + "AND n.nspname = '%s' AND c.relname = '%s';" % (self.schemaName,ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
+
+        self.cursor.execute(SQL)
+        geomFields = self.cursor.fetchall()
+        for geomField in geomFields:
+            SQL = 'CREATE INDEX %s_%s_gidx ON %s USING gist(%s)'%(ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX),geomField[0],ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX),geomField[0])
+            self.cursor.execute(SQL)
+            self.connection.commit()
+
+        return True
 
     def createTable(self, tableName, overwriteIfExists = False):
         ''' Vytvoří tabulku tableName, pokud ještě neexistuje, se sloupci podle definice v
         configRUIAN.tableDef.'''
         if overwriteIfExists and self.tableExists(tableName):
-            self.deleteTable(ruianToPostGISColumnName(tableName, True))
+            self.deleteTable(ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
 
         if not self.tableExists(tableName):
             SQL = ruianPostGISTablesStructure(self.schemaName, tableName)
@@ -191,9 +199,22 @@ class Handler:
         fieldsList = ''
         valuesList = ''
         for field in columnValues:
-            fieldsList = fieldsList + comma + ruianToPostGISColumnName(field,True)
+            # sestaveni seznamu atr. poli
+            fieldsList = fieldsList + comma + ruianToPostGISColumnName(field,configRUIAN.SKIPNAMESPACEPREFIX)
+
+            # sestaveni seznamu HODNOT atr. poli
             valuesList = valuesList + comma + "'" + columnValues[field] + "'"
+
+            # uprava GML tak aby fungovaly funkce PGIS
+            if field == 'DefinicniBod':
+                columnValues[field] = ruianToPostGISMultipoint(columnValues[field])
+
             comma = ','
+
+            # doplneni PostGIS geometrie
+            if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName]['fields'][field]['type']):
+                fieldsList = fieldsList + comma + ruianToPostGISColumnName(field, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName]['fields'][field]['type']]
+                valuesList = valuesList + comma + "st_geomfromgml('" + columnValues[field] + "')"
 
         SQL = "INSERT INTO " + ruianToPostGISColumnName(tableName,True) + "(" + fieldsList + ") VALUES (" + valuesList +  ");"
         self.cursor.execute(SQL)
