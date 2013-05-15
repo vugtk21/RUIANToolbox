@@ -19,6 +19,8 @@ import sys,os
 import configGUI as c
 import importInterface
 
+config = c.configData
+
 class LicenseWizard(QWizard):
     NUM_PAGES = 8
 
@@ -51,15 +53,14 @@ class LicenseWizard(QWizard):
         self.setButtonText(self.FinishButton,QApplication.translate("LicenseWizard", 'Konec', None, QApplication.UnicodeUTF8))
 
         self.prevId = None
-        self.currentIdChanged.connect(self.onIDChanged)
+        self.currentIdChanged.connect(self.onIdChanged)
 
-    def onIDChanged(self, id):
+    def onIdChanged(self, id):
         if self.prevId <> None and self.prevId < id:
             if id == 5:
                 importInterface.createDatabase()
-            elif id == 7:
+            if id == 7:
                 importInterface.importDatabase()
-
         self.prevId = id
 
 class IntroPage(QWizardPage):
@@ -96,17 +97,17 @@ class DatabaseTypePage(QWizardPage):
         self.connect(self.pgRB, SIGNAL("clicked()"), self.updateDatabaseTypePG)
 
     def setCheckedButton(self):
-        dbType = c.configData['selectedDatabaseType']
+        dbType = config['selectedDatabaseType']
         if dbType == 'textFile_DBHandler':
             return self.textRB.setChecked(True)
         elif dbType == 'postGIS_DBHandler':
             return self.pgRB.setChecked(True)
 
     def updateDatabaseTypeText(self):
-        c.configData['selectedDatabaseType'] = 'textFile_DBHandler'
+        config['selectedDatabaseType'] = 'textFile_DBHandler'
 
     def updateDatabaseTypePG(self):
-        c.configData['selectedDatabaseType'] = 'postGIS_DBHandler'
+        config['selectedDatabaseType'] = 'postGIS_DBHandler'
 
     def nextId(self):
         if self.textRB.isChecked():
@@ -121,7 +122,7 @@ class TextFileDBHandlerPage(QWizardPage):
         self.setTitle(QApplication.translate("TextFileDBHandlerPage", 'Načtení databáze', None, QApplication.UnicodeUTF8))
 
         self.SQLPathLabel = QLabel(QApplication.translate("TextFileDBHandlerPage", 'Načíst z adresáře', None, QApplication.UnicodeUTF8))
-        self.path = c.configData['textFile_DBHandler']['dataDirectory']
+        self.path = config['textFile_DBHandler']['dataDirectory']
         self.SQLPath = QLineEdit(self.path)
         self.SQLPathLabel.setBuddy(self.SQLPath)
         self.SQLPath.textChanged[str].connect(self.updateSQLPath)
@@ -140,7 +141,7 @@ class TextFileDBHandlerPage(QWizardPage):
         self.connect(self.openButton, SIGNAL("clicked()"), self.setPath)
 
     def updateSQLPath(self, value):
-        c.configData['textFile_DBHandler']['dataDirectory'] = str(value)
+        config['textFile_DBHandler']['dataDirectory'] = str(value)
 
     def setPath(self):
         filedialog = QFileDialog.getExistingDirectory(self,QApplication.translate("TextFileDBHandlerPage", 'Výběr adresáře', None, QApplication.UnicodeUTF8))
@@ -157,32 +158,32 @@ class PostGISDBHandlerPage(QWizardPage):
         self.setTitle(QApplication.translate("PostGISDBHandlerPage", 'Parametry připojení do databáze PostGIS', None, QApplication.UnicodeUTF8))
 
         dbNameLabel = QLabel("dbname")
-        dbName = QLineEdit(c.configData['postGIS_DBHandler']['dbname'])
+        dbName = QLineEdit(config['postGIS_DBHandler']['dbname'])
         dbNameLabel.setBuddy(dbName)
         dbName.textChanged[str].connect(self.updatedbName)
 
         hostLabel = QLabel("host")
-        host = QLineEdit(c.configData['postGIS_DBHandler']['host'])
+        host = QLineEdit(config['postGIS_DBHandler']['host'])
         hostLabel.setBuddy(host)
         host.textChanged[str].connect(self.updateHost)
 
         portLabel = QLabel("port")
-        port = QLineEdit(c.configData['postGIS_DBHandler']['port'])
+        port = QLineEdit(config['postGIS_DBHandler']['port'])
         portLabel.setBuddy(port)
         port.textChanged[str].connect(self.updatePort)
 
         userLabel = QLabel("user")
-        user = QLineEdit(c.configData['postGIS_DBHandler']['user'])
+        user = QLineEdit(config['postGIS_DBHandler']['user'])
         userLabel.setBuddy(user)
         user.textChanged[str].connect(self.updateUser)
 
         passwordLabel = QLabel("password")
-        password = QLineEdit(c.configData['postGIS_DBHandler']['password'])
+        password = QLineEdit(config['postGIS_DBHandler']['password'])
         passwordLabel.setBuddy(password)
         password.textChanged[str].connect(self.updatePassword)
 
         schemaNameLabel = QLabel("schemaName")
-        schemaName = QLineEdit(c.configData['postGIS_DBHandler']['schemaName'])
+        schemaName = QLineEdit(config['postGIS_DBHandler']['schemaName'])
         schemaNameLabel.setBuddy(schemaName)
         schemaName.textChanged[str].connect(self.updateSchemaName)
 
@@ -202,29 +203,29 @@ class PostGISDBHandlerPage(QWizardPage):
         self.setLayout(grid)
 
     def updatedbName(self, value):
-        c.configData['postGIS_DBHandler']['dbname'] = str(value)
+        config['postGIS_DBHandler']['dbname'] = str(value)
 
     def updateHost(self, value):
-        c.configData['postGIS_DBHandler']['host'] = str(value)
+        config['postGIS_DBHandler']['host'] = str(value)
 
     def updatePort(self, value):
-        c.configData['postGIS_DBHandler']['port'] = str(value)
+        config['postGIS_DBHandler']['port'] = str(value)
 
     def updateUser(self, value):
-        c.configData['postGIS_DBHandler']['user'] = str(value)
+        config['postGIS_DBHandler']['user'] = str(value)
 
     def updatePassword(self, value):
-        c.configData['postGIS_DBHandler']['password'] = str(value)
+        config['postGIS_DBHandler']['password'] = str(value)
 
     def updateSchemaName(self, value):
-        c.configData['postGIS_DBHandler']['schemaName'] = str(value)
+        config['postGIS_DBHandler']['schemaName'] = str(value)
 
     def nextId(self):
         return LicenseWizard.PageSetupDB
 
 class SetupDBPage(QWizardPage):
 
-    treeViewSetting = c.configData['treeViewSet']
+    treeViewSetting = config['treeViewSet']
 
     def __init__(self, parent=None):
         super(SetupDBPage, self).__init__(parent)
@@ -234,7 +235,6 @@ class SetupDBPage(QWizardPage):
         self.treeWidget = QTreeWidget()
         self.treeWidget.setHeaderHidden(True)
         self.addItems(self.treeWidget.invisibleRootItem())
-        #self.treeWidget.itemChanged.connect (self.handleChanged)
         self.treeWidget.itemChanged.connect (self.checkBoxDriver)
         self.treeWidget.itemChanged.connect (self.rewriteConfig)
 
@@ -249,8 +249,8 @@ class SetupDBPage(QWizardPage):
         for name in names:
             if 'Root' not in name:
                 nameParent = name
-                statusName = self.treeViewSetting[name + 'Root']
-                nameParent = self.addParent(parent, column, str(name), 'data ' + str(name), statusName)
+                statusParent = self.treeViewSetting[name + 'Root']
+                nameParent = self.addParent(parent, column, str(name), 'data ' + str(name), statusParent)
                 atribs = self.treeViewSetting[name].keys()
                 for atr in atribs:
                     statusAtr = self.treeViewSetting[name][atr]
@@ -279,7 +279,7 @@ class SetupDBPage(QWizardPage):
             return Qt.Unchecked
 
     def checkBoxDriver(self, item, column):
-        if item.text(column) in self.treeViewSetting.keys():
+        if self.hasParent(item, column) == False:  #  zmenou u rodice se zmeni i vsechny deti
             myChildCount = item.childCount()
             for i in range (0, myChildCount):
                 myChild = item.child(i)
@@ -301,17 +301,17 @@ class SetupDBPage(QWizardPage):
         if self.hasParent(item, column) == True:                    #  = nazev tabulky
             parentText = str(parent.text(column))
             if item.checkState(column) == Qt.Checked:
-                c.configData['treeViewSet'][parentText][itemText] = 'True'
+                config['treeViewSet'][parentText][itemText] = 'True'
             if item.checkState(column) == Qt.Unchecked:
-                c.configData['treeViewSet'][parentText][itemText] = 'False'
+                config['treeViewSet'][parentText][itemText] = 'False'
 
         else:              #  = nazev atributu
             if item.checkState(column) == Qt.Checked:
-                c.configData['treeViewSet'][itemText + 'Root'] = 'True'
+                config['treeViewSet'][itemText + 'Root'] = 'True'
             if item.checkState(column) == Qt.PartiallyChecked:
-                c.configData['treeViewSet'][itemText + 'Root'] = 'Semi'
+                config['treeViewSet'][itemText + 'Root'] = 'Semi'
             if item.checkState(column) == Qt.Unchecked:
-                c.configData['treeViewSet'][itemText + 'Root'] = 'False'
+                config['treeViewSet'][itemText + 'Root'] = 'False'
 
 
     def nextId(self):
@@ -333,7 +333,6 @@ class CreateDBStructurePage(QWizardPage):
         grid.addWidget(self._console,3,0)
         self.setLayout(grid)
 
-    def initializePage(self):
         # create connections
         XStream.stdout().messageWritten.connect( self._console.insertPlainText )
         XStream.stderr().messageWritten.connect( self._console.insertPlainText )
@@ -348,12 +347,12 @@ class ImportParametersPage(QWizardPage):
         self.setTitle(self.tr("Parametry importu"))
 
         self.dirLabel = QLabel(QApplication.translate("ImportParametersPage", 'Adresář s daty RÚIAN', None, QApplication.UnicodeUTF8))
-        self.setDir = QLineEdit(c.configData['importParameters']['dataRUIANDir'])
+        self.setDir = QLineEdit(config['importParameters']['dataRUIANDir'])
         self.dirLabel.setBuddy(self.setDir)
         self.setDir.textChanged[str].connect(self.updateDir)
 
         self.suffixLabel = QLabel(QApplication.translate("CreateDBStructurePage", 'Přípona souboru', None, QApplication.UnicodeUTF8))
-        self.suffix = QLineEdit(c.configData['importParameters']['suffix'])
+        self.suffix = QLineEdit(config['importParameters']['suffix'])
         self.suffixLabel.setBuddy(self.suffix)
         self.suffix.textChanged[str].connect(self.updateSuffix)
 
@@ -363,10 +362,12 @@ class ImportParametersPage(QWizardPage):
         self.openButton1.setIcon(QIcon(self.pictureName))
 
         self.walkDir = QCheckBox(QApplication.translate("ImportParametersPage", 'Včetně podadresářů', None, QApplication.UnicodeUTF8))
-        if c.configData['importParameters']['subDirs'] == 'True':
+
+        if config['importParameters']['subDirs'] == 'True':
             self.walkDir.setCheckState(Qt.Checked)
         else:
             self.walkDir.setCheckState(Qt.Unchecked)
+
         self.walkDir.stateChanged[int].connect(self.updateSubDirs)
 
         grid = QGridLayout()
@@ -381,16 +382,16 @@ class ImportParametersPage(QWizardPage):
         self.connect(self.openButton1, SIGNAL("clicked()"), self.setPath1)
 
     def updateDir(self, value):
-        c.configData['importParameters']['dataRUIANDir'] = str(value)
+        config['importParameters']['dataRUIANDir'] = str(value)
 
     def updateSuffix(self, value):
-        c.configData['importParameters']['suffix'] = str(value)
+        config['importParameters']['suffix'] = str(value)
 
     def updateSubDirs(self, value):
         if value == 2:
-            c.configData['importParameters']['subDirs'] = 'True'
+            config['importParameters']['subDirs'] = 'True'
         else:
-            c.configData['importParameters']['subDirs'] = 'False'
+            config['importParameters']['subDirs'] = 'False'
 
     def setPath1(self):
         dirDialog = QFileDialog.getExistingDirectory(self, QApplication.translate("CreateDBStructurePage", 'Výběr adrešáře', None, QApplication.UnicodeUTF8))
@@ -407,27 +408,12 @@ class ImportDBPage(QWizardPage):
         self.setTitle(self.tr(u"Import"))
 
         self._console = QTextBrowser(self)
+        XStream.stdout().messageWritten.connect( self._console.insertPlainText )
+        XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 
         grid = QGridLayout()
         grid.addWidget(self._console,0,0)
         self.setLayout(grid)
-
-    def initializePage(self):
-        # create connections
-        XStream.stdout().messageWritten.connect( self._console.insertPlainText )
-        XStream.stderr().messageWritten.connect( self._console.insertPlainText )
-
-    def completeChanged(self):
-        importInterface.importDatabase()
-
-    def saveNewConfig(self):
-        curDir = os.path.dirname(__file__)
-        f = open(curDir + 'configGUI.py','w')
-        newText = '# -*- coding: utf-8 -*-\nconfigData = ' + str(c.configData)
-        newText = newText.encode("utf-8")
-        f.write(newText)
-        f.close()
-        print 'Config file saved.'
 
     def nextId(self):
         return -1
@@ -462,11 +448,23 @@ class XStream(QObject):
             sys.stderr = XStream._stderr
         return XStream._stderr
 
-# main ========================================================================
+class Save():
+    def saveNewConfig(self):
+        f = open('configGUI.py','w')
+        newText = '# -*- coding: utf-8 -*-\nconfigData = ' + str(config)
+        newText = newText.encode("utf-8")
+        f.write(newText)
+        f.close()
+        print 'Config file saved.'
 
+# main ========================================================================
 def saveAndExit(app):
-    ImportDBPage.saveNewConfig
-    app.exec_()
+    if app.exec_() == 0:
+        s = Save()
+        s.saveNewConfig()
+        return 0
+    else:
+        app.exec_()
 
 def main():
     app = QApplication(sys.argv)
