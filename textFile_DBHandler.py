@@ -74,7 +74,7 @@ class Handler:
             fields = configReader.getTableFields(tableName)
             if fields != None:
                 f = self.openedFiles[tableName]
-                f.write(",".join(fields) + "\n")
+                f.write("|".join(fields) + "\n")
                 f.flush()
 
         return True
@@ -97,7 +97,7 @@ class Handler:
 
                 values.append(value)
 
-            f.write(",".join(values) + "\n")
+            f.write("|".join(values) + "\n")
         #f.write(",".join(columnValues.values()) + "\n")
         #f.write(str(columnValues) + "\n")
 
