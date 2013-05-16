@@ -40,6 +40,7 @@ class LicenseWizard(QWizard):
 
         self.setStartId(self.PageIntro)
 
+        self.setFixedSize(550,400)
         self.setWizardStyle(self.ModernStyle)
         self.setWindowTitle(u'EURADIN - Import RÚIAN')
         self.curDir = os.path.dirname(__file__)
@@ -68,11 +69,12 @@ class IntroPage(QWizardPage):
         super(IntroPage, self).__init__(parent)
 
         self.setTitle(self.tr(u"Úvod"))
-        topLabel = QLabel()
-        topLabel.setText(QApplication.translate("IntroPage", 'Tady bude neco napsaného <i>třeba kurzívou</i> nebo na <br> novém řádku a <b style="font-size: large">tučne</b>,<br>protože zde fungují HTML tagy.', None, QApplication.UnicodeUTF8))
+        self.topLabel = QLabel()
+        self.topLabel.setWordWrap(True)
+        self.topLabel.setText(QApplication.translate("IntroPage", 'Tato aplikace umožňuje importovat data RÚIAN ve výměnném formátu XML do geodatabáze. Datové soubory lze stahovat ze stránky Veřejného dálkového přístupu (VDP) <a href="http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej">http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej</a>.<br>Tyto soubory jsou volně dostupné ke stažení v komprimovaném formátu *.gz, který je potřeba před použitím rozbalit.', None, QApplication.UnicodeUTF8))
 
         layout = QVBoxLayout()
-        layout.addWidget(topLabel)
+        layout.addWidget(self.topLabel)
 
         self.setLayout(layout)
 

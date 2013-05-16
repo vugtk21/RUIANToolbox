@@ -9,7 +9,7 @@
 # Copyright:   (c) Radek Augustýn 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import os, xml.parsers.expat
+import os, xml.parsers.expat, gzip
 import configRUIAN, DBHandlers, textFile_DBHandler
 
 # @TODO Doøešit duplicitní vnoøené názvy coi:Kod vs obi:Kod
@@ -145,7 +145,14 @@ class RUIANParser:
         p.CharacterDataHandler = char_data
 
         # Open and process XML file
-        f = open(inputFileName, "rt")
+        suffix = inputFileName.split('.')[-1]
+        if suffix == 'xml':
+            f = open(inputFileName, "rt")
+        elif suffix == 'gz':
+            f = gzip.open(inputFileName, "rb")
+        else:
+            print "Unexpected file format."
+            pass
         p.ParseFile(f)
         f.close()
 
@@ -157,6 +164,10 @@ vfDataPath = "I:\\02_OpenIssues\\07_Euradin\\01_Data\\"
 vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
 vfFileName = vfDataPath + "20130331_OB_554782_UKSH.xml"
 #vfFileName = vfDataPath + "20130331_OB_554782_UZSZ.xml"
+
+#vfDataPath = "..\\source\\"
+#vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
+#vfFileName = vfDataPath + "20130515_ST_ZZSZ.xml.gz"
 
 parser = RUIANParser()
 parser.importData(vfFileName, textFile_DBHandler.Handler(vfDataPath))
