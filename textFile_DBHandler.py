@@ -9,21 +9,22 @@
 # Copyright:   (c) Radek Augustýn 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import os, codecs
+import os, codecs, string
 import DBHandlers, configRUIAN, configReader, importInterface
 
-DATAFILEEXTENSION = ".txt"
+DATAFILEEXTENSION = ".csv"
 
 class Handler:
     """ Implementace souborové databáze. Databáze je celá uložena v jednom
     adresáři, definovaném při inicializaci parametrem databasePath. Každá tabulka
     je uložena v jednom souboru s příponou DATAFILEEXTENSION.
     """
-    def __init__(self, databasePath):
+    def __init__(self, databasePath, fieldSeparator = ","):
         ''' Nastavuje proměnnou databasePath a inicializuje seznam otevřených
         souborů'''
         self.databasePath = databasePath
         self.openedFiles = {}
+        self.fieldSeparator = fieldSeparator
         pass
 
     def __del__(self):
@@ -74,7 +75,7 @@ class Handler:
             fields = configReader.getTableFields(tableName)
             if fields != None:
                 f = self.openedFiles[tableName]
-                f.write("|".join(fields) + "\n")
+                f.write(self.fieldSeparator.join(fields) + "\n")
                 f.flush()
 
         return True
@@ -83,6 +84,15 @@ class Handler:
         ''' Zapíše nový řádek do databáze s hodnotami uloženými v dictionary columnValues '''
         self.createTable(tableName, False)
         f = self.openedFiles[tableName]
+
+        if tableName == 'Parcely':
+            if columnValues['Id'] == '141':
+                pass    # ********************* oriznuta, blbe parsovana hodnota  ***********************
+
+            if len(string.split(columnValues['PlatiOd'],'T')[0]) < 10:
+                pass    # ********************* oriznuta, blbe parsovana hodnota  ***********************
+            pass
+
         fields = configReader.getTableFields(tableName)
         if fields != None:
             values = []
@@ -97,7 +107,7 @@ class Handler:
 
                 values.append(value)
 
-            f.write("|".join(values) + "\n")
+            f.write(self.fieldSeparator.join(values) + "\n")
         #f.write(",".join(columnValues.values()) + "\n")
         #f.write(str(columnValues) + "\n")
 

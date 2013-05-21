@@ -12,6 +12,7 @@
 
 SKIPNAMESPACEPREFIX = True
 FIELDS_KEY_NAME     = "fields"
+XMLSUBPATH_KEYNAME  = "xmlSubPath"
 
 """ Slovník definující jednotlivé načítané tabulky. Pro každou tabulku je jeden
 záznam, jehož název (klíč) je shodný s názvem XML tagu. Např. <vf:Obce> budou uloženy
@@ -28,7 +29,7 @@ Field -> Fields
 tableDef = {
     "Obce":{
         "fields":{
-            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "Nazev":                 {"type":"String"},
             "StatusKod":             {"type":"Integer"},
             "PlatiOd":               {"type":"DateTime"},
@@ -47,7 +48,7 @@ tableDef = {
         },
     "CastiObci": {
         "fields":{
-            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "Nazev":                 {"type":"String"},
             "Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"}, # nadrazena obec
             "PlatiOd":               {"type":"DateTime"},
@@ -61,7 +62,7 @@ tableDef = {
         },
 	"Momc":{
         "fields":{
-            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "Nazev":                 {"type":"String"},
             "MOP":                   {"type":"Integer", "xmlSubPath" : "Mop/Kod"},
 			"Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"},  # nadrazena obec
@@ -78,7 +79,7 @@ tableDef = {
         },
 	"Mop":{
         "fields":{
-            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "Nazev":                 {"type":"String"},
 			"Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"},  # nadrazena obec
             "PlatiOd":               {"type":"DateTime"},
@@ -92,7 +93,7 @@ tableDef = {
         },
 	"Ulice":{
         "fields":{
-            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "Nazev":                 {"type":"String"},
 			"Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"},  # nadrazena obec
             "PlatiOd":               {"type":"DateTime"},
@@ -106,7 +107,7 @@ tableDef = {
         },
 	"KatastralniUzemi":{
         "fields":{
-            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                   {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "Nazev":                 {"type":"String"},
             "ExistujeDigitalniMapa": {"type":"Boolean"},
 			"Obec":                  {"type":"Integer", "xmlSubPath" : "Obec/Kod"},  # nadrazena obec
@@ -123,7 +124,7 @@ tableDef = {
         },
 	"Parcely":{
         "fields":{
-            "Id":                    {"type":"Long", "notNull" : "yes", "pkey" : "yes"},
+            "Id":                    {"type":"Long", "notNull" : "yes", "pkey" : "no"},
             "KmenoveCislo":          {"type":"Integer"},
             "PododdeleniCisla":      {"type":"Integer"},
 			"VymeraParcely":         {"type":"Long"},
@@ -143,7 +144,7 @@ tableDef = {
         },
 	"StavebniObjekty":{
         "fields":{
-            "Kod":                     {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                     {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "CislaDomovni":            {"type":"Integer", "xmlSubPath" : "CislaDomovni/CisloDomovni"},  # kolekce cisel domovnich
             "IdentifikacniParcela":    {"type":"Long", "xmlSubPath" : "IdentifikacniParcela/Id"},       # parcela nebo jedna z parcel, na nich ...  je stavebni objekt postaven, zvolena pro identifikaci objektu
 			"TypStavebnihoObjektuKod": {"type":"Integer"},                                              # muze nabyvat hodnot: 1-budova s cislem popisnym, 2-budova s cislem evidencnim, 3-budova bez cisla popisneho ci evidencniho
@@ -163,7 +164,7 @@ tableDef = {
         },
 	"AdresniMista":{
         "fields":{
-            "Kod":                    {"type":"Integer", "notNull" : "yes", "pkey" : "yes"},
+            "Kod":                    {"type":"Integer", "notNull" : "yes", "pkey" : "no"},
             "CisloDomovni":           {"type":"Integer"},
             "CisloOrientacni":        {"type":"Integer"},
 			"CisloOrientacniPismeno": {"type":"String"},
@@ -179,3 +180,4 @@ tableDef = {
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         }
 	}
+

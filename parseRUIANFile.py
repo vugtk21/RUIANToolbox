@@ -10,10 +10,12 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import os, xml.parsers.expat, gzip
-import configRUIAN, DBHandlers, textFile_DBHandler
+import configRUIAN, DBHandlers, textFile_DBHandler, postGIS_DBHandler
 
 # @TODO Doøešit duplicitní vnoøené názvy coi:Kod vs obi:Kod
 # @TODO Jak vyøešit UTF-8
+
+removeTables = True
 
 def getTabs(numTabs):
     result = ""
@@ -34,6 +36,22 @@ class RUIANParser:
     def __init__(self):
         ''' Nastavuje promìnnou databasePath a inicializuje seznam otevøených
         souborù'''
+        self.buildXMLSubPaths()
+        pass
+
+    def buildXMLSubPaths(self):
+        ''' Vytvoøí vlastnost xmlSubPath pro každou definici položky v každé tabulce.
+        Zároveò vytvoøí pole se seznamem xmlSubPath-s pro každou tabulku.
+        '''
+        for tableDef in configRUIAN.tableDef.values():
+            xmlSubPaths = []
+            fieldDefs = tableDef[configRUIAN.FIELDS_KEY_NAME]
+            for fieldName in fieldDefs:
+                fieldDef = fieldDefs[fieldName]
+                if not fieldDef.has_key(configRUIAN.XMLSUBPATH_KEYNAME):
+                    fieldDef[configRUIAN.XMLSUBPATH_KEYNAME] = fieldName
+                xmlSubPaths.append(fieldDef[configRUIAN.XMLSUBPATH_KEYNAME])
+            tableDef[configRUIAN.XMLSUBPATH_KEYNAME] = xmlSubPaths
         pass
 
     def newRecord(self):
@@ -58,6 +76,7 @@ class RUIANParser:
         self.recordTagName = ""
         self.recordValues = {}
         self.columnName = ""
+        self.columnLevel = -1
 
         def start_element(name, attrs):
             """ Start element Handler. """
@@ -71,7 +90,7 @@ class RUIANParser:
                 self.tableName = name
                 self.insideTable = True
                 if self.insideImportedTable:
-                    dbHandler.createTable(self.tableName, True)
+                    dbHandler.createTable(self.tableName, removeTables)
                     config = configRUIAN.tableDef[name]
                     self.recordTagName = ""
 
@@ -96,7 +115,7 @@ class RUIANParser:
                         if doubleDotPos >= 0:
                             name = name[doubleDotPos + 1:]
 
-                    if name in self.allowedColumns: # start of allowed column
+                    if name in self.allowedColumns and self.elemLevel == 5: # start of allowed column
                         self.columnName = name
                     else:
                         self.columnName = ""
@@ -121,6 +140,8 @@ class RUIANParser:
             elif self.recordTagName == name:
                 self.recordTagName = ""
                 if self.insideImportedTable:
+                    if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
+                        pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
                     dbHandler.writeRowToTable(self.tableName, self.recordValues)
                     self.recordValues = {}
 
@@ -130,12 +151,11 @@ class RUIANParser:
             pass
 
         def char_data(data):
-            if self.columnName <> "" and not self.recordValues.has_key(self.columnName):
-                #value = repr(data)
-                #if isinstance(value, unicode):
-                #    value = value.encode('ascii','ignore')
-
-                self.recordValues[self.columnName] = data
+            if self.columnName <> "":
+                if self.recordValues.has_key(self.columnName):
+                    self.recordValues[self.columnName] = self.recordValues[self.columnName] + data
+                else:
+                    self.recordValues[self.columnName] = data
 
         p = xml.parsers.expat.ParserCreate()
 
@@ -152,22 +172,25 @@ class RUIANParser:
             f = gzip.open(inputFileName, "rb")
         else:
             print "Unexpected file format."
-            pass
+
         p.ParseFile(f)
         f.close()
 
-        print (self.elemCount, "xml elements read")
+        print self.elemCount, "xml elements read"
         pass
 
-
-vfDataPath = "I:\\02_OpenIssues\\07_Euradin\\01_Data\\"
+vfDataPath = "..\\01_Data\\"
 vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
-vfFileName = vfDataPath + "20130331_OB_554782_UKSH.xml"
+#vfFileName = vfDataPath + "20130331_OB_554782_UKSH.xml"
 #vfFileName = vfDataPath + "20130331_OB_554782_UZSZ.xml"
 
 #vfDataPath = "..\\source\\"
 #vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
 #vfFileName = vfDataPath + "20130515_ST_ZZSZ.xml.gz"
+##vfFileName = vfDataPath + "test_parcely.xml"
 
 parser = RUIANParser()
-parser.importData(vfFileName, textFile_DBHandler.Handler(vfDataPath))
+##db=postGIS_DBHandler.Handler("dbname=euradin host=localhost port=5432 user=postgres password=postgres","public")
+##parser.importData(vfFileName, db)
+parser.importData(vfFileName, textFile_DBHandler.Handler(vfDataPath, ","))
+

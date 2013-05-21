@@ -59,7 +59,7 @@ class LicenseWizard(QWizard):
     def onIdChanged(self, id):
         if self.prevId <> None and self.prevId < id:
             if id == 5:
-                importInterface.createDatabase()
+                importInterface.createDatabase(False)
             if id == 7:
                 importInterface.importDatabase()
         self.prevId = id
@@ -71,7 +71,18 @@ class IntroPage(QWizardPage):
         self.setTitle(self.tr(u"Úvod"))
         self.topLabel = QLabel()
         self.topLabel.setWordWrap(True)
-        self.topLabel.setText(QApplication.translate("IntroPage", 'Tato aplikace umožňuje importovat data RÚIAN ve výměnném formátu XML do geodatabáze. Datové soubory lze stahovat ze stránky Veřejného dálkového přístupu (VDP) <a href="http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej">http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej</a>.<br>Tyto soubory jsou volně dostupné ke stažení v komprimovaném formátu *.gz, který je potřeba před použitím rozbalit.', None, QApplication.UnicodeUTF8))
+        self.topLabel.setText(QApplication.translate("IntroPage",
+          'Tato aplikace umožňuje importovat vybraná data ' +
+          '<a href="http://www.cuzk.cz/Dokument.aspx?PRARESKOD=998&MENUID=10769&AKCE=DOC:10-vybudovani-RUIAN">'
+          'RÚIAN</a> ve výměnném formátu '+
+          '<a href="http://www.cuzk.cz/Dokument.aspx?PRARESKOD=998&MENUID=10769&AKCE=DOC:10-VFR">VFR</a>'
+          ' do geodatabáze. Datové soubory ' +
+          'lze stahovat ze stránky ' +
+          '<a href="http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej">' +
+          'Veřejného dálkového přístupu</a>. Tyto soubory jsou volně ' +
+          'dostupné ke stažení v komprimovaném archivu GZ, který je vhodné ' +
+          'před použitím rozbalit.',
+          None, QApplication.UnicodeUTF8))
 
         layout = QVBoxLayout()
         layout.addWidget(self.topLabel)
@@ -86,7 +97,7 @@ class DatabaseTypePage(QWizardPage):
         super(DatabaseTypePage, self).__init__(parent)
 
         self.setTitle(self.tr(u"Typ databáze"))
-        self.textRB = QRadioButton(QApplication.translate("DatabaseTypePage", 'Databáze uložena do souborů v adresáři', None, QApplication.UnicodeUTF8), None)
+        self.textRB = QRadioButton(QApplication.translate("DatabaseTypePage", 'Databáze uložená jako textové soubory v adresáři', None, QApplication.UnicodeUTF8), None)
         self.pgRB = QRadioButton(QApplication.translate("DatabaseTypePage", 'Databáze PostGIS', None, QApplication.UnicodeUTF8), None)
         self.setCheckedButton()
 
@@ -121,9 +132,9 @@ class TextFileDBHandlerPage(QWizardPage):
     def __init__(self, parent=None):
         super(TextFileDBHandlerPage, self).__init__(parent)
 
-        self.setTitle(QApplication.translate("TextFileDBHandlerPage", 'Načtení databáze', None, QApplication.UnicodeUTF8))
+        self.setTitle(QApplication.translate("TextFileDBHandlerPage", 'Textová databáze', None, QApplication.UnicodeUTF8))
 
-        self.SQLPathLabel = QLabel(QApplication.translate("TextFileDBHandlerPage", 'Načíst z adresáře', None, QApplication.UnicodeUTF8))
+        self.SQLPathLabel = QLabel(QApplication.translate("TextFileDBHandlerPage", 'Adresář k uložení databáze', None, QApplication.UnicodeUTF8))
         self.path = config['textFile_DBHandler']['dataDirectory']
         self.SQLPath = QLineEdit(self.path)
         self.SQLPathLabel.setBuddy(self.SQLPath)
@@ -232,7 +243,7 @@ class SetupDBPage(QWizardPage):
     def __init__(self, parent=None):
         super(SetupDBPage, self).__init__(parent)
 
-        self.setTitle(QApplication.translate("SetupDBPage", 'Nastavení importu', None, QApplication.UnicodeUTF8))
+        self.setTitle(QApplication.translate("SetupDBPage", 'Importované tabulky a sloupce', None, QApplication.UnicodeUTF8))
 
         self.treeWidget = QTreeWidget()
         self.treeWidget.setHeaderHidden(True)

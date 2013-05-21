@@ -9,10 +9,12 @@
 # Copyright:   (c) Radecek 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+import os
 import configRUIAN, configReader, configGUI
-#import textFile_DBHandler, postGIS_DBHandler
 
-databaseHandlers = {}
+# import business logic
+import parseRUIANFile, textFile_DBHandler
+
 databaseHandler = None
 
 ##def postGISParams():
@@ -35,6 +37,17 @@ databaseHandler = None
 ##        databaseHandler = None
 ##    pass
 
+def createDatabaseHandler():
+        global databaseHandler
+
+        dbType = configGUI.configData['selectedDatabaseType']
+        if dbType == 'textFile_DBHandler':
+            databaseHandler = textFile_DBHandler.Handler(configGUI.configData['textFile_DBHandler']['dataDirectory'], ",")
+        elif dbType == 'postGIS_DBHandler':
+            databaseHandler = None
+        else:
+            databaseHandler = None
+
 def dummyMessageProc(message, tabLevel = 0):
     tabStr = ""
     for i in range(0, tabLevel):
@@ -42,31 +55,42 @@ def dummyMessageProc(message, tabLevel = 0):
     print tabStr + message
     pass
 
-def dummyCreateDatabaseProc():
-    if databaseHandler == None:
-        displayMessage("Creating database")
-        for tableName in configRUIAN.tableDef:
-            displayMessage("Creating table " + tableName, 1)
-            fields = configReader.getTableFields(tableName)
-            displayMessage("fields:" + str(fields), 2)
-        displayMessage("Done")
-    else:
-        #databaseHandler.c
-        # @TODO
-        pass
-
+def createDatabaseProc(overwriteIfExists = False):
+    createDatabaseHandler()
+    displayMessage("Vytvářím tabulky databáze...")
+    for tableName in configRUIAN.tableDef:
+        fields = configReader.getTableFields(tableName)
+        displayMessage(tableName + "\t:" + str(fields), 1)
+        if databaseHandler:
+            databaseHandler.createTable(tableName, overwriteIfExists)
+            databaseHandler.closeTable(tableName)
+    displayMessage("Hotovo")
     pass
 
-def onImportDatabaseProc():
-    if databaseHandler == None:
-        displayMessage("Importing database")
-        displayMessage("Importing file file1.xml", 1)
-        displayMessage("Importing file file2.xml", 1)
-        displayMessage("Done")
+def pathWithLastSlash(path):
+    sepIdx = path.rfind(os.sep)
+    if sepIdx == len(path) - 1:
+        return path
     else:
-        #databaseHandler.c
-        # @TODO
-        pass
+        return path + os.sep
+
+def importDatabaseProc():
+    dataPath = pathWithLastSlash(configGUI.configData['importParameters']['dataRUIANDir'])
+
+    displayMessage("Importuji databázi z adresáře " + dataPath)
+
+    parser = parseRUIANFile.RUIANParser()
+
+    dirItems = os.listdir(dataPath)
+    extMask = configGUI.configData['importParameters']['suffix'].split(os.extsep)[1]
+    for dirItem in dirItems:
+        itemExtension = dirItem.split(os.extsep)[1]
+        if itemExtension == extMask:
+            displayMessage("Importuji soubor " + dirItem, 1)
+            if databaseHandler:
+                parser.importData(dataPath + dirItem, databaseHandler)
+
+    displayMessage("Done")
 
     pass
 
@@ -98,16 +122,32 @@ databaseExists = onDatabaseExistsProc
 """
 Tuto proceduru spustíme, když pøejdeme na stránku vytváøení databáze (databaseExists = false)
 """
-createDatabase = dummyCreateDatabaseProc
+createDatabase = createDatabaseProc
 
 """
 Tuto proceduru spustíme, když pøejdeme na stránku import
 """
-importDatabase = onImportDatabaseProc
+importDatabase = importDatabaseProc
 
-def main():
-   #createDatabase()
-   #importDatabase()
-    pass
+import unittest
+
+class TestGlobalFunctions(unittest.TestCase):
+
+    def setUp(self):
+        createDatabaseHandler()
+        pass
+
+    def tearDown(self):
+        pass
+
+    def testcreateDatabaseProc(self):
+        createDatabase()
+        pass
+
+
+    def testimportDatabaseProc(self):
+        importDatabaseProc()
+        pass
+
 if __name__ == '__main__':
-    main()
+    unittest.main()

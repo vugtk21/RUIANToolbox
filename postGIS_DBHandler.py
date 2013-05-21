@@ -135,7 +135,7 @@ class Handler:
 
     def closeTable(self, tableName):
         ''' Uzavírá tabulku tableName '''
-
+        # Pro PostGIS není potřeba, pracuje na principu cursoru
         return True
 
     def deleteTable(self, tableName):
@@ -194,27 +194,36 @@ class Handler:
 
     def writeRowToTable(self, tableName, columnValues):
         ''' Zapíše nový řádek do databáze s hodnotami uloženými v dictionary columnValues '''
-        self.createTable(tableName,False)
+        if tableName == 'Parcely' and columnValues['Id'] == '141':
+            pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
+
         comma = ''
         fieldsList = ''
         valuesList = ''
         for field in columnValues:
-            # sestaveni seznamu atr. poli
-            fieldsList = fieldsList + comma + ruianToPostGISColumnName(field,configRUIAN.SKIPNAMESPACEPREFIX)
+            # sestaveni seznamu atributů poli
+            fieldsList = fieldsList + comma + ruianToPostGISColumnName(field, configRUIAN.SKIPNAMESPACEPREFIX)
 
             # sestaveni seznamu HODNOT atr. poli
+            if configRUIAN.tableDef[tableName]['fields'][field]['type'] == 'DateTime':   #ponecha pouze datum, vypusti cas
+                columnValues[field] = string.split(columnValues[field],'T')[0]
+                if len(columnValues[field]) < 10:
+                    columnValues[field] = '0001-01-01'                           #nahradi nesmyslnou hodnotou
+
             valuesList = valuesList + comma + "'" + columnValues[field] + "'"
 
-            # uprava GML tak aby fungovaly funkce PGIS
+            # uprava GML tak aby fungovaly funkce PostGIS
             if field == 'DefinicniBod':
                 columnValues[field] = ruianToPostGISMultipoint(columnValues[field])
+                pass
 
             comma = ','
 
             # doplneni PostGIS geometrie
-            if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName]['fields'][field]['type']):
+            if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName]['fields'][field]['type']) and columnValues[field] !='':
                 fieldsList = fieldsList + comma + ruianToPostGISColumnName(field, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName]['fields'][field]['type']]
                 valuesList = valuesList + comma + "st_geomfromgml('" + columnValues[field] + "')"
+
 
         SQL = "INSERT INTO " + ruianToPostGISColumnName(tableName,True) + "(" + fieldsList + ") VALUES (" + valuesList +  ");"
         self.cursor.execute(SQL)
