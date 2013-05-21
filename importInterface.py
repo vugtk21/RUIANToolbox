@@ -10,32 +10,12 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import os
-import configRUIAN, configReader, configGUI
+import sharedTools, configRUIAN, configReader, configGUI
 
 # import business logic
 import parseRUIANFile, textFile_DBHandler
 
 databaseHandler = None
-
-##def postGISParams():
-##    result = ""
-##    for key in configGUI.configData['postGIS_DBHandler']:
-##        if key <> 'schemaName':
-##            if result <> "":
-##                result = result + ' '
-##            result = result + key + "=" + configGUI.configData['postGIS_DBHandler'][key]
-##    return result
-##
-##def databaseTypeChanged():
-##    global databaseExists
-##    databaseType = configGUI.configData['selectedDatabaseType']
-##    if databaseType == "postGIS_DBHandler":
-##        databaseHandler = textFile_DBHandler.Handler(configGUI.configData['textFile_DBHandler']['dataDirectory'])
-##    elif databaseType == "postGIS_DBHandler":
-##        databaseHandler = postGIS_DBHandler.Handler(postGISParams(), configGUI.configData['postGIS_DBHandler']['schemaName'])
-##    else:
-##        databaseHandler = None
-##    pass
 
 def createDatabaseHandler():
         global databaseHandler
@@ -55,6 +35,15 @@ def dummyMessageProc(message, tabLevel = 0):
     print tabStr + message
     pass
 
+def closeAllKnownTables():
+    if databaseHandler:
+        displayMessage("Zavírám tabulky databáze...")
+        for tableName in configRUIAN.tableDef:
+            displayMessage(tableName, 1)
+            databaseHandler.closeTable(tableName)
+        displayMessage("Hotovo")
+    pass
+
 def createDatabaseProc(overwriteIfExists = False):
     createDatabaseHandler()
     displayMessage("Vytvářím tabulky databáze...")
@@ -67,30 +56,24 @@ def createDatabaseProc(overwriteIfExists = False):
     displayMessage("Hotovo")
     pass
 
-def pathWithLastSlash(path):
-    sepIdx = path.rfind(os.sep)
-    if sepIdx == len(path) - 1:
-        return path
-    else:
-        return path + os.sep
-
 def importDatabaseProc():
-    dataPath = pathWithLastSlash(configGUI.configData['importParameters']['dataRUIANDir'])
+    dataPath = sharedTools.pathWithLastSlash(configGUI.configData['importParameters']['dataRUIANDir'])
 
     displayMessage("Importuji databázi z adresáře " + dataPath)
 
     parser = parseRUIANFile.RUIANParser()
 
     dirItems = os.listdir(dataPath)
-    extMask = configGUI.configData['importParameters']['suffix'].split(os.extsep)[1]
+    extMask = sharedTools.getFileExtension(configGUI.configData['importParameters']['suffix'])
     for dirItem in dirItems:
-        itemExtension = dirItem.split(os.extsep)[1]
+        itemExtension = sharedTools.getFileExtension(dirItem)
         if itemExtension == extMask:
             displayMessage("Importuji soubor " + dirItem, 1)
             if databaseHandler:
                 parser.importData(dataPath + dirItem, databaseHandler)
 
     displayMessage("Done")
+    closeAllKnownTables()
 
     pass
 

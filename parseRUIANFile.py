@@ -179,18 +179,46 @@ class RUIANParser:
         print self.elemCount, "xml elements read"
         pass
 
-vfDataPath = "..\\01_Data\\"
-vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
-#vfFileName = vfDataPath + "20130331_OB_554782_UKSH.xml"
-#vfFileName = vfDataPath + "20130331_OB_554782_UZSZ.xml"
+import unittest
 
-#vfDataPath = "..\\source\\"
-#vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
-#vfFileName = vfDataPath + "20130515_ST_ZZSZ.xml.gz"
-##vfFileName = vfDataPath + "test_parcely.xml"
+class TestRUIANParser(unittest.TestCase):
 
-parser = RUIANParser()
-##db=postGIS_DBHandler.Handler("dbname=euradin host=localhost port=5432 user=postgres password=postgres","public")
-##parser.importData(vfFileName, db)
-parser.importData(vfFileName, textFile_DBHandler.Handler(vfDataPath, ","))
+    def setUp(self):
+        pass
 
+    def tearDown(self):
+        pass
+
+    def testimportData(self):
+        vfDataPath = "..\\01_Data\\"
+        vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
+        #vfFileName = vfDataPath + "20130331_OB_554782_UKSH.xml"
+        #vfFileName = vfDataPath + "20130331_OB_554782_UZSZ.xml"
+
+        #vfDataPath = "..\\source\\"
+        #vfFileName = vfDataPath + "20130331_OB_539228_UKSH.xml"
+        #vfFileName = vfDataPath + "20130515_ST_ZZSZ.xml.gz"
+        ##vfFileName = vfDataPath + "test_parcely.xml"
+
+        parser = RUIANParser()
+        ##db=postGIS_DBHandler.Handler("dbname=euradin host=localhost port=5432 user=postgres password=postgres","public")
+        ##parser.importData(vfFileName, db)
+        parser.importData(vfFileName, textFile_DBHandler.Handler(vfDataPath, ","))
+        pass
+
+class TestGlobalFunctions(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def testgetTabs(self):
+        pass
+
+    def testremoveFileExt(self):
+        pass
+
+if __name__ == '__main__':
+    unittest.main()

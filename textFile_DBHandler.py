@@ -10,7 +10,7 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import os, codecs, string
-import DBHandlers, configRUIAN, configReader, importInterface
+import sharedTools, DBHandlers, configRUIAN, configReader, importInterface
 
 DATAFILEEXTENSION = ".csv"
 
@@ -22,7 +22,7 @@ class Handler:
     def __init__(self, databasePath, fieldSeparator = ","):
         ''' Nastavuje proměnnou databasePath a inicializuje seznam otevřených
         souborů'''
-        self.databasePath = databasePath
+        self.databasePath = sharedTools.pathWithLastSlash(databasePath)
         self.openedFiles = {}
         self.fieldSeparator = fieldSeparator
         pass

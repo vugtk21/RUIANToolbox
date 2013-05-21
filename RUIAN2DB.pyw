@@ -251,7 +251,6 @@ class SetupDBPage(QWizardPage):
         self.treeWidget.itemChanged.connect (self.checkBoxDriver)
         self.treeWidget.itemChanged.connect (self.rewriteConfig)
 
-
         layout = QVBoxLayout()
         layout.addWidget(self.treeWidget)
         self.setLayout(layout)
@@ -306,8 +305,6 @@ class SetupDBPage(QWizardPage):
         except:
             return False
 
-
-
     def rewriteConfig(self, item, column):
         parent =  item.parent()
         itemText = str(item.text(column))
@@ -347,8 +344,8 @@ class CreateDBStructurePage(QWizardPage):
         self.setLayout(grid)
 
         # create connections
-        XStream.stdout().messageWritten.connect( self._console.insertPlainText )
-        XStream.stderr().messageWritten.connect( self._console.insertPlainText )
+        #XStream.stdout().messageWritten.connect( self._console.insertPlainText )
+        #XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 
     def nextId(self):
         return LicenseWizard.PageImportParameters
@@ -421,8 +418,8 @@ class ImportDBPage(QWizardPage):
         self.setTitle(self.tr(u"Import"))
 
         self._console = QTextBrowser(self)
-        XStream.stdout().messageWritten.connect( self._console.insertPlainText )
-        XStream.stderr().messageWritten.connect( self._console.insertPlainText )
+        #XStream.stdout().messageWritten.connect( self._console.insertPlainText )
+        #XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 
         grid = QGridLayout()
         grid.addWidget(self._console,0,0)

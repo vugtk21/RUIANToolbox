@@ -178,6 +178,12 @@ tableDef = {
             "AdresniBod":             {"type":"MultiPointPropertyType", "xmlSubPath" : "Geometrie/DefinicniBod/AdresniBod"}
         },
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
+        },
+	"controlDB":{
+        "fields":{
+            "Kod":                    {"type":"Integer", "notNull" : "yes", "pkey" : "no"}
+        },
+        "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         }
 	}
 
