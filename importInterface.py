@@ -24,6 +24,8 @@ def createDatabaseHandler():
         if dbType == 'textFile_DBHandler':
             databaseHandler = textFile_DBHandler.Handler(configGUI.configData['textFile_DBHandler']['dataDirectory'], ",")
         elif dbType == 'postGIS_DBHandler':
+            import postGIS_DBHandler
+
             databaseHandler = None
         else:
             databaseHandler = None

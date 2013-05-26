@@ -13,6 +13,7 @@
 SKIPNAMESPACEPREFIX = True
 FIELDS_KEY_NAME     = "fields"
 XMLSUBPATH_KEYNAME  = "xmlSubPath"
+CONTROLDB_TABLENAME = "controlDB" # Jestli6e tahle tanulka existuje, tak je databáze vytvořena (jsou vytvořeny databázové tabulky)
 
 """ Slovník definující jednotlivé načítané tabulky. Pro každou tabulku je jeden
 záznam, jehož název (klíč) je shodný s názvem XML tagu. Např. <vf:Obce> budou uloženy
@@ -179,7 +180,7 @@ tableDef = {
         },
         "index":{"nazev":{"idxtype":"btree","cluster":"yes"}}
         },
-	"controlDB":{
+	CONTROLDB_TABLENAME:{
         "fields":{
             "Kod":                    {"type":"Integer", "notNull" : "yes", "pkey" : "no"}
         },

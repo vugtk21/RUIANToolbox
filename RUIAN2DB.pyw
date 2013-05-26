@@ -20,6 +20,21 @@ import configGUI as c
 import importInterface
 
 config = c.configData
+messageConsole = None
+_console1 = None
+_console2 = None
+
+def messageProc(message, tabLevel = 0):
+    if messageConsole:
+        tabStr = ""
+        for i in range(0, tabLevel):
+            tabStr = tabStr + "    "
+        messageConsole.insertPlainText(tabStr + message + "\n")
+    else:
+        importInterface.dummyMessageProc(message, tabLevel)
+    pass
+
+importInterface.displayMessage = messageProc
 
 class LicenseWizard(QWizard):
     NUM_PAGES = 8
@@ -40,7 +55,7 @@ class LicenseWizard(QWizard):
 
         self.setStartId(self.PageIntro)
 
-        self.setFixedSize(550,400)
+        #self.setFixedSize(550,400)
         self.setWizardStyle(self.ModernStyle)
         self.setWindowTitle(u'EURADIN - Import RÚIAN')
         self.curDir = os.path.dirname(__file__)
@@ -58,9 +73,17 @@ class LicenseWizard(QWizard):
 
     def onIdChanged(self, id):
         if self.prevId <> None and self.prevId < id:
+            global messageConsole
             if id == 5:
+                messageConsole = _console1
+                XStream.stdout().messageWritten.connect( _console1.insertPlainText )
+                XStream.stderr().messageWritten.connect( _console1.insertPlainText )
+
                 importInterface.createDatabase(False)
             if id == 7:
+                messageConsole = _console2
+                XStream.stdout().messageWritten.connect( _console2.insertPlainText )
+                XStream.stderr().messageWritten.connect( _console2.insertPlainText )
                 importInterface.importDatabase()
         self.prevId = id
 
@@ -132,7 +155,7 @@ class TextFileDBHandlerPage(QWizardPage):
     def __init__(self, parent=None):
         super(TextFileDBHandlerPage, self).__init__(parent)
 
-        self.setTitle(QApplication.translate("TextFileDBHandlerPage", 'Textová databáze', None, QApplication.UnicodeUTF8))
+        self.setTitle(QApplication.translate("TextFileDBHandlerPage", 'Parametry textové databáze', None, QApplication.UnicodeUTF8))
 
         self.SQLPathLabel = QLabel(QApplication.translate("TextFileDBHandlerPage", 'Adresář k uložení databáze', None, QApplication.UnicodeUTF8))
         self.path = config['textFile_DBHandler']['dataDirectory']
@@ -162,7 +185,12 @@ class TextFileDBHandlerPage(QWizardPage):
 
 
     def nextId(self):
-        return LicenseWizard.PageSetupDB
+        importInterface.createDatabaseHandler()
+        if importInterface.databaseHandler.databaseExists():
+            return LicenseWizard.PageImportParameters
+        else:
+            return LicenseWizard.PageSetupDB
+        pass
 
 class PostGISDBHandlerPage(QWizardPage):
     def __init__(self, parent=None):
@@ -339,10 +367,14 @@ class CreateDBStructurePage(QWizardPage):
 
         self._console = QTextBrowser(self)
 
+        global _console1
+        _console1 = self._console
+
         grid = QGridLayout()
         grid.addWidget(self._console,3,0)
         self.setLayout(grid)
 
+        #self._console.insertPlainText("ahoj")
         # create connections
         #XStream.stdout().messageWritten.connect( self._console.insertPlainText )
         #XStream.stderr().messageWritten.connect( self._console.insertPlainText )
@@ -418,6 +450,8 @@ class ImportDBPage(QWizardPage):
         self.setTitle(self.tr(u"Import"))
 
         self._console = QTextBrowser(self)
+        global _console2
+        _console2 = self._console
         #XStream.stdout().messageWritten.connect( self._console.insertPlainText )
         #XStream.stderr().messageWritten.connect( self._console.insertPlainText )
 

@@ -34,6 +34,9 @@ class DatabaseHandler:
         ''' Uzavírá tabulku tableName '''
         return False
 
+    def databaseExists():
+        return False
+
 
 import unittest
 import configRUIAN

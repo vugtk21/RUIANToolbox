@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        textFile_DBHandler
+# Name:        postGIS_DBHandler
 # Purpose:     Implementuje ovladač pro souborovou databázi.
 #
 # Author:      Radek Augustýn
@@ -37,7 +37,6 @@ def ruianToPostGISMultipoint(elementXML):
 
     return result
     pass
-
 
 def ruianToPostGISColumnName(XMLTagName, removeNamespace):
     """ if removeNamespace is set to true, than removes namespace prefix from XMLTagName
@@ -114,6 +113,7 @@ class Handler:
         self.schemaName = schemaName
         self.connection = psycopg2.connect(connectionParams)
         self.cursor = self.connection.cursor()
+        self.tableList = {}
 
         pass
 
@@ -142,6 +142,7 @@ class Handler:
         ''' Uvolňuje tabulku tableName, vrací True pokud se podařilo  '''
         if self.tableExists(tableName):
             SQL = ("DROP TABLE %s CASCADE;") %(ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
+            self.tableList[tableName] = None
             self.cursor.execute(SQL)
             self.connection.commit()
             return True
@@ -150,9 +151,12 @@ class Handler:
 
     def tableExists(self, tableName):
         ''' Vrací True, jestliže tabulka tableName v databázi existuje. '''
-        SQL= ("select * from pg_tables where (schemaname = '%s' and tablename = '%s');") % (self.schemaName,ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
-        self.cursor.execute(SQL)
-        return self.cursor.rowcount > 0
+        if not tableName in self.tableList:
+            SQL= ("select * from pg_tables where (schemaname = '%s' and tablename = '%s');") % (self.schemaName,ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
+            self.cursor.execute(SQL)
+            self.tableList[tableName] = self.cursor.rowcount > 0
+
+        return self.tableList[tableName]
 
     def createIndexes(self, tableName):
         ''' Vytvori index'''
@@ -193,6 +197,7 @@ class Handler:
         return True
 
     def writeRowToTable(self, tableName, columnValues):
+        self.createTable(tableName)
         ''' Zapíše nový řádek do databáze s hodnotami uloženými v dictionary columnValues '''
         if tableName == 'Parcely' and columnValues['Id'] == '141':
             pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
@@ -236,7 +241,7 @@ import unittest
 class TestHandler(DBHandlers.TestHandler):
     def setUp(self):
         DBHandlers.TestHandler.setUp(self)
-        self.h = Handler("dbname=euradin host=localhost port=5432 user=postgres password=postgres","public")
+        self.h = Handler("dbname=euradin host=localhost port=5432 user=postgres password=ahoj","public")
 
 class TestGlobalFunctions(unittest.TestCase):
 

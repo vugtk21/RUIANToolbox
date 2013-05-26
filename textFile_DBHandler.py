@@ -43,6 +43,9 @@ class Handler:
 
         return True
 
+    def databaseExists(self):
+        return self.tableExists(configRUIAN.CONTROLDB_TABLENAME)
+
     def deleteTable(self, tableName):
         ''' Uvolňuje tabulku tableName, vrací True pokud se podařilo  '''
         fileName = self.tableNameToFileName(tableName)

@@ -16,6 +16,8 @@ import configRUIAN, DBHandlers, textFile_DBHandler, postGIS_DBHandler
 # @TODO Jak vyøešit UTF-8
 
 removeTables = True
+DATA_XML_PATH = "VymennyFormat/Data"
+XML_PATH_SEPARATOR = "/"
 
 def getTabs(numTabs):
     result = ""
@@ -77,6 +79,8 @@ class RUIANParser:
         self.recordValues = {}
         self.columnName = ""
         self.columnLevel = -1
+        self.xmlSubPaths = []
+        #self.tableRecordCount = 0
 
         def start_element(name, attrs):
             """ Start element Handler. """
@@ -85,13 +89,15 @@ class RUIANParser:
             name = name.replace("vf:", "")  # remove the namespace prefix
 
             # Jestliže jsme na úrovni datových tabulek, založíme ji
-            if self.elemPathStr == "VymennyFormat\\Data":
+            if self.elemPathStr == DATA_XML_PATH:
                 self.insideImportedTable = configRUIAN.tableDef.has_key(name)
                 self.tableName = name
                 self.insideTable = True
+                self.xmlSubPaths = []
                 if self.insideImportedTable:
                     dbHandler.createTable(self.tableName, removeTables)
                     config = configRUIAN.tableDef[name]
+                    self.xmlSubPaths = config[configRUIAN.XMLSUBPATH_KEYNAME]
                     self.recordTagName = ""
 
                     # Najdeme sloupce k importu
@@ -100,7 +106,8 @@ class RUIANParser:
                          self.allowedColumns = fieldDefs.keys()
                     else:
                         self.allowedColumns = None
-                    print self.tableName, ":", self.allowedColumns
+                    #self.tableRecordCount = 0
+                    print "            Importuji tabulku ", self.tableName, ":", self.allowedColumns
                 else:
                     print name, "properties are not configured."
 
@@ -115,7 +122,14 @@ class RUIANParser:
                         if doubleDotPos >= 0:
                             name = name[doubleDotPos + 1:]
 
-                    if name in self.allowedColumns and self.elemLevel == 5: # start of allowed column
+                    columnPath = self.elemPathStr[len(DATA_XML_PATH + XML_PATH_SEPARATOR + self.tableName + XML_PATH_SEPARATOR + self.recordTagName + XML_PATH_SEPARATOR):]
+                    if columnPath <> "":
+                        columnPath = columnPath + XML_PATH_SEPARATOR + name
+                    else:
+                        columnPath = name
+
+                    #if name in self.allowedColumns and self.elemLevel == 5: # start of allowed column
+                    if columnPath in self.xmlSubPaths:
                         self.columnName = name
                     else:
                         self.columnName = ""
@@ -124,7 +138,7 @@ class RUIANParser:
                 pass
 
             self.elemPath.append(name)
-            self.elemPathStr = "\\".join(self.elemPath)
+            self.elemPathStr = XML_PATH_SEPARATOR.join(self.elemPath)
 
         def end_element(name):
             """ End element Handler """
@@ -135,10 +149,12 @@ class RUIANParser:
                 self.insideImportedTable = False
                 self.tableName = None
                 self.allowedColumns = None
+                #print "            Naèteno", self.tableRecordCount, "záznamù."
 
             # close record
             elif self.recordTagName == name:
                 self.recordTagName = ""
+                #self.tableRecordCount = self.tableRecordCount + 1
                 if self.insideImportedTable:
                     if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
                         pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
@@ -146,7 +162,7 @@ class RUIANParser:
                     self.recordValues = {}
 
             self.elemPath.remove(self.elemPath[len(self.elemPath) - 1])
-            self.elemPathStr = "\\".join(self.elemPath)
+            self.elemPathStr = XML_PATH_SEPARATOR.join(self.elemPath)
             self.elemLevel = self.elemLevel - 1
             pass
 
