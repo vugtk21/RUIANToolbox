@@ -303,7 +303,7 @@ class Handler:
             comma = ','
 
             # doplneni PostGIS geometrie
-            if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName]['fields'][field]['type']) and columnValues[field] !='':
+            if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName]['fields'][field]['type']) and columnValues[field] <> '':
                 fieldsList = fieldsList + comma + ruianToPostGISColumnName(field, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName]['fields'][field]['type']]
                 valuesList = valuesList + comma + "st_geomfromgml('" + columnValues[field] + "')"
 

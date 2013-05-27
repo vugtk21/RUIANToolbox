@@ -11,13 +11,23 @@
 #-------------------------------------------------------------------------------
 import os, xml.parsers.expat, gzip, math
 import configRUIAN, DBHandlers, textFile_DBHandler, postGIS_DBHandler, configGUI
+import sharedTools
 
 # @TODO Doøešit duplicitní vnoøené názvy coi:Kod vs obi:Kod
 # @TODO Jak vyøešit UTF-8
 
-removeTables = False
+removeTables = True
 DATA_XML_PATH = "VymennyFormat/Data"
 XML_PATH_SEPARATOR = "/"
+
+def normalizeTagName(name):
+    # Remove namespace prefix, if needed
+    if configRUIAN.SKIPNAMESPACEPREFIX:
+        doubleDotPos = name.find(":")
+        if doubleDotPos >= 0:
+            name = name[doubleDotPos + 1:]
+
+    return name
 
 def getTabs(numTabs):
     result = ""
@@ -33,15 +43,30 @@ def removeFileExt(fileName):
     else:
         return fileName
 
-def isImportedTable(tableName):
-    result = False
-    if configRUIAN.tableDef.has_key(tableName):
-        treeViewSet = configGUI.configData['treeViewSet']
-        if treeViewSet.has_key(tableName):
-            tableSettings = treeViewSet[tableName]
-            for fieldName in tableSettings:
-                if tableSettings[fieldName] == "True":
-                    return True
+def attrDictToStr(attrs):
+    if len(attrs) > 0:
+        attrArray = []
+        for key in attrs:
+            attrArray.append(key + '="' + attrs[key] + '"')
+        return " " + " ".join(attrArray)
+
+    return ""
+
+def getFieldDef(tableName, fieldName):
+    tableDef = configRUIAN.tableDef[tableName]
+    if tableDef:
+        return tableDef[configRUIAN.FIELDS_KEY_NAME][fieldName]
+    else:
+        return None
+
+def getGeometryColumnNames(tableName):
+    fieldDefs = configRUIAN.tableDef[tableName][configRUIAN.FIELDS_KEY_NAME]
+    result = []
+    for fieldName in fieldDefs:
+        fieldValue = fieldDefs[fieldName]
+        if fieldValue[configRUIAN.FIELDTYPE_KEYNAME].find("Multi") == 0:
+            result.append(fieldName)
+
     return result
 
 class RUIANParser:
@@ -67,10 +92,44 @@ class RUIANParser:
             tableDef[configRUIAN.XMLSUBPATH_KEYNAME] = xmlSubPaths
         pass
 
-    def newRecord(self):
+    def processNewRecordTag(self, recordName):
+        self.recordTagName = recordName
         self.recordValues = {}
         self.columnName = ""
         pass
+
+    def processTableOpeningTag(self, dbHandler, name, attrs):
+        self.insideImportedTable = sharedTools.isImportedTable(name) # configRUIAN.tableDef.has_key(name)
+        self.tableName = name
+        self.insideTable = True
+        self.xmlSubPaths = {}
+        if self.insideImportedTable:
+            dbHandler.createTable(self.tableName, removeTables)
+            config = configRUIAN.tableDef[name]
+            self.xmlSubPaths = config[configRUIAN.XMLSUBPATH_KEYNAME]
+            self.recordTagName = ""
+
+            # Najdeme sloupce k importu
+            if config.has_key(configRUIAN.FIELDS_KEY_NAME):
+                 fieldDefs = config[configRUIAN.FIELDS_KEY_NAME]
+                 self.allowedColumns = fieldDefs.keys()
+            else:
+                self.allowedColumns = None
+
+            self.geometryNames = getGeometryColumnNames(self.tableName)
+            self.tableRecordCount = 0
+            print "            Importuji tabulku ", self.tableName, ":", self.allowedColumns
+        else:
+            print name, "properties are not configured."
+        pass
+
+    def logTableRecordProgress(self):
+        if 1000*math.floor(self.tableRecordCount/1000) == self.tableRecordCount:
+            print self.tableRecordCount, "records"
+
+    def logElemCount(self):
+        if 50000*math.floor(self.elemCount/50000) == self.elemCount:
+            print self.elemCount, "tags"
 
     def importData(self, inputFileName, dbHandler):
         """ Tato procedura importuje data ze souboru ve formátu výmìnného souboru
@@ -92,46 +151,29 @@ class RUIANParser:
         self.columnLevel = -1
         self.xmlSubPaths = {}
         self.tableRecordCount = 0
+        self.subXML = []
+        self.isGeometry = False
+        self.geometryNames = []
 
         def start_element(name, attrs):
             """ Start element Handler. """
             self.elemCount = self.elemCount + 1
             self.elemLevel = self.elemLevel + 1
+            self.logElemCount()
+
             name = name.replace("vf:", "")  # remove the namespace prefix
+
 
             # Jestliže jsme na úrovni datových tabulek, založíme ji
             if self.elemPathStr == DATA_XML_PATH:
-                self.insideImportedTable = isImportedTable(name) # configRUIAN.tableDef.has_key(name)
-                self.tableName = name
-                self.insideTable = True
-                self.xmlSubPaths = {}
-                if self.insideImportedTable:
-                    dbHandler.createTable(self.tableName, removeTables)
-                    config = configRUIAN.tableDef[name]
-                    self.xmlSubPaths = config[configRUIAN.XMLSUBPATH_KEYNAME]
-                    self.recordTagName = ""
-
-                    # Najdeme sloupce k importu
-                    if config.has_key(configRUIAN.FIELDS_KEY_NAME):
-                         fieldDefs = config[configRUIAN.FIELDS_KEY_NAME]
-                         self.allowedColumns = fieldDefs.keys()
-                    else:
-                        self.allowedColumns = None
-                    self.tableRecordCount = 0
-                    print "            Importuji tabulku ", self.tableName, ":", self.allowedColumns
-                else:
-                    print name, "properties are not configured."
+                self.processTableOpeningTag(dbHandler, name, attrs)
 
             elif self.insideImportedTable: # jsme uvnitø tabulky
                 if self.recordTagName == "": # new table record
-                    self.recordTagName = name
-                    self.newRecord()
+                    self.processNewRecordTag(name)
                 elif (self.allowedColumns != None):
-                    # Remove namespace prefix, if needed
-                    if configRUIAN.SKIPNAMESPACEPREFIX:
-                        doubleDotPos = name.find(":")
-                        if doubleDotPos >= 0:
-                            name = name[doubleDotPos + 1:]
+                    tagName = name
+                    name = normalizeTagName(name)
 
                     columnPath = self.elemPathStr[len(DATA_XML_PATH + XML_PATH_SEPARATOR + self.tableName + XML_PATH_SEPARATOR + self.recordTagName + XML_PATH_SEPARATOR):]
                     if columnPath <> "":
@@ -144,8 +186,14 @@ class RUIANParser:
                     #if name in self.allowedColumns and self.elemLevel == 5: # start of allowed column
                     if columnPath in self.xmlSubPaths:
                         self.columnName = self.xmlSubPaths[columnPath]
+                        self.subXML = []
+                        self.isGeometry = self.columnName in self.geometryNames
+                    elif self.columnName <> "":
+                        # tagy podrizene aktualnimu = GML obsah
+                        self.subXML.append("<" + tagName + attrDictToStr(attrs) + ">")
                     else:
                         self.columnName = ""
+
             else:
                 # Skipped tags
                 pass
@@ -156,26 +204,47 @@ class RUIANParser:
         def end_element(name):
             """ End element Handler """
             name = name.replace("vf:", "")          # remove namespace prefix
+            normalizedTagName = normalizeTagName(name)
+            # jsme uvnitø importované tabulky
+            if self.insideImportedTable:
+                # close table
+                if self.insideImportedTable and self.tableName == name and self.elemLevel == 3:
+                    self.insideImportedTable = False
+                    self.tableName = None
+                    self.allowedColumns = None
+                    print "            Naèteno", self.tableRecordCount, "záznamù."
 
-            # close table
-            if self.insideImportedTable and self.tableName == name and self.elemLevel == 3:
-                self.insideImportedTable = False
-                self.tableName = None
-                self.allowedColumns = None
-                print "            Naèteno", self.tableRecordCount, "záznamù."
+                # close record
+                elif self.recordTagName == name:
+                    self.recordTagName = ""
+                    self.tableRecordCount = self.tableRecordCount + 1
+                    self.logTableRecordProgress()
+                    #self.tableRecordCount
+                    if self.insideImportedTable:
+##                        if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
+##                            pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
+                        dbHandler.writeRowToTable(self.tableName, self.recordValues)
+                        self.recordValues = {}
 
-            # close record
-            elif self.recordTagName == name:
-                self.recordTagName = ""
-                self.tableRecordCount = self.tableRecordCount + 1
-                if 1000*math.floor(self.tableRecordCount/1000) == self.tableRecordCount:
-                    print self.tableRecordCount, " records"
-                self.tableRecordCount
-                if self.insideImportedTable:
-                    if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
-                        pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
-                    dbHandler.writeRowToTable(self.tableName, self.recordValues)
-                    self.recordValues = {}
+                # Close attribute column
+                elif self.columnName == normalizedTagName:
+                    if len(self.subXML) <> 0 and self.isGeometry:
+                        self.recordValues[self.columnName] = "".join(self.subXML)
+                        #print "".join(self.subXML)
+
+                    self.subXML = []
+                    self.columnName = ""
+
+                # tagy podrizene aktualnimu = GML obsah
+                elif (self.columnName <> ""):
+                    self.subXML.append("</" + name + ">")
+                else:
+                    pass
+                    # unused tags = errors
+
+            # leave all tags outside imported tables
+            else:
+                pass
 
             self.elemPath.remove(self.elemPath[len(self.elemPath) - 1])
             self.elemPathStr = XML_PATH_SEPARATOR.join(self.elemPath)
@@ -188,6 +257,8 @@ class RUIANParser:
                     self.recordValues[self.columnName] = self.recordValues[self.columnName] + data
                 else:
                     self.recordValues[self.columnName] = data
+                if len(self.subXML) <> 0:
+                    self.subXML.append(data)
 
         p = xml.parsers.expat.ParserCreate()
 

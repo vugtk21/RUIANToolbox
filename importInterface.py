@@ -50,11 +50,16 @@ def createDatabaseProc(overwriteIfExists = False):
     createDatabaseHandler()
     displayMessage("Vytvářím tabulky databáze...")
     for tableName in configRUIAN.tableDef:
-        fields = configReader.getTableFields(tableName)
-        displayMessage(tableName + "\t:" + str(fields), 1)
-        if databaseHandler:
-            databaseHandler.createTable(tableName, overwriteIfExists)
-            databaseHandler.closeTable(tableName)
+        if sharedTools.isImportedTable(tableName):
+            fields = configReader.getTableFields(tableName)
+            displayMessage(tableName + "\t:" + str(fields), 1)
+            if databaseHandler:
+                databaseHandler.createTable(tableName, overwriteIfExists)
+                databaseHandler.closeTable(tableName)
+        else:
+            if databaseHandler:
+                databaseHandler.deleteTable(tableName)
+
     displayMessage("Hotovo")
     pass
 
@@ -63,6 +68,7 @@ def importDatabaseProc():
 
     displayMessage("Importuji databázi z adresáře " + dataPath)
 
+    parseRUIANFile.removeTables = True
     parser = parseRUIANFile.RUIANParser()
 
     dirItems = os.listdir(dataPath)
@@ -73,6 +79,7 @@ def importDatabaseProc():
             displayMessage("Importuji soubor " + dirItem, 1)
             if databaseHandler:
                 parser.importData(dataPath + dirItem, databaseHandler)
+                parseRUIANFile.removeTables = False
 
     displayMessage("Done")
     closeAllKnownTables()
@@ -89,8 +96,8 @@ def onDatabaseExistsProc():
 
 """
 Tato procedura by mìla vypisovat do konzole obsah parametru message. Vzhledem k
-tomu, že jste pøesmìroval standardní výstup do textového pole, teda aspoò myslím,
-tak by nemìlo být potøeba na to sahat.
+tomu, že jste přesmìroval standardní výstup do textového pole, teda aspoò myslím,
+tak by nemìlo být potřeba na to sahat.
 
         # create connections
         XStream.stdout().messageWritten.connect( self._console.insertPlainText )
@@ -100,17 +107,17 @@ tak by nemìlo být potøeba na to sahat.
 displayMessage = dummyMessageProc
 
 """ Procedura, kterou využijeme pro testování, jestli ze stránky vyplnìní
-parametrù databáze pøejít na vytváøení databáze nebo pøímo na import.
+parametrù databáze přejít na vytváření databáze nebo přímo na import.
 """
 databaseExists = onDatabaseExistsProc
 
 """
-Tuto proceduru spustíme, když pøejdeme na stránku vytváøení databáze (databaseExists = false)
+Tuto proceduru spustíme, když přejdeme na stránku vytváření databáze (databaseExists = false)
 """
 createDatabase = createDatabaseProc
 
 """
-Tuto proceduru spustíme, když pøejdeme na stránku import
+Tuto proceduru spustíme, když přejdeme na stránku import
 """
 importDatabase = importDatabaseProc
 
@@ -126,7 +133,7 @@ class TestGlobalFunctions(unittest.TestCase):
         pass
 
     def testcreateDatabaseProc(self):
-        createDatabase()
+        createDatabase(True)
         pass
 
 

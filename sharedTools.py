@@ -10,6 +10,7 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import os
+import configRUIAN, configGUI
 
 def pathWithLastSlash(path):
     sepIdx = path.rfind(os.sep)
@@ -24,3 +25,14 @@ def getFileExtension(fileName):
         return fileName[sepIdx + 1:]
     else:
         return ""
+
+def isImportedTable(tableName):
+    result = False
+    if configRUIAN.tableDef.has_key(tableName):
+        treeViewSet = configGUI.configData['treeViewSet']
+        if treeViewSet.has_key(tableName):
+            tableSettings = treeViewSet[tableName]
+            for fieldName in tableSettings:
+                if tableSettings[fieldName] == "True":
+                    return True
+    return result
