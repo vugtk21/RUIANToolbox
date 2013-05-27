@@ -9,9 +9,12 @@
 # Copyright:   (c) Radek Augustýn 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+"""
+@DONE 26.05.2013    Normalizace názvů tabulek na lowercase (tableName = _normalizeTableName(tableName))
+"""
 import psycopg2
 import os, string
-import DBHandlers, configRUIAN, configReader
+import DBHandlers, configRUIAN, configReader, configGUI
 
 fieldPostGISGeom = {
  "MultiPointPropertyType"  : "point",
@@ -37,6 +40,77 @@ def ruianToPostGISMultipoint(elementXML):
 
     return result
     pass
+
+POSTGIS_DBHANDLER_CONFIGKEY = 'postGIS_DBHandler'
+DATABASENAME_KEY = 'dbname'
+HOST_KEY         = 'host'
+PORT_KEY         = 'port'
+USER_KEY         = 'user'
+PASWORD_KEY      = 'password'
+SCHEMANAME_KEY      = 'schemaName'
+
+class storedParams:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(storedParams, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    # Getters and setters
+    def getDatabaseName(self):
+        return configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][DATABASENAME_KEY]
+
+    def setDatabaseName(self, value):
+        configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][DATABASENAME_KEY] = value
+
+    def getHost(self):
+        return configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][HOST_KEY]
+
+    def setHost(self, value):
+        configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][HOST_KEY] = value
+
+    def getPort(self):
+        return configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][PORT_KEY]
+
+    def setPort(self, value):
+        configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][PORT_KEY] = value
+
+    def getUser(self):
+        return configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][USER_KEY]
+
+    def setUser(self, value):
+        configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][USER_KEY] = value
+
+    def getPassword(self):
+        return configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][PASWORD_KEY]
+
+    def setPassword(self, value):
+        configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][PASWORD_KEY] = value
+
+    def getSchemaName(self):
+        return configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][SCHEMANAME_KEY]
+
+    def setSchemaName(self, value):
+        configGUI.configData[POSTGIS_DBHANDLER_CONFIGKEY][SCHEMANAME_KEY] = value
+
+    def getConnectionParams(self):
+        return 'dbname=' + self.databaseName + \
+                 ' host=' + self.host + \
+                 ' port=' + self.port + \
+                 ' user=' + self.user + \
+                 ' password=' + self.password
+
+    # property definitions
+    databaseName = property(getDatabaseName, setDatabaseName)
+    host = property(getHost, setHost)
+    port = property(getPort, setPort)
+    user = property(getUser, setUser)
+    password = property(getPassword, setPassword)
+    schemaName = property(getSchemaName, setSchemaName)
+    connectionParams = property(getConnectionParams)
+
+params = storedParams()
 
 def ruianToPostGISColumnName(XMLTagName, removeNamespace):
     """ if removeNamespace is set to true, than removes namespace prefix from XMLTagName
@@ -68,6 +142,9 @@ def ruianToPostGISColumnName(XMLTagName, removeNamespace):
         result = stack
 
     return result
+
+def _normalizeTableName(tableName):
+    return tableName.lower()
 
 def ruianPostGISTablesStructure(schemaName, tableName):
     tableCreateSQL = "CREATE TABLE " + schemaName + '.' + ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX) + "("
@@ -142,7 +219,7 @@ class Handler:
         ''' Uvolňuje tabulku tableName, vrací True pokud se podařilo  '''
         if self.tableExists(tableName):
             SQL = ("DROP TABLE %s CASCADE;") %(ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
-            self.tableList[tableName] = None
+            del self.tableList[tableName]
             self.cursor.execute(SQL)
             self.connection.commit()
             return True
@@ -187,12 +264,13 @@ class Handler:
         ''' Vytvoří tabulku tableName, pokud ještě neexistuje, se sloupci podle definice v
         configRUIAN.tableDef.'''
         if overwriteIfExists and self.tableExists(tableName):
-            self.deleteTable(ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX))
+            self.deleteTable(tableName)
 
         if not self.tableExists(tableName):
             SQL = ruianPostGISTablesStructure(self.schemaName, tableName)
             self.cursor.execute(SQL)
             self.connection.commit()
+            self.tableList[tableName] = True
 
         return True
 
@@ -210,12 +288,12 @@ class Handler:
             fieldsList = fieldsList + comma + ruianToPostGISColumnName(field, configRUIAN.SKIPNAMESPACEPREFIX)
 
             # sestaveni seznamu HODNOT atr. poli
-            if configRUIAN.tableDef[tableName]['fields'][field]['type'] == 'DateTime':   #ponecha pouze datum, vypusti cas
-                columnValues[field] = string.split(columnValues[field],'T')[0]
-                if len(columnValues[field]) < 10:
-                    columnValues[field] = '0001-01-01'                           #nahradi nesmyslnou hodnotou
+##            if configRUIAN.tableDef[tableName]['fields'][field]['type'] == 'DateTime':   #ponecha pouze datum, vypusti cas
+##                columnValues[field] = string.split(columnValues[field],'T')[0]
+##                if len(columnValues[field]) < 10:
+##                    columnValues[field] = '0001-01-01'                           #nahradi nesmyslnou hodnotou
 
-            valuesList = valuesList + comma + "'" + columnValues[field] + "'"
+            valuesList = valuesList + comma + "'" + columnValues[field].replace("'", "") + "'" # @TODO Zabezpečit, aby v řetězci mohly být apostrofy
 
             # uprava GML tak aby fungovaly funkce PostGIS
             if field == 'DefinicniBod':
@@ -228,7 +306,6 @@ class Handler:
             if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName]['fields'][field]['type']) and columnValues[field] !='':
                 fieldsList = fieldsList + comma + ruianToPostGISColumnName(field, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName]['fields'][field]['type']]
                 valuesList = valuesList + comma + "st_geomfromgml('" + columnValues[field] + "')"
-
 
         SQL = "INSERT INTO " + ruianToPostGISColumnName(tableName,True) + "(" + fieldsList + ") VALUES (" + valuesList +  ");"
         self.cursor.execute(SQL)

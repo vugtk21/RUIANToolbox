@@ -26,7 +26,7 @@ def createDatabaseHandler():
         elif dbType == 'postGIS_DBHandler':
             import postGIS_DBHandler
 
-            databaseHandler = None
+            databaseHandler = postGIS_DBHandler.Handler(postGIS_DBHandler.params.connectionParams, postGIS_DBHandler.params.schemaName)
         else:
             databaseHandler = None
 

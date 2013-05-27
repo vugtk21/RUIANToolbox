@@ -9,13 +9,13 @@
 # Copyright:   (c) Radek Augustýn 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import os, xml.parsers.expat, gzip
-import configRUIAN, DBHandlers, textFile_DBHandler, postGIS_DBHandler
+import os, xml.parsers.expat, gzip, math
+import configRUIAN, DBHandlers, textFile_DBHandler, postGIS_DBHandler, configGUI
 
 # @TODO Doøešit duplicitní vnoøené názvy coi:Kod vs obi:Kod
 # @TODO Jak vyøešit UTF-8
 
-removeTables = True
+removeTables = False
 DATA_XML_PATH = "VymennyFormat/Data"
 XML_PATH_SEPARATOR = "/"
 
@@ -33,6 +33,17 @@ def removeFileExt(fileName):
     else:
         return fileName
 
+def isImportedTable(tableName):
+    result = False
+    if configRUIAN.tableDef.has_key(tableName):
+        treeViewSet = configGUI.configData['treeViewSet']
+        if treeViewSet.has_key(tableName):
+            tableSettings = treeViewSet[tableName]
+            for fieldName in tableSettings:
+                if tableSettings[fieldName] == "True":
+                    return True
+    return result
+
 class RUIANParser:
     """ Tøída implementující konverzi z exportního formátu RÚIAN. """
     def __init__(self):
@@ -46,13 +57,13 @@ class RUIANParser:
         Zároveò vytvoøí pole se seznamem xmlSubPath-s pro každou tabulku.
         '''
         for tableDef in configRUIAN.tableDef.values():
-            xmlSubPaths = []
+            xmlSubPaths = {}
             fieldDefs = tableDef[configRUIAN.FIELDS_KEY_NAME]
             for fieldName in fieldDefs:
                 fieldDef = fieldDefs[fieldName]
                 if not fieldDef.has_key(configRUIAN.XMLSUBPATH_KEYNAME):
                     fieldDef[configRUIAN.XMLSUBPATH_KEYNAME] = fieldName
-                xmlSubPaths.append(fieldDef[configRUIAN.XMLSUBPATH_KEYNAME])
+                xmlSubPaths[fieldDef[configRUIAN.XMLSUBPATH_KEYNAME]] = fieldName
             tableDef[configRUIAN.XMLSUBPATH_KEYNAME] = xmlSubPaths
         pass
 
@@ -79,8 +90,8 @@ class RUIANParser:
         self.recordValues = {}
         self.columnName = ""
         self.columnLevel = -1
-        self.xmlSubPaths = []
-        #self.tableRecordCount = 0
+        self.xmlSubPaths = {}
+        self.tableRecordCount = 0
 
         def start_element(name, attrs):
             """ Start element Handler. """
@@ -90,10 +101,10 @@ class RUIANParser:
 
             # Jestliže jsme na úrovni datových tabulek, založíme ji
             if self.elemPathStr == DATA_XML_PATH:
-                self.insideImportedTable = configRUIAN.tableDef.has_key(name)
+                self.insideImportedTable = isImportedTable(name) # configRUIAN.tableDef.has_key(name)
                 self.tableName = name
                 self.insideTable = True
-                self.xmlSubPaths = []
+                self.xmlSubPaths = {}
                 if self.insideImportedTable:
                     dbHandler.createTable(self.tableName, removeTables)
                     config = configRUIAN.tableDef[name]
@@ -106,7 +117,7 @@ class RUIANParser:
                          self.allowedColumns = fieldDefs.keys()
                     else:
                         self.allowedColumns = None
-                    #self.tableRecordCount = 0
+                    self.tableRecordCount = 0
                     print "            Importuji tabulku ", self.tableName, ":", self.allowedColumns
                 else:
                     print name, "properties are not configured."
@@ -124,13 +135,15 @@ class RUIANParser:
 
                     columnPath = self.elemPathStr[len(DATA_XML_PATH + XML_PATH_SEPARATOR + self.tableName + XML_PATH_SEPARATOR + self.recordTagName + XML_PATH_SEPARATOR):]
                     if columnPath <> "":
+##                        fieldDefs = configRUIAN.tableDef[self.tableName][configRUIAN.FIELDS_KEY_NAME]
+##                        fieldName = fieldDefs.keys()[0]
                         columnPath = columnPath + XML_PATH_SEPARATOR + name
                     else:
                         columnPath = name
 
                     #if name in self.allowedColumns and self.elemLevel == 5: # start of allowed column
                     if columnPath in self.xmlSubPaths:
-                        self.columnName = name
+                        self.columnName = self.xmlSubPaths[columnPath]
                     else:
                         self.columnName = ""
             else:
@@ -149,12 +162,15 @@ class RUIANParser:
                 self.insideImportedTable = False
                 self.tableName = None
                 self.allowedColumns = None
-                #print "            Naèteno", self.tableRecordCount, "záznamù."
+                print "            Naèteno", self.tableRecordCount, "záznamù."
 
             # close record
             elif self.recordTagName == name:
                 self.recordTagName = ""
-                #self.tableRecordCount = self.tableRecordCount + 1
+                self.tableRecordCount = self.tableRecordCount + 1
+                if 1000*math.floor(self.tableRecordCount/1000) == self.tableRecordCount:
+                    print self.tableRecordCount, " records"
+                self.tableRecordCount
                 if self.insideImportedTable:
                     if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
                         pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
