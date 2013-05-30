@@ -22,6 +22,13 @@ fieldPostGISGeom = {
  "MultiSurfacePropertyType" : "poly"
 }
 
+constrainPostGISGeom = {
+ "MultiPointPropertyType"  : ["POINT","MULTIPOINT"],
+ "MultiCurvePropertyType"  : ["LINESTRING","MULTILINESTRING"],
+ "MultiSurfacePropertyType" : ["POLYGON","MULTIPOLYGON"]
+}
+
+
 # RUIAN to PostGIS SQL conversion table
 ruianToPostGISDBTypes = {
  "String"    : "text",
@@ -152,6 +159,7 @@ def ruianPostGISTablesStructure(schemaName, tableName):
             if item == 'fields':
                 numFields = 1
                 pKey = ''
+                fieldConstrainDef = ''
                 for fieldName in configRUIAN.tableDef[tableName][item]:
                     if numFields < len(configRUIAN.tableDef[tableName][item]):
                         separator = ','
@@ -163,6 +171,8 @@ def ruianPostGISTablesStructure(schemaName, tableName):
                        ruianToPostGISDBTypes[configRUIAN.tableDef[tableName][item][fieldName]['type']]
                     if fieldPostGISGeom.has_key(configRUIAN.tableDef[tableName][item][fieldName]['type']):
                         fieldDef = fieldDef + ', ' + ruianToPostGISColumnName(fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']] + ' geometry'
+                        fieldConstrainDef = fieldConstrainDef + ",CONSTRAINT enforce_" + ruianToPostGISColumnName(tableName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + ruianToPostGISColumnName(fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']] + " CHECK (geometrytype(" +  ruianToPostGISColumnName(fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']] +  ") = '" + constrainPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']][0] + "'::text OR geometrytype(" +  ruianToPostGISColumnName(fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']] +  ") = '" + constrainPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']][1] + "'::text OR " + ruianToPostGISColumnName(fieldName, configRUIAN.SKIPNAMESPACEPREFIX) + '_' + fieldPostGISGeom[configRUIAN.tableDef[tableName][item][fieldName]['type']] + " IS NULL)"
+                        pass
 
                     if configRUIAN.tableDef[tableName][item][fieldName].has_key('notNull'):
                         if configRUIAN.tableDef[tableName][item][fieldName]['notNull'] == 'yes':
@@ -176,7 +186,7 @@ def ruianPostGISTablesStructure(schemaName, tableName):
                                      ruianToPostGISColumnName(fieldName,configRUIAN.SKIPNAMESPACEPREFIX) + ')'
                     fieldDef = fieldDef + separator
                     tableCreateSQL = tableCreateSQL + fieldDef
-                tableCreateSQL = tableCreateSQL + pKey + ") WITH (OIDS=FALSE);"
+                tableCreateSQL = tableCreateSQL + pKey +  fieldConstrainDef + ") WITH (OIDS=FALSE);"
     return tableCreateSQL
 
 class Handler:
@@ -235,7 +245,7 @@ class Handler:
 
         return self.tableList[tableName]
 
-    def createIndexes(self, tableName):
+    def createGeomIndexes(self, tableName):
         ''' Vytvori index'''
         SQL = '''
             SELECT
@@ -270,6 +280,7 @@ class Handler:
             SQL = ruianPostGISTablesStructure(self.schemaName, tableName)
             self.cursor.execute(SQL)
             self.connection.commit()
+            self.createGeomIndexes(tableName)
             self.tableList[tableName] = True
 
         return True
@@ -308,10 +319,15 @@ class Handler:
                 valuesList = valuesList + comma + "st_geomfromgml('" + columnValues[field] + "')"
 
         SQL = "INSERT INTO " + ruianToPostGISColumnName(tableName,True) + "(" + fieldsList + ") VALUES (" + valuesList +  ");"
-        self.cursor.execute(SQL)
-        self.connection.commit()
+        try:
+            self.cursor.execute(SQL)
+            self.connection.commit()
+            return True
+        except:
+            self.connection.rollback()  # todo - v pripade vadne geometrie dojde k preskoceni zaznamu
+            pass
+            return False
 
-        return True
 
 import unittest
 

@@ -11,18 +11,24 @@
 #-------------------------------------------------------------------------------
 import os
 import sharedTools, configRUIAN, configReader, configGUI
-
-# import business logic
-import parseRUIANFile, textFile_DBHandler
+import parseRUIANFile # import business logic
 
 databaseHandler = None
 
 def createDatabaseHandler():
+        """
+        Nastaví proměnnou databaseHandler na správný ovladač, jak bylo vybráno a uloženo do souboru configGUI.
+
+        """
         global databaseHandler
 
         dbType = configGUI.configData['selectedDatabaseType']
+        # Data will be stored as text files in directory
         if dbType == 'textFile_DBHandler':
+            import textFile_DBHandler
             databaseHandler = textFile_DBHandler.Handler(configGUI.configData['textFile_DBHandler']['dataDirectory'], ",")
+
+        # Data will be stored in PostGIS database
         elif dbType == 'postGIS_DBHandler':
             import postGIS_DBHandler
 
@@ -31,6 +37,12 @@ def createDatabaseHandler():
             databaseHandler = None
 
 def dummyMessageProc(message, tabLevel = 0):
+    """
+    Tato procedura zobrazí zprávu message na standardní výstup odstazenou o odsazení tabLevel.
+
+    @param message: Zobrazený text
+    @param tabLevel: Odsazení textu
+    """
     tabStr = ""
     for i in range(0, tabLevel):
         tabStr = tabStr + "    "
