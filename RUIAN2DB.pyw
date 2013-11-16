@@ -13,11 +13,11 @@
 from PyQt4.QtGui import (QApplication, QWizard, QWizardPage, QPixmap, QLabel,
                          QRadioButton, QVBoxLayout, QLineEdit, QGridLayout,
                          QRegExpValidator, QCheckBox, QPrinter, QPrintDialog,
-                         QMessageBox,QTextBrowser,QPushButton, QIcon, QFileDialog,QTreeWidget,QTreeWidgetItem)
+                         QMessageBox,QTextBrowser,QPushButton, QIcon, QFileDialog,QTreeWidget,QTreeWidgetItem, QProgressBar)
 from PyQt4.QtCore import (pyqtSlot, pyqtSignal, QRegExp, QObject, SIGNAL, SLOT, Qt)
 import sys,os
 import configGUI as c
-import importInterface
+import importRUIAN
 
 config = c.configData
 messageConsole = None
@@ -31,10 +31,10 @@ def messageProc(message, tabLevel = 0):
             tabStr = tabStr + "    "
         messageConsole.insertPlainText(tabStr + message + "\n")
     else:
-        importInterface.dummyMessageProc(message, tabLevel)
+        importRUIAN.dummyMessageProc(message, tabLevel)
     pass
 
-importInterface.displayMessage = messageProc
+importRUIAN.displayMessage = messageProc
 
 class LicenseWizard(QWizard):
     NUM_PAGES = 8
@@ -79,12 +79,12 @@ class LicenseWizard(QWizard):
                 XStream.stdout().messageWritten.connect( _console1.insertPlainText )
                 XStream.stderr().messageWritten.connect( _console1.insertPlainText )
 
-                importInterface.createDatabase(False)
+                importRUIAN.createDatabase(False)
             if id == 7:
                 messageConsole = _console2
                 XStream.stdout().messageWritten.connect( _console2.insertPlainText )
                 XStream.stderr().messageWritten.connect( _console2.insertPlainText )
-                importInterface.importDatabase()
+                importRUIAN.importDatabase()
         self.prevId = id
 
 class IntroPage(QWizardPage):
@@ -127,6 +127,7 @@ class DatabaseTypePage(QWizardPage):
         grid = QGridLayout()
         grid.addWidget(self.textRB, 0, 0)
         grid.addWidget(self.pgRB, 1, 0)
+
         self.setLayout(grid)
 
         self.connect(self.textRB, SIGNAL("clicked()"), self.updateDatabaseTypeText)
@@ -185,8 +186,8 @@ class TextFileDBHandlerPage(QWizardPage):
 
 
     def nextId(self):
-        importInterface.createDatabaseHandler()
-        if importInterface.databaseHandler.databaseExists():
+        importRUIAN.createDatabaseHandler()
+        if importRUIAN.databaseHandler.databaseExists():
             return LicenseWizard.PageImportParameters
         else:
             return LicenseWizard.PageSetupDB
@@ -353,7 +354,7 @@ class SetupDBPage(QWizardPage):
 
 
     def nextId(self):
-        if importInterface.databaseExists():
+        if importRUIAN.databaseExists():
             return LicenseWizard.PageImportParameters
         else:
             return LicenseWizard.PageCreateDBStructure
@@ -372,6 +373,16 @@ class CreateDBStructurePage(QWizardPage):
 
         grid = QGridLayout()
         grid.addWidget(self._console,3,0)
+
+        #self.porcessProgressBar = QProgressBar()
+        #self.porcessProgressBar.setMaximum(100)
+
+        #self.porcessProgressBar.setProperty("value", 10)
+        #self.porcessProgressBar.setValue(50)
+        #self.porcessProgressBar.setTextVisible(False)
+        #self.porcessProgressBar.setObjectName(_fromUtf8("porcessProgressBar"))
+        #grid.addWidget(self.porcessProgressBar)
+
         self.setLayout(grid)
 
         #self._console.insertPlainText("ahoj")
@@ -457,6 +468,16 @@ class ImportDBPage(QWizardPage):
 
         grid = QGridLayout()
         grid.addWidget(self._console,0,0)
+
+        #self.porcessProgressBar = QProgressBar()
+        #self.porcessProgressBar.setMaximum(100)
+
+        #self.porcessProgressBar.setProperty("value", 10)
+        #self.porcessProgressBar.setValue(50)
+        #self.porcessProgressBar.setTextVisible(False)
+        #self.porcessProgressBar.setObjectName(_fromUtf8("porcessProgressBar"))
+        #grid.addWidget(self.porcessProgressBar)
+
         self.setLayout(grid)
 
     def nextId(self):

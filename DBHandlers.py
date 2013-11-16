@@ -37,6 +37,13 @@ class DatabaseHandler:
     def databaseExists():
         return False
 
+    def closeDatabase(self):
+        """
+        Tato metoda zavírá databázi, pokud je to potøeba.
+
+        @return: True jestliže se tabulky podaøilo zavøít.
+        """
+        return True
 
 import unittest
 import configRUIAN
@@ -96,10 +103,6 @@ class TestHandler(unittest.TestCase):
             self.assertEqual(self.h.tableExists(TestHandler.testTableName), True, "Ov??ení jestli vytvo?ená tabulka existuje")
             self.h.deleteTable(TestHandler.testTableName)
             self.assertEqual(self.h.tableExists(TestHandler.testTableName), False, "Tabulku jsme práv? vymazali, takže neexistuje")
-        pass
-
-    def testcreateIndexes(self):
-        self.assertEqual(self.h.createIndexes(TestHandler.testTableName), True, "Vytvo?ení testovací tabulky")
         pass
 
     def testwriteRowToTable(self):

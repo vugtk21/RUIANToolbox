@@ -36,3 +36,13 @@ def isImportedTable(tableName):
                 if tableSettings[fieldName] == "True":
                     return True
     return result
+
+def alignStrLeft(v, numChars):
+    while (len(v) < numChars):
+        v = " " + v
+    return v
+
+def alignStrRight(v, numChars):
+    while (len(v) < numChars):
+        v = v + " "
+    return v

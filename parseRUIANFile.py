@@ -69,11 +69,42 @@ def getGeometryColumnNames(tableName):
 
     return result
 
+class LogInfo():
+    def __init__(self, elemCount, recordCount):
+        self.elemCount = elemCount
+        self.recordCount = recordCount
+        pass
+
+class ProcessInfo():
+    def __init__(self):
+        self.fileInfos = {}
+        self.tableInfos = {}
+        self.activeFile = None
+        pass
+
+    def addFile(self, fileName):
+        if not (fileName in self.fileInfos):
+            self.fileInfos[fileName] = {}
+        self.activeFile = self.fileInfos[fileName]
+        pass
+
+    def addTableInfos(self, tableName, elemCount, recordCount):
+        if self.activeFile <> None:
+            self.activeFile[tableName] = LogInfo(elemCount, recordCount)
+        if  tableName in self.tableInfos:
+            item = self.tableInfos[tableName]
+            item.elemCount = item.elemCount + elemCount
+            item.recordCount = item.recordCount + recordCount
+        else:
+            self.tableInfos[tableName] = LogInfo(elemCount, recordCount)
+        pass
+
 class RUIANParser:
     """ Tøída implementující konverzi z exportního formátu RÚIAN. """
     def __init__(self):
         ''' Nastavuje promìnnou databasePath a inicializuje seznam otevøených
         souborù'''
+        self.processInfo = ProcessInfo()
         self.buildXMLSubPaths()
         pass
 
@@ -120,16 +151,16 @@ class RUIANParser:
             self.tableRecordCount = 0
             print "            Importuji tabulku ", self.tableName, ":", self.allowedColumns
         else:
-            print name, "properties are not configured."
+            print "            ", name, "properties are not configured."
         pass
 
     def logTableRecordProgress(self):
         if 1000*math.floor(self.tableRecordCount/1000) == self.tableRecordCount:
-            print self.tableRecordCount, "records"
+            print self.tableRecordCount, u"záznamù"
 
     def logElemCount(self):
         if 50000*math.floor(self.elemCount/50000) == self.elemCount:
-            print self.elemCount, "tags"
+            print self.elemCount, u"tagù"
 
     def importData(self, inputFileName, dbHandler):
         """ Tato procedura importuje data ze souboru ve formátu výmìnného souboru
@@ -138,6 +169,7 @@ class RUIANParser:
             @param {String} inputFileName Vstupní soubor ve formátu výmìnného souboru RÚIAN.
             @param {String} inputFileName Vstupní soubor ve formátu výmìnného souboru RÚIAN.
         """
+        self.processInfo.addFile(inputFileName)
         self.elemCount = 0
         self.elemPath = []
         self.elemLevel = 0;
@@ -154,6 +186,9 @@ class RUIANParser:
         self.subXML = []
         self.isGeometry = False
         self.geometryNames = []
+        self.gmlPosTag = False
+        self.reverseCoordinates = False
+        self.gmlPosStr = ""
 
         def start_element(name, attrs):
             """ Start element Handler. """
@@ -163,6 +198,9 @@ class RUIANParser:
 
             name = name.replace("vf:", "")  # remove the namespace prefix
 
+            if self.reverseCoordinates and (name == "gml:pos"):
+                self.gmlPosStr = ""
+                self.gmlPosTag = True
 
             # Jestliže jsme na úrovni datových tabulek, založíme ji
             if self.elemPathStr == DATA_XML_PATH:
@@ -203,62 +241,75 @@ class RUIANParser:
 
         def end_element(name):
             """ End element Handler """
-            name = name.replace("vf:", "")          # remove namespace prefix
-            normalizedTagName = normalizeTagName(name)
-            # jsme uvnitø importované tabulky
-            if self.insideImportedTable:
-                # close table
-                if self.insideImportedTable and self.tableName == name and self.elemLevel == 3:
-                    self.insideImportedTable = False
-                    self.tableName = None
-                    self.allowedColumns = None
-                    print "            Naèteno", self.tableRecordCount, "záznamù."
+            if self.reverseCoordinates and (name == "gml:pos"):
+                self.gmlPosTag = False
+                if len(self.subXML) <> 0:
+                    coordValues = self.gmlPosStr.split(" ")
+                    for iCoordValues in range(0, len(coordValues)):
+                        coordValues[iCoordValues] = "-" + coordValues[iCoordValues]
+                    self.gmlPosStr = " ".join(coordValues)
+                    self.subXML.append("<gml:pos>" + self.gmlPosStr + "</gml:pos>")
+            else:
+                name = name.replace("vf:", "")          # remove namespace prefix
+                normalizedTagName = normalizeTagName(name)
+                # jsme uvnitø importované tabulky
+                if self.insideImportedTable:
+                    # close table
+                    if self.insideImportedTable and self.tableName == name and self.elemLevel == 3:
+                        self.processInfo.addTableInfos(self.tableName, 0, self.tableRecordCount)
+                        self.insideImportedTable = False
+                        self.tableName = None
+                        self.allowedColumns = None
+                        print u"            Nacteno", self.tableRecordCount, u"záznamù."
 
-                # close record
-                elif self.recordTagName == name:
-                    self.recordTagName = ""
-                    self.tableRecordCount = self.tableRecordCount + 1
-                    self.logTableRecordProgress()
-                    #self.tableRecordCount
-                    if self.insideImportedTable:
-##                        if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
-##                            pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
-                        dbHandler.writeRowToTable(self.tableName, self.recordValues)
-                        self.recordValues = {}
+                    # close record
+                    elif self.recordTagName == name:
+                        self.recordTagName = ""
+                        self.tableRecordCount = self.tableRecordCount + 1
+                        self.logTableRecordProgress()
+                        #self.tableRecordCount
+                        if self.insideImportedTable:
+    ##                        if self.tableName == 'Parcely' and self.recordValues['Id'] == '141':
+    ##                            pass    # ********************* poriznuta, blbe parsovana hodnota  ***********************
+                            dbHandler.writeRowToTable(self.tableName, self.recordValues)
+                            self.recordValues = {}
 
-                # Close attribute column
-                elif self.columnName == normalizedTagName:
-                    if len(self.subXML) <> 0 and self.isGeometry:
-                        self.recordValues[self.columnName] = "".join(self.subXML)
-                        #print "".join(self.subXML)
+                    # Close attribute column
+                    elif self.columnName == normalizedTagName:
+                        if len(self.subXML) <> 0 and self.isGeometry:
+                            self.recordValues[self.columnName] = "".join(self.subXML)
+                            #print "".join(self.subXML)
 
-                    self.subXML = []
-                    self.columnName = ""
+                        self.subXML = []
+                        self.columnName = ""
 
-                # tagy podrizene aktualnimu = GML obsah
-                elif (self.columnName <> ""):
-                    self.subXML.append("</" + name + ">")
+                    # tagy podrizene aktualnimu = GML obsah
+                    elif (self.columnName <> ""):
+                        self.subXML.append("</" + name + ">")
+                    else:
+                        pass
+                        # unused tags = errors
+
+                # leave all tags outside imported tables
                 else:
                     pass
-                    # unused tags = errors
 
-            # leave all tags outside imported tables
-            else:
+                self.elemPath.remove(self.elemPath[len(self.elemPath) - 1])
+                self.elemPathStr = XML_PATH_SEPARATOR.join(self.elemPath)
+                self.elemLevel = self.elemLevel - 1
                 pass
 
-            self.elemPath.remove(self.elemPath[len(self.elemPath) - 1])
-            self.elemPathStr = XML_PATH_SEPARATOR.join(self.elemPath)
-            self.elemLevel = self.elemLevel - 1
-            pass
-
         def char_data(data):
-            if self.columnName <> "":
-                if self.recordValues.has_key(self.columnName):
-                    self.recordValues[self.columnName] = self.recordValues[self.columnName] + data
-                else:
-                    self.recordValues[self.columnName] = data
-                if len(self.subXML) <> 0:
-                    self.subXML.append(data)
+            if self.reverseCoordinates and self.gmlPosTag:
+                self.gmlPosStr = self.gmlPosStr + data
+            else:
+                if self.columnName <> "":
+                    if self.recordValues.has_key(self.columnName):
+                        self.recordValues[self.columnName] = self.recordValues[self.columnName] + data
+                    else:
+                        self.recordValues[self.columnName] = data
+                    if len(self.subXML) <> 0:
+                        self.subXML.append(data)
 
         p = xml.parsers.expat.ParserCreate()
 
@@ -279,7 +330,7 @@ class RUIANParser:
         p.ParseFile(f)
         f.close()
 
-        print self.elemCount, "xml elements read"
+        print u"Pøeèteno", self.elemCount, u"xml elementù"
         pass
 
 import unittest

@@ -10,11 +10,11 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import os, codecs, string
-import sharedTools, DBHandlers, configRUIAN, configReader, importInterface
+import sharedTools, DBHandlers, configRUIAN, configReader, importRUIAN
 
 DATAFILEEXTENSION = ".csv"
 
-class Handler:
+class Handler(DBHandlers.DatabaseHandler):
     """ Implementace souborové databáze. Databáze je celá uložena v jednom
     adresáři, definovaném při inicializaci parametrem databasePath. Každá tabulka
     je uložena v jednom souboru s příponou DATAFILEEXTENSION.
@@ -39,7 +39,7 @@ class Handler:
         ''' Uzavírá tabulku tableName '''
         if self.openedFiles.has_key(tableName):
             self.openedFiles[tableName].close()
-            self.openedFiles[tableName] = None
+            del self.openedFiles[tableName]
 
         return True
 
@@ -114,6 +114,19 @@ class Handler:
         #f.write(",".join(columnValues.values()) + "\n")
         #f.write(str(columnValues) + "\n")
 
+        return True
+
+    def closeDatabase(self):
+        """
+        Tato metoda zavírá databázi, pokud je to potřeba.
+
+        @return: True jestliže se tabulky podařilo zavřít.
+        """
+        importRUIAN.displayMessage("Zavírám tabulky databáze...")
+        for tableName in configRUIAN.tableDef:
+            importRUIAN.displayMessage(tableName, 1)
+            self.closeTable(tableName)
+        importRUIAN.displayMessage("Hotovo")
         return True
 
 import unittest

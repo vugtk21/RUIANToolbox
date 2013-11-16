@@ -189,7 +189,7 @@ def ruianPostGISTablesStructure(schemaName, tableName):
                 tableCreateSQL = tableCreateSQL + pKey +  fieldConstrainDef + ") WITH (OIDS=FALSE);"
     return tableCreateSQL
 
-class Handler:
+class Handler(DBHandlers.DatabaseHandler):
     """ Implementace souborové databáze. Databáze je celá uložena v jednom
     adresáři, definovaném při inicializaci parametrem databasePath. Každá tabulka
     je uložena v jednom souboru s příponou DATAFILEEXTENSION.
@@ -342,6 +342,10 @@ class TestGlobalFunctions(unittest.TestCase):
         pass
 
     def tearDown(self):
+        pass
+
+    def testcreateIndexes(self):
+        self.assertEqual(self.h.createIndexes(TestHandler.testTableName), True, "Vytvoření indexů")
         pass
 
     def testruianToPostGISColumnName(self):
