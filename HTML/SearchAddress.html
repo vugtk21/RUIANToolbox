@@ -1,0 +1,44 @@
+<html>
+	<head>
+	<script type="text/javascript">
+	
+function addTableRow(name, value)
+{
+	document.write("<tr>");
+		document.write("<th>");
+		document.write(name);
+		document.write("</th>");
+
+		document.write("<td>");
+		document.write(value);
+		document.write("</td>");
+	document.write("</tr>");
+}
+
+function addResult(mesto, ulice, cislo_domovni, cislo_orientacni, psc)
+{
+	document.write("<table>");
+		addTableRow("Město", mesto);
+		addTableRow("Ulice", ulice);
+		addTableRow("Číslo domovní", cislo_domovni);
+		addTableRow("Číslo orientační", cislo_orientacni);
+		addTableRow("PSČ", psc);
+	document.write("</table>");
+}
+	</script>
+	</head>
+	<body>
+	<form name="input" action="SearchAddress.html" method="get">
+		Adresa:
+		<input type="text" name="address" size="80" />
+		<input type="submit" value="Zkontroluj" />
+	</form>
+	<p>
+	<p>
+	<script type="text/javascript">
+addResult("Praha", "Mrkvičkova", "1370", "15", "163 00");
+addResult("Chodov", "Budovatelů", "677", "15", "357 33");
+	</script>
+	
+</body>
+</html>
