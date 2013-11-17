@@ -23,6 +23,7 @@ $(function() {
 <li><a href="#tabs-2">Sestavení adresy</a></li>
 <li><a href="#tabs-3">Fulltextové vyhledávání</a></li>
 <li><a href="#tabs-4">Ověření adresy</a></li>
+<li><a href="#tabs-5">Ověření identifikátoru adresy</a></li>
 
   </ul>
     <div id="tabs-0">
@@ -33,44 +34,64 @@ $(function() {
     <img src="./Geocode.png" \>
     </div>
   <div id="tabs-1">   <h2>Vyhledávání adresního bodu adresního místa</h2>
-<table>
-Adresa služby/Geocode/Format/AddressPlaceId
 <form id="form_1" name="form_1" action="/Geocode" method="get">
-<tr><td>Formát výsledku služby </td><td><input name="form_1_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>Parametr REST</td></tr><tr><td>Identifikátor adresního místa, kterou chceme geokódovat </td><td><input name="form_1_/AddressPlaceId" /></td><td></td><td>/AddressPlaceId </td><td></td><td>Parametr REST</td></tr></table>
-<input type="submit" value="Odeslat">
+<table>
+<tr><td>Formát výsledku služby </td><td><input name="form_1_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>REST</td></tr><tr><td>Identifikátor </td><td><input name="form_1_AddressPlaceId" /></td><td>Identifikátor adresního místa, kterou chceme geokódovat</td><td>AddressPlaceId </td><td></td><td>Query</td></tr><tr><td>Adresa </td><td><input name="form_1_SearchText" /></td><td>Adresa, kterou chceme geokódovat</td><td>SearchText </td><td></td><td>Query</td></tr></table>
+<input type="submit" value="Najdi polohu">
 </form>
 <br>
-<img src="./Geocode.png">
+<img src="./Geocode.png"><br>
+Adresa služby:/Geocode<br>
+Volání služby:/Geocode/Format?AddressPlaceId=&SearchText=<br>
+URL služby:/Geocode/Format?AddressPlaceId=&SearchText=<br>
 </div>
 <div id="tabs-2">   <h2>Formátování adresy ve standardizovaném tvaru</h2>
-<table>
-Adresa služby/CompileAddress/Format/AddressPlaceId/ResultFormat
 <form id="form_2" name="form_2" action="/CompileAddress" method="get">
-<tr><td>Formát výsledku služby </td><td><input name="form_2_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>Parametr REST</td></tr><tr><td>Identifikátor adresního místa, kterou chceme geokódovat </td><td><input name="form_2_/AddressPlaceId" /></td><td></td><td>/AddressPlaceId </td><td></td><td>Parametr REST</td></tr><tr><td>Výsledný formát adresy </td><td><input name="form_2_/ResultFormat" /></td><td></td><td>/ResultFormat </td><td></td><td>Parametr REST</td></tr></table>
-<input type="submit" value="Odeslat">
+<table>
+<tr><td>Formát výsledku služby </td><td><input name="form_2_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>REST</td></tr><tr><td>Identifikátor adresního místa, kterou chceme geokódovat </td><td><input name="form_2_/AddressPlaceId" /></td><td></td><td>/AddressPlaceId </td><td></td><td>REST</td></tr><tr><td>Výsledný formát adresy </td><td><input name="form_2_/ResultFormat" /></td><td></td><td>/ResultFormat </td><td></td><td>REST</td></tr></table>
+<input type="submit" value="Sestav adresu">
 </form>
 <br>
-<img src="./CompileAddress.png">
+<img src="./CompileAddress.png"><br>
+Adresa služby:/CompileAddress<br>
+Volání služby:/CompileAddress/Format/AddressPlaceId/ResultFormat<br>
+URL služby:/CompileAddress/Format/AddressPlaceId/ResultFormat<br>
 </div>
 <div id="tabs-3">   <h2>Vyhledávání adresního místa podle řetězce</h2>
-<table>
-Adresa služby/FullTextSearch/Format/SearchFlag
 <form id="form_3" name="form_3" action="/FullTextSearch" method="get">
-<tr><td>Datový formát výsledku </td><td><input name="form_3_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>Parametr REST</td></tr><tr><td>Upřesnění způsobu vyhledávání </td><td><input name="form_3_/SearchFlag" /></td><td>Nearest record - nejbližší adresa, All records - podobné adresy</td><td>/SearchFlag </td><td></td><td>Parametr REST</td></tr><tr><td>Vyhledávaný řetězec </td><td><input name="form_3_SearchText" /></td><td>Textový řetězec k vyhledání adresy</td><td>SearchText </td><td></td><td>Parametr Query</td></tr></table>
-<input type="submit" value="Odeslat">
+<table>
+<tr><td>Datový formát výsledku </td><td><input name="form_3_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>REST</td></tr><tr><td>Upřesnění způsobu vyhledávání </td><td><input name="form_3_/SearchFlag" /></td><td>Nearest record - nejbližší adresa, All records - podobné adresy</td><td>/SearchFlag </td><td></td><td>REST</td></tr><tr><td>Vyhledávaný řetězec </td><td><input name="form_3_SearchText" /></td><td>Textový řetězec k vyhledání adresy</td><td>SearchText </td><td></td><td>Query</td></tr><tr><td>Volby </td><td><input name="form_3_ReturnOptions" /></td><td>Specifikace úplnosti vrácené adresy</td><td>ReturnOptions </td><td></td><td>Query</td></tr></table>
+<input type="submit" value="Vyhledej adresu">
 </form>
 <br>
-<img src="./FullTextSearch.png">
+<img src="./FullTextSearch.png"><br>
+Adresa služby:/FullTextSearch<br>
+Volání služby:/FullTextSearch/Format/SearchFlag?SearchText=&ReturnOptions=<br>
+URL služby:/FullTextSearch/Format/SearchFlag?SearchText=&ReturnOptions=<br>
 </div>
 <div id="tabs-4">   <h2>Ověřuje existenci dané adresy</h2>
-<table>
-Adresa služby/Validate/Street/Locality/HouseNumber
 <form id="form_4" name="form_4" action="/Validate" method="get">
-<tr><td>Ulice </td><td><input name="form_4_/Street" /></td><td>Název ulice</td><td>/Street </td><td></td><td>Parametr REST</td></tr><tr><td>Obec </td><td><input name="form_4_/Locality" /></td><td>Obec</td><td>/Locality </td><td></td><td>Parametr REST</td></tr><tr><td>Číslo popisné </td><td><input name="form_4_/HouseNumber" /></td><td></td><td>/HouseNumber </td><td></td><td>Parametr REST</td></tr><tr><td>PSČ </td><td><input name="form_4_/ZIPCode" /></td><td>Poštovní smrovací číslo</td><td>/ZIPCode </td><td></td><td>Parametr Query</td></tr><tr><td>Část obce </td><td><input name="form_4_/LocalityPart" /></td><td>Část obce, pokud je známa</td><td>/LocalityPart </td><td></td><td>Parametr Query</td></tr><tr><td>Číslo orientační </td><td><input name="form_4_/OrientationNumber" /></td><td></td><td>/OrientationNumber </td><td></td><td>Parametr Query</td></tr></table>
-<input type="submit" value="Odeslat">
+<table>
+<tr><td>Ulice </td><td><input name="form_4_/Street" /></td><td>Název ulice</td><td>/Street </td><td></td><td>REST</td></tr><tr><td>Obec </td><td><input name="form_4_/Locality" /></td><td>Obec</td><td>/Locality </td><td></td><td>REST</td></tr><tr><td>Číslo popisné </td><td><input name="form_4_/HouseNumber" /></td><td></td><td>/HouseNumber </td><td></td><td>REST</td></tr><tr><td>PSČ </td><td><input name="form_4_ZIPCode" /></td><td>Poštovní směrovací číslo</td><td>ZIPCode </td><td></td><td>Query</td></tr><tr><td>Část obce </td><td><input name="form_4_LocalityPart" /></td><td>Část obce, pokud je známa</td><td>LocalityPart </td><td></td><td>Query</td></tr><tr><td>Číslo orientační </td><td><input name="form_4_OrientationNumber" /></td><td></td><td>OrientationNumber </td><td></td><td>Query</td></tr></table>
+<input type="submit" value="Ověř adresu">
 </form>
 <br>
-<img src="./Validate.png">
+<img src="./Validate.png"><br>
+Adresa služby:/Validate<br>
+Volání služby:/Validate/Street/Locality/HouseNumber?ZIPCode=&LocalityPart=&OrientationNumber=<br>
+URL služby:/Validate/Street/Locality/HouseNumber?ZIPCode=&LocalityPart=&OrientationNumber=<br>
+</div>
+<div id="tabs-5">   <h2>Ověřuje existenci daného identifikátoru adresy</h2>
+<form id="form_5" name="form_5" action="/ValidateAddressId" method="get">
+<table>
+<tr><td>Address ID </td><td><input name="form_5_/Identifier" /></td><td>Address ID identifier to be validated</td><td>/Identifier </td><td></td><td>REST</td></tr></table>
+<input type="submit" value="Ověř identifikátor adresy">
+</form>
+<br>
+<img src="./ValidateAddressId.png"><br>
+Adresa služby:/ValidateAddressId<br>
+Volání služby:/ValidateAddressId/Identifier<br>
+URL služby:/ValidateAddressId/Identifier<br>
 </div>
 
 </div>

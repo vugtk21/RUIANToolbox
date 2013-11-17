@@ -41,7 +41,8 @@ class RestParam(URLParam):
 
 
 class WebService:
-    def __init__(self, pathName, caption, shortDesc, htmlDesc = "", restPathParams = [], queryParams = [], processHandler = None):
+    def __init__(self, pathName, caption, shortDesc, htmlDesc = "", restPathParams = [], queryParams = [],
+                 processHandler = None, sendButtonCaption = u"Odeslat"):
         ''' '''
         self.pathName  = pathName
         self.caption   = caption
@@ -50,6 +51,7 @@ class WebService:
         self.restPathParams = restPathParams
         self.queryParams = queryParams
         self.processHandler = processHandler
+        self.sendButtonCaption = sendButtonCaption
         self._params = None
         pass
 
@@ -67,6 +69,30 @@ class WebService:
         result = self.pathName
         for param in self.restPathParams:
             result = result + param.pathName
+        if len(self.queryParams) > 0:
+            queryParamsList = []
+            result += "?"
+            for param in self.queryParams:
+                queryParamsList.append(param.name + "=")
+            result += "&".join(queryParamsList)
+
+        return result
+
+    def buildServiceURL(self, queryParams):
+        result = self.pathName
+        for param in self.restPathParams:
+            result = result + param.pathName
+        if len(self.queryParams) > 0:
+            queryParamsList = []
+            result += "?"
+            for param in self.queryParams:
+                if queryParams.has_key(param.name):
+                    valueStr = queryParams[param.name]
+                else:
+                    valueStr = ""
+                queryParamsList.append(param.name + "=" + valueStr)
+            result += "&".join(queryParamsList)
+
         return result
 
     def processHTTPRequest(self, path, queryParams):
@@ -149,23 +175,27 @@ $(function() {
         for service in services:
             tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
             tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
-            tabDivs += '<table>\n'
-            tabDivs += u"Adresa služby" + service.getServicePath() + "\n"
             formName = "form_" + str(i)
             if service.pathName == pathInfo:
                 tabIndex = i
 
             tabDivs += '<form id="form_' + str(i) + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
+
+            # Parameters list
+            tabDivs += '<table>\n'
             for param in service.restPathParams:
-                tabDivs += self.tablePropertyRow(param, formName, u"Parametr REST", queryParams)
+                tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams)
 
             for param in service.queryParams:
-                tabDivs += self.tablePropertyRow(param, formName, u"Parametr Query", queryParams)
+                tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams)
 
             tabDivs += '</table>\n'
-            tabDivs += '<input type="submit" value="Odeslat">\n'
+            tabDivs += '<input type="submit" value="' + service.sendButtonCaption + '">\n'
             tabDivs += '</form>\n'
-            tabDivs += '<br>\n<img src=".' + service.pathName + '.png">\n'
+            tabDivs += '<br>\n<img src=".' + service.pathName + '.png"><br>\n'
+            tabDivs += u"Adresa služby:" + service.pathName + "<br>\n"
+            tabDivs += u"Volání služby:" + service.getServicePath() + "<br>\n"
+            tabDivs += u"URL služby:" + service.buildServiceURL(queryParams) + "<br>\n"
             tabDivs += '</div>\n'
             i = i + 1
 
@@ -191,12 +221,15 @@ def dummyServiceHandler(queryParams):
 def createServices():
     services.append(
         WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa", "",
-                [
-                    RestParam("/Format", u"Formát výsledku služby", "XML, Text, HTML"),
-                    RestParam("/AddressPlaceId", u"Identifikátor adresního místa, kterou chceme geokódovat", "")
-                ],
-                [],
-                geoCodeServiceHandler
+            [
+                RestParam("/Format", u"Formát výsledku služby", "XML, Text, HTML")
+            ],
+            [
+                URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa, kterou chceme geokódovat"),
+                URLParam("SearchText", u"Adresa", u"Adresa, kterou chceme geokódovat"),
+            ],
+            geoCodeServiceHandler,
+            sendButtonCaption = u"Najdi polohu"
         )
 
     )
@@ -208,7 +241,8 @@ def createServices():
                 RestParam("/ResultFormat", u"Výsledný formát adresy", "")
             ],
             [],
-            dummyServiceHandler
+            dummyServiceHandler,
+            sendButtonCaption = u"Sestav adresu"
         )
     )
     services.append(
@@ -216,12 +250,14 @@ def createServices():
             [
                 RestParam("/Format", u"Datový formát výsledku", "XML, Text, HTML"),
                 RestParam("/SearchFlag", u"Upřesnění způsobu vyhledávání", u"Nearest record - nejbližší adresa, All records - podobné adresy")
-                #RestParam("ReturnOptions", u"Specifikace úplnosti vrácené")
             ],
             [
-                URLParam("SearchText", u"Vyhledávaný řetězec", u"Textový řetězec k vyhledání adresy")
+                URLParam("SearchText", u"Vyhledávaný řetězec", u"Textový řetězec k vyhledání adresy"),
+                URLParam("ReturnOptions", u"Volby", u"Specifikace úplnosti vrácené adresy")
             ],
-            dummyServiceHandler)
+            dummyServiceHandler,
+            sendButtonCaption = u"Vyhledej adresu"
+        )
     )
     services.append(
         WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy", "",
@@ -231,11 +267,23 @@ def createServices():
                 RestParam("/HouseNumber", u"Číslo popisné", ""),
             ],
             [
-                URLParam("/ZIPCode", u"PSČ", u"Poštovní smrovací číslo"),
-                URLParam("/LocalityPart", u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("/OrientationNumber", u"Číslo orientační", "")
+                URLParam("ZIPCode", u"PSČ", u"Poštovní směrovací číslo"),
+                URLParam("LocalityPart", u"Část obce", u"Část obce, pokud je známa"),
+                URLParam("OrientationNumber", u"Číslo orientační", "")
             ],
-            dummyServiceHandler)
+            dummyServiceHandler,
+            sendButtonCaption = u"Ověř adresu"
+        )
+    )
+    services.append(
+        WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy", "",
+            [
+                RestParam("/Identifier", u"Address ID", u"Address ID identifier to be validated")
+            ],
+            [ ],
+            dummyServiceHandler,
+            sendButtonCaption = u"Ověř identifikátor adresy"
+        )
     )
     pass
 

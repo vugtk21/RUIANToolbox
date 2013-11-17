@@ -18,8 +18,9 @@ def getFileContent(fileName):
 
 def ProcessRequest(page, queryParams):
     addresswebservices.console.clear()
+    pageBuilder = addresswebservices.ServicesHTMLPageBuilder()
     if page in ["/", ""]:
-        return addresswebservices.getServicesHTMLPage("", {})
+        return pageBuilder.getServicesHTMLPage("", {})
     elif page.find(".") >= 0:
         return getFileContent(SERVICES_WEB_PATH + page) # TODO Implementovat vracení binárních souborů
     else:
@@ -44,7 +45,7 @@ def ProcessRequest(page, queryParams):
                 break
 
         if not handled:
-            s = addresswebservices.getServicesHTMLPage(servicePathInfo, queryParams)
+            s = pageBuilder.getServicesHTMLPage(servicePathInfo, queryParams)
             return s
 
 urls = ('/favicon.ico', 'favicon', '/(.*)', 'handler')
