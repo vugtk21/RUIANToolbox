@@ -50,6 +50,7 @@ class WebService:
     def processHTTPRequest(self, path, queryParams):
         pass
 
+
 def getServicesHTMLPage(pathInfo, queryParams):
     result = u'''
 <html>
@@ -89,6 +90,17 @@ $(function() {
 </html>
     '''
     result = result.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+
+    def normalizeQueryParams(queryParams):
+        """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
+        tj. 'form_2_/AddressPlaceId' se spráně jmenuje 'AddressPlaceId'.
+        """
+        result = {}
+        for key in queryParams:
+            result[key[key.find("/") + 1:]] = queryParams[key]
+        return result
+
+    queryParams = normalizeQueryParams(queryParams)
 
     tabCaptions = ""
     tabDivs = ""
@@ -142,6 +154,7 @@ def geoCodeServiceHandler(queryParams):
 def dummyServiceHandler(queryParams):
     return False
 
+#TODO Blank todo
 def createServices():
     services.append(
         WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa", "",

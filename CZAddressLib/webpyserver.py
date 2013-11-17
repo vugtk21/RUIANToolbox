@@ -19,16 +19,18 @@ def getFileContent(fileName):
 def ProcessRequest(page, queryParams):
     addresswebservices.console.clear()
     if page in ["/", ""]:
-        return addresswebservices.getServicesHTMLPage("", [])
+        return addresswebservices.getServicesHTMLPage("", {})
     elif page.find(".") >= 0:
         return getFileContent(SERVICES_WEB_PATH + page) # TODO Implementovat vracení binárních souborů
     else:
         fullPathList = page.split("/")                                # REST parametry
+        #TODO PathInfo by mělo být až za adresou serveru - zkontolovat jak je to na Apache
         servicePathInfo = "/" + fullPathList[0]                       # první rest parametr
         pathInfos = fullPathList[1:]                                  # ostatní
         handled = False
         for service in addresswebservices.services:
             if (service.pathName == servicePathInfo) and (service.processHandler <> None):
+                #TODO Tohle by si asi měla dělat service sama
                 i = 0
                 for pathValue in pathInfos:
                     if i < len(service.restPathParams):
