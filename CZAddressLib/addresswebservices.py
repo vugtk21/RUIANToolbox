@@ -23,23 +23,45 @@ class Console():
 
 console = Console()
 
-class RestParam:
-    def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):
-        self.pathName  = pathName
+class URLParam:
+    def __init__(self, name, caption, shortDesc, htmlDesc = ""):
+        self.name  = name
         self.caption   = caption
         self.shortDesc = shortDesc
         self.htmlDesc  = htmlDesc
 
+class RestParam(URLParam):
+    def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):
+        URLParam.__init__(self, pathName, caption, shortDesc, htmlDesc)
+
+    def getPathName(self):
+        return self.name
+
+    pathName = property(getPathName, "REST path name")
+
+
 class WebService:
-    def __init__(self, pathName, caption, shortDesc, htmlDesc = "", restPathParams = [], processHandler = None):
+    def __init__(self, pathName, caption, shortDesc, htmlDesc = "", restPathParams = [], queryParams = [], processHandler = None):
         ''' '''
         self.pathName  = pathName
         self.caption   = caption
         self.shortDesc = shortDesc
         self.htmlDesc  = htmlDesc
         self.restPathParams = restPathParams
+        self.queryParams = queryParams
         self.processHandler = processHandler
+        self._params = None
         pass
+
+    def getParams(self):
+        if self._params == None or len(self.restPathParams) + len(self.queryParams) != len(self._params):
+            self._params = {}
+            self._params.update(self.restPathParams)
+            self._params.update(self.queryParams)
+
+        return self._params
+
+    params = property(getParams, "REST and Query params together")
 
     def getServicePath(self):
         result = self.pathName
@@ -51,8 +73,8 @@ class WebService:
         pass
 
 
-def getServicesHTMLPage(pathInfo, queryParams):
-    result = u'''
+class ServicesHTMLPageBuilder:
+    pageTemplate = u'''
 <html>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <style>
@@ -89,9 +111,8 @@ $(function() {
     </body>
 </html>
     '''
-    result = result.replace("#PAGETITLE#", u"Webové služby RÚIAN")
 
-    def normalizeQueryParams(queryParams):
+    def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
         tj. 'form_2_/AddressPlaceId' se spráně jmenuje 'AddressPlaceId'.
         """
@@ -100,53 +121,65 @@ $(function() {
             result[key[key.find("/") + 1:]] = queryParams[key]
         return result
 
-    queryParams = normalizeQueryParams(queryParams)
-
-    tabCaptions = ""
-    tabDivs = ""
-    def tablePropertyRow(name, value, formName):
-        keyName = name[1:]
+    def tablePropertyRow(self, param, formName, paramTypeStr, queryParams):
+        keyName = param.name[1:]
         if queryParams.has_key(keyName):
             valueStr = 'value = "' + queryParams[keyName] + '"'
         else:
             valueStr = ""
 
-        return '<tr><td>' + name + ' </td><td>'\
-               '<input name="' + formName + '_' + name + '" ' + valueStr + '/>' \
-               '</td><td>' + value + '</td></tr>\n'
+        result = '<tr>'
+        result += '<td>' + param.caption + ' </td><td>'
+        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr + '/>'
+        result += '</td><td>' + param.shortDesc + '</td>'
+        result += '<td>' + param.name + ' </td><td>'
+        result += '</td><td>' + paramTypeStr + '</td>'
+        result += '</tr>'
+        return result
 
-    i = 1
-    tabIndex = 0
-    for service in services:
-        tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
-        tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
-        tabDivs += '<table>\n'
-        tabDivs += u"Adresa služby" + service.getServicePath() + "\n"
-        formName = "form_" + str(i)
-        if service.pathName == pathInfo:
-            tabIndex = i
+    def getServicesHTMLPage(self, pathInfo, queryParams):
+        result = self.pageTemplate.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        queryParams = self.normalizeQueryParams(queryParams)
 
-        tabDivs += '<form id="form_' + str(i) + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
-        for param in service.restPathParams:
-            tabDivs += tablePropertyRow(param.pathName, param.caption, formName)
-        tabDivs += '</table>\n'
-        tabDivs += '<input type="submit" value="Odeslat">\n'
-        tabDivs += '</form>\n'
-        tabDivs += '<br>\n<img src=".' + service.pathName + '.png">\n'
-        tabDivs += '</div>\n'
-        i = i + 1
+        tabCaptions = ""
+        tabDivs = ""
 
-    if tabIndex == 0:
-        newStr = ""
-    else:
-        newStr = '{ active: ' + str(tabIndex) + ' }'
-    result = result.replace("#TABSOPTIONS#", newStr)
+        i = 1
+        tabIndex = 0
+        for service in services:
+            tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
+            tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
+            tabDivs += '<table>\n'
+            tabDivs += u"Adresa služby" + service.getServicePath() + "\n"
+            formName = "form_" + str(i)
+            if service.pathName == pathInfo:
+                tabIndex = i
 
-    result = result.replace("#CONSOLELINES#", console.consoleLines)
-    result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
-    result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
-    result = result.replace("<#TABDIVS#/>", tabDivs)
-    return result
+            tabDivs += '<form id="form_' + str(i) + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
+            for param in service.restPathParams:
+                tabDivs += self.tablePropertyRow(param, formName, u"Parametr REST", queryParams)
+
+            for param in service.queryParams:
+                tabDivs += self.tablePropertyRow(param, formName, u"Parametr Query", queryParams)
+
+            tabDivs += '</table>\n'
+            tabDivs += '<input type="submit" value="Odeslat">\n'
+            tabDivs += '</form>\n'
+            tabDivs += '<br>\n<img src=".' + service.pathName + '.png">\n'
+            tabDivs += '</div>\n'
+            i = i + 1
+
+        if tabIndex == 0:
+            newStr = ""
+        else:
+            newStr = '{ active: ' + str(tabIndex) + ' }'
+        result = result.replace("#TABSOPTIONS#", newStr)
+
+        result = result.replace("#CONSOLELINES#", console.consoleLines)
+        result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
+        result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
+        result = result.replace("<#TABDIVS#/>", tabDivs)
+        return result
 
 def geoCodeServiceHandler(queryParams):
     return False
@@ -162,6 +195,7 @@ def createServices():
                     RestParam("/Format", u"Formát výsledku služby", "XML, Text, HTML"),
                     RestParam("/AddressPlaceId", u"Identifikátor adresního místa, kterou chceme geokódovat", "")
                 ],
+                [],
                 geoCodeServiceHandler
         )
 
@@ -173,6 +207,7 @@ def createServices():
                 RestParam("/AddressPlaceId", u"Identifikátor adresního místa, kterou chceme geokódovat", ""),
                 RestParam("/ResultFormat", u"Výsledný formát adresy", "")
             ],
+            [],
             dummyServiceHandler
         )
     )
@@ -180,24 +215,42 @@ def createServices():
         WebService("/FullTextSearch", u"Fulltextové vyhledávání", u"Vyhledávání adresního místa podle řetězce", "",
             [
                 RestParam("/Format", u"Datový formát výsledku", "XML, Text, HTML"),
-                RestParam("/<SearchFlag>", u"Upřesnění způsobu vyhledávání", u"Nearest record - nejbližší adresa, All records - podobné adresy")
-                #RestParam("SearchText", u"Vyhledávaný řetězec"),
+                RestParam("/SearchFlag", u"Upřesnění způsobu vyhledávání", u"Nearest record - nejbližší adresa, All records - podobné adresy")
                 #RestParam("ReturnOptions", u"Specifikace úplnosti vrácené")
-
+            ],
+            [
+                URLParam("SearchText", u"Vyhledávaný řetězec", u"Textový řetězec k vyhledání adresy")
             ],
             dummyServiceHandler)
     )
     services.append(
-        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy", "", [], dummyServiceHandler)
+        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy", "",
+            [
+                RestParam("/Street", u"Ulice", u"Název ulice"),
+                RestParam("/Locality", u"Obec", u"Obec"),
+                RestParam("/HouseNumber", u"Číslo popisné", ""),
+            ],
+            [
+                URLParam("/ZIPCode", u"PSČ", u"Poštovní smrovací číslo"),
+                URLParam("/LocalityPart", u"Část obce", u"Část obce, pokud je známa"),
+                URLParam("/OrientationNumber", u"Číslo orientační", "")
+            ],
+            dummyServiceHandler)
     )
     pass
 
 createServices()
 
 def main():
+    # Build HTML page with service description
+    pageBuilder = ServicesHTMLPageBuilder()
+    pageContent = pageBuilder.getServicesHTMLPage("", {})
+
+    # Write result into file
     file = codecs.open("..//html//WebServices.html", "w", "utf-8")
-    file.write(getServicesHTMLPage("", []))
+    file.write(pageContent)
     file.close()
+
     pass
 
 if __name__ == '__main__':
