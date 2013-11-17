@@ -30,7 +30,7 @@ def ProcessRequest(page, queryParams):
         pathInfos = fullPathList[1:]                                  # ostatní
         handled = False
         for service in addresswebservices.services:
-            if (service.pathName == servicePathInfo) and (service.processHandler <> None):
+            if (service.pathName == servicePathInfo) and (service.processHandler != None):
                 #TODO Tohle by si asi měla dělat service sama
                 i = 0
                 for pathValue in pathInfos:
@@ -45,6 +45,7 @@ def ProcessRequest(page, queryParams):
                 break
 
         if not handled:
+            addresswebservices.console.addMsg(u"Neznámá služba " + servicePathInfo)
             s = pageBuilder.getServicesHTMLPage(servicePathInfo, queryParams)
             return s
 

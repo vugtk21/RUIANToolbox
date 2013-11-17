@@ -16,6 +16,10 @@ SERVICES_PATH = '' # 'services'
 class Console():
     consoleLines = ""
     def addMsg(self, msg):
+        msg = '<div class="ui-widget">' \
+                '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
+                '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
+                '<strong>Chyba: </strong>' + msg + '</p></div></div>'
         self.consoleLines += msg + "\n"
 
     def clear(self):
@@ -118,6 +122,7 @@ $(function() {
     </script>
     <body>
     <h1>#PAGETITLE#</h1>
+    #CONSOLELINES#
 <div id="tabs">
   <ul>
     <li><a href="#tabs-0">Info</a></li>
@@ -133,11 +138,9 @@ $(function() {
   <#TABDIVS#/>
 </div>
 <br><br>
-<textarea cols="80" rows="15" name="Console" id="Console">#CONSOLELINES#</textarea>
     </body>
 </html>
     '''
-
     def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
         tj. 'form_2_/AddressPlaceId' se spráně jmenuje 'AddressPlaceId'.
