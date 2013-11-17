@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css" />
     <script>
 $(function() {
-    $( "#tabs" ).tabs();
+    $( "#tabs" ).tabs({ active: 2 });
 });
     </script>
     <body>
@@ -36,7 +36,7 @@ $(function() {
 <table>
 Adresa služby/Geocode/Format/AddressPlaceId
 <form id="form_1" name="form_1" action="WebServices.html/Geocode" method="get">
-<tr><td>/Format </td><td><input name="form_1_/Format" ></td><td>Formát výsledku služby</td></tr>
+<tr><td>/Format </td><td><input name="form_1_/Format" value="dd"></td><td>Formát výsledku služby</td></tr>
 <tr><td>/AddressPlaceId </td><td><input name="form_1_/AddressPlaceId" ></td><td>Identifikátor adresního místa, kterou chceme geokódovat</td></tr>
 </table>
 <input type="submit" value="Odeslat">

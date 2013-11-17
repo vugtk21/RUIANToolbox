@@ -12,6 +12,16 @@
 import codecs
 
 services = []
+SERVICES_PATH = '' # 'services'
+class Console():
+    consoleLines = ""
+    def addMsg(self, msg):
+        self.consoleLines += msg + "\n"
+
+    def clear(self):
+        self.consoleLines = ''
+
+console = Console()
 
 class RestParam:
     def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):
@@ -40,7 +50,7 @@ class WebService:
     def processHTTPRequest(self, path, queryParams):
         pass
 
-def getServicesHTMLPage():
+def getServicesHTMLPage(pathInfo, queryParams):
     result = u'''
 <html>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -54,7 +64,7 @@ def getServicesHTMLPage():
     <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css" />
     <script>
 $(function() {
-    $( "#tabs" ).tabs();
+    $( "#tabs" ).tabs(#TABSOPTIONS#);
 });
     </script>
     <body>
@@ -73,6 +83,8 @@ $(function() {
     </div>
   <#TABDIVS#/>
 </div>
+<br><br>
+<textarea cols="80" rows="15" name="Console" id="Console">#CONSOLELINES#</textarea>
     </body>
 </html>
     '''
@@ -80,37 +92,64 @@ $(function() {
 
     tabCaptions = ""
     tabDivs = ""
-    def tablePropertyRow(name, value):
-        return '<tr><td>' + name + ' </td><td><input></td><td>' + value + '</td></tr>\n'
+    def tablePropertyRow(name, value, formName):
+        keyName = name[1:]
+        if queryParams.has_key(keyName):
+            valueStr = 'value = "' + queryParams[keyName] + '"'
+        else:
+            valueStr = ""
+
+        return '<tr><td>' + name + ' </td><td>'\
+               '<input name="' + formName + '_' + name + '" ' + valueStr + '/>' \
+               '</td><td>' + value + '</td></tr>\n'
 
     i = 1
+    tabIndex = 0
     for service in services:
         tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
         tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
         tabDivs += '<table>\n'
-        tabDivs += u"Adresa služby" + service.getServicePath()
-        tabDivs += '<form id="form_' + str(i) + '" name="form_' + str(i) + '" action="WebServices.html" method="get">'
+        tabDivs += u"Adresa služby" + service.getServicePath() + "\n"
+        formName = "form_" + str(i)
+        if service.pathName == pathInfo:
+            tabIndex = i
+
+        tabDivs += '<form id="form_' + str(i) + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
         for param in service.restPathParams:
-            tabDivs += tablePropertyRow(param.pathName, param.caption)
-        tabDivs += '</form>'
+            tabDivs += tablePropertyRow(param.pathName, param.caption, formName)
         tabDivs += '</table>\n'
-        tabDivs += '<input type="submit" value="Submit">\n'
+        tabDivs += '<input type="submit" value="Odeslat">\n'
+        tabDivs += '</form>\n'
         tabDivs += '<br>\n<img src=".' + service.pathName + '.png">\n'
         tabDivs += '</div>\n'
         i = i + 1
 
+    if tabIndex == 0:
+        newStr = ""
+    else:
+        newStr = '{ active: ' + str(tabIndex) + ' }'
+    result = result.replace("#TABSOPTIONS#", newStr)
+
+    result = result.replace("#CONSOLELINES#", console.consoleLines)
+    result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
     result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
     result = result.replace("<#TABDIVS#/>", tabDivs)
     return result
 
-def main():
+def geoCodeServiceHandler(queryParams):
+    return False
+
+def dummyServiceHandler(queryParams):
+    return False
+
+def createServices():
     services.append(
         WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa", "",
                 [
                     RestParam("/Format", u"Formát výsledku služby", "XML, Text, HTML"),
                     RestParam("/AddressPlaceId", u"Identifikátor adresního místa, kterou chceme geokódovat", "")
                 ],
-                None
+                geoCodeServiceHandler
         )
 
     )
@@ -121,7 +160,7 @@ def main():
                 RestParam("/AddressPlaceId", u"Identifikátor adresního místa, kterou chceme geokódovat", ""),
                 RestParam("/ResultFormat", u"Výsledný formát adresy", "")
             ],
-            None
+            dummyServiceHandler
         )
     )
     services.append(
@@ -133,14 +172,18 @@ def main():
                 #RestParam("ReturnOptions", u"Specifikace úplnosti vrácené")
 
             ],
-            None)
+            dummyServiceHandler)
     )
     services.append(
-        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy", "", [], None)
+        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy", "", [], dummyServiceHandler)
     )
+    pass
 
+createServices()
+
+def main():
     file = codecs.open("..//html//WebServices.html", "w", "utf-8")
-    file.write(getServicesHTMLPage())
+    file.write(getServicesHTMLPage("", []))
     file.close()
     pass
 
