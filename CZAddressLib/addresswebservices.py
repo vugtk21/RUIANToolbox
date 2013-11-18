@@ -72,7 +72,7 @@ class WebService:
     def getServicePath(self):
         result = self.pathName
         for param in self.restPathParams:
-            result = result + param.pathName
+            result = result + "/&#60;" + param.pathName[1:] + "&#62;"
         if len(self.queryParams) > 0:
             queryParamsList = []
             result += "?"
@@ -120,12 +120,55 @@ $(function() {
     $( "#tabs" ).tabs(#TABSOPTIONS#);
 });
     </script>
+
+    <script>
+function onChangeProc(formElem, urlSpanElem, servicePath)
+{
+ formNameLen = formElem.name.length + 1;
+ console = document.getElementById("console");
+ elements = formElem.elements;
+ s = ""
+ needToOpenQuery = true
+ for (i=0; i < elements.length; i++){
+    name = elements[i].name.substr(formNameLen);
+	if (name.charAt(0) == "/") {
+		if (elements[i].value == "") {
+			s = s + "/&#60;" + name.substr(1) + "&#62;";
+		}
+		else {
+			s = s + "/" + elements[i].value;
+		}
+	}
+	else {
+		if (needToOpenQuery) {
+			delimeter = "?";
+			needToOpenQuery = false;
+		}
+		else {
+			delimeter = "&";
+		}
+		if (name != "") {
+			s = s + delimeter + name + "=" + escape(elements[i].value);
+		}
+	}
+
+ }
+ urlSpanElem.innerHTML = servicePath + s + "\\n";
+}
+    </script>
+      <style>
+  label {
+    display: inline-block;
+    width: 5em;
+  }
+  </style>
+
     <body>
     <h1>#PAGETITLE#</h1>
     #CONSOLELINES#
 <div id="tabs">
   <ul>
-    <li><a href="#tabs-0">Info</a></li>
+    <li><a href="#tabs-0">Popis služeb</a></li>
     <#TABCAPTIONS#/>
   </ul>
     <div id="tabs-0">
@@ -137,7 +180,8 @@ $(function() {
     </div>
   <#TABDIVS#/>
 </div>
-<br><br>
+
+
     </body>
 </html>
     '''
@@ -150,7 +194,7 @@ $(function() {
             result[key[key.find("/") + 1:]] = queryParams[key]
         return result
 
-    def tablePropertyRow(self, param, formName, paramTypeStr, queryParams):
+    def tablePropertyRow(self, param, formName, paramTypeStr, queryParams, onChangeProcCode):
         keyName = param.name[1:]
         if queryParams.has_key(keyName):
             valueStr = 'value = "' + queryParams[keyName] + '"'
@@ -159,10 +203,9 @@ $(function() {
 
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
-        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr + '/>'
-        result += '</td><td>' + param.shortDesc + '</td>'
+        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr + 'title="' + param.shortDesc + \
+                  '" onchange="' + onChangeProcCode + '" />'
         result += '<td>' + param.name + ' </td><td>'
-        result += '</td><td>' + paramTypeStr + '</td>'
         result += '</tr>'
         return result
 
@@ -178,27 +221,32 @@ $(function() {
         for service in services:
             tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
             tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
+            tabDivs += service.htmlDesc
             formName = "form_" + str(i)
+            urlSpanName = formName + "_urlSpan"
+            onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
             if service.pathName == pathInfo:
                 tabIndex = i
 
-            tabDivs += '<form id="form_' + str(i) + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
+            tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
             # Parameters list
             tabDivs += '<table>\n'
             for param in service.restPathParams:
-                tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams)
+                tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams, onChangeProcCode)
 
             for param in service.queryParams:
-                tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams)
+                tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
 
             tabDivs += '</table>\n'
-            tabDivs += '<input type="submit" value="' + service.sendButtonCaption + '">\n'
+            tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
+            tabDivs += u'REST <span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
             tabDivs += '</form>\n'
-            tabDivs += '<br>\n<img src=".' + service.pathName + '.png"><br>\n'
-            tabDivs += u"Adresa služby:" + service.pathName + "<br>\n"
-            tabDivs += u"Volání služby:" + service.getServicePath() + "<br>\n"
-            tabDivs += u"URL služby:" + service.buildServiceURL(queryParams) + "<br>\n"
+            #tabDivs += u"URL služby:" + service.buildServiceURL(queryParams) + "<br>\n"
+
+            tabDivs += u"<p>Adresa služby:" + service.pathName + "</p>\n"
+            tabDivs += '<p>\n<img src=".' + service.pathName + '.png"></p>\n'
+
             tabDivs += '</div>\n'
             i = i + 1
 
@@ -220,16 +268,32 @@ def geoCodeServiceHandler(queryParams):
 def dummyServiceHandler(queryParams):
     return False
 
+RESULT_FORMAT_DESCRIPTION = "(HTML, XML, Text, JSON)"
+
+def getResultFormatParam():
+    return RestParam("/Format", u"Formát výsledku", u"Formát výsledku služby " + RESULT_FORMAT_DESCRIPTION)
+
+def getSearchTextParam():
+    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy")
+
+def getAddressPlaceIdParamRest():
+    return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
+
+def getAddressPlaceIdParamURL():
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
+
 #TODO Blank todo
 def createServices():
     services.append(
-        WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa", "",
+        WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa",
+            u"""<p>Tato webová služba umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
+            Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.<br>""",
             [
-                RestParam("/Format", u"Formát výsledku služby", "XML, Text, HTML")
+                getResultFormatParam()
             ],
             [
-                URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa, kterou chceme geokódovat"),
-                URLParam("SearchText", u"Adresa", u"Adresa, kterou chceme geokódovat"),
+                getAddressPlaceIdParamURL(),
+                getSearchTextParam()
             ],
             geoCodeServiceHandler,
             sendButtonCaption = u"Najdi polohu"
@@ -237,41 +301,49 @@ def createServices():
 
     )
     services.append(
-        WebService("/CompileAddress", u"Sestavení adresy", u"Formátování adresy ve standardizovaném tvaru", "",
+        WebService("/CompileAddress", u"Sestavení adresy", u"Formátování adresy ve standardizovaném tvaru",
+            u"""Tato webová služba sestavit zápis adresy ve standardizovaném tvaru podle § 6 vyhlášky č. 359/2011 Sb.,
+            kterou se provádí zákon č. 111/2009 Sb., o základních registrech, ve znění zákona č. 100/2010 Sb.
+            Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového řetězce adresy nebo jednotlivých prvků adresy.""",
             [
-                RestParam("/Format", u"Formát výsledku služby", "XML, Text, HTML"),
-                RestParam("/AddressPlaceId", u"Identifikátor adresního místa, kterou chceme geokódovat", ""),
-                RestParam("/ResultFormat", u"Výsledný formát adresy", "")
+                getResultFormatParam()
             ],
-            [],
+            [
+                getAddressPlaceIdParamURL(),
+                getSearchTextParam()
+            ],
             dummyServiceHandler,
             sendButtonCaption = u"Sestav adresu"
         )
     )
     services.append(
-        WebService("/FullTextSearch", u"Fulltextové vyhledávání", u"Vyhledávání adresního místa podle řetězce", "",
+        WebService("/FullTextSearch", u"Fulltextové vyhledávání", u"Vyhledávání adresního místa podle řetězce",
+            u"""Tato webová služba umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
+            Textový řetězec adresy může být nestandardně formátován, nebo může být i neúplný.""",
             [
-                RestParam("/Format", u"Datový formát výsledku", "XML, Text, HTML"),
-                RestParam("/SearchFlag", u"Upřesnění způsobu vyhledávání", u"Nearest record - nejbližší adresa, All records - podobné adresy")
+                getResultFormatParam(),
+                RestParam("/SearchFlag", u"Způsob vyhledávání", u"Upřesnění způsobu vyhledávání (Match, Similar)")
             ],
             [
-                URLParam("SearchText", u"Vyhledávaný řetězec", u"Textový řetězec k vyhledání adresy"),
-                URLParam("ReturnOptions", u"Volby", u"Specifikace úplnosti vrácené adresy")
+                getSearchTextParam()
             ],
             dummyServiceHandler,
             sendButtonCaption = u"Vyhledej adresu"
         )
     )
     services.append(
-        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy", "",
+        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy",
+                   u"""Tato webová služba umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
+                   prvků adresního místa.""",
             [
-                RestParam("/Street", u"Ulice", u"Název ulice"),
-                RestParam("/Locality", u"Obec", u"Obec"),
+                getResultFormatParam(),
+                RestParam("/Street",      u"Ulice", u"Název ulice"),
+                RestParam("/Locality",    u"Obec", u"Obec"),
                 RestParam("/HouseNumber", u"Číslo popisné", ""),
             ],
             [
-                URLParam("ZIPCode", u"PSČ", u"Poštovní směrovací číslo"),
-                URLParam("LocalityPart", u"Část obce", u"Část obce, pokud je známa"),
+                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
+                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
                 URLParam("OrientationNumber", u"Číslo orientační", "")
             ],
             dummyServiceHandler,
@@ -279,13 +351,29 @@ def createServices():
         )
     )
     services.append(
-        WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy", "",
+        WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy",
+                   u"""Tato webová služba umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
             [
-                RestParam("/Identifier", u"Address ID", u"Address ID identifier to be validated")
+                getResultFormatParam(),
+                getAddressPlaceIdParamRest()
             ],
             [ ],
             dummyServiceHandler,
             sendButtonCaption = u"Ověř identifikátor adresy"
+        )
+    )
+    services.append(
+        WebService("/SearchAddressPoints", u"Blízké adresy", u"Hledá adresu nejbližší daným souřadnicím",
+                   u"""Tato webová služba nám umožní vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
+                   Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.""",
+            [
+                getResultFormatParam(),
+                RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
+                RestParam("/JTSKY", u"JTSK Y", u"Souřadnice Y v systému S-JTSK")
+            ],
+            [ ],
+            dummyServiceHandler,
+            sendButtonCaption = u"Hledej blízké adresy"
         )
     )
     pass

@@ -14,17 +14,61 @@ $(function() {
     $( "#tabs" ).tabs();
 });
     </script>
+
+    <script>
+function onChangeProc(formElem, urlSpanElem, servicePath)
+{
+ formNameLen = formElem.name.length + 1;
+ console = document.getElementById("console");
+ elements = formElem.elements;
+ s = ""
+ needToOpenQuery = true
+ for (i=0; i < elements.length; i++){
+    name = elements[i].name.substr(formNameLen);
+	if (name.charAt(0) == "/") {
+		if (elements[i].value == "") {
+			s = s + "/&#60;" + name.substr(1) + "&#62;";
+		}
+		else {
+			s = s + "/" + elements[i].value;
+		}
+	}
+	else {
+		if (needToOpenQuery) {
+			delimeter = "?";
+			needToOpenQuery = false;
+		}
+		else {
+			delimeter = "&";
+		}
+		if (name != "") {
+			s = s + delimeter + name + "=" + escape(elements[i].value);
+		}
+	}
+
+ }
+ urlSpanElem.innerHTML = servicePath + s + "\n";
+}
+    </script>
+      <style>
+  label {
+    display: inline-block;
+    width: 5em;
+  }
+  </style>
+
     <body>
     <h1>Webové služby RÚIAN</h1>
     
 <div id="tabs">
   <ul>
-    <li><a href="#tabs-0">Info</a></li>
+    <li><a href="#tabs-0">Popis služeb</a></li>
     <li><a href="#tabs-1">Geokódování</a></li>
 <li><a href="#tabs-2">Sestavení adresy</a></li>
 <li><a href="#tabs-3">Fulltextové vyhledávání</a></li>
 <li><a href="#tabs-4">Ověření adresy</a></li>
 <li><a href="#tabs-5">Ověření identifikátoru adresy</a></li>
+<li><a href="#tabs-6">Blízké adresy</a></li>
 
   </ul>
     <div id="tabs-0">
@@ -35,68 +79,81 @@ $(function() {
     <img src="./Geocode.png" \>
     </div>
   <div id="tabs-1">   <h2>Vyhledávání adresního bodu adresního místa</h2>
-<form id="form_1" name="form_1" action="/Geocode" method="get">
+<p>Tato webová služba umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
+            Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.<br><form id="form_1" name="form_1" action="/Geocode" method="get">
 <table>
-<tr><td>Formát výsledku služby </td><td><input name="form_1_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>REST</td></tr><tr><td>Identifikátor </td><td><input name="form_1_AddressPlaceId" /></td><td>Identifikátor adresního místa, kterou chceme geokódovat</td><td>AddressPlaceId </td><td></td><td>Query</td></tr><tr><td>Adresa </td><td><input name="form_1_SearchText" /></td><td>Adresa, kterou chceme geokódovat</td><td>SearchText </td><td></td><td>Query</td></tr></table>
-<input type="submit" value="Najdi polohu">
+<tr><td>Formát výsledku </td><td><input name="form_1_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /><td>/Format </td><td></tr><tr><td>Identifikátor </td><td><input name="form_1_AddressPlaceId" title="Identifikátor adresního místa" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /><td>AddressPlaceId </td><td></tr><tr><td>Adresa </td><td><input name="form_1_SearchText" title="Textový řetězec adresy" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /><td>SearchText </td><td></tr></table>
+<input type="button" value="Najdi polohu" onclick="onChangeProc(form_1,form_1_urlSpan, '/Geocode')">
+REST <span name="form_1_urlSpan" id="form_1_urlSpan" >/Geocode/&#60;Format&#62;?AddressPlaceId=&SearchText=</span>
 </form>
-<br>
-<img src="./Geocode.png"><br>
-Adresa služby:/Geocode<br>
-Volání služby:/Geocode/Format?AddressPlaceId=&SearchText=<br>
-URL služby:/Geocode/Format?AddressPlaceId=&SearchText=<br>
+<p>Adresa služby:/Geocode</p>
+<p>
+<img src="./Geocode.png"></p>
 </div>
 <div id="tabs-2">   <h2>Formátování adresy ve standardizovaném tvaru</h2>
-<form id="form_2" name="form_2" action="/CompileAddress" method="get">
+Tato webová služba sestavit zápis adresy ve standardizovaném tvaru podle § 6 vyhlášky č. 359/2011 Sb.,
+            kterou se provádí zákon č. 111/2009 Sb., o základních registrech, ve znění zákona č. 100/2010 Sb.
+            Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového řetězce adresy nebo jednotlivých prvků adresy.<form id="form_2" name="form_2" action="/CompileAddress" method="get">
 <table>
-<tr><td>Formát výsledku služby </td><td><input name="form_2_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>REST</td></tr><tr><td>Identifikátor adresního místa, kterou chceme geokódovat </td><td><input name="form_2_/AddressPlaceId" /></td><td></td><td>/AddressPlaceId </td><td></td><td>REST</td></tr><tr><td>Výsledný formát adresy </td><td><input name="form_2_/ResultFormat" /></td><td></td><td>/ResultFormat </td><td></td><td>REST</td></tr></table>
-<input type="submit" value="Sestav adresu">
+<tr><td>Formát výsledku </td><td><input name="form_2_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /><td>/Format </td><td></tr><tr><td>Identifikátor </td><td><input name="form_2_AddressPlaceId" title="Identifikátor adresního místa" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /><td>AddressPlaceId </td><td></tr><tr><td>Adresa </td><td><input name="form_2_SearchText" title="Textový řetězec adresy" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /><td>SearchText </td><td></tr></table>
+<input type="button" value="Sestav adresu" onclick="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')">
+REST <span name="form_2_urlSpan" id="form_2_urlSpan" >/CompileAddress/&#60;Format&#62;?AddressPlaceId=&SearchText=</span>
 </form>
-<br>
-<img src="./CompileAddress.png"><br>
-Adresa služby:/CompileAddress<br>
-Volání služby:/CompileAddress/Format/AddressPlaceId/ResultFormat<br>
-URL služby:/CompileAddress/Format/AddressPlaceId/ResultFormat<br>
+<p>Adresa služby:/CompileAddress</p>
+<p>
+<img src="./CompileAddress.png"></p>
 </div>
 <div id="tabs-3">   <h2>Vyhledávání adresního místa podle řetězce</h2>
-<form id="form_3" name="form_3" action="/FullTextSearch" method="get">
+Tato webová služba umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
+            Textový řetězec adresy může být nestandardně formátován, nebo může být i neúplný.<form id="form_3" name="form_3" action="/FullTextSearch" method="get">
 <table>
-<tr><td>Datový formát výsledku </td><td><input name="form_3_/Format" /></td><td>XML, Text, HTML</td><td>/Format </td><td></td><td>REST</td></tr><tr><td>Upřesnění způsobu vyhledávání </td><td><input name="form_3_/SearchFlag" /></td><td>Nearest record - nejbližší adresa, All records - podobné adresy</td><td>/SearchFlag </td><td></td><td>REST</td></tr><tr><td>Vyhledávaný řetězec </td><td><input name="form_3_SearchText" /></td><td>Textový řetězec k vyhledání adresy</td><td>SearchText </td><td></td><td>Query</td></tr><tr><td>Volby </td><td><input name="form_3_ReturnOptions" /></td><td>Specifikace úplnosti vrácené adresy</td><td>ReturnOptions </td><td></td><td>Query</td></tr></table>
-<input type="submit" value="Vyhledej adresu">
+<tr><td>Formát výsledku </td><td><input name="form_3_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /><td>/Format </td><td></tr><tr><td>Způsob vyhledávání </td><td><input name="form_3_/SearchFlag" title="Upřesnění způsobu vyhledávání (Match, Similar)" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /><td>/SearchFlag </td><td></tr><tr><td>Adresa </td><td><input name="form_3_SearchText" title="Textový řetězec adresy" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /><td>SearchText </td><td></tr></table>
+<input type="button" value="Vyhledej adresu" onclick="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')">
+REST <span name="form_3_urlSpan" id="form_3_urlSpan" >/FullTextSearch/&#60;Format&#62;/&#60;SearchFlag&#62;?SearchText=</span>
 </form>
-<br>
-<img src="./FullTextSearch.png"><br>
-Adresa služby:/FullTextSearch<br>
-Volání služby:/FullTextSearch/Format/SearchFlag?SearchText=&ReturnOptions=<br>
-URL služby:/FullTextSearch/Format/SearchFlag?SearchText=&ReturnOptions=<br>
+<p>Adresa služby:/FullTextSearch</p>
+<p>
+<img src="./FullTextSearch.png"></p>
 </div>
 <div id="tabs-4">   <h2>Ověřuje existenci dané adresy</h2>
-<form id="form_4" name="form_4" action="/Validate" method="get">
+Tato webová služba umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
+                   prvků adresního místa.<form id="form_4" name="form_4" action="/Validate" method="get">
 <table>
-<tr><td>Ulice </td><td><input name="form_4_/Street" /></td><td>Název ulice</td><td>/Street </td><td></td><td>REST</td></tr><tr><td>Obec </td><td><input name="form_4_/Locality" /></td><td>Obec</td><td>/Locality </td><td></td><td>REST</td></tr><tr><td>Číslo popisné </td><td><input name="form_4_/HouseNumber" /></td><td></td><td>/HouseNumber </td><td></td><td>REST</td></tr><tr><td>PSČ </td><td><input name="form_4_ZIPCode" /></td><td>Poštovní směrovací číslo</td><td>ZIPCode </td><td></td><td>Query</td></tr><tr><td>Část obce </td><td><input name="form_4_LocalityPart" /></td><td>Část obce, pokud je známa</td><td>LocalityPart </td><td></td><td>Query</td></tr><tr><td>Číslo orientační </td><td><input name="form_4_OrientationNumber" /></td><td></td><td>OrientationNumber </td><td></td><td>Query</td></tr></table>
-<input type="submit" value="Ověř adresu">
+<tr><td>Formát výsledku </td><td><input name="form_4_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/Format </td><td></tr><tr><td>Ulice </td><td><input name="form_4_/Street" title="Název ulice" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/Street </td><td></tr><tr><td>Obec </td><td><input name="form_4_/Locality" title="Obec" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/Locality </td><td></tr><tr><td>Číslo popisné </td><td><input name="form_4_/HouseNumber" title="" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/HouseNumber </td><td></tr><tr><td>PSČ </td><td><input name="form_4_ZIPCode" title="Poštovní směrovací číslo" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>ZIPCode </td><td></tr><tr><td>Část obce </td><td><input name="form_4_LocalityPart" title="Část obce, pokud je známa" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>LocalityPart </td><td></tr><tr><td>Číslo orientační </td><td><input name="form_4_OrientationNumber" title="" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>OrientationNumber </td><td></tr></table>
+<input type="button" value="Ověř adresu" onclick="onChangeProc(form_4,form_4_urlSpan, '/Validate')">
+REST <span name="form_4_urlSpan" id="form_4_urlSpan" >/Validate/&#60;Format&#62;/&#60;Street&#62;/&#60;Locality&#62;/&#60;HouseNumber&#62;?ZIPCode=&LocalityPart=&OrientationNumber=</span>
 </form>
-<br>
-<img src="./Validate.png"><br>
-Adresa služby:/Validate<br>
-Volání služby:/Validate/Street/Locality/HouseNumber?ZIPCode=&LocalityPart=&OrientationNumber=<br>
-URL služby:/Validate/Street/Locality/HouseNumber?ZIPCode=&LocalityPart=&OrientationNumber=<br>
+<p>Adresa služby:/Validate</p>
+<p>
+<img src="./Validate.png"></p>
 </div>
 <div id="tabs-5">   <h2>Ověřuje existenci daného identifikátoru adresy</h2>
-<form id="form_5" name="form_5" action="/ValidateAddressId" method="get">
+Tato webová služba umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.<form id="form_5" name="form_5" action="/ValidateAddressId" method="get">
 <table>
-<tr><td>Address ID </td><td><input name="form_5_/Identifier" /></td><td>Address ID identifier to be validated</td><td>/Identifier </td><td></td><td>REST</td></tr></table>
-<input type="submit" value="Ověř identifikátor adresy">
+<tr><td>Formát výsledku </td><td><input name="form_5_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')" /><td>/Format </td><td></tr><tr><td>Identifikátor </td><td><input name="form_5_/AddressPlaceId" title="Identifikátor adresního místa" onchange="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')" /><td>/AddressPlaceId </td><td></tr></table>
+<input type="button" value="Ověř identifikátor adresy" onclick="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')">
+REST <span name="form_5_urlSpan" id="form_5_urlSpan" >/ValidateAddressId/&#60;Format&#62;/&#60;AddressPlaceId&#62;</span>
 </form>
-<br>
-<img src="./ValidateAddressId.png"><br>
-Adresa služby:/ValidateAddressId<br>
-Volání služby:/ValidateAddressId/Identifier<br>
-URL služby:/ValidateAddressId/Identifier<br>
+<p>Adresa služby:/ValidateAddressId</p>
+<p>
+<img src="./ValidateAddressId.png"></p>
+</div>
+<div id="tabs-6">   <h2>Hledá adresu nejbližší daným souřadnicím</h2>
+Tato webová služba nám umožní vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
+                   Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.<form id="form_6" name="form_6" action="/SearchAddressPoints" method="get">
+<table>
+<tr><td>Formát výsledku </td><td><input name="form_6_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /><td>/Format </td><td></tr><tr><td>JTSK X </td><td><input name="form_6_/JTSKX" title="Souřadnice X v systému S-JTSK" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /><td>/JTSKX </td><td></tr><tr><td>JTSK Y </td><td><input name="form_6_/JTSKY" title="Souřadnice Y v systému S-JTSK" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /><td>/JTSKY </td><td></tr></table>
+<input type="button" value="Hledej blízké adresy" onclick="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')">
+REST <span name="form_6_urlSpan" id="form_6_urlSpan" >/SearchAddressPoints/&#60;Format&#62;/&#60;JTSKX&#62;/&#60;JTSKY&#62;</span>
+</form>
+<p>Adresa služby:/SearchAddressPoints</p>
+<p>
+<img src="./SearchAddressPoints.png"></p>
 </div>
 
 </div>
-<br><br>
+
+
     </body>
 </html>
     
