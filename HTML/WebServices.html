@@ -47,7 +47,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 	}
 
  }
- urlSpanElem.innerHTML = servicePath + s + "\n";
+ urlSpanElem.innerHTML = "/REST" + servicePath + s + "\n";
 }
     </script>
       <style>
@@ -82,9 +82,9 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 <p>Tato webová služba umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
             Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.<br><form id="form_1" name="form_1" action="/Geocode" method="get">
 <table>
-<tr><td>Formát výsledku </td><td><input name="form_1_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /><td>/Format </td><td></tr><tr><td>Identifikátor </td><td><input name="form_1_AddressPlaceId" title="Identifikátor adresního místa" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /><td>AddressPlaceId </td><td></tr><tr><td>Adresa </td><td><input name="form_1_SearchText" title="Textový řetězec adresy" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /><td>SearchText </td><td></tr></table>
+<tr><td>Formát výsledku </td><td><input name="form_1_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON), parametr /Format" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /></tr><tr><td>Identifikátor </td><td><input name="form_1_AddressPlaceId" title="Identifikátor adresního místa, parametr AddressPlaceId" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /></tr><tr><td>Adresa </td><td><input name="form_1_SearchText" title="Textový řetězec adresy, parametr SearchText" onchange="onChangeProc(form_1,form_1_urlSpan, '/Geocode')" /></tr></table>
 <input type="button" value="Najdi polohu" onclick="onChangeProc(form_1,form_1_urlSpan, '/Geocode')">
-REST <span name="form_1_urlSpan" id="form_1_urlSpan" >/Geocode/&#60;Format&#62;?AddressPlaceId=&SearchText=</span>
+<span name="form_1_urlSpan" id="form_1_urlSpan" >/REST/Geocode/&#60;Format&#62;?AddressPlaceId=&SearchText=</span>
 </form>
 <p>Adresa služby:/Geocode</p>
 <p>
@@ -95,9 +95,9 @@ Tato webová služba sestavit zápis adresy ve standardizovaném tvaru podle § 
             kterou se provádí zákon č. 111/2009 Sb., o základních registrech, ve znění zákona č. 100/2010 Sb.
             Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového řetězce adresy nebo jednotlivých prvků adresy.<form id="form_2" name="form_2" action="/CompileAddress" method="get">
 <table>
-<tr><td>Formát výsledku </td><td><input name="form_2_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /><td>/Format </td><td></tr><tr><td>Identifikátor </td><td><input name="form_2_AddressPlaceId" title="Identifikátor adresního místa" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /><td>AddressPlaceId </td><td></tr><tr><td>Adresa </td><td><input name="form_2_SearchText" title="Textový řetězec adresy" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /><td>SearchText </td><td></tr></table>
+<tr><td>Formát výsledku </td><td><input name="form_2_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON), parametr /Format" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Identifikátor </td><td><input name="form_2_AddressPlaceId" title="Identifikátor adresního místa, parametr AddressPlaceId" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Adresa </td><td><input name="form_2_SearchText" title="Textový řetězec adresy, parametr SearchText" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Ulice </td><td><input name="form_2_/Street" title="Název ulice, parametr /Street" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Obec </td><td><input name="form_2_/Locality" title="Obec, parametr /Locality" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Číslo popisné </td><td><input name="form_2_/HouseNumber" title=", parametr /HouseNumber" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>PSČ </td><td><input name="form_2_ZIPCode" title="Poštovní směrovací číslo, parametr ZIPCode" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Část obce </td><td><input name="form_2_LocalityPart" title="Část obce, pokud je známa, parametr LocalityPart" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Číslo orientační </td><td><input name="form_2_OrientationNumber" title=", parametr OrientationNumber" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Číslo evidenční </td><td><input name="form_2_RecordNumber" title="Číšlo evidenční, pokud je přiděleno, parametr RecordNumber" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr><tr><td>Obvod </td><td><input name="form_2_DistrictNumber" title="Číšlo městského obvodu, pokud exituje, parametr DistrictNumber" onchange="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')" /></tr></table>
 <input type="button" value="Sestav adresu" onclick="onChangeProc(form_2,form_2_urlSpan, '/CompileAddress')">
-REST <span name="form_2_urlSpan" id="form_2_urlSpan" >/CompileAddress/&#60;Format&#62;?AddressPlaceId=&SearchText=</span>
+<span name="form_2_urlSpan" id="form_2_urlSpan" >/REST/CompileAddress/&#60;Format&#62;?AddressPlaceId=&SearchText=&/Street=&/Locality=&/HouseNumber=&ZIPCode=&LocalityPart=&OrientationNumber=&RecordNumber=&DistrictNumber=</span>
 </form>
 <p>Adresa služby:/CompileAddress</p>
 <p>
@@ -107,9 +107,9 @@ REST <span name="form_2_urlSpan" id="form_2_urlSpan" >/CompileAddress/&#60;Forma
 Tato webová služba umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
             Textový řetězec adresy může být nestandardně formátován, nebo může být i neúplný.<form id="form_3" name="form_3" action="/FullTextSearch" method="get">
 <table>
-<tr><td>Formát výsledku </td><td><input name="form_3_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /><td>/Format </td><td></tr><tr><td>Způsob vyhledávání </td><td><input name="form_3_/SearchFlag" title="Upřesnění způsobu vyhledávání (Match, Similar)" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /><td>/SearchFlag </td><td></tr><tr><td>Adresa </td><td><input name="form_3_SearchText" title="Textový řetězec adresy" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /><td>SearchText </td><td></tr></table>
+<tr><td>Formát výsledku </td><td><input name="form_3_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON), parametr /Format" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /></tr><tr><td>Způsob vyhledávání </td><td><input name="form_3_/SearchFlag" title="Upřesnění způsobu vyhledávání (Match, Similar), parametr /SearchFlag" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /></tr><tr><td>Adresa </td><td><input name="form_3_SearchText" title="Textový řetězec adresy, parametr SearchText" onchange="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')" /></tr></table>
 <input type="button" value="Vyhledej adresu" onclick="onChangeProc(form_3,form_3_urlSpan, '/FullTextSearch')">
-REST <span name="form_3_urlSpan" id="form_3_urlSpan" >/FullTextSearch/&#60;Format&#62;/&#60;SearchFlag&#62;?SearchText=</span>
+<span name="form_3_urlSpan" id="form_3_urlSpan" >/REST/FullTextSearch/&#60;Format&#62;/&#60;SearchFlag&#62;?SearchText=</span>
 </form>
 <p>Adresa služby:/FullTextSearch</p>
 <p>
@@ -119,9 +119,9 @@ REST <span name="form_3_urlSpan" id="form_3_urlSpan" >/FullTextSearch/&#60;Forma
 Tato webová služba umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
                    prvků adresního místa.<form id="form_4" name="form_4" action="/Validate" method="get">
 <table>
-<tr><td>Formát výsledku </td><td><input name="form_4_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/Format </td><td></tr><tr><td>Ulice </td><td><input name="form_4_/Street" title="Název ulice" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/Street </td><td></tr><tr><td>Obec </td><td><input name="form_4_/Locality" title="Obec" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/Locality </td><td></tr><tr><td>Číslo popisné </td><td><input name="form_4_/HouseNumber" title="" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>/HouseNumber </td><td></tr><tr><td>PSČ </td><td><input name="form_4_ZIPCode" title="Poštovní směrovací číslo" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>ZIPCode </td><td></tr><tr><td>Část obce </td><td><input name="form_4_LocalityPart" title="Část obce, pokud je známa" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>LocalityPart </td><td></tr><tr><td>Číslo orientační </td><td><input name="form_4_OrientationNumber" title="" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /><td>OrientationNumber </td><td></tr></table>
+<tr><td>Formát výsledku </td><td><input name="form_4_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON), parametr /Format" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr><tr><td>Ulice </td><td><input name="form_4_/Street" title="Název ulice, parametr /Street" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr><tr><td>Obec </td><td><input name="form_4_/Locality" title="Obec, parametr /Locality" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr><tr><td>Číslo popisné </td><td><input name="form_4_/HouseNumber" title=", parametr /HouseNumber" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr><tr><td>PSČ </td><td><input name="form_4_ZIPCode" title="Poštovní směrovací číslo, parametr ZIPCode" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr><tr><td>Část obce </td><td><input name="form_4_LocalityPart" title="Část obce, pokud je známa, parametr LocalityPart" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr><tr><td>Číslo orientační </td><td><input name="form_4_OrientationNumber" title=", parametr OrientationNumber" onchange="onChangeProc(form_4,form_4_urlSpan, '/Validate')" /></tr></table>
 <input type="button" value="Ověř adresu" onclick="onChangeProc(form_4,form_4_urlSpan, '/Validate')">
-REST <span name="form_4_urlSpan" id="form_4_urlSpan" >/Validate/&#60;Format&#62;/&#60;Street&#62;/&#60;Locality&#62;/&#60;HouseNumber&#62;?ZIPCode=&LocalityPart=&OrientationNumber=</span>
+<span name="form_4_urlSpan" id="form_4_urlSpan" >/REST/Validate/&#60;Format&#62;/&#60;Street&#62;/&#60;Locality&#62;/&#60;HouseNumber&#62;?ZIPCode=&LocalityPart=&OrientationNumber=</span>
 </form>
 <p>Adresa služby:/Validate</p>
 <p>
@@ -130,9 +130,9 @@ REST <span name="form_4_urlSpan" id="form_4_urlSpan" >/Validate/&#60;Format&#62;
 <div id="tabs-5">   <h2>Ověřuje existenci daného identifikátoru adresy</h2>
 Tato webová služba umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.<form id="form_5" name="form_5" action="/ValidateAddressId" method="get">
 <table>
-<tr><td>Formát výsledku </td><td><input name="form_5_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')" /><td>/Format </td><td></tr><tr><td>Identifikátor </td><td><input name="form_5_/AddressPlaceId" title="Identifikátor adresního místa" onchange="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')" /><td>/AddressPlaceId </td><td></tr></table>
+<tr><td>Formát výsledku </td><td><input name="form_5_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON), parametr /Format" onchange="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')" /></tr><tr><td>Identifikátor </td><td><input name="form_5_/AddressPlaceId" title="Identifikátor adresního místa, parametr /AddressPlaceId" onchange="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')" /></tr></table>
 <input type="button" value="Ověř identifikátor adresy" onclick="onChangeProc(form_5,form_5_urlSpan, '/ValidateAddressId')">
-REST <span name="form_5_urlSpan" id="form_5_urlSpan" >/ValidateAddressId/&#60;Format&#62;/&#60;AddressPlaceId&#62;</span>
+<span name="form_5_urlSpan" id="form_5_urlSpan" >/REST/ValidateAddressId/&#60;Format&#62;/&#60;AddressPlaceId&#62;</span>
 </form>
 <p>Adresa služby:/ValidateAddressId</p>
 <p>
@@ -142,9 +142,9 @@ REST <span name="form_5_urlSpan" id="form_5_urlSpan" >/ValidateAddressId/&#60;Fo
 Tato webová služba nám umožní vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
                    Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.<form id="form_6" name="form_6" action="/SearchAddressPoints" method="get">
 <table>
-<tr><td>Formát výsledku </td><td><input name="form_6_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON)" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /><td>/Format </td><td></tr><tr><td>JTSK X </td><td><input name="form_6_/JTSKX" title="Souřadnice X v systému S-JTSK" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /><td>/JTSKX </td><td></tr><tr><td>JTSK Y </td><td><input name="form_6_/JTSKY" title="Souřadnice Y v systému S-JTSK" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /><td>/JTSKY </td><td></tr></table>
+<tr><td>Formát výsledku </td><td><input name="form_6_/Format" title="Formát výsledku služby (HTML, XML, Text, JSON), parametr /Format" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /></tr><tr><td>JTSK X </td><td><input name="form_6_/JTSKX" title="Souřadnice X v systému S-JTSK, parametr /JTSKX" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /></tr><tr><td>JTSK Y </td><td><input name="form_6_/JTSKY" title="Souřadnice Y v systému S-JTSK, parametr /JTSKY" onchange="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')" /></tr></table>
 <input type="button" value="Hledej blízké adresy" onclick="onChangeProc(form_6,form_6_urlSpan, '/SearchAddressPoints')">
-REST <span name="form_6_urlSpan" id="form_6_urlSpan" >/SearchAddressPoints/&#60;Format&#62;/&#60;JTSKX&#62;/&#60;JTSKY&#62;</span>
+<span name="form_6_urlSpan" id="form_6_urlSpan" >/REST/SearchAddressPoints/&#60;Format&#62;/&#60;JTSKX&#62;/&#60;JTSKY&#62;</span>
 </form>
 <p>Adresa služby:/SearchAddressPoints</p>
 <p>

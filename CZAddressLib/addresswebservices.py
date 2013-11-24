@@ -11,7 +11,10 @@
 #-------------------------------------------------------------------------------
 import codecs
 
-services = []
+from HTTPShared import *
+import compileaddress
+from rest_config import *
+
 SERVICES_PATH = '' # 'services'
 class Console():
     consoleLines = ""
@@ -26,82 +29,6 @@ class Console():
         self.consoleLines = ''
 
 console = Console()
-
-class URLParam:
-    def __init__(self, name, caption, shortDesc, htmlDesc = ""):
-        self.name  = name
-        self.caption   = caption
-        self.shortDesc = shortDesc
-        self.htmlDesc  = htmlDesc
-
-class RestParam(URLParam):
-    def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):
-        URLParam.__init__(self, pathName, caption, shortDesc, htmlDesc)
-
-    def getPathName(self):
-        return self.name
-
-    pathName = property(getPathName, "REST path name")
-
-
-class WebService:
-    def __init__(self, pathName, caption, shortDesc, htmlDesc = "", restPathParams = [], queryParams = [],
-                 processHandler = None, sendButtonCaption = u"Odeslat"):
-        ''' '''
-        self.pathName  = pathName
-        self.caption   = caption
-        self.shortDesc = shortDesc
-        self.htmlDesc  = htmlDesc
-        self.restPathParams = restPathParams
-        self.queryParams = queryParams
-        self.processHandler = processHandler
-        self.sendButtonCaption = sendButtonCaption
-        self._params = None
-        pass
-
-    def getParams(self):
-        if self._params == None or len(self.restPathParams) + len(self.queryParams) != len(self._params):
-            self._params = {}
-            self._params.update(self.restPathParams)
-            self._params.update(self.queryParams)
-
-        return self._params
-
-    params = property(getParams, "REST and Query params together")
-
-    def getServicePath(self):
-        result = self.pathName
-        for param in self.restPathParams:
-            result = result + "/&#60;" + param.pathName[1:] + "&#62;"
-        if len(self.queryParams) > 0:
-            queryParamsList = []
-            result += "?"
-            for param in self.queryParams:
-                queryParamsList.append(param.name + "=")
-            result += "&".join(queryParamsList)
-
-        return result
-
-    def buildServiceURL(self, queryParams):
-        result = self.pathName
-        for param in self.restPathParams:
-            result = result + param.pathName
-        if len(self.queryParams) > 0:
-            queryParamsList = []
-            result += "?"
-            for param in self.queryParams:
-                if queryParams.has_key(param.name):
-                    valueStr = queryParams[param.name]
-                else:
-                    valueStr = ""
-                queryParamsList.append(param.name + "=" + valueStr)
-            result += "&".join(queryParamsList)
-
-        return result
-
-    def processHTTPRequest(self, path, queryParams):
-        pass
-
 
 class ServicesHTMLPageBuilder:
     pageTemplate = u'''
@@ -153,7 +80,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 	}
 
  }
- urlSpanElem.innerHTML = servicePath + s + "\\n";
+ urlSpanElem.innerHTML = "/REST" + servicePath + s + "\\n";
 }
     </script>
       <style>
@@ -203,9 +130,10 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
-        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr + 'title="' + param.shortDesc + \
+        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr + 'title="' + \
+                  param.shortDesc + ', parametr ' + param.name + \
                   '" onchange="' + onChangeProcCode + '" />'
-        result += '<td>' + param.name + ' </td><td>'
+        #result += '<td>' + param.name + ' </td><td>'
         result += '</tr>'
         return result
 
@@ -222,6 +150,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
             tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
             tabDivs += service.htmlDesc
+            tabDivs += u"<br><p>Adresa služby:" + service.pathName + "</p>\n"
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
             onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
@@ -240,12 +169,10 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
             tabDivs += '</table>\n'
             tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
-            tabDivs += u'REST <span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
+            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
             tabDivs += '</form>\n'
-            #tabDivs += u"URL služby:" + service.buildServiceURL(queryParams) + "<br>\n"
 
-            tabDivs += u"<p>Adresa služby:" + service.pathName + "</p>\n"
-            tabDivs += '<p>\n<img src=".' + service.pathName + '.png"></p>\n'
+            tabDivs += '<p>\n<img src="' + HTMLDATA_URL + service.pathName + '.png"></p>\n'
 
             tabDivs += '</div>\n'
             i = i + 1
@@ -262,25 +189,11 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
         result = result.replace("<#TABDIVS#/>", tabDivs)
         return result
 
-def geoCodeServiceHandler(queryParams):
-    return False
+def geoCodeServiceHandler(queryParams, response):
+    return response
 
-def dummyServiceHandler(queryParams):
-    return False
-
-RESULT_FORMAT_DESCRIPTION = "(HTML, XML, Text, JSON)"
-
-def getResultFormatParam():
-    return RestParam("/Format", u"Formát výsledku", u"Formát výsledku služby " + RESULT_FORMAT_DESCRIPTION)
-
-def getSearchTextParam():
-    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy")
-
-def getAddressPlaceIdParamRest():
-    return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
-
-def getAddressPlaceIdParamURL():
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
+def dummyServiceHandler(queryParams, response):
+    return response
 
 #TODO Blank todo
 def createServices():
@@ -299,22 +212,6 @@ def createServices():
             sendButtonCaption = u"Najdi polohu"
         )
 
-    )
-    services.append(
-        WebService("/CompileAddress", u"Sestavení adresy", u"Formátování adresy ve standardizovaném tvaru",
-            u"""Tato webová služba sestavit zápis adresy ve standardizovaném tvaru podle § 6 vyhlášky č. 359/2011 Sb.,
-            kterou se provádí zákon č. 111/2009 Sb., o základních registrech, ve znění zákona č. 100/2010 Sb.
-            Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového řetězce adresy nebo jednotlivých prvků adresy.""",
-            [
-                getResultFormatParam()
-            ],
-            [
-                getAddressPlaceIdParamURL(),
-                getSearchTextParam()
-            ],
-            dummyServiceHandler,
-            sendButtonCaption = u"Sestav adresu"
-        )
     )
     services.append(
         WebService("/FullTextSearch", u"Fulltextové vyhledávání", u"Vyhledávání adresního místa podle řetězce",
@@ -350,6 +247,7 @@ def createServices():
             sendButtonCaption = u"Ověř adresu"
         )
     )
+    compileaddress.createServiceHandlers()
     services.append(
         WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy",
                    u"""Tato webová služba umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
@@ -363,19 +261,21 @@ def createServices():
         )
     )
     services.append(
-        WebService("/SearchAddressPoints", u"Blízké adresy", u"Hledá adresu nejbližší daným souřadnicím",
+        WebService("/NearbyAddresses", u"Blízké adresy", u"Hledá adresu nejbližší daným souřadnicím",
                    u"""Tato webová služba nám umožní vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
                    Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.""",
             [
                 getResultFormatParam(),
                 RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
-                RestParam("/JTSKY", u"JTSK Y", u"Souřadnice Y v systému S-JTSK")
+                RestParam("/JTSKY", u"JTSK Y", u"Souřadnice Y v systému S-JTSK"),
+                RestParam("/Distance", u"Vzdálenost", u"Vzdálenost v metrech od vloženého bodu")
             ],
             [ ],
             dummyServiceHandler,
             sendButtonCaption = u"Hledej blízké adresy"
         )
     )
+
     pass
 
 createServices()

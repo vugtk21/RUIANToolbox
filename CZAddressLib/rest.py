@@ -3,12 +3,15 @@
 
 import web
 import re
+from HTTPShared import *
+
 import addresswebservices
 import web
 
-from webpyserver_config import SERVER_HTTP
-from webpyserver_config import PORT_NUMBER
-from webpyserver_config import SERVICES_WEB_PATH
+from rest_config import SERVER_HTTP
+from rest_config import PORT_NUMBER
+from rest_config import SERVICES_WEB_PATH
+from rest_config import SERVER_PATH_DEPTH
 
 def getFileContent(fileName):
     f = open(fileName)
@@ -16,19 +19,23 @@ def getFileContent(fileName):
     f.close()
     return s
 
-def ProcessRequest(page, queryParams):
+def ProcessRequest(page, queryParams, response):
     addresswebservices.console.clear()
     pageBuilder = addresswebservices.ServicesHTMLPageBuilder()
     if page in ["/", ""]:
-        return pageBuilder.getServicesHTMLPage("", {})
+        response.htmlData = pageBuilder.getServicesHTMLPage("", {})
+        response.handled = True
     elif page.find(".") >= 0:
-        return getFileContent(SERVICES_WEB_PATH + page) # TODO Implementovat vracení binárních souborů
+        response.htmlData =  getFileContent(SERVICES_WEB_PATH + page) # TODO Implementovat vracení binárních souborů
+        response.handled = True
     else:
         fullPathList = page.split("/")                                # REST parametry
+        if SERVER_PATH_DEPTH != 0:
+            fullPathList = fullPathList[SERVER_PATH_DEPTH:]
         #TODO PathInfo by mělo být až za adresou serveru - zkontolovat jak je to na Apache
         servicePathInfo = "/" + fullPathList[0]                       # první rest parametr
         pathInfos = fullPathList[1:]                                  # ostatní
-        handled = False
+
         for service in addresswebservices.services:
             if (service.pathName == servicePathInfo) and (service.processHandler != None):
                 #TODO Tohle by si asi měla dělat service sama
@@ -41,13 +48,15 @@ def ProcessRequest(page, queryParams):
                         addresswebservices.console.addMsg(u"Nadbytečný REST parametr č." + str(i) + "-" + pathValue)
 
                     i = i + 1
-                handled = service.processHandler(queryParams)
+                service.processHandler(queryParams, response)
                 break
 
-        if not handled:
+        if not response.handled:
             addresswebservices.console.addMsg(u"Neznámá služba " + servicePathInfo)
-            s = pageBuilder.getServicesHTMLPage(servicePathInfo, queryParams)
-            return s
+            response.htmlData = pageBuilder.getServicesHTMLPage(servicePathInfo, queryParams)
+            response.handled = True
+
+    return response
 
 urls = ('/favicon.ico', 'favicon', '/(.*)', 'handler')
 
@@ -62,11 +71,12 @@ class favicon:
 
 class handler:
     def doProcessRequest(self, page):
-        s = ProcessRequest(page, web.input(_unicode=False))
-        if s <> "":
-            web.header("Content-Type", 'text/html') # Set the Header
-
-        return s
+        response = ProcessRequest(page, web.input(_unicode=False), HTTPResponse(False))
+        if response.handled:
+            web.header("Content-Type", response.mimeFormat)
+            return response.htmlData
+        else:
+            return "doProcessRequest Error"
 
     def GET(self, page):
         return self.doProcessRequest(page)
