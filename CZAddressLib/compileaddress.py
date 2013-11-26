@@ -13,6 +13,7 @@ __author__ = 'Radek Augustýn'
 
 import codecs
 from HTTPShared import *
+import urllib
 
 def errorMessage(msg):
     pass
@@ -79,7 +80,8 @@ def compileAddressServiceHandler(queryParams, response):
 
     def p(name, defValue = ""):
         if queryParams.has_key(name):
-            return queryParams[name]
+            a = urllib.unquote(queryParams[name])
+            return urllib.unquote(queryParams[name])
         else:
             return defValue
 

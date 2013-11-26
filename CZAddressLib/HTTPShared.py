@@ -1,6 +1,8 @@
 #!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
 
+import urllib
+
 services = []
 
 def getResultFormatParam():
@@ -165,3 +167,10 @@ class WebService:
 
     def processHTTPRequest(self, path, queryParams):
         pass
+
+def p(queryParams, name, defValue = ""):
+    if queryParams.has_key(name):
+        a = urllib.unquote(queryParams[name])
+        return urllib.unquote(queryParams[name])
+    else:
+        return defValue

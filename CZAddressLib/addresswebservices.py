@@ -10,7 +10,7 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import codecs
-
+import fulltextsearch
 from HTTPShared import *
 import compileaddress
 from rest_config import *
@@ -163,6 +163,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             if service.pathName == pathInfo:
                 tabIndex = i
 
+            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
             # Parameters list
@@ -174,9 +175,8 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
                 tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
 
             tabDivs += '</table>\n'
-            tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
-            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
             tabDivs += '</form>\n'
+            tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
 
             tabDivs += '<p>\n<img src="' + HTMLDATA_URL + service.pathName + '.png"></p>\n'
 
@@ -212,28 +212,22 @@ def createServices():
             ],
             [
                 getAddressPlaceIdParamURL(),
-                getSearchTextParam()
+                getSearchTextParam(),
+                URLParam("Street",            u"Ulice", u"Název ulice"),
+                URLParam("Locality",          u"Obec",  u"Obec"),
+                URLParam("HouseNumber",       u"Číslo popisné", ""),
+                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
+                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
+                URLParam("OrientationNumber", u"Číslo orientační", ""),
+                URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
+                URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
             ],
             geoCodeServiceHandler,
             sendButtonCaption = u"Najdi polohu"
         )
 
     )
-    services.append(
-        WebService("/FullTextSearch", u"Fulltextové vyhledávání", u"Vyhledávání adresního místa podle řetězce",
-            u"""Umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
-            Textový řetězec adresy může být nestandardně formátován, nebo může být i neúplný.""",
-            [
-                getResultFormatParam(),
-                RestParam("/SearchFlag", u"Způsob vyhledávání", u"Upřesnění způsobu vyhledávání (Match, Similar)")
-            ],
-            [
-                getSearchTextParam()
-            ],
-            dummyServiceHandler,
-            sendButtonCaption = u"Vyhledej adresu"
-        )
-    )
+    fulltextsearch.createServiceHandlers()
     services.append(
         WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy",
                    u"""Umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
