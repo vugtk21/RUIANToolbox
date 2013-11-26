@@ -99,11 +99,15 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     <#TABCAPTIONS#/>
   </ul>
     <div id="tabs-0">
-    <h2>Info</h2>
+    <p>
+    Tento portál umožňuje využívat kopii databáze Registru Územních Identifikací, Adres a Nemovitostí (RÚIAN) pomocí webových služeb.
     <br>
-    V rámci vytvoření a ověření postupů popsaných v této metodice byly zprovozněny referenční služby na adrese http://www.vugtk.cz/euradin/Services.
-    Tyto služby jsou určeny ke kontrole správné funkčnosti implementací, které budou v souladu s touto metodikou a procesů, které je využívají.
-    <img src="./Geocode.png" \>
+    <br>
+    Jednotlivé služby je možné využívat pomocí standardů Representational State Transfer (REST) a
+    Simple Object Access Protocol (SOAP)/Web Services Description Language (WSDL).
+    Každá záložka obsahuje popis jedné služby včetně parametrů.
+    </p>
+    <img src="#HTMLDATA_URL#WebServices.png" >
     </div>
   <#TABDIVS#/>
 </div>
@@ -139,6 +143,8 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
         result = self.pageTemplate.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        result = result.replace("#HTMLDATA_URL#", HTMLDATA_URL)
+
         queryParams = self.normalizeQueryParams(queryParams)
 
         tabCaptions = ""
@@ -199,7 +205,7 @@ def dummyServiceHandler(queryParams, response):
 def createServices():
     services.append(
         WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa",
-            u"""<p>Tato webová služba umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
+            u"""<p>Umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
             Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.<br>""",
             [
                 getResultFormatParam()
@@ -215,7 +221,7 @@ def createServices():
     )
     services.append(
         WebService("/FullTextSearch", u"Fulltextové vyhledávání", u"Vyhledávání adresního místa podle řetězce",
-            u"""Tato webová služba umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
+            u"""Umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
             Textový řetězec adresy může být nestandardně formátován, nebo může být i neúplný.""",
             [
                 getResultFormatParam(),
@@ -230,7 +236,7 @@ def createServices():
     )
     services.append(
         WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy",
-                   u"""Tato webová služba umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
+                   u"""Umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
                    prvků adresního místa.""",
             [
                 getResultFormatParam(),
@@ -250,7 +256,7 @@ def createServices():
     compileaddress.createServiceHandlers()
     services.append(
         WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy",
-                   u"""Tato webová služba umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
+                   u"""Umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
             [
                 getResultFormatParam(),
                 getAddressPlaceIdParamRest()
@@ -262,7 +268,7 @@ def createServices():
     )
     services.append(
         WebService("/NearbyAddresses", u"Blízké adresy", u"Hledá adresu nejbližší daným souřadnicím",
-                   u"""Tato webová služba nám umožní vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
+                   u"""Umožňuje vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
                    Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.""",
             [
                 getResultFormatParam(),

@@ -102,7 +102,7 @@ def compileAddressServiceHandler(queryParams, response):
 def createServiceHandlers():
     services.append(
         WebService("/CompileAddress", u"Sestavení adresy", u"Formátování adresy ve standardizovaném tvaru",
-            u"""Tato webová služba sestavit zápis adresy ve standardizovaném tvaru podle § 6 vyhlášky č. 359/2011 Sb.,
+            u"""Umožňuje sestavit zápis adresy ve standardizovaném tvaru podle § 6 vyhlášky č. 359/2011 Sb.,
             kterou se provádí zákon č. 111/2009 Sb., o základních registrech, ve znění zákona č. 100/2010 Sb.
             Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového řetězce adresy nebo jednotlivých prvků adresy.""",
             [
@@ -117,8 +117,8 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
-                URLParam("RecordNumber",      u"Číslo evidenční", u"Číšlo evidenční, pokud je přiděleno"),
-                URLParam("DistrictNumber",    u"Obvod", u"Číšlo městského obvodu, pokud exituje")
+                URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
+                URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
             ],
             compileAddressServiceHandler,
             sendButtonCaption = u"Sestav adresu",
