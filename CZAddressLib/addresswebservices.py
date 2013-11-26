@@ -12,6 +12,7 @@
 import codecs
 import fulltextsearch
 import validate
+import geocode
 from HTTPShared import *
 import compileaddress
 from rest_config import *
@@ -196,38 +197,12 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
         result = result.replace("<#TABDIVS#/>", tabDivs)
         return result
 
-def geoCodeServiceHandler(queryParams, response):
-    return response
-
 def dummyServiceHandler(queryParams, response):
     return response
 
 #TODO Blank todo
 def createServices():
-    services.append(
-        WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa",
-            u"""<p>Umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
-            Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.<br>""",
-            [
-                getResultFormatParam()
-            ],
-            [
-                getAddressPlaceIdParamURL(),
-                getSearchTextParam(),
-                URLParam("Street",            u"Ulice", u"Název ulice"),
-                URLParam("Locality",          u"Obec",  u"Obec"),
-                URLParam("HouseNumber",       u"Číslo popisné", ""),
-                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
-                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("OrientationNumber", u"Číslo orientační", ""),
-                URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
-                URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
-            ],
-            geoCodeServiceHandler,
-            sendButtonCaption = u"Najdi polohu"
-        )
-
-    )
+    geocode.createServiceHandlers()
     fulltextsearch.createServiceHandlers()
     compileaddress.createServiceHandlers()
     validate.createServiceHandlers()
