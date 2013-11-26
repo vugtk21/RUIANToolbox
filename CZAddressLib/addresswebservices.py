@@ -10,9 +10,13 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import codecs
+
 import fulltextsearch
 import validate
 import geocode
+import nearbyaddresses
+import validateaddressid
+
 from HTTPShared import *
 import compileaddress
 from rest_config import *
@@ -200,40 +204,13 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 def dummyServiceHandler(queryParams, response):
     return response
 
-#TODO Blank todo
 def createServices():
     geocode.createServiceHandlers()
     fulltextsearch.createServiceHandlers()
     compileaddress.createServiceHandlers()
     validate.createServiceHandlers()
-    services.append(
-        WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy",
-                   u"""Umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
-            [
-                getResultFormatParam(),
-                getAddressPlaceIdParamRest()
-            ],
-            [ ],
-            dummyServiceHandler,
-            sendButtonCaption = u"Ověř identifikátor adresy"
-        )
-    )
-    services.append(
-        WebService("/NearbyAddresses", u"Blízké adresy", u"Hledá adresu nejbližší daným souřadnicím",
-                   u"""Umožňuje vyhledat adresní místa v okolí zadaných souřadnic do určité vzdálenosti.
-                   Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.""",
-            [
-                getResultFormatParam(),
-                RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
-                RestParam("/JTSKY", u"JTSK Y", u"Souřadnice Y v systému S-JTSK"),
-                RestParam("/Distance", u"Vzdálenost", u"Vzdálenost v metrech od vloženého bodu")
-            ],
-            [ ],
-            dummyServiceHandler,
-            sendButtonCaption = u"Hledej blízké adresy"
-        )
-    )
-
+    nearbyaddresses.createServiceHandlers()
+    validateaddressid.createServiceHandlers()
     pass
 
 createServices()
