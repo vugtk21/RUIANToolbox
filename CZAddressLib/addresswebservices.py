@@ -11,6 +11,7 @@
 #-------------------------------------------------------------------------------
 import codecs
 import fulltextsearch
+import validate
 from HTTPShared import *
 import compileaddress
 from rest_config import *
@@ -228,26 +229,8 @@ def createServices():
 
     )
     fulltextsearch.createServiceHandlers()
-    services.append(
-        WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy",
-                   u"""Umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
-                   prvků adresního místa.""",
-            [
-                getResultFormatParam(),
-                RestParam("/Street",      u"Ulice", u"Název ulice"),
-                RestParam("/Locality",    u"Obec", u"Obec"),
-                RestParam("/HouseNumber", u"Číslo popisné", ""),
-            ],
-            [
-                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
-                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("OrientationNumber", u"Číslo orientační", "")
-            ],
-            dummyServiceHandler,
-            sendButtonCaption = u"Ověř adresu"
-        )
-    )
     compileaddress.createServiceHandlers()
+    validate.createServiceHandlers()
     services.append(
         WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy",
                    u"""Umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
