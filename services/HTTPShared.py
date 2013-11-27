@@ -1,5 +1,15 @@
 #!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        HTTPShared
+# Purpose:
+#
+# Author:      Radek Augustýn
+#
+# Created:     13/11/2013
+# Copyright:   (c) Radek Augustýn 2013
+# Licence:     <your licence>
+#-------------------------------------------------------------------------------
 
 import urllib
 

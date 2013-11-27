@@ -55,7 +55,6 @@ def ProcessRequest(page, queryParams, response):
             addresswebservices.console.addMsg(u"Neznámá služba " + servicePathInfo)
             response.htmlData = pageBuilder.getServicesHTMLPage(servicePathInfo, queryParams)
             response.handled = True
-
     return response
 
 urls = ('/favicon.ico', 'favicon', '/(.*)', 'handler')
@@ -74,7 +73,7 @@ class handler:
         response = ProcessRequest(page, web.input(_unicode=False), HTTPResponse(False))
         if response.handled:
             web.header("Content-Type", response.mimeFormat)
-            return response.htmlData
+            return response.htmlData.decode('utf-8')
         else:
             return "doProcessRequest Error"
 
@@ -85,5 +84,33 @@ class handler:
         return self.doProcessRequest(page)
 
 if __name__ == "__main__":
-    app = MyApplication(urls, globals())
-    app.run(port = PORT_NUMBER)
+    import os
+    if os.environ.has_key('SERVER_SOFTWARE'):
+        import cgi
+        import cgitb
+        cgitb.enable()
+
+        form = cgi.FieldStorage()
+        if os.environ.has_key('PATH_INFO'):
+	        pathInfo = os.environ['PATH_INFO']
+        else:
+	        pathInfo = ""
+        if pathInfo[:1] == "/":
+            pathInfo = pathInfo[1:]
+
+        query = {}
+        list = form.list
+        for item in list:
+            query[item.name] = item.value
+
+        response = ProcessRequest(pathInfo, query, HTTPResponse(False))
+        if response.handled:
+            print "Content-Type: " + response.mimeFormat    # HTML is following
+            print                                           # blank line, end of headers
+            print response.htmlData.encode('utf-8')
+        else:
+            print "doProcessRequest Error"
+
+    else:
+        app = MyApplication(urls, globals())
+        app.run(port = PORT_NUMBER)

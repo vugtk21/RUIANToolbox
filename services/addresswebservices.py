@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        module1
+# Name:        addresswebservices
 # Purpose:
 #
-# Author:      raugustyn
+# Author:      Ing. Radek Augustýn
 #
 # Created:     13/11/2013
 # Copyright:   (c) raugustyn 2013
@@ -117,8 +117,6 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     </div>
   <#TABDIVS#/>
 </div>
-
-
     </body>
 </html>
     '''
@@ -200,9 +198,6 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
         return result
-
-def dummyServiceHandler(queryParams, response):
-    return response
 
 def createServices():
     geocode.createServiceHandlers()
