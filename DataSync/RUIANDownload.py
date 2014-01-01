@@ -21,24 +21,27 @@ class RUIANDownloader:
     UPDATE_PAGE_URL = 'http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=Z&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat&vf.pd='
     VALID_START_ID = '<div class="platnost">Platnost dat ISUI k:<br/>'
     VALID_END_ID   = '</div>'
-    VALID_FOR_FILE_NAME = 'ValidFor.txt'
 
-    def __init__(self, targetDir = ""):
+
+    def __init__(self, aTargetDir = ""):
         self._targetDir = ""
-        self.targetDir = targetDir
+        self.setTargetDir(aTargetDir)
         pass
 
-    def __setTargetDir(self, targetDir):
-        if targetDir != "":
-            if targetDir.rfind("\\") != len(targetDir) - 1:
-                targetDir = targetDir + "\\"
-            self._targetDir = targetDir
-        pass
 
-    def __getTargetDir(self, targetDir):
+    def getTargetDir(self):
         return self._targetDir
 
-    targetDir = property(fget = __getTargetDir, fset = __setTargetDir)
+    def setTargetDir(self, aTargetDir):
+        if aTargetDir != "":
+            if aTargetDir.rfind("\\") != len(aTargetDir) - 1:
+                aTargetDir = aTargetDir + "\\"
+            if not os.path.exists(aTargetDir):
+                os.makedirs(aTargetDir)
+        self._targetDir = aTargetDir
+        pass
+
+    targetDir = property(fget = getTargetDir, fset = setTargetDir)
 
     def getFullSetList(self):
         logger.debug("RUIANDownloader.getFullSetList")
@@ -60,7 +63,7 @@ class RUIANDownloader:
         validHTML = html[validStart + len(self.VALID_START_ID):]
         validHTML = validHTML[:validHTML.find(self.VALID_END_ID)]
         logger.debug("Valid:%s", validHTML)
-        vf = open(self.targetDir + self.VALID_FOR_FILE_NAME, "w")
+        vf = open(config.VALID_FOR_FILE_NAME, "w")
         vf.write(validHTML)
         vf.close()
 
@@ -78,8 +81,8 @@ class RUIANDownloader:
 
     def getUpdateList(self, fromDate = ""):
         logger.debug("RUIANDownloader.getUpdateList")
-        if fromDate == "" or os.path.exists(self.targetDir + VALID_FOR_FILE_NAME):
-            dateStr = open(self.targetDir + self.VALID_FOR_FILE_NAME, "r").read().split(" ")[0]
+        if fromDate == "" or os.path.exists(config.VALID_FOR_FILE_NAME):
+            dateStr = open(config.VALID_FOR_FILE_NAME, "r").read().split(" ")[0]
             logger.debug("Date:%s", dateStr)
             return self.getList(self.UPDATE_PAGE_URL + dateStr)
         else:
@@ -162,8 +165,8 @@ class RUIANDownloader:
         f.close()
         pass
 
-downloader = RUIANDownloader(config.targetDir)
-#l = downloader.getFullSetList()
+downloader = RUIANDownloader(config.tempDir)
+l = downloader.getFullSetList()
 #l = downloader.getUpdateList()
-l = downloader.getFileContent('seznamlinku.txt')
+#l = downloader.getFileContent('seznamlinku.txt')
 downloader.downloadURLList(l)
