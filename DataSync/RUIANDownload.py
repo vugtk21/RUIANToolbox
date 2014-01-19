@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
 # ####################################
 # Standard modules import
 # ####################################
-import urllib2, gzip, os
+import urllib2, gzip, os, sys
 
 # ####################################
 # Specific modules import
@@ -14,6 +15,24 @@ import config
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
     return fileName[fileName.rfind("."):]
+
+def ___filePercentageInfo(fileSize, downloadedSize):
+    status = r"%10d  [%3.2f%%]" % (downloadedSize, downloadedSize * 100. / fileSize)
+    logger.info(status)
+
+filePercentageInfo = ___filePercentageInfo
+
+def __fileDownloadInfo(fileName, fileSize):
+    logger.info("Downloading: %s Bytes: %s" % (fileName, fileSize))
+
+fileDownloadInfo = __fileDownloadInfo
+
+class DownloadInfo:
+    def __init__(self):
+        self.fileName = ""
+        self.fileSize = 0
+        self.compressedFileSize = 0
+        pass
 
 class RUIANDownloader:
     pageURL = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
@@ -26,6 +45,8 @@ class RUIANDownloader:
     def __init__(self, aTargetDir = ""):
         self._targetDir = ""
         self.setTargetDir(aTargetDir)
+        self.downloadInfos = []
+        self.downloadInfo = None
         pass
 
 
@@ -63,7 +84,7 @@ class RUIANDownloader:
         validHTML = html[validStart + len(self.VALID_START_ID):]
         validHTML = validHTML[:validHTML.find(self.VALID_END_ID)]
         logger.debug("Valid:%s", validHTML)
-        vf = open(config.VALID_FOR_FILE_NAME, "w")
+        vf = open(config.validForFileName(), "w")
         vf.write(validHTML)
         vf.close()
 
@@ -81,8 +102,8 @@ class RUIANDownloader:
 
     def getUpdateList(self, fromDate = ""):
         logger.debug("RUIANDownloader.getUpdateList")
-        if fromDate == "" or os.path.exists(config.VALID_FOR_FILE_NAME):
-            dateStr = open(config.VALID_FOR_FILE_NAME, "r").read().split(" ")[0]
+        if fromDate == "" or os.path.exists(config.validForFileName()):
+            dateStr = open(config.validForFileName(), "r").read().split(" ")[0]
             logger.debug("Date:%s", dateStr)
             return self.getList(self.UPDATE_PAGE_URL + dateStr)
         else:
@@ -90,9 +111,29 @@ class RUIANDownloader:
 
     def downloadURLList(self, list, uncompress = True):
         logger.debug("RUIANDownloader.downloadURLList")
+        self.downloadInfos = []
         for href in list:
+            self.downloadInfo = DownloadInfo()
+            self.downloadInfos.append(self.downloadInfo)
             fileName = self.downloadURLtoFile(href)
             self.uncompressFile(fileName, True)
+
+        htmlResult = ""
+
+        def addCol(value):
+            global htmlResult
+            htmlResult += "<td>" + value + "</td>"
+
+        for info in self.downloadInfos:
+            htmlResult += "<tr>"
+            addCol(info.fileName)
+            addCol(info.compressedFileSize)
+            addCol(info.fileSize)
+            htmlResult += "</tr>"
+        with open("log.html", "w") as outFile:
+            outFile.write(htmlResult)
+            outFile.close()
+
         pass
 
     def downloadURLtoFile(self, url):
@@ -103,8 +144,9 @@ class RUIANDownloader:
 
         req = urllib2.urlopen(url)
         meta = req.info()
-        file_size = int(meta.getheaders("Content-Length")[0])
-        logger.info("Downloading: %s %s Bytes" % (file_name, file_size))
+        fileSize = int(meta.getheaders("Content-Length")[0])
+        #logger.info("Downloading: %s %s Bytes" % (file_name, fileSize))
+        fileDownloadInfo(file_name, fileSize)
         CHUNK = 1024*1024
         file_size_dl = 0
         with open(file_name, 'wb') as fp:
@@ -113,9 +155,10 @@ class RUIANDownloader:
                 if not chunk: break
                 fp.write(chunk)
                 file_size_dl += len(chunk)
-                logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size))
-
+                logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / fileSize))
             fp.close()
+        self.downloadInfo.fileName = file_name
+        self.downloadInfo.compressedFileSize = fileSize
         return file_name
 
     def uncompressFile(self, fileName, deleteSource = True):
@@ -130,6 +173,7 @@ class RUIANDownloader:
             f.close()
             out = open(outFileName, "wb")
             out.write(fileContent)
+            self.downloadInfo.fileSize = len(fileContent)
             out.close()
             if deleteSource:
                 os.remove(fileName)
@@ -158,15 +202,62 @@ class RUIANDownloader:
 
             file_size_dl += len(buffer)
             f.write(buffer)
-            status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-            #status = status + chr(8)*(len(status)+1)
-            logger.info(status)
+            filePercentageInfo(file_size, file_size_dl)
 
         f.close()
         pass
 
-downloader = RUIANDownloader(config.tempDir)
-l = downloader.getFullSetList()
-#l = downloader.getUpdateList()
-#l = downloader.getFileContent('seznamlinku.txt')
-downloader.downloadURLList(l)
+def Usage():
+    print('Usage: RUIANDownload.py [-mode {full | update}] [-workDir work_dir] [-configDir config_dir] [--help-general]')
+    print('')
+
+def main(argv = sys.argv):
+    if (argv is None) or (len(argv) == 0):
+        print('Unrecognised command option: %s' % arg)
+        Usage()
+        sys.exit(0)
+    else:
+        fullMode = True
+        workDir = config.tempDir
+        configDir = config.dataDir
+
+        i = 1
+        while i < len(argv):
+            arg = argv[i].lower()
+
+            if arg == "-mode":
+                i = i + 1
+                arg = argv[i].lower()
+                fullMode = arg == "full"
+            elif arg == "-workDir":
+                i = i + 1
+                workDir = argv[i]
+            elif arg == "-configDir":
+                i = i + 1
+                configDir = argv[i]
+            else:
+                print('Unrecognised command option: %s' % arg)
+                Usage()
+                sys.exit( 1 )
+
+            i = i + 1
+            # while exit
+
+        logger.info("Working dir = %s", workDir)
+        logger.info("Config dir = %s", configDir)
+
+        config.tempDir = workDir
+        config.configDir = configDir
+
+        downloader = RUIANDownloader(workDir)
+        if fullMode:
+            logger.info("Running in full mode")
+            l = downloader.getFullSetList()
+        else:
+            logger.info("Running in update mode")
+            l = downloader.getUpdateList()
+
+        downloader.downloadURLList(l)
+
+if __name__ == '__main__':
+    sys.exit(main())
