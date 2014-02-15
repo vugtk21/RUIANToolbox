@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
+# Name:        addressbuilder
+# Purpose:     Formátuje adresu ve standardizovaném tvaru
 #
-# Author:      raugustyn
+# Author:      Radek Augustýn
 #
 # Created:     14/02/2014
-# Copyright:   (c) raugustyn 2014
+# Copyright:   (c) Radek Augustýn 2014
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 __author__ = 'raugustyn'
 
 class TextFormater:
-    def __init__(self):
+    def __init__(self, lineSeparator="<br>"):
+        self.lineSeparator = lineSeparator
         self.text = u""
         pass
 
@@ -20,13 +21,9 @@ class TextFormater:
         self.text = u""
         pass
 
-    def addLine(self, line):
-        self.text += line
-
-class HTMLTextFormater(TextFormater):
-    def addLine(self, line):
+    def addLine(self, line: str):
         if self.text != "":
-            self.text += "<br>"
+            self.text += self.lineSeparator
         self.text += line
 
 def spaceToCamelCase(value : str):

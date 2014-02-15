@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        addressbuilder_tests
+# Purpose:     Testuje knihovnu addressbuilder
+#
+# Author:      Radek Augustýn
+#
+# Created:     14/02/2014
+# Copyright:   (c) Radek Augustýn 2014
+# Licence:     <your licence>
+#-------------------------------------------------------------------------------
+__author__ = 'raugustyn'
 
 import unittest
 import addressbuilder
@@ -6,7 +17,7 @@ import addressbuilder
 class TestGlobalFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.htmlFormater = addressbuilder.HTMLTextFormater()
+        self.htmlFormater = addressbuilder.TextFormater()
         pass
 
     def tearDown(self):
@@ -14,7 +25,7 @@ class TestGlobalFunctions(unittest.TestCase):
 
     def testgetAddressFromStr_Pattern1(self):
         a = addressbuilder.Address(
-            street = u"ArnoÅ¡ta Valenty",
+            street=u"Arnošta Valenty",
             descNumber = u"670",
             recordNumber = u"",
             orientationNumber = u"31",
@@ -25,13 +36,13 @@ class TestGlobalFunctions(unittest.TestCase):
         )
         self.assertEqual(
             a.toAddressString(self.htmlFormater),
-            u"ArnoÅ¡ta Valenty 670/31<br>Černý Most<br>19800 Praha 9",
-            u"Adresní místo v Praze s ulicí, číslem popisným a orientačním")
+            u"Arnošta Valenty 670/31<br>Černý Most<br>19800 Praha 9",
+            u"1.Adresní místo v Praze s ulicí, číslem popisným a orientačním")
         pass
 
     def testgetAddressFromStr_Pattern2(self):
         a = addressbuilder.Address(
-            street = u"ArnoÅ¡ta Valenty",
+            street=u"Arnošta Valenty",
             descNumber = u"670",
             recordNumber = u"",
             orientationNumber = u"",
@@ -42,8 +53,8 @@ class TestGlobalFunctions(unittest.TestCase):
         )
         self.assertEqual(
             a.toAddressString(self.htmlFormater),
-            u"ArnoÅ¡ta Valenty 670<br>Černý Most<br>19800 Praha 9",
-            u"Adresní místo v Praze s ulicí a číslem popisným")
+            u"Arnošta Valenty 670<br>Černý Most<br>19800 Praha 9",
+            u"2.Adresní místo v Praze s ulicí a číslem popisným")
         pass
 
     def testgetAddressFromStr_Pattern3(self):
@@ -60,7 +71,7 @@ class TestGlobalFunctions(unittest.TestCase):
         self.assertEqual(
             a.toAddressString(self.htmlFormater),
             u"Medová č. ev. 30<br>Křeslice<br>10400 Praha 10",
-            u"Adresní místo v Praze s ulicí a číslem evidenčním")
+            u"3.Adresní místo v Praze s ulicí a číslem evidenčním")
         pass
 
     def testgetAddressFromStr_Pattern4(self):
@@ -77,7 +88,7 @@ class TestGlobalFunctions(unittest.TestCase):
         self.assertEqual(
             a.toAddressString(self.htmlFormater),
             u"Křeslice č. ev. 42<br>10400 Praha 10",
-            u"Adresní místo v Praze s číslem evidenčním")
+            u"4.Adresní místo v Praze s číslem evidenčním")
         pass
 
 if __name__ == '__main__':
