@@ -89,14 +89,3 @@ class Address:
             formater.addLine("%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
 
         return formater.text
-
-def getAddressFromStr(s : str):
-
-    pass
-
-def main():
-    s = Address(street = "ulice")
-    pass
-
-if __name__ == '__main__':
-    main()
