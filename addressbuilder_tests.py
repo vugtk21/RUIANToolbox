@@ -91,5 +91,22 @@ class TestGlobalFunctions(unittest.TestCase):
             u"4.Adresní místo v Praze s číslem evidenčním")
         pass
 
+    def testgetAddressFromStr_Pattern5(self):
+        a = addressbuilder.Address(
+            street = u"Lhenická",
+            descNumber = u"1120",
+            recordNumber = u"",
+            orientationNumber = u"1",
+            ZIPCode = u"370 05",
+            town = u"České Budějovice",
+            district = u"České Budějovice 2",
+            districtNumber = u""
+        )
+        self.assertEqual(
+            a.toAddressString(self.htmlFormater),
+            u"Lhenická 1120/1<br>České Budějovice 2<br>37005 České Budějovice<br>",
+            u"5. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části nejsou shodné")
+        pass
+
 if __name__ == '__main__':
     unittest.main()
