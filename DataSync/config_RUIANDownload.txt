@@ -1,0 +1,5 @@
+# Konfigurace pro stahování
+dataDir=..\..\01_SampleData\ 				# ahoj
+tempDir=..\..\01_SampleData\CompactDatabase
+configDir=..\..\01_SampleData\
+validForFileName=..\..\01_SampleData\ValidFor.txt

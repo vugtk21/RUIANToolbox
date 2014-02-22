@@ -10,7 +10,46 @@ import urllib2, gzip, os, sys
 # Specific modules import
 # ####################################
 from log import logger
-import config
+
+class Config:
+    ADMIN_NAME = 'admin'
+    ADMIN_PASSWORD = 'bar67gux7hd6f5ge6'
+    dataDir = "..\\..\\01_SampleData\\"
+    tempDir = dataDir + "CompactDatabase"
+    configDir = dataDir
+    validForFileName = configDir + 'ValidFor.txt'
+
+    def __init__(self, configFileName):
+        inFile = open(configFileName, "r")
+        lines = inFile.readlines()
+        inFile.close()
+
+        for line in lines:
+            if line.find("#") >= 0:
+                line = line[:line.find("#") - 1]
+            line = line.rstrip()
+            lineParts = line.split("=")
+            name = lineParts[0].lower()
+            if len(lineParts) > 1:
+                value = lineParts[1]
+            else:
+                value = ""
+
+            if name == "datadir":
+                self.dataDir = value
+            elif name == "tempdir":
+                self.tempDir = value
+            elif name == "configdir":
+                self.configDir = value
+            elif name == "validforfilename":
+                self.validForFileName = value
+
+
+config = Config("config_RUIANDownload.txt")
+print 'dataDir:\t', config.dataDir
+print 'tempDir:\t', config.tempDir
+print 'configDir:\t', config.configDir
+print 'validForFileName:\t', config.validForFileName
 
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
@@ -84,7 +123,7 @@ class RUIANDownloader:
         validHTML = html[validStart + len(self.VALID_START_ID):]
         validHTML = validHTML[:validHTML.find(self.VALID_END_ID)]
         logger.debug("Valid:%s", validHTML)
-        vf = open(config.validForFileName(), "w")
+        vf = open(config.validForFileName, "w")
         vf.write(validHTML)
         vf.close()
 
@@ -102,8 +141,8 @@ class RUIANDownloader:
 
     def getUpdateList(self, fromDate = ""):
         logger.debug("RUIANDownloader.getUpdateList")
-        if fromDate == "" or os.path.exists(config.validForFileName()):
-            dateStr = open(config.validForFileName(), "r").read().split(" ")[0]
+        if fromDate == "" or os.path.exists(config.validForFileName):
+            dateStr = open(config.validForFileName, "r").read().split(" ")[0]
             logger.debug("Date:%s", dateStr)
             return self.getList(self.UPDATE_PAGE_URL + dateStr)
         else:
