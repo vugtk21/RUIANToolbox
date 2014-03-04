@@ -17,7 +17,9 @@ class Config:
     dataDir = "..\\..\\01_SampleData\\"
     tempDir = dataDir + "CompactDatabase"
     configDir = dataDir
-    validForFileName = configDir + 'ValidFor.txt'
+    infoFileName = configDir + 'Info.txt'
+    lastPatchDownload = None
+    lastFullDownload = None
 
     def __init__(self, configFileName):
         inFile = open(configFileName, "r")
@@ -26,7 +28,7 @@ class Config:
 
         for line in lines:
             if line.find("#") >= 0:
-                line = line[:line.find("#") - 1]
+                    line = line[:line.find("#") - 1]
             line = line.rstrip()
             lineParts = line.split("=")
             name = lineParts[0].lower()
@@ -41,15 +43,27 @@ class Config:
                 self.tempDir = value
             elif name == "configdir":
                 self.configDir = value
-            elif name == "validforfilename":
-                self.validForFileName = value
+            elif name == "infofilename":
+                self.infoFileName = value
+            elif name == "fromdate":
+                if value == "":
+                    self.fromDate = value
+                else:
+                    self.fromDate = value
 
+        if os.path.exists(self.dataDir + self.infoFileName):
+            infoFile = open(self.dataDir + self.infoFileName, "r")
+            self.lastPatchDownload = infoFile.read().strip()
+            self.lastFullDownload = infoFile.read().strip()
+        else:
+            self.lastFullDownload = None
+            self.lastPatchDownload = None
 
-config = Config("config_RUIANDownload.txt")
-print 'dataDir:\t', config.dataDir
-print 'tempDir:\t', config.tempDir
-print 'configDir:\t', config.configDir
-print 'validForFileName:\t', config.validForFileName
+config = Config("RUIANDownload.cfg")
+logger.info('dataDir:\t', config.dataDir)
+logger.info('tempDir:\t', config.tempDir)
+logger.info('configDir:\t', config.configDir)
+logger.info('validForFileName:\t', config.validForFileName)
 
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
@@ -73,6 +87,10 @@ class DownloadInfo:
         self.compressedFileSize = 0
         pass
 
+def formatListURL(patternURL, fullList, fromDate):
+    pass
+
+
 class RUIANDownloader:
     pageURL = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     FULL_LIST_URL = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
@@ -87,7 +105,6 @@ class RUIANDownloader:
         self.downloadInfos = []
         self.downloadInfo = None
         pass
-
 
     def getTargetDir(self):
         return self._targetDir
