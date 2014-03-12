@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from distutils.command.install_egg_info import install_egg_info
+
 __author__ = 'raugustyn'
 
 # ####################################
@@ -10,6 +12,17 @@ import urllib2, gzip, os, sys
 # Specific modules import
 # ####################################
 from log import logger
+import infofile
+
+def pathWithLastSlash(path):
+    if path != "" and path[len(path) - 1:] != os.sep:
+        path = path + os.sep
+
+    return path
+
+def extractFileName(fileName):
+    lastDel = fileName.rfind(os.sep)
+    return fileName[lastDel + 1:]
 
 class Config:
     ADMIN_NAME = 'admin'
@@ -18,8 +31,9 @@ class Config:
     tempDir = dataDir + "CompactDatabase"
     configDir = dataDir
     infoFileName = configDir + 'Info.txt'
-    lastPatchDownload = None
-    lastFullDownload = None
+    lastPatchDownload = ""
+    lastFullDownload = ""
+    validFor = ""
 
     def __init__(self, configFileName):
         inFile = open(configFileName, "r")
@@ -38,32 +52,33 @@ class Config:
                 value = ""
 
             if name == "datadir":
-                self.dataDir = value
+                self.dataDir = pathWithLastSlash(value)
             elif name == "tempdir":
-                self.tempDir = value
+                self.tempDir = pathWithLastSlash(value)
             elif name == "configdir":
-                self.configDir = value
+                self.configDir = pathWithLastSlash(value)
             elif name == "infofilename":
                 self.infoFileName = value
-            elif name == "fromdate":
-                if value == "":
-                    self.fromDate = value
-                else:
-                    self.fromDate = value
 
         if os.path.exists(self.dataDir + self.infoFileName):
-            infoFile = open(self.dataDir + self.infoFileName, "r")
-            self.lastPatchDownload = infoFile.read().strip()
-            self.lastFullDownload = infoFile.read().strip()
+            infoFile = infofile.InfoFile(self.dataDir + self.infoFileName)
+            self.lastPatchDownload = infoFile.lastPatchDownload
+            self.lastFullDownload = infoFile.lastFullDownload
         else:
-            self.lastFullDownload = None
-            self.lastPatchDownload = None
+            self.lastFullDownload = ""
+            self.lastPatchDownload = ""
+
+        if self.lastPatchDownload != "":
+            self.validFor = self.lastPatchDownload
+        else:
+            self.validFor = self.lastFullDownload
 
 config = Config("RUIANDownload.cfg")
-logger.info('dataDir:\t', config.dataDir)
-logger.info('tempDir:\t', config.tempDir)
-logger.info('configDir:\t', config.configDir)
-logger.info('validForFileName:\t', config.validForFileName)
+logger.info('Reading RUIANDownload.cfg...')
+logger.info('dataDir:\t%s', config.dataDir)
+logger.info('tempDir:\t%s', config.tempDir)
+logger.info('configDir:\t%s', config.configDir)
+logger.info('validForFileName:\t%s', config.validFor)
 
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
@@ -76,7 +91,7 @@ def ___filePercentageInfo(fileSize, downloadedSize):
 filePercentageInfo = ___filePercentageInfo
 
 def __fileDownloadInfo(fileName, fileSize):
-    logger.info("Downloading: %s Bytes: %s" % (fileName, fileSize))
+    logger.info("Downloading: %s Bytes: %s" % (extractFileName(fileName), fileSize))
 
 fileDownloadInfo = __fileDownloadInfo
 
@@ -140,9 +155,7 @@ class RUIANDownloader:
         validHTML = html[validStart + len(self.VALID_START_ID):]
         validHTML = validHTML[:validHTML.find(self.VALID_END_ID)]
         logger.debug("Valid:%s", validHTML)
-        vf = open(config.validForFileName, "w")
-        vf.write(validHTML)
-        vf.close()
+        # write valid for info
 
         tablePos = html.find('<table id="i"')
         if tablePos >= 0:
@@ -195,8 +208,7 @@ class RUIANDownloader:
     def downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader.downloadURLtoFile")
         file_name = self.targetDir + url.split('/')[-1]
-        print "Dodnloading", url, " ->", file_name
-        #return file_name
+        logger.info("Dodnloading" + url + " ->" + extractFileName(file_name))
 
         req = urllib2.urlopen(url)
         meta = req.info()
@@ -222,7 +234,7 @@ class RUIANDownloader:
         ext = getFileExtension(fileName).lower()
         if ext == ".gz":
             outFileName = fileName[:-len(ext)]
-            logger.info("Uncompressing " + fileName + "->" + outFileName)
+            logger.info("Uncompressing " + extractFileName(fileName) + "->" + extractFileName(outFileName))
             f = gzip.open(fileName, 'rb')
             # @TODO tady by se melo cist po kouskach
             fileContent = f.read()
@@ -264,15 +276,12 @@ class RUIANDownloader:
         pass
 
 def Usage():
-    print('Usage: RUIANDownload.py [-mode {full | update}] [-workDir work_dir] [-configDir config_dir] [--help-general]')
-    print('')
+    logger.info('Usage: RUIANDownload.py [-mode {full | update}] [-workDir work_dir] [-configDir config_dir] [-help]')
+    logger.info('')
+    sys.exit( 1 )
 
 def main(argv = sys.argv):
-    if (argv is None) or (len(argv) == 0):
-        print('Unrecognised command option: %s' % arg)
-        Usage()
-        sys.exit(0)
-    else:
+    if (argv != None) or (len(argv) > 1):
         fullMode = True
         workDir = config.tempDir
         configDir = config.dataDir
@@ -283,24 +292,29 @@ def main(argv = sys.argv):
 
             if arg == "-mode":
                 i = i + 1
-                arg = argv[i].lower()
-                fullMode = arg == "full"
-            elif arg == "-workDir":
+                fullMode = argv[i].lower() == "full"
+            elif arg == "-workdir":
                 i = i + 1
-                workDir = argv[i]
-            elif arg == "-configDir":
+                workDir = pathWithLastSlash(argv[i])
+                if not os.path.exists(workDir):
+                    logger.error("workDir %s does not exist", workDir)
+                    Usage()
+            elif arg == "-configdir":
                 i = i + 1
-                configDir = argv[i]
+                configDir = pathWithLastSlash(argv[i])
+                if not os.path.exists(configDir):
+                    logger.error("configDir %s does not exist", configDir)
+                    Usage()
             else:
-                print('Unrecognised command option: %s' % arg)
+                logger.error('Unrecognised command option: %s' % arg)
                 Usage()
-                sys.exit( 1 )
 
             i = i + 1
             # while exit
 
-        logger.info("Working dir = %s", workDir)
-        logger.info("Config dir = %s", configDir)
+        logger.info("Full mode = %s", str(fullMode))
+        logger.info("Working directory = %s", workDir)
+        logger.info("Config directory = %s", configDir)
 
         config.tempDir = workDir
         config.configDir = configDir
