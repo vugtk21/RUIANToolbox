@@ -21,13 +21,13 @@ class TextFormater:
         self.text = u""
         pass
 
-    def addLine(self, line: str):
+    def addLine(self, line):
         if self.text != "":
             self.text += self.lineSeparator
         self.text += line
 
-def spaceToCamelCase(value : str):
-    output = ""
+def spaceToCamelCase(value ):
+    output = u""
     for word in value.split(" "):
         if output != "":
             output += " "
@@ -61,31 +61,94 @@ class Address:
         """ První písmena ve slovech velká """
         return spaceToCamelCase(self.district)
 
-    def toAddressString(self, formater : TextFormater):
+    def toAddressString(self, formater ):
         """ Naformátuje a vrátí standardizovaný adresní řetězec """
         formater.clear()
 
         # 1. Adresní místo v Praze s ulicí, číslem popisným a orientačním
         if self.town.lower() == self.PRAHA_NAME and self.descNumber != "" and self.orientationNumber != "":
-            formater.addLine("%s %s/%s" % (self.street, self.descNumber, self.orientationNumber))
+            formater.addLine(u"%s %s/%s" % (self.street, self.descNumber, self.orientationNumber))
             formater.addLine(self.getNormalizedDistrictName())
-            formater.addLine("%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
+            formater.addLine(u"%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
 
         # 2. Adresní místo v Praze s ulicí a číslem popisným
         if self.town.lower() == self.PRAHA_NAME and self.descNumber != "" and self.orientationNumber == "":
-            formater.addLine("%s %s" % (self.street, self.descNumber))
+            formater.addLine(u"%s %s" % (self.street, self.descNumber))
             formater.addLine(self.getNormalizedDistrictName())
-            formater.addLine("%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
+            formater.addLine(u"%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
 
         # 3. Adresní místo v Praze s ulicí a číslem evidenčním
         if self.town.lower() == self.PRAHA_NAME and self.street != "" and self.recordNumber != "":
-            formater.addLine("%s č. ev. %s" % (self.street, self.recordNumber))
+            formater.addLine(u"%s č.ev. %s" % (self.street, self.recordNumber))
             formater.addLine(self.getNormalizedDistrictName())
-            formater.addLine("%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
+            formater.addLine(u"%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
 
         # 4. Adresní místo v Praze s číslem evidenčním
         if self.town.lower() == self.PRAHA_NAME and self.street == "" and self.recordNumber != "":
-            formater.addLine("%s č. ev. %s" % (self.getNormalizedDistrictName(), self.recordNumber))
-            formater.addLine("%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
+            formater.addLine(u"%s č.ev. %s" % (self.getNormalizedDistrictName(), self.recordNumber))
+            formater.addLine(u"%s %s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName(), self.districtNumber))
+
+        # 5. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.orientationNumber != "" and self.town != self.district:
+            formater.addLine(u"%s %s/%s" % (self.street, self.descNumber, self.orientationNumber))
+            formater.addLine(self.getNormalizedDistrictName())
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 6. Adresní místo mimo Prahu s ulicí, číslem popisným, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.orientationNumber == "" and self.town != self.district:
+            formater.addLine(u"%s %s" % (self.street, self.descNumber))
+            formater.addLine(self.getNormalizedDistrictName())
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 7. Adresní místo mimo Prahu s ulicí a číslem evidenčním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town != self.district:
+            formater.addLine(u"%s č.ev. %s" % (self.street, self.recordNumber))
+            formater.addLine(self.getNormalizedDistrictName())
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 8. Adresní místo mimo Prahu s ulicí a číslem popisným, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber == "" and self.town == self.district:
+            formater.addLine(u"%s %s" % (self.street, self.descNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 9. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber != "" and self.town == self.district:
+            formater.addLine(u"%s %s/%s" % (self.street, self.descNumber, self.orientationNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 10. Adresní místo mimo Prahu s ulicí a číslem evidenčním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town == self.district:
+            formater.addLine(u"%s č.ev. %s" % (self.street, self.recordNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 11. Adresní místo mimo Prahu s číslem popisným, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber == "" and self.town != self.district:
+            formater.addLine(u"%s %s" % (self.getNormalizedDistrictName(), self.descNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 12. Adresní místo mimo Prahu s číslem popisným a orientačním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber != "" and self.town != self.district:
+            formater.addLine(u"%s %s/%s" % (self.getNormalizedDistrictName(), self.descNumber, self.orientationNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 13. Adresní místo mimo Prahu s číslem evidenčním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town != self.district:
+            formater.addLine(u"%s č.ev. %s" % (self.getNormalizedDistrictName(), self.recordNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 14. Adresní místo mimo Prahu s číslem popisným, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber == "" and self.town == self.district:
+            formater.addLine(u"č.p. %s" % (self.descNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 15. Adresní místo mimo Prahu s číslem popisným a orientačním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber != "" and self.town == self.district:
+            formater.addLine(u"č.p. %s/%s" % (self.descNumber, self.orientationNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
+
+        # 16. Adresní místo mimo Prahu s číslem evidenčním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town == self.district:
+            formater.addLine(u"č.ev. %s" % (self.recordNumber))
+            formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
 
         return formater.text

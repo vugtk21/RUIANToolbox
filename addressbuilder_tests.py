@@ -70,7 +70,7 @@ class TestGlobalFunctions(unittest.TestCase):
         )
         self.assertEqual(
             a.toAddressString(self.htmlFormater),
-            u"Medová č. ev. 30<br>Křeslice<br>10400 Praha 10",
+            u"Medová č.ev. 30<br>Křeslice<br>10400 Praha 10",
             u"3.Adresní místo v Praze s ulicí a číslem evidenčním")
         pass
 
@@ -87,7 +87,7 @@ class TestGlobalFunctions(unittest.TestCase):
         )
         self.assertEqual(
             a.toAddressString(self.htmlFormater),
-            u"Křeslice č. ev. 42<br>10400 Praha 10",
+            u"Křeslice č.ev. 42<br>10400 Praha 10",
             u"4.Adresní místo v Praze s číslem evidenčním")
         pass
 
@@ -104,7 +104,7 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Lhenická 1120/1<br>České Budějovice 2<br>37005 České Budějovice<br>",
+            u"Lhenická 1120/1<br>České Budějovice 2<br>37005 České Budějovice",
             u"5. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části nejsou shodné")
         pass
 
@@ -121,9 +121,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Lhenická 1120/1<br>České Budějovice 2<br>37005 České Budějovice<br>",
+            u"Lhenická 1120<br>České Budějovice 2<br>37005 České Budějovice",
             u"6. Adresní místo mimo Prahu s ulicí, číslem popisným, název obce a její části nejsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern7(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -137,9 +138,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Lhenická č.ev.12<br>České Budějovice 2<br>37005 České Budějovice<br>",
+            u"Lhenická č.ev. 12<br>České Budějovice 2<br>37005 České Budějovice",
             u"7. Adresní místo mimo Prahu s ulicí a číslem evidenčním, název obce a její části nejsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern8(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -153,9 +155,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Žamberecká 339<br>51601 Vamberk<br>",
+            u"Žamberecká 339<br>51601 Vamberk",
             u"8. Adresní místo mimo Prahu s ulicí a číslem popisným, název obce a její části jsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern9(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -169,9 +172,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Žamberecká 339/1<br>51601 Vamberk<br>",
+            u"Žamberecká 339/1<br>51601 Vamberk",
             u"9. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části jsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern10(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -185,9 +189,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Žamberecká č.ev.21<br>51601 Vamberk<br>",
+            u"Žamberecká č.ev. 21<br>51601 Vamberk",
             u"10. Adresní místo mimo Prahu s ulicí a číslem evidenčním, název obce a její části jsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern11(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -201,9 +206,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Dražkovice 106<br>53333 Pardubice<br>",
+            u"Dražkovice 106<br>53333 Pardubice",
             u"11. Adresní místo mimo Prahu s číslem popisným, název obce a její části nejsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern12(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -217,9 +223,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Dražkovice 106/12<br>53333 Pardubice<br>",
+            u"Dražkovice 106/12<br>53333 Pardubice",
             u"12. Adresní místo mimo Prahu s číslem popisným a orinetačním, název obce a její části nejsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern13(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -233,9 +240,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"Dražkovice č.ev.32<br>53333 Pardubice<br>",
+            u"Dražkovice č.ev. 32<br>53333 Pardubice",
             u"13. Adresní místo mimo Prahu s číslem evidenčním, název obce a její části nejsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern14(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -249,9 +257,10 @@ class TestGlobalFunctions(unittest.TestCase):
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"č.p.111<br>50333 Praskačka<br>",
+            u"č.p. 111<br>50333 Praskačka",
             u"14. Adresní místo mimo Prahu s číslem popisným, název obce a její části jsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern15(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -259,15 +268,16 @@ class TestGlobalFunctions(unittest.TestCase):
                 descNumber = u"111",
                 recordNumber = u"",
                 orientationNumber = u"1",
-                ZIPCode = u"533 33",
+                ZIPCode = u"503 33",
                 town = u"Praskačka",
                 district = u"Praskačka",
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"č.p.111/1<br>53333 Praskačka<br>",
+            u"č.p. 111/1<br>50333 Praskačka",
             u"15. Adresní místo mimo Prahu s číslem popisným a orientačním, název obce a její části jsou shodné")
         pass
+
     def testgetAddressFromStr_Pattern16(self):
         self.assertEqual(
             addressbuilder.Address(
@@ -275,14 +285,15 @@ class TestGlobalFunctions(unittest.TestCase):
                 descNumber = u"",
                 recordNumber = u"32",
                 orientationNumber = u"",
-                ZIPCode = u"533 33",
+                ZIPCode = u"503 33",
                 town = u"Praskačka",
                 district = u"Praskačka",
                 districtNumber = u""
             ).toAddressString(
             self.htmlFormater),
-            u"č.ev.32<br>53333 Praskačka<br>",
+            u"č.ev. 32<br>50333 Praskačka",
             u"16. Adresní místo mimo Prahu s číslem evidenčním, název obce a její části jsou shodné")
         pass
+
 if __name__ == '__main__':
     unittest.main()
