@@ -13,6 +13,7 @@ import urllib2, gzip, os, sys
 # ####################################
 from log import logger
 import infofile
+from htmllog import htmlLog
 
 def pathWithLastSlash(path):
     if path != "" and path[len(path) - 1:] != os.sep:
@@ -184,24 +185,25 @@ class RUIANDownloader:
         for href in list:
             self.downloadInfo = DownloadInfo()
             self.downloadInfos.append(self.downloadInfo)
-            fileName = self.downloadURLtoFile(href)
-            self.uncompressFile(fileName, True)
+            #fileName = self.downloadURLtoFile(href)
+            #self.uncompressFile(fileName, True)
 
-        htmlResult = ""
+        htmlLog.clear()
 
         def addCol(value):
-            global htmlResult
-            htmlResult += "<td>" + value + "</td>"
+            htmlLog.addCol(value)
 
+        htmlLog.openTable()
+        htmlLog.htmlCode += "<tr><th>Soubor</th><th>Staženo</th><th>Velikost</th></tr>"
         for info in self.downloadInfos:
-            htmlResult += "<tr>"
-            addCol(info.fileName)
+            htmlLog.closeTableRow()
+            addCol(extractFileName(info.fileName))
             addCol(info.compressedFileSize)
             addCol(info.fileSize)
-            htmlResult += "</tr>"
-        with open("log.html", "w") as outFile:
-            outFile.write(htmlResult)
-            outFile.close()
+            htmlLog.closeTableRow()
+        htmlLog.closeTable()
+
+        htmlLog.save(config.dataDir + "log.html")
 
         pass
 
@@ -281,10 +283,10 @@ def Usage():
     sys.exit( 1 )
 
 def main(argv = sys.argv):
+    fullMode = True
+    workDir = config.tempDir
+    configDir = config.dataDir
     if (argv != None) or (len(argv) > 1):
-        fullMode = True
-        workDir = config.tempDir
-        configDir = config.dataDir
 
         i = 1
         while i < len(argv):
