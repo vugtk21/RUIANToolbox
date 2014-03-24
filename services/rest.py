@@ -73,7 +73,7 @@ class handler:
         response = ProcessRequest(page, web.input(_unicode=False), HTTPResponse(False))
         if response.handled:
             web.header("Content-Type", response.mimeFormat)
-            return response.htmlData.decode('utf-8')
+            return response.htmlData#.decode('utf-8')
         else:
             return "doProcessRequest Error"
 

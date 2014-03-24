@@ -86,35 +86,37 @@ class MimeBuilder:
 
         return result
 
-    def dictToText(self, dataDict, lineSeparator = "\n"):
+    def listToText(self, listOfLines, lineSeparator = "\n"):
         result = ""
-        for key in dataDict:
-            value = dataDict[key]
-            if type(value) == dict:
-                value = "<div>" + self.dictToText(value, lineSeparator) + "</div>"
-            result += value + lineSeparator
+        for line in listOfLines:
+            #value = dataDict[key]
+            #if type(value) == dict:
+            #    value = "<div>" + self.dictToText(value, lineSeparator) + "</div>"
+            result += line + lineSeparator
 
         return result
 
-    def dictToHTML(self, dataDict, lineSeparator = "<br>\n"):
+    def listToHTML(self, listOfLines, lineSeparator = "<br>"):
         result = ""
-        for key in dataDict:
-            value = dataDict[key]
-            if type(value) == dict:
-                value = self.dictToHTML(value, lineSeparator)
-            result += value + lineSeparator
+        for line in listOfLines:
+            #value = dataDict[key]
+            #if type(value) == dict:
+            #    value = self.dictToHTML(value, lineSeparator)
+            if result != "":
+                result += lineSeparator
+            result += line
 
         return result
 
-    def dictToResponseText(self, dataDict):
+    def listToResponseText(self, ListOfLines):
         if self.formatText == "xml":
-            return self.dictToXML(dataDict)
+            return self.listToXML(ListOfLines)
         elif self.formatText == "html":
-            return self.dictToHTML(dataDict)
+            return self.listToHTML(ListOfLines)
         elif self.formatText == "json":
-            return self.dictToJSON(dataDict)
+            return self.dictToJSON(ListOfLines)
         else: # default value text
-            return self.dictToText(dataDict)
+            return self.dictToText(ListOfLines)
 
 
 class WebService:

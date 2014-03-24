@@ -11,6 +11,8 @@
 #-------------------------------------------------------------------------------
 __author__ = 'raugustyn'
 
+import urllib2
+
 class TextFormater:
     def __init__(self, lineSeparator="<br>"):
         self.lineSeparator = lineSeparator
@@ -152,3 +154,135 @@ class Address:
             formater.addLine(u"%s %s" % (self.getNormalizedZIPCode(), self.getNormalizedTownName()))
 
         return formater.text
+
+    def toRestString(self):
+        # 1. Adresní místo v Praze s ulicí, číslem popisným a orientačním
+        if self.town.lower() == self.PRAHA_NAME and self.descNumber != "" and self.orientationNumber != "":
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 2. Adresní místo v Praze s ulicí a číslem popisným
+        if self.town.lower() == self.PRAHA_NAME and self.descNumber != "" and self.orientationNumber == "":
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 3. Adresní místo v Praze s ulicí a číslem evidenčním
+        if self.town.lower() == self.PRAHA_NAME and self.street != "" and self.recordNumber != "":
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 4. Adresní místo v Praze s číslem evidenčním
+        if self.town.lower() == self.PRAHA_NAME and self.street == "" and self.recordNumber != "":
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            #try:
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            #except urllib2.HTTPError, error:
+            #    html = error.read()
+            return html
+
+        # 5. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.orientationNumber != "" and self.town != self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 6. Adresní místo mimo Prahu s ulicí, číslem popisným, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.orientationNumber == "" and self.town != self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 7. Adresní místo mimo Prahu s ulicí a číslem evidenčním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town != self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 8. Adresní místo mimo Prahu s ulicí a číslem popisným, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber == "" and self.town == self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 9. Adresní místo mimo Prahu s ulicí, číslem popisným a orientačním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber != "" and self.town == self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 10. Adresní místo mimo Prahu s ulicí a číslem evidenčním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street != "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town == self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 11. Adresní místo mimo Prahu s číslem popisným, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber == "" and self.town != self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 12. Adresní místo mimo Prahu s číslem popisným a orientačním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber != "" and self.town != self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 13. Adresní místo mimo Prahu s číslem evidenčním, název obce a její části nejsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town != self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 14. Adresní místo mimo Prahu s číslem popisným, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber == "" and self.town == self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 15. Adresní místo mimo Prahu s číslem popisným a orientačním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber != "" and self.recordNumber == "" and self.orientationNumber != "" and self.town == self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html
+
+        # 16. Adresní místo mimo Prahu s číslem evidenčním, název obce a její části jsou shodné
+        if self.town.lower() != self.PRAHA_NAME and self.street == "" and self.descNumber == "" and self.recordNumber != "" and self.orientationNumber == "" and self.town == self.district:
+            url = u"http://192.168.1.130:8080/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            #url = u"http://www.vugtk.cz/euradin/services/rest.py/CompileAddress/HTML?AddressPlaceId=&SearchText=&Street=%s&Locality=%s&HouseNumber=%s&ZIPCode=%s&LocalityPart=%s&OrientationNumber=%s&RecordNumber=%s&DistrictNumber=%s" % (self.street, self.getNormalizedTownName(),self.descNumber,self.getNormalizedZIPCode(),self.getNormalizedDistrictName(), self.orientationNumber, self.recordNumber, self.districtNumber)
+            url = url.replace(" ", "%20")
+            html = urllib2.urlopen(url.encode('utf-8')).read()
+            return html

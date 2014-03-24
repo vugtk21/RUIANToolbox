@@ -13,6 +13,7 @@ if True:
 else:
     SERVER_HTTP = '192.168.1.130'
     PORT_NUMBER = 8080
-    SERVICES_WEB_PATH = "services_WEB/"
+    SERVICES_WEB_PATH = "services/"
     SERVER_PATH_DEPTH = 0
+    HTMLDATA_URL = 'http://localhost/RuianServices/'
 # END OF CONFIGURATION

@@ -26,7 +26,7 @@ class TextFormat:
 
 def formatZIPCode(code):
     code = code.replace(" ", "")
-    code = code[:3] + " " + code[3:]
+    #code = code[:3] + " " + code[3:]
     return code
 
 def compileAddress(resultFormat, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
@@ -40,41 +40,49 @@ def compileAddress(resultFormat, street, houseNumber, recordNumber, orientationN
     """
     lines = []
     zipCode = formatZIPCode(zipCode)
-    townInfo = zipCode + " " + locality + " " + districtNumber
+    townInfo = zipCode + " " + unicode(locality, "utf-8")
+    if districtNumber != "":
+        townInfo += " " + districtNumber
 
     if houseNumber != "":
         houseNumberStr = " " + houseNumber
         if orientationNumber != "":
             houseNumberStr += u"/" + orientationNumber
     elif recordNumber != "":
-        houseNumberStr = u" č. ev. " + recordNumber
+        houseNumberStr = u" č.ev. " + recordNumber
     else:
         houseNumberStr = ""
 
     if locality.upper() == "PRAHA":
         if street != "":
-            lines.append(street + houseNumberStr)
-            lines.append(localityPart)
+            lines.append(unicode(street, "utf-8") + houseNumberStr)
+            lines.append(unicode(localityPart, "utf-8"))
             lines.append(townInfo)
         else:
-            lines.append(localityPart + houseNumberStr)
+            lines.append(unicode(localityPart, "utf-8") + houseNumberStr)
             lines.append(townInfo)
     else:
         if street != "":
-            lines.append(street + houseNumberStr)
+            lines.append(unicode(street, "utf-8") + houseNumberStr)
             if localityPart != locality:
-                lines.append(localityPart)
+                lines.append(unicode(localityPart, "utf-8"))
             lines.append(townInfo)
         else:
-            pass
-
+            if localityPart != locality:
+                lines.append(unicode(localityPart, "utf-8") + houseNumberStr)
+            else:
+                if houseNumber != "":
+                    lines.append(u"č.p."+houseNumberStr)
+                else:
+                    lines.append(houseNumberStr[1:])
+            lines.append(townInfo)
         pass
 
-    textDict = {
-      "address" : "\n".join(lines)
-    }
+    #textDict = {
+    #  "address" : "\n".join(lines)
+    #}
     builder = MimeBuilder(resultFormat)
-    return builder.dictToResponseText(textDict)
+    return builder.listToResponseText(lines)
 
 def compileAddressServiceHandler(queryParams, response):
 
