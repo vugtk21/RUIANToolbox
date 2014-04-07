@@ -1,3 +1,4 @@
+#!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        addresswebservices
@@ -138,7 +139,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
-        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr + 'title="' + \
+        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + ', parametr ' + param.name + \
                   '" onchange="' + onChangeProcCode + '" />'
         #result += '<td>' + param.name + ' </td><td>'

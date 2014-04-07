@@ -1,3 +1,4 @@
+#!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        compileaddress
@@ -16,21 +17,18 @@ from HTTPShared import *
 import urllib
 import re
 
-char_mapping = {'%E1':u'á','%E4':u'ä','%u010D':u'č','%u010F':u'ď','%E9':u'é','%u011B':u'ě','%ED':u'í','%u013A':u'ĺ',
+"""char_mapping = {'%E1':u'á','%E4':u'ä','%u010D':u'č','%u010F':u'ď','%E9':u'é','%u011B':u'ě','%ED':u'í','%u013A':u'ĺ',
 '%u013E':u'ľ','%F3':u'ó','%F4':u'ô','%u0155':u'ŕ','%u0159':u'ř','%u0161':u'š','%u0165':u'ť','%FA':u'ú','%u016F':u'ů',
 u'%u017E':u"\u017E",'%C1':u'Á','%E4':u'Ä','%u010C':u'Č','%u010E':u'Ď','%C9':u'É','%u011A':u'Ě','%u0139':u'Ĺ','%u013D':u'Ľ','%D3':u'Ó',
 '%F4':u'Ô','%u0154':u'Ŕ','%u0158':u'Ř','%u0160':u'Š','%u0164':u'Ť','%DA':u'Ú','%u016E':u'Ů','%u017D':u'Ž'}
 
 def mapping(str):
-    """
-    Returns mapping function for given mapping dict
-    """
     for key in char_mapping.keys():
         if key in str:
             str.replace(key, char_mapping[key])
             print char_mapping[key]
             print str
-    return str
+    return str"""
 
 def errorMessage(msg):
     pass
@@ -107,8 +105,8 @@ def compileAddressServiceHandler(queryParams, response):
         if queryParams.has_key(name):
             a = urllib.unquote(queryParams[name])
             #a = a.replace("%u017E",u"ž")
-            return mapping(a)
-            #return (urllib.unquote(queryParams[name]).decode("utf-8"))
+            #return mapping(a)
+            return (urllib.unquote(queryParams[name]).decode("utf-8"))
         else:
             return defValue
 
