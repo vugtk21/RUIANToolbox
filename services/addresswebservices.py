@@ -54,7 +54,7 @@ $(function() {
 });
     </script>
 
-    <script>
+    <script type="text/javascript" charset="utf-8">
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
  formNameLen = formElem.name.length + 1;
@@ -81,7 +81,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 			delimeter = "&";
 		}
 		if (name != "") {
-			s = s + delimeter + name + "=" + escape(elements[i].value);
+			s = s + delimeter + name + "=" + encodeURI(elements[i].value);
 		}
 	}
 

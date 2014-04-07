@@ -1,4 +1,3 @@
-#!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        HTTPShared
@@ -66,23 +65,26 @@ class MimeBuilder:
         else: # Default value text
             return "text/plain"
 
-    def dictToXML(self, dataDict, lineSeparator = "\n"):
+    def listToXML(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddress"):
         result = ""
-        for key in dataDict:
-            value = dataDict[key]
-            if type(value) == dict:
-                value = self.dictToXML(value, lineSeparator)
-            result += "<" + key + ">" + value + "</" + key + ">" + lineSeparator
+        for line in listOfLines:
+            #value = dataDict[key]
+            #if type(value) == dict:
+            #    value = self.dictToXML(value, lineSeparator)
+            result += "<" + tag + ">" + line + "</" + tag + ">" + lineSeparator
 
         return result
 
-    def dictToJSON(self, dataDict, lineSeparator = "\n"):
-        result = ""
-        for key in dataDict:
-            value = dataDict[key]
-            if type(value) == dict:
-                value = self.dictToJSON(value, lineSeparator)
-            result += key + ' : "' + value + '"' + lineSeparator
+    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddress"):
+        result = "{"+lineSeparator
+        index = 0
+        for line in listOfLines:
+            #value = dataDict[key]
+            #if type(value) == dict:
+            #    value = self.dictToJSON(value, lineSeparator)
+            index += 1
+            result += tag + str(index) + ' : "' + line + '"' + lineSeparator
+        result += "}"
 
         return result
 
@@ -114,9 +116,9 @@ class MimeBuilder:
         elif self.formatText == "html":
             return self.listToHTML(ListOfLines)
         elif self.formatText == "json":
-            return self.dictToJSON(ListOfLines)
+            return self.listToJSON(ListOfLines)
         else: # default value text
-            return self.dictToText(ListOfLines)
+            return self.listToText(ListOfLines)
 
 
 class WebService:

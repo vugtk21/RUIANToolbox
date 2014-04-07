@@ -1,4 +1,3 @@
-#!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
 
 import web
@@ -70,10 +69,10 @@ class favicon:
 
 class handler:
     def doProcessRequest(self, page):
-        response = ProcessRequest(page, web.input(_unicode=False), HTTPResponse(False))
+        response = ProcessRequest(page, web.input(), HTTPResponse(False))
         if response.handled:
             web.header("Content-Type", response.mimeFormat)
-            return response.htmlData#.decode('utf-8')
+            return response.htmlData
         else:
             return "doProcessRequest Error"
 

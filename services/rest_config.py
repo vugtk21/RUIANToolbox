@@ -4,7 +4,7 @@
 # Local configuration file, don't deploy to central repository GIT
 
 # CONFIGURATION
-if True:
+if False:
     SERVER_HTTP = 'localhost'
     PORT_NUMBER = 8086
     SERVICES_WEB_PATH = "E:\\02_OpenIssues\\07_Euradin\\Euradin\\HTML\\"
