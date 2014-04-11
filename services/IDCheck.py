@@ -4,10 +4,12 @@
 __author__ = 'Liska'
 
 from HTTPShared import *
+import RUIANInterface
 
 def IDCheckServiceHandler(queryParams, response):
-    response.htmlData = "ahoj"
-    response.mimeFormat = getMimeFormat(queryParams, "Format")
+    builder = MimeBuilder(queryParams["Format"])
+    response.htmlData = RUIANInterface.FindAddress(queryParams["AddressPlaceId"], builder)
+    response.mimeFormat = builder.getMimeFormat()
     response.handled = True
     return response
 
