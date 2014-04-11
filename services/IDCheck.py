@@ -4,7 +4,7 @@
 __author__ = 'Liska'
 
 from HTTPShared import *
-import RUIANInterface
+import RUIANInterface, RUIANReferenceDB
 
 def IDCheckServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])

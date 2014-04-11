@@ -3,11 +3,7 @@
 
 __author__ = 'Liska'
 
-from HTTPShared import *
+def __FindAddress(ID, builder):
+    return None
 
-def FindAddress(ID, builder):
-    if ID == "12356":
-        lines = [u"Lhenická 1120/1",u"České Budějovice 2",u"37005 České Budějovice"]
-    else:
-        lines = []
-    return builder.listToResponseText(lines)
+FindAddress = __FindAddress
