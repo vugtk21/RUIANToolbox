@@ -48,15 +48,15 @@ class RestParam(URLParam):
 
     pathName = property(getPathName, "REST path name")
 
-"""def getMimeFormat(self, formatText):
-    a = formatText.lower()
+def getMimeFormat(self, formatText):
+    a = self[formatText].lower()
     if a in ["html"]:
-        return "text/" + formatText
+        return "text/" + self[formatText].lower()
     elif a in ["xml", "json"]:
-        return "application/" + formatText
+        return "application/" + self[formatText].lower()
     else: # Default value text
         return "text/plain"
-"""
+
 
 class MimeBuilder:
     def __init__(self, formatText = "text"):

@@ -17,6 +17,7 @@ import validate
 import geocode
 import nearbyaddresses
 import validateaddressid
+import idcheck
 
 from HTTPShared import *
 import compileaddress
@@ -207,6 +208,7 @@ def createServices():
     validate.createServiceHandlers()
     nearbyaddresses.createServiceHandlers()
     validateaddressid.createServiceHandlers()
+    idcheck.createServiceHandlers()
     pass
 
 createServices()
