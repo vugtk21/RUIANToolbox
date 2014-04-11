@@ -101,13 +101,13 @@ if __name__ == "__main__":
         query = {}
         list = form.list
         for item in list:
-            query[item.name] = item.value
+            query[item.name] = unicode(item.value, "utf-8")
 
         response = ProcessRequest(pathInfo, query, HTTPResponse(False))
         if response.handled:
             print "Content-Type: " + response.mimeFormat    # HTML is following
             print                                           # blank line, end of headers
-            print response.htmlData#.encode('utf-8')
+            print response.htmlData.encode('utf-8')
         else:
             print "doProcessRequest Error"
 
