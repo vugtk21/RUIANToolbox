@@ -15,20 +15,6 @@ __author__ = 'Radek Augustýn'
 import codecs
 from HTTPShared import *
 import urllib
-import re
-
-"""char_mapping = {'%E1':u'á','%E4':u'ä','%u010D':u'č','%u010F':u'ď','%E9':u'é','%u011B':u'ě','%ED':u'í','%u013A':u'ĺ',
-'%u013E':u'ľ','%F3':u'ó','%F4':u'ô','%u0155':u'ŕ','%u0159':u'ř','%u0161':u'š','%u0165':u'ť','%FA':u'ú','%u016F':u'ů',
-u'%u017E':u"\u017E",'%C1':u'Á','%E4':u'Ä','%u010C':u'Č','%u010E':u'Ď','%C9':u'É','%u011A':u'Ě','%u0139':u'Ĺ','%u013D':u'Ľ','%D3':u'Ó',
-'%F4':u'Ô','%u0154':u'Ŕ','%u0158':u'Ř','%u0160':u'Š','%u0164':u'Ť','%DA':u'Ú','%u016E':u'Ů','%u017D':u'Ž'}
-
-def mapping(str):
-    for key in char_mapping.keys():
-        if key in str:
-            str.replace(key, char_mapping[key])
-            print char_mapping[key]
-            print str
-    return str"""
 
 def errorMessage(msg):
     pass
@@ -44,7 +30,7 @@ def formatZIPCode(code):
     #code = code[:3] + " " + code[3:]
     return code
 
-def compileAddress(resultFormat, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
     """
         @param street            string  Název ulice
         @param locality          string  Obec
@@ -96,7 +82,6 @@ def compileAddress(resultFormat, street, houseNumber, recordNumber, orientationN
     #textDict = {
     #  "address" : "\n".join(lines)
     #}
-    builder = MimeBuilder(resultFormat)
     return builder.listToResponseText(lines)
 
 def compileAddressServiceHandler(queryParams, response):
@@ -106,12 +91,15 @@ def compileAddressServiceHandler(queryParams, response):
             a = urllib.unquote(queryParams[name])
             #a = a.replace("%u017E",u"ž")
             #return mapping(a)
-            return (urllib.unquote(queryParams[name]).decode("utf-8"))
+            return urllib.unquote(queryParams[name]) #decode("utf-8"))
         else:
             return defValue
 
+    resultFormat = p("Format", "text")
+    builder = MimeBuilder(resultFormat)
+
     s = compileAddress(
-        p("Format", "xml"),
+        builder,
         p("Street"),
         p("HouseNumber"),
         p("RecordNumber"),
@@ -122,7 +110,7 @@ def compileAddressServiceHandler(queryParams, response):
         p("DistrictNumber")
     )
     response.htmlData = s
-    response.mimeFormat = getMimeFormat(p("Format", "xml"))
+    response.mimeFormat = builder.getMimeFormat() #getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response
 

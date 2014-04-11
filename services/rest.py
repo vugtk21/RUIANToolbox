@@ -107,7 +107,7 @@ if __name__ == "__main__":
         if response.handled:
             print "Content-Type: " + response.mimeFormat    # HTML is following
             print                                           # blank line, end of headers
-            print response.htmlData.encode('utf-8')
+            print response.htmlData#.encode('utf-8')
         else:
             print "doProcessRequest Error"
 

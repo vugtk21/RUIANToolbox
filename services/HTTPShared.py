@@ -48,11 +48,15 @@ class RestParam(URLParam):
 
     pathName = property(getPathName, "REST path name")
 
-def getMimeFormat(formatText):
-    if formatText in ["xml", "html"]:
+"""def getMimeFormat(self, formatText):
+    a = formatText.lower()
+    if a in ["html"]:
         return "text/" + formatText
+    elif a in ["xml", "json"]:
+        return "application/" + formatText
     else: # Default value text
         return "text/plain"
+"""
 
 class MimeBuilder:
     def __init__(self, formatText = "text"):
@@ -60,31 +64,35 @@ class MimeBuilder:
         pass
 
     def getMimeFormat(self):
-        if self.formatText in ["xml", "html", "json"]:
+        if self.formatText in ["xml", "json"]:
+            return "application/" + self.formatText
+        elif self.formatText == "html":
             return "text/" + self.formatText
         else: # Default value text
             return "text/plain"
 
     def listToXML(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddress"):
-        result = ""
+        result = "<root>" + lineSeparator
         for line in listOfLines:
             #value = dataDict[key]
             #if type(value) == dict:
             #    value = self.dictToXML(value, lineSeparator)
             result += "<" + tag + ">" + line + "</" + tag + ">" + lineSeparator
 
-        return result
+        return result + "</root>"
 
-    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddress"):
-        result = "{"+lineSeparator
+    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddressLine"):
+        result = "{"
         index = 0
         for line in listOfLines:
             #value = dataDict[key]
             #if type(value) == dict:
             #    value = self.dictToJSON(value, lineSeparator)
             index += 1
-            result += tag + str(index) + ' : "' + line + '"' + lineSeparator
-        result += "}"
+            if index > 1:
+                result += ','
+            result += lineSeparator + '"' + tag + str(index) + '" : "' + line + '"'
+        result += lineSeparator + "}"
 
         return result
 
