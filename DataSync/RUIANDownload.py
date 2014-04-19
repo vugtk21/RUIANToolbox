@@ -35,6 +35,7 @@ class Config:
     lastPatchDownload = ""
     lastFullDownload = ""
     validFor = ""
+    uncompressDownloadedFiles = True
 
     def __init__(self, configFileName):
         inFile = open(configFileName, "r")
@@ -60,6 +61,8 @@ class Config:
                 self.configDir = pathWithLastSlash(value)
             elif name == "infofilename":
                 self.infoFileName = value
+            elif name == "uncompressdownloadedfiles":
+                self.uncompressDownloadedFiles = value == "True"
 
         if os.path.exists(self.dataDir + self.infoFileName):
             infoFile = infofile.InfoFile(self.dataDir + self.infoFileName)
@@ -185,8 +188,9 @@ class RUIANDownloader:
         for href in list:
             self.downloadInfo = DownloadInfo()
             self.downloadInfos.append(self.downloadInfo)
-            #fileName = self.downloadURLtoFile(href)
-            #self.uncompressFile(fileName, True)
+            fileName = self.downloadURLtoFile(href)
+            if config.uncompressDownloadedFiles:
+                self.uncompressFile(fileName, True)
 
         htmlLog.clear()
 
@@ -277,7 +281,7 @@ class RUIANDownloader:
         f.close()
         pass
 
-def Usage():
+def printUsageInfo():
     logger.info('Usage: RUIANDownload.py [-mode {full | update}] [-workDir work_dir] [-configDir config_dir] [-help]')
     logger.info('')
     sys.exit( 1 )
@@ -300,16 +304,16 @@ def main(argv = sys.argv):
                 workDir = pathWithLastSlash(argv[i])
                 if not os.path.exists(workDir):
                     logger.error("workDir %s does not exist", workDir)
-                    Usage()
+                    printUsageInfo()
             elif arg == "-configdir":
                 i = i + 1
                 configDir = pathWithLastSlash(argv[i])
                 if not os.path.exists(configDir):
                     logger.error("configDir %s does not exist", configDir)
-                    Usage()
+                    printUsageInfo()
             else:
                 logger.error('Unrecognised command option: %s' % arg)
-                Usage()
+                printUsageInfo()
 
             i = i + 1
             # while exit
