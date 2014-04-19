@@ -43,6 +43,7 @@ class Config:
         inFile.close()
 
         for line in lines:
+            # Using "#" character as comment identifier -> remove everything after this
             if line.find("#") >= 0:
                     line = line[:line.find("#") - 1]
             line = line.rstrip()
