@@ -109,13 +109,26 @@ class DownloadInfo:
 def formatListURL(patternURL, fullList, fromDate):
     pass
 
+def cleanDirectory(folder):
+    if os.path.exists(folder):
+        for the_file in os.listdir(folder):
+            path = os.path.join(folder, the_file)
+            try:
+                if os.path.isfile(path):
+                    os.remove(path)
+                else:
+                    cleanDirectory(path)
+
+            except Exception, e:
+                logger.error(e.message, str(e))
+        os.rmdir(folder)
 
 class RUIANDownloader:
-    pageURL = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
-    FULL_LIST_URL = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
+    pageURL         = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
+    FULL_LIST_URL   = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     UPDATE_PAGE_URL = 'http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=Z&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat&vf.pd='
-    VALID_START_ID = '<div class="platnost">Platnost dat ISUI k:<br/>'
-    VALID_END_ID   = '</div>'
+    VALID_START_ID  = '<div class="platnost">Platnost dat ISUI k:<br/>'
+    VALID_END_ID    = '</div>'
 
 
     def __init__(self, aTargetDir = ""):
@@ -322,6 +335,10 @@ def main(argv = sys.argv):
         logger.info("Working directory = %s", workDir)
         logger.info("Config directory = %s", configDir)
 
+        if fullMode:
+            logger.info("Cleaning directory " + config.dataDir)
+            cleanDirectory(config.dataDir)
+
         config.tempDir = workDir
         config.configDir = configDir
 
@@ -336,4 +353,5 @@ def main(argv = sys.argv):
         downloader.downloadURLList(l)
 
 if __name__ == '__main__':
+    #cleanDirectory(config.dataDir)
     sys.exit(main())
