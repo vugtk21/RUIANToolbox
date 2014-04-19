@@ -65,6 +65,12 @@ class Config:
             elif name == "uncompressdownloadedfiles":
                 self.uncompressDownloadedFiles = value == "True"
 
+        if self.tempDir == "":
+            self.tempDir = self.dataDir
+
+        if self.configDir == "":
+            self.configDir = self.dataDir
+
         if os.path.exists(self.dataDir + self.infoFileName):
             infoFile = infofile.InfoFile(self.dataDir + self.infoFileName)
             self.lastPatchDownload = infoFile.lastPatchDownload
@@ -351,8 +357,7 @@ def main(argv = sys.argv):
             logger.info("Running in update mode")
             l = downloader.getUpdateList()
 
-        downloader.downloadURLList(l)
+        #downloader.downloadURLList(l)
 
 if __name__ == '__main__':
-    #cleanDirectory(config.dataDir)
     sys.exit(main())
