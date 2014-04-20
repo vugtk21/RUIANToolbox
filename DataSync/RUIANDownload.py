@@ -30,6 +30,7 @@ class Config:
     ADMIN_PASSWORD = 'bar67gux7hd6f5ge6'
     dataDir = ""
     uncompressDownloadedFiles = True
+    downloadFullDatabase = True
 
     def __init__(self, configFileName):
         inFile = open(configFileName, "r")
@@ -50,6 +51,8 @@ class Config:
 
             if name == "datadir":
                 self.dataDir = pathWithLastSlash(value)
+            elif name == "downloadfulldatabase":
+                self.downloadFullDatabase = value == "True"
             elif name == "uncompressdownloadedfiles":
                 self.uncompressDownloadedFiles = value == "True"
 
@@ -92,10 +95,10 @@ def cleanDirectory(folder):
                     os.remove(path)
                 else:
                     cleanDirectory(path)
+                    os.rmdir(path)
 
             except Exception, e:
                 logger.error(e.message, str(e))
-        os.rmdir(folder)
 
 class RUIANDownloader:
     pageURL         = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
@@ -202,9 +205,9 @@ class RUIANDownloader:
         for href in list:
             self.downloadInfo = DownloadInfo()
             self.downloadInfos.append(self.downloadInfo)
-            #fileName = self.downloadURLtoFile(href)
-            #if config.uncompressDownloadedFiles:
-            #    self.uncompressFile(fileName, True)
+            fileName = self.downloadURLtoFile(href)
+            if config.uncompressDownloadedFiles:
+                self.uncompressFile(fileName, True)
             self.buildIndexHTML()
 
         self.buildIndexHTML()
@@ -272,27 +275,35 @@ class RUIANDownloader:
         if self._fullDownload:
             logger.info("Running in full mode")
             if wasItToday(infoFile.lastFullDownload):
-                logger.info("Nothing to download. Last full download was done Today")
+                logger.warning("Process stopped! Nothing to download. Last full download was done Today " + infoFile.lastFullDownload)
                 return
             else:
                 logger.info("Cleaning directory " + config.dataDir)
                 cleanDirectory(config.dataDir)
-                os.mkdir(config.dataDir)
+                if not os.path.exists(config.dataDir):
+                    os.mkdir(config.dataDir)
 
                 l = self.getFullSetList()
                 infoFile.lastFullDownload = str(datetime.datetime.now())
                 infoFile.lastPatchDownload = ""
+                self.downloadURLList(l)
+                infoFile.save()
         else:
             if wasItToday(infoFile.lastPatchDownload):
-                logger.info("Nothing to download. Last patch was downloaded Today")
+                logger.warning("Process stopped! Nothing to download. Last patch was downloaded Today " + infoFile.lastPatchDownload)
                 return
             else:
                 logger.info("Running in update mode")
-                l = self.getUpdateList()
-                infoFile.lastPatchDownload = str(datetime.datetime.now())
-
-        self.downloadURLList(l)
-        infoFile.save()
+                if infoFile.lastFullDownload == "":
+                    logger.warning("There is no full download done yet. Downloading it...")
+                    self._fullDownload = True
+                    self.download()
+                    self._fullDownload = False
+                else:
+                    l = self.getUpdateList()
+                    infoFile.lastPatchDownload = str(datetime.datetime.now())
+                    self.downloadURLList(l)
+                    infoFile.save()
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
@@ -320,12 +331,11 @@ class RUIANDownloader:
         pass
 
 def printUsageInfo():
-    logger.info('Usage: RUIANDownload.py [-mode {full | update}] [-datadir data_dir] [-help]')
+    logger.info('Usage: RUIANDownload.py [-downloadmode {full | update}] [-datadir data_dir] [-help]')
     logger.info('')
     sys.exit( 1 )
 
 def main(argv = sys.argv):
-    fullMode = True
     if (argv != None) or (len(argv) > 1):
 
         i = 1
@@ -334,7 +344,7 @@ def main(argv = sys.argv):
 
             if arg == "-mode":
                 i = i + 1
-                fullMode = argv[i].lower() == "full"
+                config.downloadFullDatabase = argv[i].lower() == "full"
             elif arg == "-datadir":
                 i = i + 1
                 config.dataDir = pathWithLastSlash(argv[i])
@@ -348,12 +358,13 @@ def main(argv = sys.argv):
             i = i + 1
             # while exit
 
-        logger.info("Data directory : %s",      config.dataDir)
-        logger.info("Full mode : %s",           str(fullMode))
-        logger.info('Last full download : %s',  infoFile.lastFullDownload)
-        logger.info('Last patch download : %s', infoFile.lastPatchDownload)
+        logger.info("Data directory : %s",         config.dataDir)
+        logger.info("Download full database : %s", str(config.downloadFullDatabase))
+        logger.info("Last full download : %s",     infoFile.lastFullDownload)
+        logger.info("Last patch download : %s",    infoFile.lastPatchDownload)
 
         downloader = RUIANDownloader(config.dataDir)
+        downloader._fullDownload = config.downloadFullDatabase
         downloader.download()
 
 if __name__ == '__main__':
