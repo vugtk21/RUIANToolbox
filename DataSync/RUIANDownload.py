@@ -263,21 +263,33 @@ class RUIANDownloader:
             return fileName
 
     def download(self):
+        def wasItToday(dateTimeStr):
+            if dateTimeStr == "":
+                return False
+            else:
+                return datetime.datetime.strptime(dateTimeStr, "%Y-%m-%d %H:%M:%S.%f").date() == datetime.datetime.now().date()
+
         if self._fullDownload:
             logger.info("Running in full mode")
+            if wasItToday(infoFile.lastFullDownload):
+                logger.info("Nothing to download. Last full download was done Today")
+                return
+            else:
+                logger.info("Cleaning directory " + config.dataDir)
+                cleanDirectory(config.dataDir)
+                os.mkdir(config.dataDir)
 
-            logger.info("Cleaning directory " + config.dataDir)
-            cleanDirectory(config.dataDir)
-            os.mkdir(config.dataDir)
-
-            l = self.getFullSetList()
-            infoFile.lastFullDownload = str(datetime.datetime.now())
-            infoFile.lastPatchDownload = ""
+                l = self.getFullSetList()
+                infoFile.lastFullDownload = str(datetime.datetime.now())
+                infoFile.lastPatchDownload = ""
         else:
-            logger.info("Running in update mode")
-            l = self.getUpdateList()
-            infoFile.lastFullDownload = ""
-            infoFile.lastPatchDownload = str(datetime.datetime.now())
+            if wasItToday(infoFile.lastPatchDownload):
+                logger.info("Nothing to download. Last patch was downloaded Today")
+                return
+            else:
+                logger.info("Running in update mode")
+                l = self.getUpdateList()
+                infoFile.lastPatchDownload = str(datetime.datetime.now())
 
         self.downloadURLList(l)
         infoFile.save()
