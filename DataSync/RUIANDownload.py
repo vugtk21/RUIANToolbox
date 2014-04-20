@@ -6,13 +6,13 @@ __author__ = 'raugustyn'
 # ####################################
 # Standard modules import
 # ####################################
-import urllib2, gzip, os, sys
+import urllib2, gzip, os, sys, datetime
 
 # ####################################
 # Specific modules import
 # ####################################
 from log import logger
-import infofile
+from infofile import infoFile
 from htmllog import htmlLog
 
 def pathWithLastSlash(path):
@@ -28,13 +28,7 @@ def extractFileName(fileName):
 class Config:
     ADMIN_NAME = 'admin'
     ADMIN_PASSWORD = 'bar67gux7hd6f5ge6'
-    dataDir = "..\\..\\01_SampleData\\"
-    tempDir = dataDir + "CompactDatabase"
-    configDir = dataDir
-    infoFileName = configDir + 'Info.txt'
-    lastPatchDownload = ""
-    lastFullDownload = ""
-    validFor = ""
+    dataDir = ""
     uncompressDownloadedFiles = True
 
     def __init__(self, configFileName):
@@ -56,40 +50,13 @@ class Config:
 
             if name == "datadir":
                 self.dataDir = pathWithLastSlash(value)
-            elif name == "tempdir":
-                self.tempDir = pathWithLastSlash(value)
-            elif name == "configdir":
-                self.configDir = pathWithLastSlash(value)
-            elif name == "infofilename":
-                self.infoFileName = value
             elif name == "uncompressdownloadedfiles":
                 self.uncompressDownloadedFiles = value == "True"
 
-        if self.tempDir == "":
-            self.tempDir = self.dataDir
+        infoFile.load(self.dataDir + "Info.txt")
 
-        if self.configDir == "":
-            self.configDir = self.dataDir
-
-        if os.path.exists(self.dataDir + self.infoFileName):
-            infoFile = infofile.InfoFile(self.dataDir + self.infoFileName)
-            self.lastPatchDownload = infoFile.lastPatchDownload
-            self.lastFullDownload = infoFile.lastFullDownload
-        else:
-            self.lastFullDownload = ""
-            self.lastPatchDownload = ""
-
-        if self.lastPatchDownload != "":
-            self.validFor = self.lastPatchDownload
-        else:
-            self.validFor = self.lastFullDownload
 
 config = Config("RUIANDownload.cfg")
-logger.info('Reading RUIANDownload.cfg...')
-logger.info('dataDir:\t%s', config.dataDir)
-logger.info('tempDir:\t%s', config.tempDir)
-logger.info('configDir:\t%s', config.configDir)
-logger.info('validForFileName:\t%s', config.validFor)
 
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
@@ -143,6 +110,7 @@ class RUIANDownloader:
         self.setTargetDir(aTargetDir)
         self.downloadInfos = []
         self.downloadInfo = None
+        self._fullDownload = True
         pass
 
     def getTargetDir(self):
@@ -161,6 +129,7 @@ class RUIANDownloader:
 
     def getFullSetList(self):
         logger.debug("RUIANDownloader.getFullSetList")
+        self._fullDownload = True
         return self.getList(self.pageURL)
 
     def getFileContent(self, fileName):
@@ -195,27 +164,23 @@ class RUIANDownloader:
 
     def getUpdateList(self, fromDate = ""):
         logger.debug("RUIANDownloader.getUpdateList")
-        if fromDate == "" or os.path.exists(config.validForFileName):
-            dateStr = open(config.validForFileName, "r").read().split(" ")[0]
-            logger.debug("Date:%s", dateStr)
-            return self.getList(self.UPDATE_PAGE_URL + dateStr)
+        self._fullDownload = False
+        if fromDate == "" or infoFile.validFor() != "":
+            logger.debug("Date:%s", infoFile.validFor())
+            return self.getList(self.UPDATE_PAGE_URL + infoFile.validFor())
         else:
             return []
 
-    def downloadURLList(self, list, uncompress = True):
-        logger.debug("RUIANDownloader.downloadURLList")
-        self.downloadInfos = []
-        for href in list:
-            self.downloadInfo = DownloadInfo()
-            self.downloadInfos.append(self.downloadInfo)
-            fileName = self.downloadURLtoFile(href)
-            if config.uncompressDownloadedFiles:
-                self.uncompressFile(fileName, True)
-
+    def buildIndexHTML(self):
         htmlLog.clear()
 
         def addCol(value):
             htmlLog.addCol(value)
+
+        if self._fullDownload:
+            htmlLog.addHeader("Úplné stažení dat")
+        else:
+            htmlLog.addHeader("Stažení aktualizace")
 
         htmlLog.openTable()
         htmlLog.htmlCode += "<tr><th>Soubor</th><th>Staženo</th><th>Velikost</th></tr>"
@@ -227,7 +192,22 @@ class RUIANDownloader:
             htmlLog.closeTableRow()
         htmlLog.closeTable()
 
-        htmlLog.save(config.dataDir + "log.html")
+        htmlLog.save(config.dataDir + "index.html")
+
+        pass
+
+    def downloadURLList(self, list, uncompress = True):
+        logger.debug("RUIANDownloader.downloadURLList")
+        self.downloadInfos = []
+        for href in list:
+            self.downloadInfo = DownloadInfo()
+            self.downloadInfos.append(self.downloadInfo)
+            #fileName = self.downloadURLtoFile(href)
+            #if config.uncompressDownloadedFiles:
+            #    self.uncompressFile(fileName, True)
+            self.buildIndexHTML()
+
+        self.buildIndexHTML()
 
         pass
 
@@ -256,6 +236,13 @@ class RUIANDownloader:
         return file_name
 
     def uncompressFile(self, fileName, deleteSource = True):
+        """
+        Tato metoda rozbalí soubor s názvem fileName.
+
+        @param fileName: Název souboru k dekompresi
+        @param deleteSource: Jestliže True, komprimovaný soubor bude vymazán.
+        @return: Vrací název expandovaného souboru.
+        """
         logger.debug("RUIANDownloader.uncompressFile")
         ext = getFileExtension(fileName).lower()
         if ext == ".gz":
@@ -275,6 +262,25 @@ class RUIANDownloader:
         else:
             return fileName
 
+    def download(self):
+        if self._fullDownload:
+            logger.info("Running in full mode")
+
+            logger.info("Cleaning directory " + config.dataDir)
+            cleanDirectory(config.dataDir)
+            os.mkdir(config.dataDir)
+
+            l = self.getFullSetList()
+            infoFile.lastFullDownload = str(datetime.datetime.now())
+            infoFile.lastPatchDownload = ""
+        else:
+            logger.info("Running in update mode")
+            l = self.getUpdateList()
+            infoFile.lastFullDownload = ""
+            infoFile.lastPatchDownload = str(datetime.datetime.now())
+
+        self.downloadURLList(l)
+        infoFile.save()
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
@@ -302,14 +308,12 @@ class RUIANDownloader:
         pass
 
 def printUsageInfo():
-    logger.info('Usage: RUIANDownload.py [-mode {full | update}] [-workDir work_dir] [-configDir config_dir] [-help]')
+    logger.info('Usage: RUIANDownload.py [-mode {full | update}] [-datadir data_dir] [-help]')
     logger.info('')
     sys.exit( 1 )
 
 def main(argv = sys.argv):
     fullMode = True
-    workDir = config.tempDir
-    configDir = config.dataDir
     if (argv != None) or (len(argv) > 1):
 
         i = 1
@@ -319,17 +323,11 @@ def main(argv = sys.argv):
             if arg == "-mode":
                 i = i + 1
                 fullMode = argv[i].lower() == "full"
-            elif arg == "-workdir":
+            elif arg == "-datadir":
                 i = i + 1
-                workDir = pathWithLastSlash(argv[i])
-                if not os.path.exists(workDir):
-                    logger.error("workDir %s does not exist", workDir)
-                    printUsageInfo()
-            elif arg == "-configdir":
-                i = i + 1
-                configDir = pathWithLastSlash(argv[i])
-                if not os.path.exists(configDir):
-                    logger.error("configDir %s does not exist", configDir)
+                config.dataDir = pathWithLastSlash(argv[i])
+                if not os.path.exists(config.dataDir):
+                    logger.error("DataDir %s does not exist", config.dataDir)
                     printUsageInfo()
             else:
                 logger.error('Unrecognised command option: %s' % arg)
@@ -338,26 +336,13 @@ def main(argv = sys.argv):
             i = i + 1
             # while exit
 
-        logger.info("Full mode = %s", str(fullMode))
-        logger.info("Working directory = %s", workDir)
-        logger.info("Config directory = %s", configDir)
+        logger.info("Data directory : %s",      config.dataDir)
+        logger.info("Full mode : %s",           str(fullMode))
+        logger.info('Last full download : %s',  infoFile.lastFullDownload)
+        logger.info('Last patch download : %s', infoFile.lastPatchDownload)
 
-        if fullMode:
-            logger.info("Cleaning directory " + config.dataDir)
-            cleanDirectory(config.dataDir)
-
-        config.tempDir = workDir
-        config.configDir = configDir
-
-        downloader = RUIANDownloader(workDir)
-        if fullMode:
-            logger.info("Running in full mode")
-            l = downloader.getFullSetList()
-        else:
-            logger.info("Running in update mode")
-            l = downloader.getUpdateList()
-
-        #downloader.downloadURLList(l)
+        downloader = RUIANDownloader(config.dataDir)
+        downloader.download()
 
 if __name__ == '__main__':
     sys.exit(main())
