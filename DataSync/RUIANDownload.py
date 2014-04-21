@@ -11,7 +11,7 @@ import urllib2, gzip, os, sys, datetime
 # ####################################
 # Specific modules import
 # ####################################
-from log import logger
+from log import logger, clearLogFile
 from infofile import infoFile
 from htmllog import htmlLog
 
@@ -228,13 +228,12 @@ class RUIANDownloader:
     def downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader.downloadURLtoFile")
         file_name = self.targetDir + url.split('/')[-1]
-        logger.info("Dodnloading" + url + " ->" + extractFileName(file_name))
+        logger.info("Dodnloading " + url + " ->" + extractFileName(file_name))
 
         startTime = datetime.datetime.now()
         req = urllib2.urlopen(url)
         meta = req.info()
         fileSize = int(meta.getheaders("Content-Length")[0])
-        #logger.info("Downloading: %s %s Bytes" % (file_name, fileSize))
         fileDownloadInfo(file_name, fileSize)
         CHUNK = 1024*1024
         file_size_dl = 0
@@ -331,14 +330,14 @@ class RUIANDownloader:
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
-        logger.info("Dodnloading" + url)
+        logger.info("Dodnloading " + url)
         file_name = url.split('/')[-1]
         logger.info(file_name)
         u = urllib2.urlopen(url)
         f = open(self.targetDir + file_name, 'wb')
         meta = u.info()
         file_size = int(meta.getheaders("Content-Length")[0])
-        logger.info("Downloading: %s Bytes: %s" % (file_name, file_size))
+        logger.info("Downloading %s Bytes: %s" % (file_name, file_size))
 
         file_size_dl = 0
         block_sz = 8192
@@ -381,11 +380,17 @@ def main(argv = sys.argv):
 
             i = i + 1
             # while exit
+        if config.downloadFullDatabase:
+            clearLogFile()
 
+        logger.info("RUIANDownloader")
+        logger.info("#############################################")
         logger.info("Data directory : %s",         config.dataDir)
         logger.info("Download full database : %s", str(config.downloadFullDatabase))
-        logger.info("Last full download  : %s",     infoFile.lastFullDownload)
-        logger.info("Last patch download : %s",    infoFile.lastPatchDownload)
+        if not config.downloadFullDatabase:
+            logger.info("Last full download  : %s",     infoFile.lastFullDownload)
+            logger.info("Last patch download : %s",    infoFile.lastPatchDownload)
+        logger.info("---------------------------------------------")
 
         downloader = RUIANDownloader(config.dataDir)
         downloader._fullDownload = config.downloadFullDatabase
