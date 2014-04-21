@@ -21,8 +21,13 @@ class HtmlLog:
     def closeTableRow(self):
         self.htmlCode += "</tr>"
 
-    def addCol(self, value):
-        self.htmlCode += "<td>" + str(value) + "</td>"
+    def addCol(self, value, align = ""):
+        if align == "":
+            self.htmlCode += "<td>"
+        else:
+            self.htmlCode += '<td align="' + align + '" >'
+
+        self.htmlCode += str(value) + "</td>"
 
     def save(self, fileName):
         f = open(fileName, "w")

@@ -81,6 +81,7 @@ class DownloadInfo:
         self.fileName = ""
         self.fileSize = 0
         self.compressedFileSize = 0
+        self.downloadTime = ""
         pass
 
 def formatListURL(patternURL, fullList, fromDate):
@@ -166,32 +167,44 @@ class RUIANDownloader:
         return result
 
     def getUpdateList(self, fromDate = ""):
-        logger.debug("RUIANDownloader.getUpdateList")
+        logger.debug("RUIANDownloader.getUpdateList since %s", infoFile.validFor())
         self._fullDownload = False
         if fromDate == "" or infoFile.validFor() != "":
-            logger.debug("Date:%s", infoFile.validFor())
-            return self.getList(self.UPDATE_PAGE_URL + infoFile.validFor())
+            v = infoFile.validFor()
+            dateStr = v[8:10] + "." + v[5:7] + "." + v[0:4]
+            return self.getList(self.UPDATE_PAGE_URL + dateStr)
         else:
             return []
 
     def buildIndexHTML(self):
+        def addCol(value, align = ""):
+            htmlLog.addCol(value, align)
+
+
+        def addHeader():
+            if self._fullDownload:
+                headerText = "Úplné stažení dat"
+            else:
+                headerText = "Stažení aktualizace"
+            v = str(datetime.datetime.now())
+            htmlLog.addHeader(headerText + " " + v[8:10] + "." + v[5:7] + "." + v[0:4])
+
         htmlLog.clear()
-
-        def addCol(value):
-            htmlLog.addCol(value)
-
-        if self._fullDownload:
-            htmlLog.addHeader("Úplné stažení dat")
-        else:
-            htmlLog.addHeader("Stažení aktualizace")
+        addHeader()
 
         htmlLog.openTable()
-        htmlLog.htmlCode += "<tr><th>Soubor</th><th>Staženo</th><th>Velikost</th></tr>"
+        htmlLog.htmlCode += "<tr><th align='left'>Soubor</th><th>Staženo</th><th>Čas</th>"
+        if config.uncompressDownloadedFiles:
+            htmlLog.htmlCode += "<th>Rozbaleno</th>"
+        htmlLog.htmlCode += "</tr>"
+
         for info in self.downloadInfos:
             htmlLog.closeTableRow()
             addCol(extractFileName(info.fileName))
-            addCol(info.compressedFileSize)
-            addCol(info.fileSize)
+            addCol(info.compressedFileSize, "right")
+            addCol(info.downloadTime, "right")
+            if config.uncompressDownloadedFiles:
+                addCol(info.fileSize, "right")
             htmlLog.closeTableRow()
         htmlLog.closeTable()
 
@@ -210,8 +223,6 @@ class RUIANDownloader:
                 self.uncompressFile(fileName, True)
             self.buildIndexHTML()
 
-        self.buildIndexHTML()
-
         pass
 
     def downloadURLtoFile(self, url):
@@ -219,6 +230,7 @@ class RUIANDownloader:
         file_name = self.targetDir + url.split('/')[-1]
         logger.info("Dodnloading" + url + " ->" + extractFileName(file_name))
 
+        startTime = datetime.datetime.now()
         req = urllib2.urlopen(url)
         meta = req.info()
         fileSize = int(meta.getheaders("Content-Length")[0])
@@ -234,6 +246,7 @@ class RUIANDownloader:
                 file_size_dl += len(chunk)
                 logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / fileSize))
             fp.close()
+        self.downloadInfo.downloadTime = str(datetime.datetime.now() - startTime)[5:]
         self.downloadInfo.fileName = file_name
         self.downloadInfo.compressedFileSize = fileSize
         return file_name
@@ -272,38 +285,49 @@ class RUIANDownloader:
             else:
                 return datetime.datetime.strptime(dateTimeStr, "%Y-%m-%d %H:%M:%S.%f").date() == datetime.datetime.now().date()
 
-        if self._fullDownload:
-            logger.info("Running in full mode")
-            if wasItToday(infoFile.lastFullDownload):
-                logger.warning("Process stopped! Nothing to download. Last full download was done Today " + infoFile.lastFullDownload)
-                return
-            else:
-                logger.info("Cleaning directory " + config.dataDir)
-                cleanDirectory(config.dataDir)
-                if not os.path.exists(config.dataDir):
-                    os.mkdir(config.dataDir)
+        if wasItToday(infoFile.lastFullDownload):
+            logger.warning("Process stopped! Nothing to download. Last full download was done Today " + infoFile.lastFullDownload)
+            return
+        elif not self._fullDownload and wasItToday(infoFile.lastPatchDownload):
+            logger.warning("Process stopped! Nothing to download. Last patch was downloaded Today " + infoFile.lastPatchDownload)
+            return
 
-                l = self.getFullSetList()
-                infoFile.lastFullDownload = str(datetime.datetime.now())
-                infoFile.lastPatchDownload = ""
-                self.downloadURLList(l)
-                infoFile.save()
+        if self._fullDownload or infoFile.lastFullDownload == "":
+            logger.info("Running in full mode")
+            logger.info("Cleaning directory " + config.dataDir)
+            cleanDirectory(config.dataDir)
+            if not os.path.exists(config.dataDir):
+                os.mkdir(config.dataDir)
+
+            l = self.getFullSetList()
+            infoFile.lastFullDownload = str(datetime.datetime.now())
+            infoFile.lastPatchDownload = ""
         else:
-            if wasItToday(infoFile.lastPatchDownload):
-                logger.warning("Process stopped! Nothing to download. Last patch was downloaded Today " + infoFile.lastPatchDownload)
-                return
-            else:
-                logger.info("Running in update mode")
-                if infoFile.lastFullDownload == "":
-                    logger.warning("There is no full download done yet. Downloading it...")
-                    self._fullDownload = True
-                    self.download()
-                    self._fullDownload = False
-                else:
-                    l = self.getUpdateList()
-                    infoFile.lastPatchDownload = str(datetime.datetime.now())
-                    self.downloadURLList(l)
-                    infoFile.save()
+            logger.info("Running in update mode")
+            l = self.getUpdateList()
+            infoFile.lastPatchDownload = str(datetime.datetime.now())
+
+        if len(l) > 0:   # stahujeme jedině když není seznam prázdný
+            self.downloadURLList(l)
+            infoFile.save()
+            self.saveFileList(l)
+        else:
+            logger.warning("Nothing to download, list is empty.")
+
+        self.buildIndexHTML() # informaci o pokusu downloadovat ale vytváříme stejně
+
+    def saveFileList(self, list):
+        infoFile.numPatches = infoFile.numPatches + 1
+        v = str(datetime.datetime.now())
+        fileName = v[0:4] + "." + v[5:7] + "." + v[8:10] + ".txt"
+        if self._fullDownload:
+            fileName = "Download_" + fileName
+        else:
+            fileName = "Patch_" + fileName
+        file = open(config.dataDir + fileName, "w")
+        for line in list:
+            file.write(line + "\n")
+        file.close()
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
@@ -360,7 +384,7 @@ def main(argv = sys.argv):
 
         logger.info("Data directory : %s",         config.dataDir)
         logger.info("Download full database : %s", str(config.downloadFullDatabase))
-        logger.info("Last full download : %s",     infoFile.lastFullDownload)
+        logger.info("Last full download  : %s",     infoFile.lastFullDownload)
         logger.info("Last patch download : %s",    infoFile.lastPatchDownload)
 
         downloader = RUIANDownloader(config.dataDir)

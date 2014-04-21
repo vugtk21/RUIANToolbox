@@ -8,23 +8,26 @@ class InfoFile:
         self.fileName = ""
         self.lastPatchDownload = ""
         self.lastFullDownload = ""
+        self.numPatches = 0
 
     def load(self, fileName):
         self.fileName = fileName
         if os.path.exists(fileName):
-            infoFile = open(fileName, "r")
-            self.lastPatchDownload = infoFile.readline().strip()
-            self.lastFullDownload = infoFile.readline().strip()
-            infoFile.close()
+            file = open(fileName, "r")
+            self.lastPatchDownload = file.readline().strip()
+            self.lastFullDownload = file.readline().strip()
+            self.numPatches = int(file.readline().strip())
+            file.close()
         else:
             self.lastFullDownload = ""
             self.lastPatchDownload = ""
 
     def save(self):
-        infoFile = open(self.fileName, "w")
-        infoFile.write(self.lastPatchDownload + "\n")
-        infoFile.write(self.lastFullDownload + "\n")
-        infoFile.close()
+        file = open(self.fileName, "w")
+        file.write(self.lastPatchDownload + "\n")
+        file.write(self.lastFullDownload + "\n")
+        file.write(str(self.numPatches) + "\n")
+        file.close()
 
     def validFor(self):
         if self.lastPatchDownload != "":
