@@ -119,6 +119,17 @@ def getFileContent(fileName):
     return lines
 
 
+def formatTimeDelta(timeDelta):
+    v = str(timeDelta)
+    #while v[len(v) - 1:] == "0":
+    #    v = v[:len(v) - 1]
+
+    v = v.strip("0")
+    if v[0:1] == ".":
+        v = "0" + v
+    return v + "s"
+
+
 class RUIANDownloader:
     pageURL         = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     FULL_LIST_URL   = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
@@ -190,43 +201,55 @@ class RUIANDownloader:
         def addCol(value, align = ""):
             htmlLog.addCol(value, align)
 
-        def addHeader():
+        def addDownloadHeader():
             if self._fullDownload:
                 headerText = "Úplné stažení dat"
             else:
-                headerText = "Stažení aktualizace"
+                headerText = "Stažení aktualizací"
             v = str(datetime.datetime.now())
             htmlLog.addHeader(headerText + " " + v[8:10] + "." + v[5:7] + "." + v[0:4])
 
-        htmlLog.clear()
-        addHeader()
-
-        htmlLog.openTable()
-        htmlLog.htmlCode += "<tr><th align='left'>Soubor</th><th>Staženo</th><th>Čas</th>"
-        if config.uncompressDownloadedFiles:
-            htmlLog.htmlCode += "<th>Rozbaleno</th>"
-        htmlLog.htmlCode += "</tr>"
-
-        for info in self.downloadInfos:
-            htmlLog.closeTableRow()
-            addCol(extractFileName(info.fileName))
-            addCol(info.compressedFileSize, "right")
-            addCol(info.downloadTime, "right")
+        def addTableHeader():
+            htmlLog.openTable()
+            htmlLog.htmlCode += "<tr><th align='left' valign='bottom'>Soubor</th><th>Staženo<br>[Bajtů]</th>"
             if config.uncompressDownloadedFiles:
-                addCol(info.fileSize, "right")
-            htmlLog.closeTableRow()
-        htmlLog.closeTable()
+                htmlLog.htmlCode += "<th>Rozbaleno<br>[Bajtů]</th>"
+            htmlLog.htmlCode += "<th valign='bottom'>Čas</th></tr>"
 
+        def addTableContent():
+            for info in self.downloadInfos:
+                htmlLog.closeTableRow()
+                addCol(extractFileName(info.fileName))
+                if info.compressedFileSize != 0:
+                    addCol(info.compressedFileSize, "right")
+                if config.uncompressDownloadedFiles and info.fileSize != 0:
+                    addCol(info.fileSize, "right")
+                addCol(info.downloadTime, "right")
+                htmlLog.closeTableRow()
+            htmlLog.closeTable()
+
+        htmlLog.clear()
+        addDownloadHeader()
+        addTableHeader()
+        addTableContent()
         htmlLog.save(config.dataDir + "index.html")
-
         pass
 
     def downloadURLList(self, urlList):
+
+        def buildDownloadInfosList():
+            self.downloadInfos = []
+            for href in urlList:
+                self.downloadInfo = DownloadInfo()
+                self.downloadInfo.fileName = href.split('/')[-1]
+                self.downloadInfos.append(self.downloadInfo)
+
         logger.debug("RUIANDownloader.downloadURLList")
-        self.downloadInfos = []
+        buildDownloadInfosList()
+        index = 0
         for href in urlList:
-            self.downloadInfo = DownloadInfo()
-            self.downloadInfos.append(self.downloadInfo)
+            self.downloadInfo = self.downloadInfos[index]
+            index = index + 1
             fileName = self.downloadURLtoFile(href)
             if config.uncompressDownloadedFiles:
                 self.uncompressFile(fileName, True)
@@ -252,9 +275,11 @@ class RUIANDownloader:
                     break
                 fp.write(chunk)
                 file_size_dl += len(chunk)
-                logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / fileSize))
+                logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100.0 / fileSize))
+                self.downloadInfo.compressedFileSize = file_size_dl
+                self.buildIndexHTML()
             fp.close()
-        self.downloadInfo.downloadTime = str(datetime.datetime.now() - startTime)[5:]
+        self.downloadInfo.downloadTime = formatTimeDelta(str(datetime.datetime.now() - startTime)[5:])
         self.downloadInfo.fileName = file_name
         self.downloadInfo.compressedFileSize = fileSize
         return file_name
@@ -271,7 +296,7 @@ class RUIANDownloader:
         ext = getFileExtension(fileName).lower()
         if ext == ".gz":
             outFileName = fileName[:-len(ext)]
-            logger.info("Uncompressing " + extractFileName(fileName) + "->" + extractFileName(outFileName))
+            logger.info("Uncompressing " + extractFileName(fileName) + " -> " + extractFileName(outFileName))
             f = gzip.open(fileName, 'rb')
             # @TODO tady by se melo cist po kouskach
             fileContent = f.read()
@@ -400,8 +425,8 @@ def main(argv = sys.argv):
         logger.info("Data directory : %s",         config.dataDir)
         logger.info("Download full database : %s", str(config.downloadFullDatabase))
         if not config.downloadFullDatabase:
-            logger.info("Last full download  : %s",     infoFile.lastFullDownload)
-            logger.info("Last patch download : %s",    infoFile.lastPatchDownload)
+            logger.info("Last full download  : %s", infoFile.lastFullDownload)
+            logger.info("Last patch download : %s", infoFile.lastPatchDownload)
         logger.info("---------------------------------------------")
 
         downloader = RUIANDownloader(config.dataDir)
