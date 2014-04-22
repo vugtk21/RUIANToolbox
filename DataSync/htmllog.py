@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
+import os
+
+
 class HtmlLog:
+    NEXT_CODE_ID = "<!-- NEXTCODE -->"
+    CHANGES_START_ID = "<!-- CHANGES START -->"
+    CHANGES_END_ID = "<!-- END -->"
+
     def __init__(self):
-        self.clear()
+        self.htmlCode = ""
         pass
 
     def addHeader(self, caption):
@@ -30,16 +37,12 @@ class HtmlLog:
         self.htmlCode += str(value) + "</td>"
 
     def save(self, fileName):
-        f = open(fileName, "w")
-        f.write(self.htmlCode)
-        f.write("""
-    </body>
-</html>
-""")
-        f.close()
-
-    def clear(self):
-        self.htmlCode = """
+        if os.path.exists(fileName):
+            with open(fileName, "r") as f:
+                htmlPage = f.read()
+                f.close()
+        else:
+            htmlPage = """
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -50,10 +53,19 @@ class HtmlLog:
         </style>
     </head>
     <body>
+""" + \
+            self.NEXT_CODE_ID + self.CHANGES_END_ID + """
+    </body>
+</html>
 """
+        with open(fileName, "w") as f:
+            prefix = htmlPage[:htmlPage.find(self.CHANGES_START_ID)]
+            suffix = htmlPage[htmlPage.find(self.CHANGES_END_ID):]
+            f.write(prefix + self.htmlCode + suffix)
+            f.close()
 
-
-        pass
+    def clear(self):
+        self.htmlCode = ""
 
 htmlLog = HtmlLog()
 

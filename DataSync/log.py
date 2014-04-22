@@ -12,6 +12,7 @@ import logging
 
 LOG_FILENAME = 'RUIANDownload.log'
 
+
 def clearLogFile():
     with open(LOG_FILENAME, 'w'):
         pass

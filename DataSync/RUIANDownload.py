@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from distutils.command.install_egg_info import install_egg_info
-
 __author__ = 'raugustyn'
 
 # ####################################
 # Standard modules import
 # ####################################
-import urllib2, gzip, os, sys, datetime
+import urllib2
+import gzip
+import os
+import sys
+import datetime
 
 # ####################################
 # Specific modules import
@@ -15,15 +17,18 @@ from log import logger, clearLogFile
 from infofile import infoFile
 from htmllog import htmlLog
 
+
 def pathWithLastSlash(path):
     if path != "" and path[len(path) - 1:] != os.sep:
         path = path + os.sep
 
     return path
 
+
 def extractFileName(fileName):
     lastDel = fileName.rfind(os.sep)
     return fileName[lastDel + 1:]
+
 
 class Config:
     ADMIN_NAME = 'admin'
@@ -61,9 +66,11 @@ class Config:
 
 config = Config("RUIANDownload.cfg")
 
+
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
     return fileName[fileName.rfind("."):]
+
 
 def ___filePercentageInfo(fileSize, downloadedSize):
     status = r"%10d  [%3.2f%%]" % (downloadedSize, downloadedSize * 100. / fileSize)
@@ -71,10 +78,12 @@ def ___filePercentageInfo(fileSize, downloadedSize):
 
 filePercentageInfo = ___filePercentageInfo
 
+
 def __fileDownloadInfo(fileName, fileSize):
     logger.info("Downloading: %s Bytes: %s" % (extractFileName(fileName), fileSize))
 
 fileDownloadInfo = __fileDownloadInfo
+
 
 class DownloadInfo:
     def __init__(self):
@@ -84,8 +93,6 @@ class DownloadInfo:
         self.downloadTime = ""
         pass
 
-def formatListURL(patternURL, fullList, fromDate):
-    pass
 
 def cleanDirectory(folder):
     if os.path.exists(folder):
@@ -101,13 +108,21 @@ def cleanDirectory(folder):
             except Exception, e:
                 logger.error(e.message, str(e))
 
+
+def getFileContent(fileName):
+    logger.debug("getFileContent")
+    with open(fileName, "r") as f:
+        lines = f.read().splitlines()
+        f.close()
+    return lines
+
+
 class RUIANDownloader:
     pageURL         = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     FULL_LIST_URL   = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     UPDATE_PAGE_URL = 'http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=Z&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat&vf.pd='
     VALID_START_ID  = '<div class="platnost">Platnost dat ISUI k:<br/>'
     VALID_END_ID    = '</div>'
-
 
     def __init__(self, aTargetDir = ""):
         self._targetDir = ""
@@ -123,7 +138,7 @@ class RUIANDownloader:
     def setTargetDir(self, aTargetDir):
         if aTargetDir != "":
             if aTargetDir.rfind("\\") != len(aTargetDir) - 1:
-                aTargetDir = aTargetDir + "\\"
+                aTargetDir += "\\"
             if not os.path.exists(aTargetDir):
                 os.makedirs(aTargetDir)
         self._targetDir = aTargetDir
@@ -135,13 +150,6 @@ class RUIANDownloader:
         logger.debug("RUIANDownloader.getFullSetList")
         self._fullDownload = True
         return self.getList(self.pageURL)
-
-    def getFileContent(self, fileName):
-        logger.debug("RUIANDownloader.getFileContent")
-        f = open(fileName, "r")
-        lines = f.read().splitlines()
-        f.close()
-        return lines
 
     def getList(self, url):
         logger.debug("RUIANDownloader.getList")
@@ -180,7 +188,6 @@ class RUIANDownloader:
         def addCol(value, align = ""):
             htmlLog.addCol(value, align)
 
-
         def addHeader():
             if self._fullDownload:
                 headerText = "Úplné stažení dat"
@@ -212,23 +219,22 @@ class RUIANDownloader:
 
         pass
 
-    def downloadURLList(self, list, uncompress = True):
+    def downloadURLList(self, urlList):
         logger.debug("RUIANDownloader.downloadURLList")
         self.downloadInfos = []
-        for href in list:
+        for href in urlList:
             self.downloadInfo = DownloadInfo()
             self.downloadInfos.append(self.downloadInfo)
             fileName = self.downloadURLtoFile(href)
             if config.uncompressDownloadedFiles:
                 self.uncompressFile(fileName, True)
             self.buildIndexHTML()
-
         pass
 
     def downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader.downloadURLtoFile")
         file_name = self.targetDir + url.split('/')[-1]
-        logger.info("Dodnloading " + url + " ->" + extractFileName(file_name))
+        logger.info("Dodnloading " + url + " -> " + extractFileName(file_name))
 
         startTime = datetime.datetime.now()
         req = urllib2.urlopen(url)
@@ -240,7 +246,8 @@ class RUIANDownloader:
         with open(file_name, 'wb') as fp:
             while True:
                 chunk = req.read(CHUNK)
-                if not chunk: break
+                if not chunk:
+                    break
                 fp.write(chunk)
                 file_size_dl += len(chunk)
                 logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / fileSize))
@@ -313,9 +320,9 @@ class RUIANDownloader:
         else:
             logger.warning("Nothing to download, list is empty.")
 
-        self.buildIndexHTML() # informaci o pokusu downloadovat ale vytváříme stejně
+        self.buildIndexHTML()  # informaci o pokusu downloadovat ale vytváříme stejně
 
-    def saveFileList(self, list):
+    def saveFileList(self, fileList):
         infoFile.numPatches = infoFile.numPatches + 1
         v = str(datetime.datetime.now())
         fileName = v[0:4] + "." + v[5:7] + "." + v[8:10] + ".txt"
@@ -323,10 +330,10 @@ class RUIANDownloader:
             fileName = "Download_" + fileName
         else:
             fileName = "Patch_" + fileName
-        file = open(config.dataDir + fileName, "w")
-        for line in list:
-            file.write(line + "\n")
-        file.close()
+        outFile = open(config.dataDir + fileName, "w")
+        for line in fileList:
+            outFile.write(line + "\n")
+        outFile.close()
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
@@ -342,24 +349,26 @@ class RUIANDownloader:
         file_size_dl = 0
         block_sz = 8192
         while True:
-            buffer = u.read(block_sz)
-            if not buffer:
+            blockBuffer = u.read(block_sz)
+            if not blockBuffer:
                 break
 
-            file_size_dl += len(buffer)
-            f.write(buffer)
+            file_size_dl += len(blockBuffer)
+            f.write(blockBuffer)
             filePercentageInfo(file_size, file_size_dl)
 
         f.close()
         pass
 
+
 def printUsageInfo():
     logger.info('Usage: RUIANDownload.py [-downloadmode {full | update}] [-datadir data_dir] [-help]')
     logger.info('')
-    sys.exit( 1 )
+    sys.exit(1)
+
 
 def main(argv = sys.argv):
-    if (argv != None) or (len(argv) > 1):
+    if (argv is not None) or (len(argv) > 1):
 
         i = 1
         while i < len(argv):
@@ -380,6 +389,7 @@ def main(argv = sys.argv):
 
             i = i + 1
             # while exit
+            
         if config.downloadFullDatabase:
             clearLogFile()
 
