@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from cgitb import html
+
 __author__ = 'raugustyn'
 
 # ####################################
@@ -321,6 +323,7 @@ class RUIANDownloader:
             logger.warning("Nothing to download, list is empty.")
 
         self.buildIndexHTML()  # informaci o pokusu downloadovat ale vytváříme stejně
+        htmlLog.closeSection(config.dataDir + "index.html")
 
     def saveFileList(self, fileList):
         infoFile.numPatches = infoFile.numPatches + 1
@@ -369,7 +372,6 @@ def printUsageInfo():
 
 def main(argv = sys.argv):
     if (argv is not None) or (len(argv) > 1):
-
         i = 1
         while i < len(argv):
             arg = argv[i].lower()
@@ -389,7 +391,7 @@ def main(argv = sys.argv):
 
             i = i + 1
             # while exit
-            
+
         if config.downloadFullDatabase:
             clearLogFile()
 
