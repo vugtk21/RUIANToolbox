@@ -134,8 +134,6 @@ class RUIANDownloader:
     pageURL         = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     FULL_LIST_URL   = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
     UPDATE_PAGE_URL = 'http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=Z&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat&vf.pd='
-    VALID_START_ID  = '<div class="platnost">Platnost dat ISUI k:<br/>'
-    VALID_END_ID    = '</div>'
 
     def __init__(self, aTargetDir = ""):
         self._targetDir = ""
@@ -169,12 +167,6 @@ class RUIANDownloader:
         html = urllib2.urlopen(url).read()
         result = []
 
-        validStart = html.find(self.VALID_START_ID)
-        validHTML = html[validStart + len(self.VALID_START_ID):]
-        validHTML = validHTML[:validHTML.find(self.VALID_END_ID)]
-        logger.debug("Valid:%s", validHTML)
-        # write valid for info
-
         tablePos = html.find('<table id="i"')
         if tablePos >= 0:
             refTable = html[tablePos:]
@@ -198,8 +190,8 @@ class RUIANDownloader:
             return []
 
     def buildIndexHTML(self):
-        def addCol(value, align = ""):
-            htmlLog.addCol(value, align)
+        def addCol(value, tags = ""):
+            htmlLog.addCol(value, tags)
 
         def addDownloadHeader():
             if self._fullDownload:
@@ -213,24 +205,65 @@ class RUIANDownloader:
             htmlLog.openTable()
             htmlLog.htmlCode += "<tr><th align='left' valign='bottom'>Soubor</th><th>Staženo<br>[Bajtů]</th>"
             if config.uncompressDownloadedFiles:
-                htmlLog.htmlCode += "<th>Rozbaleno<br>[Bajtů]</th>"
+                htmlLog.htmlCode += "<th></th><th>Rozbaleno<br>[Bajtů]</th>"
             htmlLog.htmlCode += "<th valign='bottom'>Čas</th></tr>"
 
-        def addTableContent():
+        def calcSumValues():
+            calcInfo = DownloadInfo()
+            calcInfo.downloadTime = 0
             for info in self.downloadInfos:
-                htmlLog.closeTableRow()
+                if info.downloadTime == "":
+                    return
+                elif info.fileName != "":
+                        calcInfo.fileSize += info.fileSize
+                        calcInfo.compressedFileSize += info.compressedFileSize
+                        time = float(info.downloadTime[:len(info.downloadTime) - 1])
+                        calcInfo.downloadTime = calcInfo.downloadTime + time
+                else:
+                    info.fileSize = calcInfo.fileSize
+                    info.compressedFileSize = calcInfo.compressedFileSize
+                    info.downloadTime = calcInfo.downloadTime
+                    return
+
+            calcInfo.downloadTime = str(calcInfo.downloadTime) + "s"
+            self.downloadInfos.append(calcInfo)
+
+        def intToStr(intValue):
+            if int == 0:
+                return ""
+            else:
+                return str(intValue)
+
+        def addTableContent():
+            altColor = True
+            for info in self.downloadInfos:
+                if altColor:
+                    tags = 'class="altColor"'
+                else:
+                    tags = ''
+                altColor = not altColor
+                htmlLog.openTableRow(tags)
+
                 addCol(extractFileName(info.fileName))
-                if info.compressedFileSize != 0:
-                    addCol(info.compressedFileSize, "right")
+
+                addCol(intToStr(info.compressedFileSize), 'align="right"')
+
                 if config.uncompressDownloadedFiles and info.fileSize != 0:
-                    addCol(info.fileSize, "right")
-                addCol(info.downloadTime, "right")
+                    addCol("->")
+                else:
+                    addCol("")
+
+                if config.uncompressDownloadedFiles:
+                    addCol(intToStr(info.fileSize), "align=right")
+
+                addCol(info.downloadTime, "align=right")
                 htmlLog.closeTableRow()
             htmlLog.closeTable()
 
         htmlLog.clear()
         addDownloadHeader()
         addTableHeader()
+        calcSumValues()
         addTableContent()
         htmlLog.save(config.dataDir + "index.html")
         pass
@@ -324,6 +357,8 @@ class RUIANDownloader:
         elif not self._fullDownload and wasItToday(infoFile.lastPatchDownload):
             logger.warning("Process stopped! Nothing to download. Last patch was downloaded Today " + infoFile.lastPatchDownload)
             return
+
+        startTime = datetime.datetime.now()
 
         if self._fullDownload or infoFile.lastFullDownload == "":
             logger.info("Running in full mode")

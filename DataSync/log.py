@@ -1,13 +1,3 @@
-#-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
-#
-# Author:      raugustyn
-#
-# Created:     31/12/2013
-# Copyright:   (c) raugustyn 2013
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
 import logging
 
 LOG_FILENAME = 'RUIANDownload.log'

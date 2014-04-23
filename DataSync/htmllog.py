@@ -7,69 +7,59 @@ import os
 class HtmlLog:
     CHANGES_START_ID = "<!-- CHANGES START -->"
     CHANGES_END_ID = "<!-- CHANGES END -->"
-    HTML_TEMPLATE = """
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <style>
-            body {
-                font-family:Tahoma;
-            }
-        </style>
-    </head>
-    <body>
-""" + CHANGES_START_ID + CHANGES_END_ID + """
-    </body>
-</html>
-"""
+    TEMPLATE_FILENAME = 'logtemplate.html'
 
     def __init__(self):
         self.htmlCode = ""
         pass
 
     def addHeader(self, caption):
-        self.htmlCode += "<h1>" + caption + "</h1>"
+        self.htmlCode += "<h2>" + caption + "</h2>\n"
 
     def openTable(self):
-        self.htmlCode += "<table>"
+        self.htmlCode += "<table>\n"
 
     def closeTable(self):
-        self.htmlCode += "</table>"
+        self.htmlCode += "</table>\n"
 
-    def openTableRow(self):
-        self.htmlCode += "<tr>"
+    def openTableRow(self, tags = ""):
+        if tags != "" and tags[:1] != " ":
+            tags = " " + tags
+        self.htmlCode += '<tr' + tags + '>'
 
     def closeTableRow(self):
-        self.htmlCode += "</tr>"
+        self.htmlCode += "</tr>\n"
 
-    def addCol(self, value, align=""):
-        if align == "":
-            self.htmlCode += "<td>"
-        else:
-            self.htmlCode += '<td align="' + align + '" >'
+    def addCol(self, value, tags = ""):
+        if tags != "" and tags[:1] != " ":
+            tags = " " + tags
 
-        self.htmlCode += str(value) + "</td>"
+        self.htmlCode += '<td' + tags + ' >' + str(value) + "</td>"
+
+    def getHTMLContent(self, fileName):
+        if not os.path.exists(fileName):
+            fileName = self.TEMPLATE_FILENAME
+        with open(fileName, "r") as f:
+            result = f.read()
+            f.close()
+        return result
 
     def closeSection(self, fileName):
-        if os.path.exists(fileName):
-            with open(fileName, "r") as f:
-                htmlPage = f.read()
-                f.close()
-        else:
-            htmlPage = self.HTML_TEMPLATE
+        htmlPage = self.getHTMLContent(fileName)
+
         htmlPage = htmlPage.replace(self.CHANGES_START_ID, "")
         htmlPage = htmlPage.replace(self.CHANGES_END_ID, self.CHANGES_START_ID + self.CHANGES_END_ID)
+
+        prefix = htmlPage[:htmlPage.find("<script>")]
+        suffix = htmlPage[htmlPage.find("</script>") + len("</script>"):]
+        htmlPage = prefix + suffix
+
         with open(fileName, "w") as f:
             f.write(htmlPage)
             f.close()
 
     def save(self, fileName):
-        if os.path.exists(fileName):
-            with open(fileName, "r") as f:
-                htmlPage = f.read()
-                f.close()
-        else:
-            htmlPage = self.HTML_TEMPLATE
+        htmlPage = self.getHTMLContent(fileName)
 
         with open(fileName, "w") as f:
             prefix = htmlPage[:htmlPage.find(self.CHANGES_START_ID) + len(self.CHANGES_START_ID)]
@@ -79,7 +69,6 @@ class HtmlLog:
 
     def clear(self):
         self.htmlCode = ""
-
 
 htmlLog = HtmlLog()
 
