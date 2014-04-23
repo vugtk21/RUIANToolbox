@@ -121,8 +121,15 @@ def getFileContent(fileName):
 
 def formatTimeDelta(timeDelta):
     v = str(timeDelta)
-    #while v[len(v) - 1:] == "0":
-    #    v = v[:len(v) - 1]
+
+    #s = timeDelta.seconds
+    #hours = s // 3600
+    # remaining seconds
+    #s = s - (hours * 3600)
+    # minutes
+    #minutes = s // 60
+    # remaining seconds
+    #seconds = s - (minutes * 60)
 
     v = v.strip("0")
     if v[0:1] == ".":

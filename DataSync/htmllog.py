@@ -49,10 +49,7 @@ class HtmlLog:
 
         htmlPage = htmlPage.replace(self.CHANGES_START_ID, "")
         htmlPage = htmlPage.replace(self.CHANGES_END_ID, self.CHANGES_START_ID + self.CHANGES_END_ID)
-
-        prefix = htmlPage[:htmlPage.find("<script>")]
-        suffix = htmlPage[htmlPage.find("</script>") + len("</script>"):]
-        htmlPage = prefix + suffix
+        htmlPage = htmlPage.replace("AutoRefresh = true", "AutoRefresh = false")
 
         with open(fileName, "w") as f:
             f.write(htmlPage)
@@ -60,6 +57,7 @@ class HtmlLog:
 
     def save(self, fileName):
         htmlPage = self.getHTMLContent(fileName)
+        htmlPage = htmlPage.replace("AutoRefresh = false", "AutoRefresh = true")
 
         with open(fileName, "w") as f:
             prefix = htmlPage[:htmlPage.find(self.CHANGES_START_ID) + len(self.CHANGES_START_ID)]

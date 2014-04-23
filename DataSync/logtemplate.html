@@ -50,16 +50,21 @@
         </style>
 
 <script>
-     var time = new Date().getTime();
+var time = new Date().getTime();
 
-     function refresh() {
-         if(new Date().getTime() - time >= 1000)
-             window.location.reload(true);
-         else
-             setTimeout(refresh, 1000);
-     }
-
+function refresh() 
+{
+  if (new Date().getTime() - time >= 1000)
+     window.location.reload(true);
+  else
      setTimeout(refresh, 1000);
+}
+
+var AutoRefresh = true; // "AutoRefresh = True" je klíčové slovo, nemodifikovat!!!
+	 
+if (AutoRefresh) {
+	setTimeout(refresh, 1000);
+}
 </script>
 
     </head>
