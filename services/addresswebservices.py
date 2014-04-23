@@ -17,7 +17,7 @@ import validate
 import geocode
 import nearbyaddresses
 import validateaddressid
-import idcheck
+import IDCheck
 
 from HTTPShared import *
 import compileaddress
@@ -56,6 +56,29 @@ $(function() {
 });
     </script>
 
+
+    <script>
+    $(document).ready(function() {
+      $('input:radio[name=InputMode]').change(function() {
+        if (this.value == 'vstup') {
+            $(this).parent().find("td input").removeAttr("disabled");
+            $(this).parent().find("td input").eq(1).attr("disabled", "disabled");
+            $(this).parent().find("td input").eq(2).attr("disabled", "disabled");
+        }
+        else if (this.value == 'id') {
+            $(this).parent().find("td input").attr("disabled", "disabled");
+            $(this).parent().find("td input").eq(0).removeAttr("disabled");
+            $(this).parent().find("td input").eq(1).removeAttr("disabled");
+        }
+        else if (this.value == 'adresa') {
+            $(this).parent().find("td input").attr("disabled", "disabled");
+            $(this).parent().find("td input").eq(0).removeAttr("disabled");
+            $(this).parent().find("td input").eq(2).removeAttr("disabled");
+        }
+      });
+    });
+  </script>
+
     <script type="text/javascript" charset="utf-8">
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
@@ -91,6 +114,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
  urlSpanElem.innerHTML = "/REST" + servicePath + s + "\\n";
 }
     </script>
+
       <style>
   label {
     display: inline-block;
@@ -172,6 +196,13 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
+            if service.pathName == "/CompileAddress":
+                tabDivs += u"""
+                <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
+                <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
+                <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
+                """
+
             # Parameters list
             tabDivs += '<table>\n'
             for param in service.restPathParams:
@@ -208,7 +239,7 @@ def createServices():
     validate.createServiceHandlers()
     nearbyaddresses.createServiceHandlers()
     validateaddressid.createServiceHandlers()
-    idcheck.createServiceHandlers()
+    IDCheck.createServiceHandlers()
     pass
 
 createServices()

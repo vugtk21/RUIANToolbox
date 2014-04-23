@@ -15,6 +15,7 @@ __author__ = 'Radek Augustýn'
 import codecs
 from HTTPShared import *
 import urllib
+import IDCheck
 
 def errorMessage(msg):
     pass
@@ -97,6 +98,10 @@ def compileAddressServiceHandler(queryParams, response):
 
     resultFormat = p("Format", "text")
     builder = MimeBuilder(resultFormat)
+
+    if queryParams.AddressPlaceId != "":
+        response = IDCheck.IDCheckServiceHandler(queryParams, response)
+        return response
 
     s = compileAddress(
         builder,
