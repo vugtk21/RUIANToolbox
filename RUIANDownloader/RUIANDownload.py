@@ -432,7 +432,7 @@ class RUIANDownloader:
 
 
 def printUsageInfo():
-    logger.info('Usage: RUIANDownload.py [-downloadmode {full | update}] [-datadir data_dir] [-help]')
+    logger.info('Usage: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_dir] [-UncompressDownloadedFiles {True | False}][-help]')
     logger.info('')
     sys.exit(1)
 
@@ -443,15 +443,18 @@ def main(argv = sys.argv):
         while i < len(argv):
             arg = argv[i].lower()
 
-            if arg == "-mode":
+            if arg == "-downloadfulldatabase":
                 i = i + 1
-                config.downloadFullDatabase = argv[i].lower() == "full"
+                config.downloadFullDatabase = argv[i].lower() == "True"
             elif arg == "-datadir":
                 i = i + 1
                 config.dataDir = pathWithLastSlash(argv[i])
                 if not os.path.exists(config.dataDir):
                     logger.error("DataDir %s does not exist", config.dataDir)
                     printUsageInfo()
+            elif arg == "-uncompressdownloadedfiles":
+                i = i + 1
+                config.uncompressDownloadedFiles = argv[i].lower() == "True"
             else:
                 logger.error('Unrecognised command option: %s' % arg)
                 printUsageInfo()
