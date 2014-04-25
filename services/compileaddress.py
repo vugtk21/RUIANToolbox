@@ -98,9 +98,10 @@ def compileAddressServiceHandler(queryParams, response):
 
     resultFormat = p("Format", "text")
     builder = MimeBuilder(resultFormat)
+    response.mimeFormat = builder.getMimeFormat()
 
     if queryParams.AddressPlaceId != "":
-        response = IDCheck.IDCheckServiceHandler(queryParams, response)
+        response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         return response
 
     s = compileAddress(

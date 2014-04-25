@@ -48,7 +48,8 @@ def createServiceHandlers():
                 URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
             ],
             geocodeAddressServiceHandler,
-            sendButtonCaption = u"Najdi polohu"
+            sendButtonCaption = u"Najdi polohu",
+            htmlInputTemplate=""
         )
 
     )

@@ -105,7 +105,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 		else {
 			delimeter = "&";
 		}
-		if (name != "") {
+		if (name != "" && name != "de") {
 			s = s + delimeter + name + "=" + encodeURI(elements[i].value);
 		}
 	}
@@ -164,7 +164,18 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
-        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
+        if param.name == '/Format':
+            result += '<select input name="' + formName + '_' + param.name + 'title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
+                            '<option value="text">text</option>' + \
+                            '<option value="xml">xml</option>' + \
+                            '<option value="html">html</option>' + \
+                            '<option value="json">json</option>' + \
+                    '</select>'
+            #result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
+            #      param.shortDesc + ', parametr ' + param.name + \
+            #      '" onchange="' + onChangeProcCode + '" />'
+        else:
+            result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + ', parametr ' + param.name + \
                   '" onchange="' + onChangeProcCode + '" />'
         #result += '<td>' + param.name + ' </td><td>'
@@ -196,13 +207,6 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
-            if service.pathName == "/CompileAddress":
-                tabDivs += u"""
-                <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
-                <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
-                <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
-                """
-
             # Parameters list
             tabDivs += '<table>\n'
             for param in service.restPathParams:
@@ -212,6 +216,12 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
                 tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
 
             tabDivs += '</table>\n'
+            if service.pathName == "/CompileAddress":
+                tabDivs += u"""
+                <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
+                <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
+                <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
+                """
             tabDivs += '</form>\n'
             tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
 

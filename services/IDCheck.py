@@ -7,8 +7,8 @@ from HTTPShared import *
 import RUIANInterface, RUIANReferenceDB
 import compileaddress
 
-def IDCheckServiceHandler(queryParams, response):
-    builder = MimeBuilder(queryParams["Format"])
+def IDCheckServiceHandler(queryParams, response, builder):
+    response.mimeFormat = builder.getMimeFormat()
     address = RUIANInterface.FindAddress(queryParams["AddressPlaceId"], builder)  ### předělat !!!
     if address:
         response.handled = True
@@ -16,7 +16,6 @@ def IDCheckServiceHandler(queryParams, response):
         response.handled = False
         return response
     response.htmlData = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.zipCode, address.locality, address.localityPart, address.districtNumber)
-    response.mimeFormat = builder.getMimeFormat()
     return response
 
 def createServiceHandlers():
