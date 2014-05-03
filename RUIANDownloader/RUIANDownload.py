@@ -11,7 +11,7 @@ import gzip
 import os
 import sys
 import datetime
-import codecs
+
 
 # ####################################
 # Specific modules import
@@ -19,63 +19,15 @@ import codecs
 from log import logger, clearLogFile
 from infofile import infoFile
 from htmllog import htmlLog
+from configreader import config
+from configreader import pathWithLastSlash
 
-
-def pathWithLastSlash(path):
-    if path != "" and path[len(path) - 1:] != os.sep:
-        path = path + os.sep
-
-    return path
-
-
-def strTo127(s):
-    result = ""
-    for index in range(len(s)):
-        ch = s[index:index + 1]
-        if ord(ch) >= 32 and ord(ch) <= 127:
-            result += ch
-    return result
 
 def extractFileName(fileName):
     lastDel = fileName.rfind(os.sep)
     return fileName[lastDel + 1:]
 
 
-class Config:
-    ADMIN_NAME = 'admin'
-    ADMIN_PASSWORD = 'bar67gux7hd6f5ge6'
-    dataDir = ""
-    uncompressDownloadedFiles = True
-    downloadFullDatabase = True
-
-    def __init__(self, configFileName):
-        inFile = codecs.open(configFileName, "r", "utf-8")
-        lines = inFile.readlines()
-        inFile.close()
-
-        for line in lines:
-            # Using "#" character as comment identifier -> remove everything after this
-            if line.find("#") >= 0:
-                    line = line[:line.find("#") - 1]
-            line = strTo127(line.strip())
-            lineParts = line.split("=")
-            name = lineParts[0].lower()
-            if len(lineParts) > 1:
-                value = lineParts[1]
-            else:
-                value = ""
-
-            if name == "datadir":
-                self.dataDir = pathWithLastSlash(value)
-            elif name == "downloadfulldatabase":
-                self.downloadFullDatabase = value == "True"
-            elif name == "uncompressdownloadedfiles":
-                self.uncompressDownloadedFiles = value == "True"
-
-        infoFile.load(self.dataDir + "Info.txt")
-
-
-config = Config("RUIANDownload.cfg")
 
 
 def getFileExtension(fileName):
