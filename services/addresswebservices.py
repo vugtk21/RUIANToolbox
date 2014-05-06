@@ -17,7 +17,7 @@ import validate
 import geocode
 import nearbyaddresses
 import validateaddressid
-import IDCheck
+#import IDCheck
 
 from HTTPShared import *
 import compileaddress
@@ -62,18 +62,18 @@ $(function() {
       $('input:radio[name=InputMode]').change(function() {
         if (this.value == 'vstup') {
             $(this).parent().find("td input").removeAttr("disabled");
+            $(this).parent().find("td input").eq(0).attr("disabled", "disabled");
             $(this).parent().find("td input").eq(1).attr("disabled", "disabled");
-            $(this).parent().find("td input").eq(2).attr("disabled", "disabled");
         }
         else if (this.value == 'id') {
             $(this).parent().find("td input").attr("disabled", "disabled");
             $(this).parent().find("td input").eq(0).removeAttr("disabled");
-            $(this).parent().find("td input").eq(1).removeAttr("disabled");
+            //$(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
         else if (this.value == 'adresa') {
             $(this).parent().find("td input").attr("disabled", "disabled");
-            $(this).parent().find("td input").eq(0).removeAttr("disabled");
-            $(this).parent().find("td input").eq(2).removeAttr("disabled");
+            //$(this).parent().find("td input").eq(0).removeAttr("disabled");
+            $(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
       });
     });
@@ -249,7 +249,7 @@ def createServices():
     validate.createServiceHandlers()
     nearbyaddresses.createServiceHandlers()
     validateaddressid.createServiceHandlers()
-    IDCheck.createServiceHandlers()
+#    IDCheck.createServiceHandlers()
     pass
 
 createServices()

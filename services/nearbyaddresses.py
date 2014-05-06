@@ -42,6 +42,12 @@ def createServiceHandlers():
             ],
             [ ],
             nearByAddressesServiceHandler,
-            sendButtonCaption = u"Hledej blízké adresy"
+            sendButtonCaption = u"Hledej blízké adresy",
+            htmlInputTemplate = '''<select>
+                                        <option value="text">text</option>
+                                        <option value="xml">xml</option>
+                                        <option value="html">html</option>
+                                        <option value="json">json</option>
+                                    </select>'''
         )
     )

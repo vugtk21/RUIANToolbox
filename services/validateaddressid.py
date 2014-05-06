@@ -39,6 +39,12 @@ def createServiceHandlers():
                 getAddressPlaceIdParamURL()
             ],
             validateAddressIdServiceHandler,
-            sendButtonCaption = u"Ověř identifikátor adresy"
+            sendButtonCaption = u"Ověř identifikátor adresy",
+            htmlInputTemplate = '''<select>
+                                        <option value="text">text</option>
+                                        <option value="xml">xml</option>
+                                        <option value="html">html</option>
+                                        <option value="json">json</option>
+                                    </select>'''
         )
     )

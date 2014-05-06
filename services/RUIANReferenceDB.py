@@ -5,6 +5,11 @@ __author__ = 'Liska'
 
 import RUIANInterface
 
+class Coordinates:
+    def __init__(self, JTSKY, JTSKX):
+        self.JTSKX = JTSKX
+        self.JTSKY = JTSKY
+
 class Address:
     def __init__(self,street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
         self.street = street
@@ -15,6 +20,11 @@ class Address:
         self.locality = locality
         self.localityPart = localityPart
         self.districtNumber = districtNumber
+
+class Locality:
+    def __init__(self,street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber, JTSKY, JTSKX):
+        self.address=Address(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber)
+        self.coordinates(JTSKY, JTSKX)
 
 database = {"12356": Address(u"Lhenická", u"1120", u"", u"1", u"37005", u"České Budějovice", u"České Budějovice 2", u"")}
 
