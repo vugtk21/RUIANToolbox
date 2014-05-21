@@ -4,6 +4,7 @@
 __author__ = 'Liska'
 
 import RUIANInterface
+import psycopg2
 
 class Coordinates:
     def __init__(self, JTSKY, JTSKX):
@@ -35,6 +36,12 @@ database = {
             "12361": Locality(Address(u"", u"106", u"", u"", u"53333", u"Pardubice", u"Dražkovice", u""), Coordinates(120,180)),
             "12364": Locality(Address(u"", u"111", u"", u"", u"50333", u"Praskačka", u"Praskačka", u""), Coordinates(130,120)),
             }
+
+def FindID():
+    con = psycopg2.connect("dbname=liskatest host=192.168.1.93 port=5432 user=postgres password=postgres")
+    cur = con.cursor()
+    cur.execute("SELECT * FROM test WHERE ='12356'")
+    rows = cur.fetchall()
 
 
 def FindAddress(ID, builder):
