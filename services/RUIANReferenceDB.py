@@ -37,14 +37,14 @@ database = {
             "12364": Locality(Address(u"", u"111", u"", u"", u"50333", u"Praskačka", u"Praskačka", u""), Coordinates(130,120)),
             }
 
-def FindID():
+def _findID():
     con = psycopg2.connect("dbname=liskatest host=192.168.1.93 port=5432 user=postgres password=postgres")
     cur = con.cursor()
     cur.execute("SELECT * FROM test WHERE ='12356'")
     rows = cur.fetchall()
 
 
-def FindAddress(ID, builder):
+def _findAddress(ID, builder):
     if ID in database.keys():
         location = database[ID]
         return location.address
@@ -54,7 +54,7 @@ def FindAddress(ID, builder):
     return builder.listToResponseText(lines)
     """
 
-def GetNearbyLocalities(x,y,MaxDistance):
+def _getNearbyLocalities(x,y,MaxDistance):
     localities = []
     for id, location in database.iteritems():
         RealDistance = ((float(x)-float(location.coordinates.JTSKX)) ** 2 +(float(y)-float(location.coordinates.JTSKY)) ** 2) ** 0.5
@@ -62,7 +62,7 @@ def GetNearbyLocalities(x,y,MaxDistance):
             localities.append(location)
     return localities
 
-def ValidateAddress(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+def _validateAddress(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
     for id, location in database.iteritems():
         if (street.lower() == location.address.street.lower()) and (houseNumber == location.address.houseNumber) \
                 and (recordNumber == location.address.recordNumber) and (orientationNumber == location.address.orientationNumber) \
@@ -70,7 +70,3 @@ def ValidateAddress(street, houseNumber, recordNumber, orientationNumber, zipCod
                 and (localityPart == location.address.localityPart) and (districtNumber == location.address.districtNumber):
             return True
     return False
-
-RUIANInterface.FindAddress = FindAddress
-RUIANInterface.GetNearbyLocalities = GetNearbyLocalities
-RUIANInterface.ValidateAddress = ValidateAddress

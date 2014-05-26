@@ -1,11 +1,19 @@
-#!C:/Python27/python.exe
-# -*- coding: utf-8 -*-
+__author__ = 'Augustyn'
 
-__author__ = 'Liska'
+DATABASE_HOST = "192.168.1.93"
+PORT = "5432"
+DATABSE_NAME = "adresni_misto"
+USER_NAME = "postgres"
+PASSWORD = "postgres"
+
+ITEM_TO_DBFIELDS = {
+    "street": "nazev_ulice"
+
+
+}
 
 def _findAddress(ID, builder):
     return None
-
 
 def _getNearbyLocalities(x,y,distance):
     return None
@@ -15,9 +23,3 @@ def _validateAddress(street, houseNumber, recordNumber, orientationNumber, zipCo
 
 def _findID():
     return None
-
-findAddress = _findAddress
-getNearbyLocalities = _getNearbyLocalities
-validateAddress = _validateAddress
-findID = _findID
-
