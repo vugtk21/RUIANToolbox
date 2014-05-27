@@ -29,7 +29,7 @@ def noneToString(item):
     else:
         return item
 
-def _findAddress(ID, builder):
+def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
     cur.execute("SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM test WHERE gid = "+ str(ID))
@@ -74,5 +74,10 @@ def _validateAddress(dictionary):
     else:
         return False
 
-def _findID():
-    return None
+def _findCoordinates(ID):
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    cur = con.cursor()
+    cur.execute("SELECT latitude, longitude FROM test WHERE gid = "+ str(ID))
+    row = cur.fetchone()
+    c = [str(row[0]), str(row[1])]
+    return c

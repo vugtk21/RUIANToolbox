@@ -4,7 +4,6 @@
 __author__ = 'Liska'
 
 from RUIANConnection import *
-#import psycopg2
 
 database = {
             "12351": Locality(Address(u"Arnošta Valenty", u"670", u"", u"31", u"19800", u"Praha", u"Černý Most", u"9"), Coordinates(0,0)),
@@ -16,14 +15,13 @@ database = {
             "12364": Locality(Address(u"", u"111", u"", u"", u"50333", u"Praskačka", u"Praskačka", u""), Coordinates(130,120)),
             }
 
-def _findID():
-    pass
-    #con = psycopg2.connect("dbname=liskatest host=192.168.1.93 port=5432 user=postgres password=postgres")
-    #cur = con.cursor()
-    #cur.execute("SELECT * FROM test WHERE ='12356'")
-    #rows = cur.fetchall()
+def _findCoordinates(AddressID):
+    for id, location in database.iteritems():
+        if id == AddressID:
+            return [str(location.coordinates.JTSKY), str(location.coordinates.JTSKX)]
 
-def _findAddress(ID, builder):
+
+def _findAddress(ID):
     if ID in database.keys():
         location = database[ID]
         return location.address
