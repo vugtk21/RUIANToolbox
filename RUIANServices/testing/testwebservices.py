@@ -23,6 +23,9 @@ def buildCompileAddress(street, houseNumber, recordNumber, orientationNumber, zi
         result += key + "=" + params[key] + "&"
     return result
 
+def downloadURL(url):
+    return ""
+
 class TestGlobalFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -32,6 +35,12 @@ class TestGlobalFunctions(unittest.TestCase):
         pass
 
     def testGeocode(self):
+        self.assertEqual(downloadURL("/Geocode/txt?AddressPlaceId=1408739"), "1033052.61, 766195.05")
+
+        self.assertEqual(downloadURL("/Geocode/txt?SearchText=Hromadova%202741%20Kladno"), "1033052.61, 766195.05")
+
+        self.assertEqual(downloadURL("/Geocode/txt?Street=Hromadova&Locality=Kladno&HouseNumber=2741&ZIPCode=27201&LocalityPart=Kladno"), "1033052.61, 766195.05")
+
 
         pass
 
@@ -104,6 +113,23 @@ class TestGlobalFunctions(unittest.TestCase):
         pass
 
     def testFullTextSearch(self):
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severn%C3%AD%20Kladno"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Kladno"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Sev.%20Kladno"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Klad"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Ml%C3%A1de%C5%BEnick%C3%A1%20Kladno"), "Mládežnická 841, Kladno, 272 04", "Mládežnická 842, Kladno, 272 04")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Mladeznicka%20Kladno"), "Mládežnická 841, Kladno, 272 04", "Mládežnická 842, Kladno, 272 04")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Kladruby"), "č.ev. 11, Kladruby, 258 01", "č.p. 95, Kladruby, 258 01")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Kladno%20Dub%C3%AD%20V."), "V. Sembdnera 611, Dubí, 272 03 Kladno", "V. Špály 571, Dubí, 272 03 Kladno")
+
         pass
 
     def testValidate(self):
