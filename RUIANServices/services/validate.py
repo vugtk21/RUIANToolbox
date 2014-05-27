@@ -12,10 +12,20 @@
 __author__ = 'Radek Augustýn'
 
 from HTTPShared import *
-import RUIANInterface, RUIANReferenceDB
+import RUIANConnection
 
 def validateAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
-    isValidAddress = RUIANInterface.ValidateAddress(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber)
+    dict = {
+    "street": street,
+    "houseNumber": houseNumber,
+    "recordNumber": recordNumber,
+    "orientationNumber": orientationNumber,
+    "zipCode": zipCode,
+    "locality": locality,
+    "localityPart": localityPart,
+    "districtNumber": districtNumber
+}
+    isValidAddress = RUIANConnection.validateAddress(dict)
     return builder.listToResponseText([str(isValidAddress)])
 
 def validateAddressServiceHandler(queryParams, response):
