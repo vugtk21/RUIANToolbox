@@ -204,7 +204,7 @@ class Handler(DBHandlers.DatabaseHandler):
 
         pass
 
-    def _disconnect():
+    def _disconnect(self):
         ''' Odpojí se od databáze. '''
         if self.cursor != None:
             self.cursor.close()

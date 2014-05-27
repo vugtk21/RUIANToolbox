@@ -12,17 +12,19 @@
 __author__ = 'Radek Augustýn'
 
 from HTTPShared import *
+import RUIANInterface, RUIANReferenceDB
 
 def validateAddressId(resultFormat, addressPlaceId):
     return ""
 
 def validateAddressIdServiceHandler(queryParams, response):
-    s = nearByAddresses(
-        p(queryParams, "Format", "xml"),
-        p(queryParams, "AddressPlaceId", "")
-    )
-    response.htmlData = s
-    response.mimeFormat = getMimeFormat(p("Format", "xml"))
+    builder = MimeBuilder(queryParams["Format"])
+    response.mimeFormat = builder.getMimeFormat()
+    address = RUIANInterface.FindAddress(queryParams["AddressPlaceId"], builder)  ### předělat !!!
+    if address:
+        response.htmlData = builder.listToResponseText(["True"])
+    else:
+        response.htmlData = builder.listToResponseText(["False"])
     response.handled = True
     return response
 
@@ -31,11 +33,18 @@ def createServiceHandlers():
         WebService("/ValidateAddressId", u"Ověření identifikátoru adresy", u"Ověřuje existenci daného identifikátoru adresy",
                    u"""Umožňuje ověřit existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
             [
-                getResultFormatParam(),
-                getAddressPlaceIdParamRest()
+                getResultFormatParam()
             ],
-            [ ],
+            [
+                getAddressPlaceIdParamURL()
+            ],
             validateAddressIdServiceHandler,
-            sendButtonCaption = u"Ověř identifikátor adresy"
+            sendButtonCaption = u"Ověř identifikátor adresy",
+            htmlInputTemplate = '''<select>
+                                        <option value="text">text</option>
+                                        <option value="xml">xml</option>
+                                        <option value="html">html</option>
+                                        <option value="json">json</option>
+                                    </select>'''
         )
     )

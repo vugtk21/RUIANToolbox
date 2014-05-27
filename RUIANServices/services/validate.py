@@ -12,14 +12,18 @@
 __author__ = 'Radek Augustýn'
 
 from HTTPShared import *
+import RUIANInterface, RUIANReferenceDB
 
-def validateAddress(resultFormat, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
-    return ""
+def validateAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+    isValidAddress = RUIANInterface.ValidateAddress(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber)
+    return builder.listToResponseText([str(isValidAddress)])
 
 def validateAddressServiceHandler(queryParams, response):
+    builder = MimeBuilder(queryParams["Format"])
+    response.mimeFormat = builder.getMimeFormat()
 
     s = validateAddress(
-        p(queryParams, "Format", "xml"),
+        builder,
         p(queryParams, "Street"),
         p(queryParams, "HouseNumber"),
         p(queryParams, "RecordNumber"),
@@ -30,7 +34,6 @@ def validateAddressServiceHandler(queryParams, response):
         p(queryParams, "DistrictNumber")
     )
     response.htmlData = s
-    response.mimeFormat = getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response
 
@@ -40,17 +43,20 @@ def createServiceHandlers():
                    u"""Umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
                    prvků adresního místa.""",
             [
-                getResultFormatParam(),
-                RestParam("/Street",      u"Ulice", u"Název ulice"),
-                RestParam("/Locality",    u"Obec", u"Obec"),
-                RestParam("/HouseNumber", u"Číslo popisné", ""),
+                getResultFormatParam()
             ],
             [
+                URLParam("Street",      u"Ulice", u"Název ulice"),
+                URLParam("Locality",    u"Obec", u"Obec"),
+                URLParam("HouseNumber", u"Číslo popisné", ""),
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("OrientationNumber", u"Číslo orientační", "")
+                URLParam("OrientationNumber", u"Číslo orientační", ""),
+                URLParam("RecordNumber", u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
+                URLParam("DistrictNumber", u"Číslo městského obvodu", u"Číslo městského obvodu, pokud existuje")
             ],
             validateAddressServiceHandler,
-            sendButtonCaption = u"Ověř adresu"
+            sendButtonCaption = u"Ověř adresu",
+            htmlInputTemplate = ''
         )
     )

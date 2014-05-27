@@ -11,21 +11,65 @@
 #-------------------------------------------------------------------------------
 __author__ = 'Radek Augustýn'
 
+
+import RUIANInterface, RUIANReferenceDB
 from HTTPShared import *
 
-def nearByAddresses(resultFormat, JTSKX, JTSKY, Distance):
-    return ""
+def FormatAddress(address):
+    FormatedAddress = u""
+    houseNumberStr = u""
+
+    if address.houseNumber != "":
+        houseNumberStr += address.houseNumber
+        if address.orientationNumber != "":
+            houseNumberStr += "/"+address.orientationNumber
+    elif address.recordNumber != "":
+        houseNumberStr = u"č. ev. " + address.recordNumber
+
+    if address.street != "":
+        FormatedAddress += address.street + " " + houseNumberStr + ", "
+        if address.locality == "Praha":
+            FormatedAddress += address.localityPart + ", " + address.zipCode + ", " + address.locality + " " + address.districtNumber
+        elif address.locality == address.localityPart:
+            FormatedAddress += address.zipCode + " " + address.locality
+        else:
+            FormatedAddress += address.localityPart + ", " + address.zipCode + " " + address.locality
+    else:
+        if address.locality == address.localityPart:
+            if address.recordNumber != "":
+                FormatedAddress += houseNumberStr + ", "
+            else:
+                FormatedAddress += u"č.p. " + address.houseNumber + ", "
+            FormatedAddress += address.zipCode + " " + address.locality
+        else:
+            FormatedAddress += address.localityPart + " " + houseNumberStr + ", " + address.zipCode + " " + address.locality
+            if address.locality == "Praha":
+                FormatedAddress += ", " + address.districtNumber
+
+    return FormatedAddress
+
+def nearByAddresses(builder, JTSKX, JTSKY, Distance):
+    localities = RUIANInterface.GetNearbyLocalities(JTSKX, JTSKY, Distance)
+    lines = []
+
+    for locality in localities:
+        FormatedAdress = FormatAddress(locality.address)
+        lines.append(FormatedAdress)
+
+    return builder.listToResponseText(lines)
 
 def nearByAddressesServiceHandler(queryParams, response):
+    builder = MimeBuilder(queryParams["Format"])
+    response.mimeFormat = builder.getMimeFormat()
 
     s = nearByAddresses(
-        p(queryParams, "Format", "xml"),
+        builder,
         p(queryParams, "JTSKX", ""),
         p(queryParams, "JTSKY", ""),
         p(queryParams, "Distance", "")
     )
     response.htmlData = s
-    response.mimeFormat = getMimeFormat(p("Format", "xml"))
+    #response.mimeFormat = getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response
 
@@ -42,6 +86,12 @@ def createServiceHandlers():
             ],
             [ ],
             nearByAddressesServiceHandler,
-            sendButtonCaption = u"Hledej blízké adresy"
+            sendButtonCaption = u"Hledej blízké adresy",
+            htmlInputTemplate = '''<select>
+                                        <option value="text">text</option>
+                                        <option value="xml">xml</option>
+                                        <option value="html">html</option>
+                                        <option value="json">json</option>
+                                    </select>'''
         )
     )

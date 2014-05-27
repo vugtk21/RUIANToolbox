@@ -48,15 +48,15 @@ class RestParam(URLParam):
 
     pathName = property(getPathName, "REST path name")
 
-"""def getMimeFormat(self, formatText):
-    a = formatText.lower()
+def getMimeFormat(self, formatText):
+    a = self[formatText].lower()
     if a in ["html"]:
-        return "text/" + formatText
+        return "text/" + self[formatText].lower()
     elif a in ["xml", "json"]:
-        return "application/" + formatText
+        return "application/" + self[formatText].lower()
     else: # Default value text
         return "text/plain"
-"""
+
 
 class MimeBuilder:
     def __init__(self, formatText = "text"):
@@ -71,17 +71,17 @@ class MimeBuilder:
         else: # Default value text
             return "text/plain"
 
-    def listToXML(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddress"):
-        result = "<root>" + lineSeparator
+    def listToXML(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutput"):
+        result = '<?xml version="1.0" encoding="UTF-8"?>' + lineSeparator + "<xml>" + lineSeparator
         for line in listOfLines:
             #value = dataDict[key]
             #if type(value) == dict:
             #    value = self.dictToXML(value, lineSeparator)
             result += "<" + tag + ">" + line + "</" + tag + ">" + lineSeparator
 
-        return result + "</root>"
+        return result + "</xml>"
 
-    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedAddressLine"):
+    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutputLine"):
         result = "{"
         index = 0
         for line in listOfLines:

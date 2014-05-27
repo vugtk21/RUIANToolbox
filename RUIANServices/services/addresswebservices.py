@@ -17,6 +17,7 @@ import validate
 import geocode
 import nearbyaddresses
 import validateaddressid
+#import IDCheck
 
 from HTTPShared import *
 import compileaddress
@@ -55,6 +56,29 @@ $(function() {
 });
     </script>
 
+
+    <script>
+    $(document).ready(function() {
+      $('input:radio[name=InputMode]').change(function() {
+        if (this.value == 'vstup') {
+            $(this).parent().find("td input").removeAttr("disabled");
+            $(this).parent().find("td input").eq(0).attr("disabled", "disabled");
+            $(this).parent().find("td input").eq(1).attr("disabled", "disabled");
+        }
+        else if (this.value == 'id') {
+            $(this).parent().find("td input").attr("disabled", "disabled");
+            $(this).parent().find("td input").eq(0).removeAttr("disabled");
+            //$(this).parent().find("td input").eq(1).removeAttr("disabled");
+        }
+        else if (this.value == 'adresa') {
+            $(this).parent().find("td input").attr("disabled", "disabled");
+            //$(this).parent().find("td input").eq(0).removeAttr("disabled");
+            $(this).parent().find("td input").eq(1).removeAttr("disabled");
+        }
+      });
+    });
+  </script>
+
     <script type="text/javascript" charset="utf-8">
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
@@ -81,7 +105,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 		else {
 			delimeter = "&";
 		}
-		if (name != "") {
+		if (name != "" && name != "de") {
 			s = s + delimeter + name + "=" + encodeURI(elements[i].value);
 		}
 	}
@@ -90,6 +114,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
  urlSpanElem.innerHTML = "/REST" + servicePath + s + "\\n";
 }
     </script>
+
       <style>
   label {
     display: inline-block;
@@ -139,7 +164,18 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
-        result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
+        if param.name == '/Format':
+            result += '<select input name="' + formName + '_' + param.name + 'title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
+                            '<option value="text">text</option>' + \
+                            '<option value="xml">xml</option>' + \
+                            '<option value="html">html</option>' + \
+                            '<option value="json">json</option>' + \
+                    '</select>'
+            #result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
+            #      param.shortDesc + ', parametr ' + param.name + \
+            #      '" onchange="' + onChangeProcCode + '" />'
+        else:
+            result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + ', parametr ' + param.name + \
                   '" onchange="' + onChangeProcCode + '" />'
         #result += '<td>' + param.name + ' </td><td>'
@@ -180,6 +216,12 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
                 tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
 
             tabDivs += '</table>\n'
+            if service.pathName == "/CompileAddress":
+                tabDivs += u"""
+                <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
+                <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
+                <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
+                """
             tabDivs += '</form>\n'
             tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
 
@@ -207,6 +249,7 @@ def createServices():
     validate.createServiceHandlers()
     nearbyaddresses.createServiceHandlers()
     validateaddressid.createServiceHandlers()
+#    IDCheck.createServiceHandlers()
     pass
 
 createServices()
