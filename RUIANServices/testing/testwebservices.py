@@ -114,31 +114,51 @@ class TestGlobalFunctions(unittest.TestCase):
 
     def testFullTextSearch(self):
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severn%C3%AD%20Kladno"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severn%C3%AD%20Kladno"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Kladno"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Kladno"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Sev.%20Kladno"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Sev.%20Kladno"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Klad"), "Severní 507, Kladno, 272 04", "Severní 508, Kladno, 272 04", "Severní 509, Kladno, 272 04")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Klad"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Ml%C3%A1de%C5%BEnick%C3%A1%20Kladno"), "Mládežnická 841, Kladno, 272 04", "Mládežnická 842, Kladno, 272 04")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Ml%C3%A1de%C5%BEnick%C3%A1%20Kladno"), "Mládežnická 841, 272 04 Kladno", "Mládežnická 842, 272 04 Kladno")
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Mladeznicka%20Kladno"), "Mládežnická 841, Kladno, 272 04", "Mládežnická 842, Kladno, 272 04")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Mladeznicka%20Kladno"), "Mládežnická 841, 272 04 Kladno", "Mládežnická 842, 272 04 Kladno")
 
         self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Kladruby"), "č.ev. 11, Kladruby, 258 01", "č.p. 95, Kladruby, 258 01")
 
-        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Kladno%20Dub%C3%AD%20V."), "V. Sembdnera 611, Dubí, 272 03 Kladno", "V. Špály 571, Dubí, 272 03 Kladno")
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=V.%20Dub%C3%AD%20Kladno"), "V. Sembdnera 611, Dubí, 272 03 Kladno", "V. Špály 571, Dubí, 272 03 Kladno")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=V%C3%A1c%20Kladno"), "Václava Řacha 1352, Švermov, 273 09 Kladno", "Václavova 1678, 272 01 Kladno", "Václava Millera 163, Rozdělov, 272 04 Kladno")
+
+        self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=V%20Kladno%20Kladno"), "Václavova 1678, 272 01 Kladno", "V. Burgra 131, 272 04 Kladno", "V. Burgra 132, 272 04 Kladno")
 
         pass
 
     def testValidate(self):
+
+        self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/507"), "ANO")
+
+        self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/507?ZIPCode=27204&LocalityPart=Kladno"), "ANO")
+
+        self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/507?ZIPCode=27206&LocalityPart=Kladno"), "NE")
+
+        self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/120"), "NE")
         pass
 
     def testValidateAddressId(self):
+
+        self.assertEqual(downloadURL("/ValidateAddressId/txt/1408739"), "ANO")
+
+        self.assertEqual(downloadURL("/ValidateAddressId/txt/18480"), "NE")
+
         pass
 
     def testNearByAddresses(self):
+
+        self.assertEqual(downloadURL("/NearbyAddresses/txt/1033000/766500/1000"), "Mládežnická 841, 272 04 Kladno", "Mládežnická 842, 272 04 Kladno")
+
         pass
 
 
