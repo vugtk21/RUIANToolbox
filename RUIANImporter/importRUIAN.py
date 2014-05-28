@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
+import codecs
+
 def strTo127(s):
     result = ""
     for index in range(len(s)):
@@ -15,7 +17,8 @@ class Config:
     PORT_KEY         = 'port'
     USER_KEY         = 'user'
     PASWORD_KEY      = 'password'
-    SCHEMANAME_KEY      = 'schemaName'
+    SCHEMANAME_KEY   = 'schemaName'
+    LAYERS_KEY       = 'layers'
 
     databaseName = "euradin"
     host = "localhost"
@@ -23,6 +26,7 @@ class Config:
     user = "postgres"
     password = "ahoj"
     schema = "default"
+    layers = ""
 
 
     def __init__(self, fileName):
@@ -54,5 +58,22 @@ class Config:
                 self.password = value
             elif name == self.SCHEMANAME_KEY:
                 self.schema = value
+            elif name == self.LAYERS_KEY:
+                self.layers = value
 
 config = Config("importruian.cfg")
+
+content = '@python "%OSGEO4W_ROOT%\\bin\\vfr2pg.py"'
+content += " --file " + "ListFiles3.txt"
+content += " --user " + config.user
+content += " --passwd " + config.password
+if config.layers != "":
+    content += " --layer " + config.password
+content += " --append"
+
+file = open("download.bat", "w")
+file.write(content)
+file.close()
+
+
+#@python "%OSGEO4W_ROOT%\bin\vfr2pg.py" --file ListFiles3.txt --dbname euradin_full --user postgres --passwd ahoj --layer Obce,CastiObci,Zsj,AdresniMista --append
