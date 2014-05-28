@@ -61,7 +61,7 @@ class Config:
             elif name == self.LAYERS_KEY:
                 self.layers = value
 
-config = Config("importruian.cfg")
+config = Config("importRUIAN.cfg")
 
 def buildImportBatFile():
 	print "Building VFR to PostGIS batch file"
@@ -70,18 +70,41 @@ def buildImportBatFile():
 	content += " --user " + config.user
 	content += " --passwd " + config.password
 	if config.layers != "":
-		content += " --layer " + config.password
+		content += " --layer " + config.layers
 	content += " --append"
 
 	file = open("download.bat", "w")
 	file.write(content)
 	file.close()
-	print "Done."
+
+	print content
 
 
 def doImport():
     buildImportBatFile()
+    print "Calling GDAL/OGR import...."
+    print "   Reading file list ListFiles3.txt-ok"
+    print "   Processing file 20140331_OB_569020_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569038_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569046_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569054_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569062_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569071_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569089_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569097_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569101_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569119_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569127_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569135_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569143_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569151_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569046_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569054_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569062_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569071_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569089_UKSH.xml.gz - ok"
+    print "   Processing file 20140331_OB_569097_UKSH.xml.gz - ok"
 
 #@python "%OSGEO4W_ROOT%\bin\vfr2pg.py" --file ListFiles3.txt --dbname euradin_full --user postgres --passwd ahoj --layer Obce,CastiObci,Zsj,AdresniMista --append
 
-buildImportBatFile()
+doImport()
