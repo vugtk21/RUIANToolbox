@@ -12,18 +12,56 @@
 __author__ = 'Radek Augustýn'
 
 from HTTPShared import *
+import RUIANConnection
 
-def geocodeAddress(resultFormat, addressPlaceId):
-    return ""
+def geocodeID(builder, AddressID):
+    coordinates = RUIANConnection.findCoordinates(AddressID)
+    return builder.coordintesToResponseText(coordinates)
+
+def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+    dict = {
+        "street": street,
+        "houseNumber": houseNumber,
+        "recordNumber": recordNumber,
+        "orientationNumber": orientationNumber,
+        "zipCode": zipCode,
+        "locality": locality,
+        "localityPart": localityPart,
+        "districtNumber": districtNumber
+    }
+    coordinates = RUIANConnection.findCoordinatesByAddress(dict)
+    return builder.coordintesToResponseText(coordinates)
 
 def geocodeAddressServiceHandler(queryParams, response):
 
-    s = geocodeAddress(
-        p(queryParams, "Format", "xml"),
-        p(queryParams, "AddressPlaceId")
-    )
-    response.htmlData = s
-    response.mimeFormat = getMimeFormat(p("Format", "xml"))
+    def p(name, defValue = ""):
+        if queryParams.has_key(name):
+            return urllib.unquote(queryParams[name])
+        else:
+            return defValue
+
+    resultFormat = p("Format", "text")
+    builder = MimeBuilder(resultFormat)
+    response.mimeFormat = builder.getMimeFormat()
+
+    if queryParams.AddressPlaceId != "":
+        #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
+        s = geocodeID(builder, queryParams.AddressPlaceId)
+        response.htmlData = s
+
+    else:
+        s = geocodeAddress(
+            builder,
+            p("Street"),
+            p("HouseNumber"),
+            p("RecordNumber"),
+            p("OrientationNumber"),
+            p("ZIPCode"),
+            p("Locality"),
+            p("LocalityPart"),
+            p("DistrictNumber")
+        )
+        response.htmlData = s
     response.handled = True
     return response
 

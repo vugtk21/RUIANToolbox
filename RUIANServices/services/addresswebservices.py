@@ -80,8 +80,30 @@ $(function() {
   </script>
 
     <script type="text/javascript" charset="utf-8">
+var temp;
+
+function displayResult(textAreaElem, servicePath)
+{
+    textAreaElem.innerHTML = "192.168.1.130:8080" + temp;
+    HTML = "192.168.1.130:8080" + temp;
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange=function()
+    {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            document.getElementById(textAreaElem).innerHTML=xmlhttp.responseText;
+        }
+    }
+    xmlhttp.open("GET",HTML,true);
+    xmlhttp.send(null);
+    //textAreaElem.innerHTML.open ("192.168.1.130:8080" + temp);
+}
+
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
+
  formNameLen = formElem.name.length + 1;
  console = document.getElementById("console");
  elements = formElem.elements;
@@ -111,7 +133,8 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 	}
 
  }
- urlSpanElem.innerHTML = "/REST" + servicePath + s + "\\n";
+ urlSpanElem.innerHTML = servicePath + s + "\\n";
+ temp = servicePath + s;
 }
     </script>
 
@@ -201,10 +224,12 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
             onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
+            displayResultProcCode = "displayResult(" + formName + "_textArea, '" + service.pathName + "')"
             if service.pathName == pathInfo:
                 tabIndex = i
 
             tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
+            tabDivs += "<table><tr valign=\"top\"><td>"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
             # Parameters list
@@ -216,14 +241,19 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
                 tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
 
             tabDivs += '</table>\n'
-            if service.pathName == "/CompileAddress":
+
+            tabDivs += '</form>\n'
+            tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
+            tabDivs += "</td><td>"
+            tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
+            tabDivs += "</td></tr></table>"
+
+            if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
                 <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
                 <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
                 """
-            tabDivs += '</form>\n'
-            tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '">\n'
 
             tabDivs += '<p>\n<img src="' + HTMLDATA_URL + service.pathName + '.png"></p>\n'
 

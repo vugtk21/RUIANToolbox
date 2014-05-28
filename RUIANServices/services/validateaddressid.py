@@ -12,7 +12,7 @@
 __author__ = 'Radek Augustýn'
 
 from HTTPShared import *
-import RUIANInterface, RUIANReferenceDB
+import RUIANConnection
 
 def validateAddressId(resultFormat, addressPlaceId):
     return ""
@@ -20,7 +20,7 @@ def validateAddressId(resultFormat, addressPlaceId):
 def validateAddressIdServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
-    address = RUIANInterface.FindAddress(queryParams["AddressPlaceId"], builder)  ### předělat !!!
+    address = RUIANConnection.findAddress(queryParams["AddressPlaceId"])
     if address:
         response.htmlData = builder.listToResponseText(["True"])
     else:

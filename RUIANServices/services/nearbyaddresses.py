@@ -12,7 +12,7 @@
 __author__ = 'Radek Augustýn'
 
 
-import RUIANInterface, RUIANReferenceDB
+import RUIANConnection
 from HTTPShared import *
 
 def FormatAddress(address):
@@ -49,11 +49,11 @@ def FormatAddress(address):
     return FormatedAddress
 
 def nearByAddresses(builder, JTSKX, JTSKY, Distance):
-    localities = RUIANInterface.GetNearbyLocalities(JTSKX, JTSKY, Distance)
+    addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
     lines = []
 
-    for locality in localities:
-        FormatedAdress = FormatAddress(locality.address)
+    for address in addresses:
+        FormatedAdress = FormatAddress(address)
         lines.append(FormatedAdress)
 
     return builder.listToResponseText(lines)
