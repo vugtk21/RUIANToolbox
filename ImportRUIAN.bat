@@ -1,0 +1,2 @@
+cd RUIANImporter
+importRUIAN.py
