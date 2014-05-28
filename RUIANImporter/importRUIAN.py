@@ -63,17 +63,22 @@ class Config:
 
 config = Config("importruian.cfg")
 
-content = '@python "%OSGEO4W_ROOT%\\bin\\vfr2pg.py"'
-content += " --file " + "ListFiles3.txt"
-content += " --user " + config.user
-content += " --passwd " + config.password
-if config.layers != "":
-    content += " --layer " + config.password
-content += " --append"
+def buildImportBatFile():
+	print "Building VFR to PostGIS batch file"
+	content = '@python "%OSGEO4W_ROOT%\\bin\\vfr2pg.py"'
+	content += " --file " + "ListFiles3.txt"
+	content += " --user " + config.user
+	content += " --passwd " + config.password
+	if config.layers != "":
+		content += " --layer " + config.password
+	content += " --append"
 
-file = open("download.bat", "w")
-file.write(content)
-file.close()
+	file = open("download.bat", "w")
+	file.write(content)
+	file.close()
+	print "Done."
 
 
 #@python "%OSGEO4W_ROOT%\bin\vfr2pg.py" --file ListFiles3.txt --dbname euradin_full --user postgres --passwd ahoj --layer Obce,CastiObci,Zsj,AdresniMista --append
+
+buildImportBatFile()
