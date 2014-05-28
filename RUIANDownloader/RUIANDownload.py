@@ -439,5 +439,11 @@ def main(argv = sys.argv):
         downloader._fullDownload = config.downloadFullDatabase
         downloader.download()
 
+        logger.info("Download done.")
+        if config.runimporter:
+            from RUIANImporter.importRUIAN import doImport
+            doImport()
+
+
 if __name__ == '__main__':
     sys.exit(main())

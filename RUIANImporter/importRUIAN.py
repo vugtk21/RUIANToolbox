@@ -79,6 +79,9 @@ def buildImportBatFile():
 	print "Done."
 
 
+def doImport():
+    buildImportBatFile()
+
 #@python "%OSGEO4W_ROOT%\bin\vfr2pg.py" --file ListFiles3.txt --dbname euradin_full --user postgres --passwd ahoj --layer Obce,CastiObci,Zsj,AdresniMista --append
 
 buildImportBatFile()

@@ -24,13 +24,18 @@ def pathWithLastSlash(path):
 class Config:
     ADMIN_NAME = 'admin'
     ADMIN_PASSWORD = 'bar67gux7hd6f5ge6'
-    dataDir = ""
-    uncompressDownloadedFiles = True
-    downloadFullDatabase = True
     DATADIR_ID = "datadir"
     DOWNLOADFULLDATABASE_ID = "downloadfulldatabase"
     UNCOMPRESSDOWNLOADEDFILES_ID = "uncompressdownloadedfiles"
     TRUE_ID = "true"
+    RUNIMPORTER_ID = "runimporter"
+    AUTOMATIC_DOWNLOAD_ID = "automaticdownloadtime"
+
+    dataDir = ""
+    uncompressDownloadedFiles = True
+    downloadFullDatabase = True
+    runImporter = False
+    automatiDownloadTime = ""
 
     def __init__(self, configFileName):
         self._configFileName = configFileName
@@ -56,6 +61,10 @@ class Config:
                 self.downloadFullDatabase = value == self.TRUE_ID
             elif name == self.UNCOMPRESSDOWNLOADEDFILES_ID:
                 self.uncompressDownloadedFiles = value == self.TRUE_ID
+            elif name == self.RUNIMPORTER_ID:
+                self.runimporter = value == self.TRUE_ID
+            elif name == self.AUTOMATIC_DOWNLOAD_ID:
+                self.automatiDownloadTime = value
 
         infoFile.load(self.dataDir + "Info.txt")
 
