@@ -79,5 +79,31 @@ def _findCoordinates(ID):
     cur = con.cursor()
     cur.execute("SELECT latitude, longitude FROM test WHERE gid = "+ str(ID))
     row = cur.fetchone()
-    c = [str(row[0]), str(row[1])]
-    return c
+    if row:
+        c = Coordinates(str(row[0]), str(row[1]))
+        return [c]
+    else:
+        return []
+
+def _findCoordinatesByAddress(dictionary):
+    first = True
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    cur = con.cursor()
+
+    query = "SELECT latitude, longitude FROM test WHERE "
+
+    for key in dictionary:
+        if dictionary[key] != "":
+            if first:
+                query += ITEM_TO_DBFIELDS[key] + " = '" + dictionary[key] + "'"
+                first = False
+            else:
+                query += " AND " + ITEM_TO_DBFIELDS[key] + " = '" + dictionary[key] + "'"
+
+    cur.execute(query)
+    rows = cur.fetchall()
+    coordinates = []
+
+    for row in rows:
+        coordinates.append(Coordinates(str(row[0]),str(row[1])))
+    return coordinates

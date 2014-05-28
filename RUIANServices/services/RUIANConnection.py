@@ -22,13 +22,13 @@ class Locality:
         self.coordinates=coordinates
 
 if (False):
-    from RUIANReferenceDB import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates
+    from RUIANReferenceDB import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, _findCoordinatesByAddress
 else:
-    from postgisdb import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates
+    from postgisdb import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, _findCoordinatesByAddress
 
 
 findAddress = _findAddress
 getNearbyLocalities = _getNearbyLocalities
 validateAddress = _validateAddress
 findCoordinates = _findCoordinates
-
+findCoordinatesByAddress = _findCoordinatesByAddress

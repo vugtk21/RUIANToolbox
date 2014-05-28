@@ -78,7 +78,6 @@ class MimeBuilder:
             #if type(value) == dict:
             #    value = self.dictToXML(value, lineSeparator)
             result += "<" + tag + ">" + line + "</" + tag + ">" + lineSeparator
-
         return result + "</xml>"
 
     def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutputLine"):
@@ -93,7 +92,6 @@ class MimeBuilder:
                 result += ','
             result += lineSeparator + '"' + tag + str(index) + '" : "' + line + '"'
         result += lineSeparator + "}"
-
         return result
 
     def listToText(self, listOfLines, lineSeparator = "\n"):
@@ -103,19 +101,14 @@ class MimeBuilder:
             #if type(value) == dict:
             #    value = "<div>" + self.dictToText(value, lineSeparator) + "</div>"
             result += line + lineSeparator
-
         return result
 
     def listToHTML(self, listOfLines, lineSeparator = "<br>"):
         result = ""
         for line in listOfLines:
-            #value = dataDict[key]
-            #if type(value) == dict:
-            #    value = self.dictToHTML(value, lineSeparator)
             if result != "":
                 result += lineSeparator
             result += line
-
         return result
 
     def listToResponseText(self, ListOfLines):
@@ -127,6 +120,50 @@ class MimeBuilder:
             return self.listToJSON(ListOfLines)
         else: # default value text
             return self.listToText(ListOfLines)
+
+    def coordinatesToXML(self, listOfCoordinates, lineSeparator = "\n", tag = "Coordinates"):
+        result = '<?xml version="1.0" encoding="UTF-8"?>' + lineSeparator + "<xml>" + lineSeparator
+        index = 0
+        for coordinates in listOfCoordinates:
+            index = index + 1
+            result += "<" + tag + str(index) + ">" + lineSeparator + "<Y>" + coordinates.JTSKY + "</Y>" + lineSeparator + "<X>" + coordinates.JTSKX + "</X>" + lineSeparator + "</" + tag + str(index) + ">" + lineSeparator
+        result += "</xml>"
+        return result
+
+    def coordinatesToHTML(self, listOfCoordinates, lineSeparator = "<br>"):
+        result = ""
+        for line in listOfCoordinates:
+            if result != "":
+                result += lineSeparator
+            result += line.JTSKY + ", " + line.JTSKX
+        return result
+
+    def coordinatesToJSON(self, listOfCoordinates, lineSeparator = "\n", tag = "Coordinates"):
+        result = "{"
+        index = 0
+        for line in listOfCoordinates:
+            index += 1
+            if index > 1:
+                result += ','
+            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + ' \t"Y": "' + line.JTSKY + '",' + lineSeparator + '\t"X": "' + line.JTSKX + '"' + lineSeparator + "\t}"
+        result += lineSeparator + "}"
+        return result
+
+    def coordinatesToText(self, listOfCoordinates, lineSeparator = "\n"):
+        result = ""
+        for line in listOfCoordinates:
+            result += line.JTSKY + ", " + line.JTSKX + lineSeparator
+        return result
+
+    def coordintesToResponseText(self, ListOfCoordinates):
+        if self.formatText == "xml":
+            return self.coordinatesToXML(ListOfCoordinates)
+        elif self.formatText == "html":
+            return self.coordinatesToHTML(ListOfCoordinates)
+        elif self.formatText == "json":
+            return self.coordinatesToJSON(ListOfCoordinates)
+        else: # default value text
+            return self.coordinatesToText(ListOfCoordinates)
 
 
 class WebService:

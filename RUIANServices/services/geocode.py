@@ -16,10 +16,21 @@ import RUIANConnection
 
 def geocodeID(builder, AddressID):
     coordinates = RUIANConnection.findCoordinates(AddressID)
-    return builder.listToResponseText(coordinates)
+    return builder.coordintesToResponseText(coordinates)
 
 def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
-    return ""
+    dict = {
+        "street": street,
+        "houseNumber": houseNumber,
+        "recordNumber": recordNumber,
+        "orientationNumber": orientationNumber,
+        "zipCode": zipCode,
+        "locality": locality,
+        "localityPart": localityPart,
+        "districtNumber": districtNumber
+    }
+    coordinates = RUIANConnection.findCoordinatesByAddress(dict)
+    return builder.coordintesToResponseText(coordinates)
 
 def geocodeAddressServiceHandler(queryParams, response):
 

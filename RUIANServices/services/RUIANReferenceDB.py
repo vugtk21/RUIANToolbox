@@ -18,18 +18,23 @@ database = {
 def _findCoordinates(AddressID):
     for id, location in database.iteritems():
         if id == AddressID:
-            return [str(location.coordinates.JTSKY), str(location.coordinates.JTSKX)]
+            return Coordinates(str(location.coordinates.JTSKY), str(location.coordinates.JTSKX))
 
 
 def _findAddress(ID):
     if ID in database.keys():
         location = database[ID]
         return location.address
-    """    lines = [u"Lhenická 1120/1",u"České Budějovice 2",u"37005 České Budějovice"]
-    else:
-        lines = []
-    return builder.listToResponseText(lines)
-    """
+
+def _findCoordinatesByAddress(dict):
+    coordinates = []
+    for id, location in database.iteritems():
+        if (dict["street"].lower() == location.address.street.lower() or dict["street"] == "") and (dict["houseNumber"] == location.address.houseNumber or dict["houseNumber"] == "") \
+                and (dict["recordNumber"] == location.address.recordNumber or dict["recordNumber"] == "") and (dict["orientationNumber"] == location.address.orientationNumber or dict["orientationNumber"] == "") \
+                and (dict["zipCode"] == location.address.zipCode or dict["zipCode"] == "") and (dict["locality"].lower() == location.address.locality.lower() or dict["locality"] == "") \
+                and (dict["localityPart"] == location.address.localityPart or dict["localityPart"] == "") and (dict["districtNumber"] == location.address.districtNumber or dict["districtNumber"] == ""):
+            coordinates.append(Coordinates(str(location.coordinates.JTSKY), str(location.coordinates.JTSKX)))
+    return coordinates
 
 def _getNearbyLocalities(x,y,MaxDistance):
     addresses = []
