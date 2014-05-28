@@ -28,8 +28,6 @@ def extractFileName(fileName):
     return fileName[lastDel + 1:]
 
 
-
-
 def getFileExtension(fileName):
     """ Returns fileName extension part dot including (.txt,.png etc.)"""
     return fileName[fileName.rfind("."):]
