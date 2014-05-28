@@ -1,2 +1,5 @@
+echo "Startuji službu pro automatické stahování a import dat RÚIAN"
+echo "============================================================"
 cd RUIANDownloader
-RUIANDownload.py
+python.exe windowsservice.py install
+NET START RUIANDld

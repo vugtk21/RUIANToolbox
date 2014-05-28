@@ -1,2 +1,1 @@
-cd RUIANDownloader
-RUIANDownload.py
+NET STOP RUIANDld
