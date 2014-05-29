@@ -1,2 +1,4 @@
 cd RUIANImporter
-importRUIAN.py
+importRUIAN.py %*
+..\OSGeo4W_vfr\OSGeo4W.bat download.bat
+cd ..\

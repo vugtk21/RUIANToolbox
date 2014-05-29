@@ -2,6 +2,7 @@
 __author__ = 'Augustyn'
 
 import codecs
+import sys
 
 def strTo127(s):
     result = ""
@@ -66,7 +67,11 @@ config = Config("importRUIAN.cfg")
 def buildImportBatFile():
 	print "Building VFR to PostGIS batch file"
 	content = '@python "%OSGEO4W_ROOT%\\bin\\vfr2pg.py"'
-	content += " --file " + "ListFiles3.txt"
+	content += " --file "
+	if len(sys.argv) == 2:
+		content += sys.argv[1]
+	else:
+		content += "ListFiles.txt"
 	content += " --user " + config.user
 	content += " --passwd " + config.password
 	if config.layers != "":
@@ -82,29 +87,18 @@ def buildImportBatFile():
 
 def doImport():
     buildImportBatFile()
-    print "Calling GDAL/OGR import...."
-    print "   Reading file list ListFiles3.txt-ok"
-    print "   Processing file 20140331_OB_569020_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569038_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569046_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569054_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569062_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569071_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569089_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569097_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569101_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569119_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569127_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569135_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569143_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569151_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569046_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569054_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569062_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569071_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569089_UKSH.xml.gz - ok"
-    print "   Processing file 20140331_OB_569097_UKSH.xml.gz - ok"
+    #print "Calling GDAL/OGR import...."
+    #import subprocess
+
+    #filePath = "download.bat"
+    #p = subprocess.Popen(filePath, shell=True, stdout = subprocess.PIPE)
+
+    #stdout, stderr = p.communicate()
+    #print p.returncode # is 0 if success
+
 
 #@python "%OSGEO4W_ROOT%\bin\vfr2pg.py" --file ListFiles3.txt --dbname euradin_full --user postgres --passwd ahoj --layer Obce,CastiObci,Zsj,AdresniMista --append
 
-doImport()
+if __name__ == "__main__":
+    doImport()
+
