@@ -80,27 +80,51 @@ $(function() {
   </script>
 
     <script type="text/javascript" charset="utf-8">
+
+	function displayResult(id, servicePath){
+
+        var url = "http://192.168.1.130:8080" + temp
+		var xmlHttp;
+		try {// Firefox, Opera 8.0+, Safari
+			xmlHttp = new XMLHttpRequest();
+		} catch (e) {// Internet Explorer
+			try {
+				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch (e) {
+				try {
+					xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch (e) {
+					alert("Your browser does not support AJAX!");
+					return false;
+				}
+			}
+		}
+
+		xmlHttp.onreadystatechange = function(){
+			if (xmlHttp.readyState == 4) {
+				//Get the response from the server and extract the section that comes in the body section of the second html page avoid inserting the header part of the second page in your first page's element
+				//var respText = xmlHttp.responseText.split('<body>');
+				//elem.innerHTML = respText[1].split('</body>')[0];
+				elem.innerHTML = xmlHttp.responseText
+			}
+		}
+
+		var elem = document.getElementById(id);
+		if (!elem) {
+			alert('The element with the passed ID'+ id +' does not exists in your page');
+			return;
+		}
+
+		xmlHttp.open("GET", url, true);
+		xmlHttp.send(null);
+
+
+	}
+    </script>
+
+
+    <script type="text/javascript" charset="utf-8">
 var temp;
-
-function displayResult(textAreaElem, servicePath)
-{
-    textAreaElem.innerHTML = "192.168.1.130:8080" + temp;
-    HTML = "192.168.1.130:8080" + temp;
-    var xmlhttp;
-    xmlhttp = new XMLHttpRequest();
-
-    xmlhttp.onreadystatechange=function()
-    {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-            document.getElementById(textAreaElem).innerHTML=xmlhttp.responseText;
-        }
-    }
-    xmlhttp.open("GET",HTML,true);
-    xmlhttp.send(null);
-    //textAreaElem.innerHTML.open ("192.168.1.130:8080" + temp);
-}
-
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
 
@@ -224,11 +248,12 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
             onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
-            displayResultProcCode = "displayResult(" + formName + "_textArea, '" + service.pathName + "')"
+            displayResultProcCode = "displayResult('" + formName + "_textArea', '" + service.pathName + "')"
             if service.pathName == pathInfo:
                 tabIndex = i
 
             tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
+            tabDivs += "<br><br>"
             tabDivs += "<table><tr valign=\"top\"><td>"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
