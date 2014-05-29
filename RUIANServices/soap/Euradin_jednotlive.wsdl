@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.org/Euradin_G/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Euradin_G" targetNamespace="http://www.example.org/Euradin_G/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://www.example.org/Euradin_G/">
+      <xsd:element name="Geocode">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="in" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="GeocodeResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="out" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="Fulltextové vyhledávání">
+      	<xsd:complexType>
+      		<xsd:sequence>
+
+      			<xsd:element name="in" type="xsd:string"></xsd:element>
+      		</xsd:sequence>
+      	</xsd:complexType>
+      </xsd:element>
+      <xsd:element name="Fulltextové vyhledáváníResponse">
+      	<xsd:complexType>
+      		<xsd:sequence>
+
+      			<xsd:element name="out" type="xsd:string"></xsd:element>
+      		</xsd:sequence>
+      	</xsd:complexType>
+      </xsd:element>
+            <xsd:element name="String" type="xsd:string"></xsd:element>
+            <xsd:element name="in" type="xsd:string"></xsd:element>
+            <xsd:element name="NewOperationResponse">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:element name="in1" type="xsd:string"></xsd:element>
+            <xsd:element name="FullTextSearchResponse1">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:element name="NewElement" type="xsd:string"></xsd:element>
+            <xsd:element name="in2" type="xsd:string"></xsd:element>
+            <xsd:element name="CompileAddressResponse1">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:element name="in3" type="xsd:string"></xsd:element>
+            <xsd:element name="NewOperationResponse1">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:element name="in4" type="xsd:string"></xsd:element>
+            <xsd:element name="ValidateResponse2">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:element name="in5" type="xsd:string"></xsd:element>
+            <xsd:element name="NearbyAddressesResponse2">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:element name="in6" type="xsd:string"></xsd:element>
+            <xsd:element name="ValidateAddressIdResponse2">
+            	<xsd:complexType>
+            		<xsd:sequence>
+            			<xsd:element name="out" type="xsd:string"></xsd:element>
+            		</xsd:sequence>
+            	</xsd:complexType>
+            </xsd:element>
+            <xsd:complexType name="CommonResponseType">
+            	<xsd:sequence>
+            		<xsd:element name="NewElement" type="xsd:string"></xsd:element>
+            	</xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="FormatType"></xsd:complexType>
+            <xsd:element name="in8" type="xsd:string"></xsd:element>
+            <xsd:element name="in9" type="xsd:string"></xsd:element>
+        </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="GeocodeRequest">
+    <wsdl:part name="Format" type="xsd:string"/>
+    <wsdl:part name="AddressPlaceId" type="xsd:string"></wsdl:part>
+    <wsdl:part name="SearchText" type="xsd:string"></wsdl:part>
+    <wsdl:part name="Street" type="xsd:string"></wsdl:part>
+    <wsdl:part name="Locality" type="xsd:string"></wsdl:part>
+    <wsdl:part name="HouseNumber" type="xsd:string"></wsdl:part>
+    <wsdl:part name="ZIPCode" type="xsd:string"></wsdl:part>
+    <wsdl:part name="LocalityPart" type="xsd:string"></wsdl:part>
+    <wsdl:part name="OrientationNumber" type="xsd:string"></wsdl:part>
+    <wsdl:part name="RecordNumber" type="xsd:string"></wsdl:part>
+    <wsdl:part name="DistrictNumber" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GeocodeResponse">
+    <wsdl:part name="parameters" type="xsd:string"/>
+  </wsdl:message>
+  <wsdl:message name="Fulltextové vyhledáváníRequest">
+  	<wsdl:part name="parameters" element="tns:Fulltextové vyhledávání"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Fulltextové vyhledáváníResponse">
+  	<wsdl:part name="parameters" element="tns:Fulltextové vyhledáváníResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationRequest">
+  	<wsdl:part name="NewOperationRequest" element="tns:in"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationResponse">
+  	<wsdl:part name="parameters" element="tns:NewOperationResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="FullTextSearchRequest1">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="SearchFlag" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="SearchText" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="FullTextSearchResponse1">
+  	<wsdl:part name="parameters" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CompileAddressRequest1">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="AddressPlaceId" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="SearchText" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Street" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Locality" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="HouseNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="ZIPCode" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="LocalityPart" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="OrientationNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="RecordNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="DistrictNumber" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CompileAddressResponse1">
+  	<wsdl:part name="parameters" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationRequest1">
+  	<wsdl:part name="NewOperationRequest1" element="tns:in3"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationResponse1">
+  	<wsdl:part name="parameters" element="tns:NewOperationResponse1"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateRequest2">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Street" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Locality" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="HouseNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="ZIPCode" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="LocalityPart" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="OrientationNumber" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateResponse2">
+  	<wsdl:part name="parameters" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NearbyAddressesRequest2">
+  	<wsdl:part name="Format" element="tns:in5"></wsdl:part>
+  	<wsdl:part name="JTSKX" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="JTSKY" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Distance" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NearbyAddressesResponse2">
+  	<wsdl:part name="parameters" type="tns:CommonResponseType"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateAddressIdRequest2">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="AddressPlaceId" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateAddressIdResponse2">
+  	<wsdl:part name="parameters" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationRequest2">
+  	<wsdl:part name="NewOperationRequest2" element="tns:in8"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationResponse2">
+  	<wsdl:part name="NewOperationResponse2" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationRequest3">
+  	<wsdl:part name="NewOperationRequest3" element="tns:in9"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationResponse3">
+  	<wsdl:part name="NewOperationResponse3" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NewOperationRequest4">
+  </wsdl:message>
+  <wsdl:message name="NewOperationResponse4">
+  	<wsdl:part name="NewOperationResponse4" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateRequest5">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Street" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Locality" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="HouseNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="ZIPCode" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="LocalityPart" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="OrientationNumber" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateResponse5">
+  	<wsdl:part name="ValidateResponse5" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateAddressIdRequest5">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="AddressPlaceId" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ValidateAddressIdResponse5">
+  	<wsdl:part name="ValidateAddressIdResponse5" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GeocodeRequest5">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="AddressPlaceId" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="SearchText" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Street" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Locality" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="HouseNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="ZIPCode" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="LocalityPart" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="OrientationNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="RecordNumber" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="DistrictNumber" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GeocodeResponse5">
+  	<wsdl:part name="GeocodeResponse5" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NearbyAddressesRequest5">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="JTSKX" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="JTSKY" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="Distance" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="NearbyAddressesResponse5">
+  	<wsdl:part name="NearbyAddressesResponse5" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="FullTextSearchRequest5">
+  	<wsdl:part name="Format" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="SearchFlag" type="xsd:string"></wsdl:part>
+  	<wsdl:part name="SearchText" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="FullTextSearchResponse5">
+  	<wsdl:part name="FullTextSearchResponse5" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Gocode">
+    <wsdl:operation name="Geocode">
+      <wsdl:input message="tns:GeocodeRequest"/>
+      <wsdl:output message="tns:GeocodeResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>  <wsdl:portType name="FullTextSearch">  	<wsdl:operation name="FullTextSearch">  		<wsdl:input message="tns:FullTextSearchRequest1"></wsdl:input>  		<wsdl:output message="tns:FullTextSearchResponse1"></wsdl:output>  	</wsdl:operation>
+  </wsdl:portType>  <wsdl:portType name="Validate">  	<wsdl:operation name="Validate">  		<wsdl:input message="tns:ValidateRequest2"></wsdl:input>  		<wsdl:output message="tns:ValidateResponse2"></wsdl:output>  	</wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="NearbyAddresses">
+  	<wsdl:operation name="NearbyAddresses">
+  		<wsdl:input message="tns:NearbyAddressesRequest2"></wsdl:input>
+  		<wsdl:output message="tns:NearbyAddressesResponse2"></wsdl:output>
+  	</wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ValidateAddressId">
+  	<wsdl:operation name="ValidateAddressId">
+  		<wsdl:input message="tns:ValidateAddressIdRequest2"></wsdl:input>
+  		<wsdl:output message="tns:ValidateAddressIdResponse2"></wsdl:output>
+  	</wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Euradin_GSOAP" type="tns:Gocode">
+  	<soap:binding style="document"
+  		transport="http://schemas.xmlsoap.org/soap/http" />
+  	<wsdl:operation name="Geocode">
+  		<soap:operation
+  			soapAction="http://www.example.org/Euradin_G/Geocode" />
+  		<wsdl:input>
+  			<soap:body use="literal" />
+  		</wsdl:input>
+  		<wsdl:output>
+  			<soap:body use="literal" />
+  		</wsdl:output>
+  	</wsdl:operation>
+  	<wsdl:operation name="NewOperation">
+  		<soap:operation
+  			soapAction="http://www.example.org/Euradin_G/NewOperation" />
+  		<wsdl:input>
+  			<soap:body use="literal" />
+  		</wsdl:input>
+  		<wsdl:output>
+  			<soap:body use="literal" />
+  		</wsdl:output>
+  	</wsdl:operation>
+  </wsdl:binding>
+  
+  <wsdl:service name="Euradin_G">
+    <wsdl:port binding="tns:Euradin_GSOAP" name="Euradin_GSOAP">
+      <soap:address location="http://www.vugtk.cz/euradin/services/soap/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
