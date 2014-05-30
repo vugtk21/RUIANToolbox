@@ -155,5 +155,4 @@ if __name__ == '__main__':
 
 # create table obce
 # as
-# select nazev_obce from test group by nazev_obce order by nazev_obce
-# alter table obce add field unique_index
+# select nazev_obce, psc from addresspoints group by nazev_obce, psc order by nazev_obce, psc
