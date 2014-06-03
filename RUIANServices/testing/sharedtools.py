@@ -2,6 +2,8 @@
 __author__ = 'Augustyn'
 
 import codecs
+import urllib2
+import urllib
 
 SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py"
 
@@ -119,6 +121,24 @@ class FormalTester:
         result += HTML_SUFFIX
 
         return result
+
+
+    def loadAndAddTest(self, path, params, expectedValue):
+        paramsList = params.split("&")
+        query = []
+        for param in paramsList:
+            v = param.split("=")
+            query.append(v[0] + "=" + urllib.quote(codecs.encode(v[1], "utf-8")))
+        params = "&".join(query)
+
+        params = path + params
+        try:
+            result = urllib2.urlopen(SERVER_URL + params).read()
+        except Exception as inst:
+            result = str(inst)
+        result = urllib.quote(codecs.encode(result, "utf-8"))
+        params = params.decode("utf-8")
+        self.addTest(params, result, expectedValue, "")
 
     def saveToHTML(self, fileName):
         with codecs.open(fileName, "w", "utf-8") as outFile:
