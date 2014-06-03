@@ -6,8 +6,13 @@ import urllib2
 import urllib
 import codecs
 
-def test():
-    tester = sharedtools.FormalTester("Ověření funkčnosti služby ValidateAddressID",
+def test(testerParam = None):
+    if testerParam == None:
+        tester = sharedtools.FormalTester("Ověření funkčnosti služby ValidateAddressID")
+    else:
+        tester = testerParam
+
+    tester.newSection("Ověření funkčnosti služby ValidateAddressID",
 """Tento test ověřuje funkčnost služby ValidateAddressID, která ověřuje existenci zadaného identifikátoru adresy RÚIAN v databázi.""",
                 "Compiling person", "Tester")
 
@@ -22,8 +27,10 @@ def test():
 
     addTest("/ValidateAddressId/txt/1408739", "True")
     addTest("/ValidateAddressId/txt/18480", "False")
+    tester.closeSection()
 
-    tester.saveToHTML("ValidateAddressID.html")
+    if testerParam == None:
+        tester.saveToHTML("ValidateAddressID.html")
 
 
 if __name__ == '__main__':

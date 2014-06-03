@@ -60,15 +60,32 @@ RESULTS_TABLE_HEADER = u"""
 """
 
 class FormalTester:
-    def __init__(self, caption, desc, compilingPerson, tester):
+    def __init__(self, pageTitle = ""):
+        self.content = HTML_PREFIX
+        self.content = self.content.replace("<#TITLE>", pageTitle)
+        self.longPrint = False
+        self.isOddRow = False
         self.numTests = 0
-        self.caption = caption
-        self.desc = desc
+
+    def newSection(self, caption, desc, compilingPerson, tester):
+        self.numTests = 0
+        self.isOddRow = False
         self.compilingPerson = compilingPerson
         self.tester = tester
         self.testsHTML = RESULTS_TABLE_HEADER
-        self.longPrint = False
-        self.isOddRow = False
+
+        if caption != "":
+            self.content += "<h1>" + caption + "</h1>\n"
+
+        if desc != "":
+            self.content += "<p>" + desc + \
+                                      u"<br><br>Testovaný server: <a href='" + SERVER_URL + "'>" + SERVER_URL + "</a><br>" + \
+                                      "</p>\n"
+
+
+    def closeSection(self):
+        self.content += self.testsHTML + "</table>"
+        self.testsHTML = ""
 
     def addTest(self, inputs, result, expectedResult, errorMessage = ""):
         self.numTests = self.numTests + 1
@@ -109,19 +126,6 @@ class FormalTester:
 
         self.isOddRow = not self.isOddRow
 
-    def getHTML(self):
-        result = HTML_PREFIX
-
-        result = result.replace("<#TITLE>", self.caption)
-        if self.caption != "": result += "<h1>" + self.caption + "</h1>\n"
-        if self.desc != "": result += "<p>" + self.desc + \
-                                      u"<br><br>Testovaný server: <a href='" + SERVER_URL + "'>" + SERVER_URL + "</a><br>" + \
-                                      "</p>\n"
-        result += self.testsHTML + "</table>"
-        result += HTML_SUFFIX
-
-        return result
-
 
     def loadAndAddTest(self, path, params, expectedValue):
         paramsList = params.split("&")
@@ -142,7 +146,7 @@ class FormalTester:
 
     def saveToHTML(self, fileName):
         with codecs.open(fileName, "w", "utf-8") as outFile:
-            htmlContent = self.getHTML()
+            htmlContent = self.content + HTML_SUFFIX
             outFile.write(codecs.encode(htmlContent, "utf-8"))
             outFile.close()
 

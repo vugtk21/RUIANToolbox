@@ -24,8 +24,12 @@ def buildParamString(street, houseNumber, recordNumber, orientationNumber, zipCo
 
     return url
 
-def test():
-    tester = sharedtools.FormalTester("Ověření funkčnosti služby CompileAddress",
+def test(testerParam = None):
+    if testerParam == None:
+        tester = sharedtools.FormalTester("Ověření funkčnosti služby CompileAddress")
+    else:
+        tester = testerParam
+    tester.newSection("Ověření funkčnosti služby CompileAddress",
                 """
 Tento test ověřuje sestavení zápisu adresy ve standardizovaném tvaru podle § 6 vyhlášky č. 359/2011 Sb.,
 kterou se provádí zákon č. 111/2009 Sb., o základních registrech, ve znění zákona č. 100/2010 Sb.
@@ -61,8 +65,10 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
     addTest(u'', u'111', u'', u'', u'50333', u'Praskačka', u'Praskačka', u'', u'č. p. 111\n50333 Praskačka')
     addTest(u'', u'111', u'', u'1', u'53333', u'Praskačka', u'Praskačka', u'', u'č .p. 111/1\n53333 Praskačka')
     addTest(u'', u'', u'32', u'', u'53333', u'Praskačka', u'Praskačka', u'', u'č .ev. 32\n53333 Pardubice')
+    tester.closeSection()
 
-    tester.saveToHTML("compileaddress.html")
+    if testerParam == None:
+        tester.saveToHTML("CompileAddress.html")
 
 
 if __name__ == '__main__':

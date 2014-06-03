@@ -6,8 +6,12 @@ import urllib2
 import urllib
 import codecs
 
-def test():
-    tester = sharedtools.FormalTester("Ověření funkčnosti služby NearByAddresses",
+def test(testerParam = None):
+    if testerParam == None:
+        tester = sharedtools.FormalTester("Ověření funkčnosti služby NearByAddresses")
+    else:
+        tester = testerParam
+    tester.newSection("Ověření funkčnosti služby NearByAddresses",
 """Tento test ověřuje funkčnost služby NearByAddresses, která umožňuje vyhledat adresní místa v okolí
 zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.""",
                 "Compiling person", "Tester")
@@ -22,8 +26,10 @@ zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN 
         tester.addTest(path, result, expectedValue, "")
 
     addTest("/NearbyAddresses/txt/1033000/766500/1000", "Mládežnická 841, 272 04 Kladno")
+    tester.closeSection()
 
-    tester.saveToHTML("NearByAddresses.html")
+    if testerParam == None:
+        tester.saveToHTML("NearByAddresses.html")
 
 
 if __name__ == '__main__':

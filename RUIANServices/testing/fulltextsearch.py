@@ -6,8 +6,13 @@ import urllib2
 import urllib
 import codecs
 
-def test():
-    tester = sharedtools.FormalTester("Ověření funkčnosti služby FullTextSearch",
+def test(testerParam = None):
+    if testerParam == None:
+        tester = sharedtools.FormalTester("Ověření funkčnosti služby FullTextSearch")
+    else:
+        tester = testerParam
+
+    tester.newSection("Ověření funkčnosti služby FullTextSearch",
                 """Tento test ověřuje funkčnost služby FullTextSearch, která slouží k nalezení a zobrazení seznamu
                  pravděpodobných adres na základě textového řetězce adresy.
                  Textový řetězec adresy může být nestandardně formátován nebo může být i neúplný.""",
@@ -32,9 +37,11 @@ def test():
         "Václava Řacha 1352, Švermov, 273 09 Kladno\nVáclavova 1678, 272 01 Kladno\nVáclava Millera 163, Rozdělov, 272 04 Kladno")
     tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=V%20Kladno%20Kladno",
         "Václavova 1678, 272 01 Kladno\nV. Burgra 131, 272 04 Kladno\nV. Burgra 132, 272 04 Kladno")
+    tester.closeSection()
 
 
-    tester.saveToHTML("FulltextSearch.html")
+    if testerParam == None:
+        tester.saveToHTML("FulltextSearch.html")
 
 
 if __name__ == '__main__':
