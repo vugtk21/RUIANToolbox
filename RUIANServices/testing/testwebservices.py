@@ -46,7 +46,7 @@ class TestGlobalFunctions(unittest.TestCase):
         self.assertEqual(downloadURL("/Geocode/txt?Street=Hromadova&Locality=Kladno&HouseNumber=2741&ZIPCode=27201&LocalityPart=Kladno"), "1033052.61, 766195.05")
         pass
 
-    def testCompileAddress(self):
+    def old_testCompileAddress(self):
         self.assertEqual(
             downloadCompiledAddress(u"Arnošta Valenty", u"670", u"", u"31", u"19800", u"Praha", u"Černý Most", u"9"),
             u"Arnošta Valenty 670/31\nČerný Most\n198 00 Praha 9"
@@ -126,7 +126,7 @@ class TestGlobalFunctions(unittest.TestCase):
         self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=V%20Kladno%20Kladno"), "Václavova 1678, 272 01 Kladno", "V. Burgra 131, 272 04 Kladno", "V. Burgra 132, 272 04 Kladno")
         pass
 
-    def testValidate(self):
+    def old_testValidate(self):
         self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/507"), "ANO")
         self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/507?ZIPCode=27204&LocalityPart=Kladno"), "ANO")
         self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/507?ZIPCode=27206&LocalityPart=Kladno"), "NE")
