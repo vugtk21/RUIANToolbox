@@ -96,10 +96,10 @@ class FormalTester:
             self.testsHTML += "</tr>\n"
         else:
             self.testsHTML += "<tr" + oddText + ">\n"
-            self.testsHTML += "    <td>" + str(self.numTests) + "</td>"
+            self.testsHTML += '    <td>' + str(self.numTests) + "</td>"
             self.testsHTML += "    <td>" + '<input type="checkbox" value=""' + status + ' \>' + "</td>"
 
-            self.testsHTML += "    <td>" + inputs + "<br>"
+            self.testsHTML += '    <td><a href="' + SERVER_URL + inputs + '">'  + inputs + "</a><br>"
             self.testsHTML += str(result) + expectedResultMessage + "<br>"
             if errorMessage != "":
                 self.testsHTML += "    <td>" + errorMessage + "</td>"

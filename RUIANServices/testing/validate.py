@@ -6,24 +6,6 @@ import urllib2
 import urllib
 import codecs
 
-def buildParamString(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
-    url = u"/CompileAddress?"
-    params = {
-        "Street"            : street,
-        "HouseNumber"       : houseNumber,
-        "RecordNumber"      : recordNumber,
-        "OrientationNumber" : orientationNumber,
-        "ZipCode"           : zipCode,
-        "Locality"          : locality,
-        "LocalityPart"      : localityPart,
-        "DistrictNumber"    : districtNumber
-    }
-
-    for key in params:
-        url += key + "=" + urllib.quote(codecs.encode(params[key], "utf-8")) + "&"
-
-    return url
-
 def test():
     tester = sharedtools.FormalTester("Ověření funkčnosti služby Validate",
                 """Tento test ověřuje funkčnost služby Validate, která slouží k ověření zadané adresy.

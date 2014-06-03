@@ -133,12 +133,12 @@ class TestGlobalFunctions(unittest.TestCase):
         self.assertEqual(downloadURL("/Validate/txt/Severní/Kladno/120"), "NE")
         pass
 
-    def testValidateAddressId(self):
+    def old_testValidateAddressId(self):
         self.assertEqual(downloadURL("/ValidateAddressId/txt/1408739"), "ANO")
         self.assertEqual(downloadURL("/ValidateAddressId/txt/18480"), "NE")
         pass
 
-    def testNearByAddresses(self):
+    def old_testNearByAddresses(self):
         self.assertEqual(downloadURL("/NearbyAddresses/txt/1033000/766500/1000"), "Mládežnická 841, 272 04 Kladno", "Mládežnická 842, 272 04 Kladno")
         pass
 
