@@ -113,7 +113,7 @@ class TestGlobalFunctions(unittest.TestCase):
         )
         pass
 
-    def testFullTextSearch(self):
+    def old_testFullTextSearch(self):
         self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severn%C3%AD%20Kladno"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
         self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Severni%20Kladno"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
         self.assertEqual(downloadURL("/FullTextSearch/txt/?SearchText=Sev.%20Kladno"), "Severní 507, 272 04 Kladno", "Severní 508, 272 04 Kladno", "Severní 509, 272 04 Kladno")
