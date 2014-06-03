@@ -59,7 +59,7 @@ $(function() {
 
     <script>
     $(document).ready(function() {
-      $('input:radio[name=InputMode]').change(function() {
+      $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
         if (this.value == 'vstup') {
             $(this).parent().find("td input").removeAttr("disabled");
             $(this).parent().find("td input").eq(0).attr("disabled", "disabled");
@@ -68,11 +68,11 @@ $(function() {
         else if (this.value == 'id') {
             $(this).parent().find("td input").attr("disabled", "disabled");
             $(this).parent().find("td input").eq(0).removeAttr("disabled");
-            //$(this).parent().find("td input").eq(1).removeAttr("disabled");
+            $(this).parent().find("td input").eq(10).removeAttr("disabled");
         }
         else if (this.value == 'adresa') {
             $(this).parent().find("td input").attr("disabled", "disabled");
-            //$(this).parent().find("td input").eq(0).removeAttr("disabled");
+            $(this).parent().find("td input").eq(10).removeAttr("disabled");
             $(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
       });
@@ -151,7 +151,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 		else {
 			delimeter = "&";
 		}
-		if (name != "" && name != "de") {
+		if (name != "" && name != "de" && elements[i].value!="") {
 			s = s + delimeter + name + "=" + encodeURI(elements[i].value);
 		}
 	}
@@ -253,6 +253,14 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
                 tabIndex = i
 
             tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
+            if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
+                tabDivs += u"""
+                <br><br>
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="id" checked>Identifikátor RÚIAN
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="adresa">Textový řetězec adresy
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="vstup">Jednotlivé prvky adresy
+                """
+
             tabDivs += "<br><br>"
             tabDivs += "<table><tr valign=\"top\"><td>"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
@@ -272,13 +280,6 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"
-
-            if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
-                tabDivs += u"""
-                <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
-                <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
-                <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
-                """
 
             tabDivs += '<p>\n<img src="' + HTMLDATA_URL + service.pathName + '.png"></p>\n'
 

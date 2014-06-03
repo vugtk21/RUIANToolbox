@@ -14,5 +14,5 @@ else:
     PORT_NUMBER = 8080
     SERVICES_WEB_PATH = "services/"
     SERVER_PATH_DEPTH = 0
-    HTMLDATA_URL = 'http://localhost/RuianServices/'
+    HTMLDATA_URL = 'http://localhost/HTML/'
 # END OF CONFIGURATION
