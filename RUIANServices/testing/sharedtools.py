@@ -5,7 +5,7 @@ import codecs
 import urllib2
 import urllib
 
-SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py"
+SERVER_URL = "http://localhost:8080/services/"
 
 HTML_PREFIX = u"""
 <html>
@@ -59,6 +59,12 @@ RESULTS_TABLE_HEADER = u"""
     </tr>
 """
 
+def makeDelimetersVisible(result):
+      result = result.replace("\t", "\\t")
+      result = result.replace("\r", "\\r")
+      result = result.replace("\n", "\\n")
+      return result
+
 class FormalTester:
     def __init__(self, pageTitle = ""):
         self.content = HTML_PREFIX
@@ -88,6 +94,7 @@ class FormalTester:
         self.testsHTML = ""
 
     def addTest(self, inputs, result, expectedResult, errorMessage = ""):
+        result = makeDelimetersVisible(result)
         self.numTests = self.numTests + 1
 
         if str(result) == expectedResult:
