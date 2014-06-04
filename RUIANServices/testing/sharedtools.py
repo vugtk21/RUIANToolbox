@@ -94,7 +94,8 @@ class FormalTester:
         self.testsHTML = ""
 
     def addTest(self, inputs, result, expectedResult, errorMessage = ""):
-        result = makeDelimetersVisible(result)
+        #result = makeDelimetersVisible(result)
+        result = unicode(result)
         self.numTests = self.numTests + 1
 
         if str(result) == expectedResult:

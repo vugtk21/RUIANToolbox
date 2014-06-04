@@ -14,7 +14,7 @@ def buildParamString(street, houseNumber, recordNumber, orientationNumber, orien
         "RecordNumber"      : recordNumber,
         "OrientationNumber" : orientationNumber,
         "OrientationNumberCharacter" : orientationNumberCharacter,
-        "ZipCode"           : zipCode,
+        "ZIPCode"           : zipCode,
         "Locality"          : locality,
         "LocalityPart"      : localityPart,
         "DistrictNumber"    : districtNumber
@@ -84,7 +84,7 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
     addTest(u"Holická", u"568", u"", u"31", u"y", u"779 00", u"Olomouc", u"Hodolany", u"", u"Holická 568/31y\nHodolany\n77900 Olomouc")
     addTest(u"Lhenická", u"1120", u"", u"", u"", u"370 05", u"České Budějovice", u"České Budějovice 2", u"", u"Lhenická 1120\nČeské Budějovice 2\n37005 České Budějovice")
     addTest(u"Lhenická", u"", u"12", u"", u"", u"37005", u"České Budějovice", u"České Budějovice 2", u"", u"Lhenická č.ev. 12\nČeské Budějovice 2\n37005 České Budějovice")
-    addTest(u"Žamberecká", u"339", u"", u"", u"", u"51601", u"Vamberk", u"Vamberk", u"", u"Žamberecká 339\n51601 Vamberk\n")
+    addTest(u"Žamberecká", u"339", u"", u"", u"", u"51601", u"Vamberk", u"Vamberk", u"", u"Žamberecká 339\n51601 Vamberk")
     addTest(u"Žamberecká", u"339", u"", u"1", u"", u"51601", u"Vamberk", u"Vamberk", u"", u"Žamberecká 339/1\n51601 Vamberk")
     addTest(u"Lidická", u"2858", u"", u"49", u"F", u"78701", u"Šumperk", u"Šumperk", u"", u"Lidická 2858/49F\n78701 Šumperk")
     addTest(u"Žamberecká", u"", u"21", u"", u"", u"51601", u"Vamberk", u"Vamberk", u"", u"Žamberecká č.ev. 21\n51601 Vamberk")
