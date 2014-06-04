@@ -10,7 +10,7 @@ if False:
     SERVER_PATH_DEPTH = 0
     HTMLDATA_URL = '/euradin/_euradin_services/'
 else:
-    SERVER_HTTP = '192.168.1.130'
+    SERVER_HTTP = 'localhost'
     PORT_NUMBER = 8080
     SERVICES_WEB_PATH = "services/"
     SERVER_PATH_DEPTH = 0
