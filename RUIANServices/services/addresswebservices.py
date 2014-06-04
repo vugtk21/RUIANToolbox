@@ -131,19 +131,22 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 	}
 	else {
 		if (needToOpenQuery) {
-			delimeter = "?";
+			delimeter = "";
+			s = s + "?"
 			needToOpenQuery = false;
 		}
 		else {
 			delimeter = "&";
 		}
-		if (name != "" && name != "de" && elements[i].value!="") {
-			s = s + delimeter + name + "=" + encodeURI(elements[i].value);
+		if (name != "" && name != "de") {
+		    if (elements[i].value!="") {
+			    s = s + delimeter + name + "=" + encodeURI(elements[i].value);
+			}
 		}
 	}
 
  }
- urlSpanElem.innerHTML = servicePath + s + "\\n";
+ urlSpanElem.innerHTML = "<#SERVICES_URL>"+ servicePath + s + "\\n";
  temp = servicePath + s;
 }
     </script>
@@ -258,7 +261,7 @@ class ServicesHTMLPageBuilder:
             if service.pathName == pathInfo:
                 tabIndex = i
 
-            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
+            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + ":" + str(PORT_NUMBER) + "/" + SERVICES_WEB_PATH + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>

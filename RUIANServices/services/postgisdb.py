@@ -30,13 +30,19 @@ def noneToString(item):
     else:
         return item
 
+def numberToString(number):
+    if number is None:
+        return ""
+    else:
+        return str(number)
+
 def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
     cur.execute("SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row:
-        return Address(noneToString(row[0]),noneToString(row[1]),noneToString(row[2]),noneToString(row[3]),noneToString(row[4]),noneToString(row[5]),noneToString(row[6]),noneToString(row[7]))
+        return Address(noneToString(row[0]),numberToString(row[1]),noneToString(row[2]),numberToString(row[3]),numberToString(row[4]),noneToString(row[5]),noneToString(row[6]),noneToString(row[7]))
         #(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber)
     else:
         return None
@@ -44,7 +50,8 @@ def _findAddress(ID):
 def _getNearbyLocalities(x,y,distance):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    query = "SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(%s %s)',5514),%s);" % (str(y), str(x), str(distance),)
+    query = "SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(%s %s)',5514),%s)" % (str(y), str(x), str(distance),)
+    query += " LIMIT 25;"
     cur.execute(query)
     rows = cur.fetchall()
     addresses = []
@@ -70,15 +77,19 @@ def _validateAddress(dictionary):
 
     cursor.execute(query)
     row = cursor.fetchone()
+    if row:
+        return ["True"]
+    else:
+        return ["False"]
 
-    rows = []
-    row_count = 0
-    for row in cursor:
-        row_count += 1
-        strRow = str(row[0])
-        rows.append(str(row[0]))
+#    rows = []
+#    row_count = 0
+#    for row in cursor:
+#        row_count += 1
+#        strRow = str(row[0])
+#        rows.append(str(row[0]))
 
-    return rows
+#    return rows
 
 def _findCoordinates(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
@@ -106,6 +117,7 @@ def _findCoordinatesByAddress(dictionary):
             else:
                 query += " AND " + ITEM_TO_DBFIELDS[key] + " = '" + dictionary[key] + "'"
 
+    query += "LIMIT 25"
     cur.execute(query)
     rows = cur.fetchall()
     coordinates = []
