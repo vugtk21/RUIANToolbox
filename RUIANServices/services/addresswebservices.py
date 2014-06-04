@@ -24,22 +24,8 @@ import compileaddress
 from rest_config import *
 
 SERVICES_PATH = '' # 'services'
-class Console():
-    consoleLines = ""
-    def addMsg(self, msg):
-        msg = '<div class="ui-widget">' \
-                '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
-                '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
-                '<strong>Chyba: </strong>' + msg + '</p></div></div>'
-        self.consoleLines += msg + "\n"
 
-    def clear(self):
-        self.consoleLines = ''
-
-console = Console()
-
-class ServicesHTMLPageBuilder:
-    pageTemplate = u'''
+PAGE_TEMPLATE = u'''
 <html>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <style>
@@ -83,7 +69,7 @@ $(function() {
 
 	function displayResult(id, servicePath){
 
-        var url = "http://192.168.1.130:8080" + temp
+        var url = "<#SERVICES_URL>" + temp
 		var xmlHttp;
 		try {// Firefox, Opera 8.0+, Safari
 			xmlHttp = new XMLHttpRequest();
@@ -193,6 +179,23 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     </body>
 </html>
     '''
+
+class Console():
+    consoleLines = ""
+    def addMsg(self, msg):
+        msg = '<div class="ui-widget">' \
+                '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
+                '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
+                '<strong>Chyba: </strong>' + msg + '</p></div></div>'
+        self.consoleLines += msg + "\n"
+
+    def clear(self):
+        self.consoleLines = ''
+
+console = Console()
+
+class ServicesHTMLPageBuilder:
+
     def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
         tj. 'form_2_/AddressPlaceId' se spráně jmenuje 'AddressPlaceId'.
@@ -230,7 +233,10 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
         return result
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
-        result = self.pageTemplate.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        result = PAGE_TEMPLATE.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + ":" + str(PORT_NUMBER) + "/" + SERVICES_WEB_PATH )
+
+
         result = result.replace("#HTMLDATA_URL#", HTMLDATA_URL)
 
         queryParams = self.normalizeQueryParams(queryParams)

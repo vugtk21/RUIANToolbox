@@ -55,7 +55,7 @@ def _getNearbyLocalities(x,y,distance):
 def _validateAddress(dictionary):
     first = True
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
-    cur = con.cursor()
+    cursor = con.cursor()
 
     query = "SELECT * FROM test WHERE "
 
@@ -67,12 +67,17 @@ def _validateAddress(dictionary):
             else:
                 query += " AND " + ITEM_TO_DBFIELDS[key] + " = '" + dictionary[key] + "'"
 
-    cur.execute(query)
-    row = cur.fetchone()
-    if row:
-        return True
-    else:
-        return False
+    cursor.execute(query)
+    row = cursor.fetchone()
+
+    rows = []
+    row_count = 0
+    for row in cursor:
+        row_count += 1
+        strRow = str(row[0])
+        rows.append(str(row[0]))
+
+    return rows
 
 def _findCoordinates(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
