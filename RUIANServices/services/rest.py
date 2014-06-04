@@ -13,6 +13,13 @@ from rest_config import PORT_NUMBER
 from rest_config import SERVICES_WEB_PATH
 from rest_config import SERVER_PATH_DEPTH
 
+path = SERVICES_WEB_PATH.split("/")
+serverPathDepth = 0
+for item in path:
+    if item != "":
+        serverPathDepth = serverPathDepth + 1
+
+
 def getFileContent(fileName):
     f = open(fileName)
     s = f.read()
@@ -29,9 +36,10 @@ def ProcessRequest(page, queryParams, response):
         response.htmlData =  getFileContent(SERVICES_WEB_PATH + page) # TODO Implementovat vracení binárních souborů
         response.handled = True
     else:
-        fullPathList = page.split("/")                                # REST parametry
-        if SERVER_PATH_DEPTH != 0:
-            fullPathList = fullPathList[SERVER_PATH_DEPTH:]
+        fullPathList = page.replace("//", "/")
+        fullPathList = fullPathList.split("/")                                # REST parametry
+        if serverPathDepth != 0:
+            fullPathList = fullPathList[serverPathDepth:]
         #TODO PathInfo by mělo být až za adresou serveru - zkontolovat jak je to na Apache
         servicePathInfo = "/" + fullPathList[0]                       # první rest parametr
         pathInfos = fullPathList[1:]                                  # ostatní
@@ -84,6 +92,9 @@ class handler:
         return self.doProcessRequest(page)
 
 if __name__ == "__main__":
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     import os
     if os.environ.has_key('SERVER_SOFTWARE'):
         import cgi

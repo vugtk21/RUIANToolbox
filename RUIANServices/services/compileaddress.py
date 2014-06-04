@@ -100,7 +100,7 @@ def compileAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(resultFormat)
     response.mimeFormat = builder.getMimeFormat()
 
-    if queryParams.AddressPlaceId != "":
+    if queryParams.has_key("AddressPlaceId"):
         response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         return response
 

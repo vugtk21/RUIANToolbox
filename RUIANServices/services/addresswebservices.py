@@ -24,22 +24,8 @@ import compileaddress
 from rest_config import *
 
 SERVICES_PATH = '' # 'services'
-class Console():
-    consoleLines = ""
-    def addMsg(self, msg):
-        msg = '<div class="ui-widget">' \
-                '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
-                '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
-                '<strong>Chyba: </strong>' + msg + '</p></div></div>'
-        self.consoleLines += msg + "\n"
 
-    def clear(self):
-        self.consoleLines = ''
-
-console = Console()
-
-class ServicesHTMLPageBuilder:
-    pageTemplate = u'''
+PAGE_TEMPLATE = u'''
 <html>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <style>
@@ -59,7 +45,7 @@ $(function() {
 
     <script>
     $(document).ready(function() {
-      $('input:radio[name=InputMode]').change(function() {
+      $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
         if (this.value == 'vstup') {
             $(this).parent().find("td input").removeAttr("disabled");
             $(this).parent().find("td input").eq(0).attr("disabled", "disabled");
@@ -68,11 +54,11 @@ $(function() {
         else if (this.value == 'id') {
             $(this).parent().find("td input").attr("disabled", "disabled");
             $(this).parent().find("td input").eq(0).removeAttr("disabled");
-            //$(this).parent().find("td input").eq(1).removeAttr("disabled");
+            $(this).parent().find("td input").eq(10).removeAttr("disabled");
         }
         else if (this.value == 'adresa') {
             $(this).parent().find("td input").attr("disabled", "disabled");
-            //$(this).parent().find("td input").eq(0).removeAttr("disabled");
+            $(this).parent().find("td input").eq(10).removeAttr("disabled");
             $(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
       });
@@ -83,7 +69,7 @@ $(function() {
 
 	function displayResult(id, servicePath){
 
-        var url = "http://192.168.1.130:8080" + temp
+        var url = "<#SERVICES_URL>" + temp
 		var xmlHttp;
 		try {// Firefox, Opera 8.0+, Safari
 			xmlHttp = new XMLHttpRequest();
@@ -145,19 +131,22 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 	}
 	else {
 		if (needToOpenQuery) {
-			delimeter = "?";
+			delimeter = "";
+			s = s + "?"
 			needToOpenQuery = false;
 		}
 		else {
 			delimeter = "&";
 		}
 		if (name != "" && name != "de") {
-			s = s + delimeter + name + "=" + encodeURI(elements[i].value);
+		    if (elements[i].value!="") {
+			    s = s + delimeter + name + "=" + encodeURI(elements[i].value);
+			}
 		}
 	}
 
  }
- urlSpanElem.innerHTML = servicePath + s + "\\n";
+ urlSpanElem.innerHTML = "<#SERVICES_URL>"+ servicePath + s + "\\n";
  temp = servicePath + s;
 }
     </script>
@@ -193,6 +182,23 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     </body>
 </html>
     '''
+
+class Console():
+    consoleLines = ""
+    def addMsg(self, msg):
+        msg = '<div class="ui-widget">' \
+                '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
+                '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
+                '<strong>Chyba: </strong>' + msg + '</p></div></div>'
+        self.consoleLines += msg + "\n"
+
+    def clear(self):
+        self.consoleLines = ''
+
+console = Console()
+
+class ServicesHTMLPageBuilder:
+
     def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
         tj. 'form_2_/AddressPlaceId' se spráně jmenuje 'AddressPlaceId'.
@@ -230,7 +236,10 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
         return result
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
-        result = self.pageTemplate.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        result = PAGE_TEMPLATE.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + ":" + str(PORT_NUMBER) + "/" + SERVICES_WEB_PATH )
+
+
         result = result.replace("#HTMLDATA_URL#", HTMLDATA_URL)
 
         queryParams = self.normalizeQueryParams(queryParams)
@@ -252,7 +261,15 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             if service.pathName == pathInfo:
                 tabIndex = i
 
-            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + service.getServicePath() + "</span>\n"
+            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + ":" + str(PORT_NUMBER) + "/" + SERVICES_WEB_PATH + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
+            if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
+                tabDivs += u"""
+                <br><br>
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="id" checked>Identifikátor RÚIAN
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="adresa">Textový řetězec adresy
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="vstup">Jednotlivé prvky adresy
+                """
+
             tabDivs += "<br><br>"
             tabDivs += "<table><tr valign=\"top\"><td>"
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
@@ -272,13 +289,6 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"
-
-            if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
-                tabDivs += u"""
-                <input type="radio" name="InputMode" value="id">Identifikátor RÚIAN
-                <input type="radio" name="InputMode" value="adresa">Textový řetězec adresy
-                <input type="radio" name="InputMode" value="vstup">Jednotlivé prvky adresy
-                """
 
             tabDivs += '<p>\n<img src="' + HTMLDATA_URL + service.pathName + '.png"></p>\n'
 

@@ -101,7 +101,7 @@ class MimeBuilder:
             #if type(value) == dict:
             #    value = "<div>" + self.dictToText(value, lineSeparator) + "</div>"
             result += line + lineSeparator
-        return result
+        return result[:-1]
 
     def listToHTML(self, listOfLines, lineSeparator = "<br>"):
         result = ""
@@ -149,7 +149,7 @@ class MimeBuilder:
         result += lineSeparator + "}"
         return result
 
-    def coordinatesToText(self, listOfCoordinates, lineSeparator = "\n"):
+    def coordinatesToText(self, listOfCoordinates, lineSeparator = " "):
         result = ""
         for line in listOfCoordinates:
             result += line.JTSKY + ", " + line.JTSKX + lineSeparator

@@ -44,7 +44,7 @@ def geocodeAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(resultFormat)
     response.mimeFormat = builder.getMimeFormat()
 
-    if queryParams.AddressPlaceId != "":
+    if queryParams.has_key("AddressPlaceId"):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         s = geocodeID(builder, queryParams.AddressPlaceId)
         response.htmlData = s

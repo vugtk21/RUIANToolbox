@@ -25,8 +25,8 @@ def validateAddress(builder, street, houseNumber, recordNumber, orientationNumbe
     "localityPart": localityPart,
     "districtNumber": districtNumber
 }
-    isValidAddress = RUIANConnection.validateAddress(dict)
-    return builder.listToResponseText([str(isValidAddress)])
+    result = RUIANConnection.validateAddress(dict)
+    return builder.listToResponseText(result)
 
 def validateAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
