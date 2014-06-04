@@ -49,6 +49,19 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
         #expectedValue = expectedValue.decode("utf-8")
         tester.addTest(params, result, expectedValue, "")
 
+        
+    def addTestByID(path, expectedValue):
+        try:
+            result = urllib2.urlopen(sharedtools.SERVER_URL).read()
+        except Exception as inst:
+            result = str(inst)
+        #result = result.strip()
+        result = urllib.quote(codecs.encode(result, "utf-8"))
+        tester.addTest(path, result, expectedValue, "")
+
+    addTestByID("/CompileAddress?/txt/1408739", "True")
+    addTestByID("/CompileAddress/txt/18480", "False")
+        
     addTest(u"Arnošta Valenty", u"670", u"", u"31", u"19800", u"Praha", u"Černý Most", u"9", u"Arnošta Valenty 670/31\nČerný Most\n198 00 Praha 9")
     addTest(u"Arnošta Valenty", u"670", u"", u"", u"198 00", u"Praha", u"Černý Most", u"9", u'Arnošta Valenty 670\nČerný Most\n198 00 Praha 9')
     addTest(u"Medová", u"", u"30", u"", u"10400", u"Praha", u"Křeslice",  u"10", u'Medová č. ev. 30\nKřeslice\n104 00 Praha 10')
