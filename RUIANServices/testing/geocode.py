@@ -25,7 +25,7 @@ def test(testerParam = None):
     tester.loadAndAddTest("/Geocode/txt?", "SearchText=Hromadova%202741%20Kladno", "1033052.61, 766195.05")
     tester.loadAndAddTest("/Geocode/txt?", "SearchText=Pra%C5%BEsk%C3%A1%20848%20Rokycany", "1072374.74, 805063.63")
     tester.loadAndAddTest("/Geocode/txt?", "SearchText=M%C3%A1chova%2030/13%20Vejprty", "982913.93, 833696.81")
-    tester.loadAndAddTest("/Geocode/txt?", "SearchText=SearchText=Blahoslavova%201710%20Louny", "1007250.67, 781971.94")
+    tester.loadAndAddTest("/Geocode/txt?", "SearchText=Blahoslavova%201710%20Louny", "1007250.67, 781971.94")
     
     tester.loadAndAddTest("/Geocode/txt?", "Street=Hromadova&Locality=Kladno&HouseNumber=2741&ZIPCode=27201&LocalityPart=Kladno", "1033052.61, 766195.05")
     tester.loadAndAddTest("/Geocode/txt?", "Street=Mari%C3%A1nsk%C3%A1&Locality=Su%C5%A1ice&HouseNumber=67&ZIPCode=34201&LocalityPart=Su%C5%A1ice%20III", "1128217.51, 820609.28")
