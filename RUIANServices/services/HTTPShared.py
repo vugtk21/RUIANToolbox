@@ -156,7 +156,7 @@ class MimeBuilder:
     def coordinatesToText(self, listOfCoordinates, lineSeparator = "\n"):
         result = ""
         for line in listOfCoordinates:
-            result += line.JTSKX + ", " + line.JTSKY + lineSeparator
+            result += line.JTSKX + "," + line.JTSKY + lineSeparator
         return result[:-1]
 
     def coordintesToResponseText(self, listOfCoordinates):

@@ -97,7 +97,7 @@ def _findCoordinates(ID):
     cur.execute("SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row:
-        c = Coordinates(str(row[0]), str(row[1]))
+        c = Coordinates(str("{:10.2f}".format(row[0])), str("{:10.2f}".format(row[1])))
         return [c]
     else:
         return []
@@ -123,5 +123,5 @@ def _findCoordinatesByAddress(dictionary):
     coordinates = []
 
     for row in rows:
-        coordinates.append(Coordinates(str(row[0]),str(row[1])))
+        coordinates.append(Coordinates(str("{:10.2f}".format(row[0])),str("{:10.2f}".format(row[1]))))
     return coordinates
