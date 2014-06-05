@@ -18,15 +18,15 @@ def test(testerParam = None):
 
     def addTest(path, expectedValue):
         try:
-            result = urllib2.urlopen(sharedtools.SERVER_URL).read()
+            result = urllib2.urlopen(sharedtools.SERVER_URL + path).read()
         except Exception as inst:
             result = str(inst)
         #result = result.strip()
         result = urllib.quote(codecs.encode(result, "utf-8"))
         tester.addTest(path, result, expectedValue, "")
 
-    addTest("/ValidateAddressId/txt/1408739", "True")
-    addTest("/ValidateAddressId/txt/18480", "False")
+    addTest("/ValidateAddressId/txt?AddressPlaceId=1408739", "True")
+    addTest("/ValidateAddressId/txt?AddressPlaceId=18480", "False")
     tester.closeSection()
 
     if testerParam == None:

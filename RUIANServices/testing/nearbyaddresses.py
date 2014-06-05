@@ -18,7 +18,7 @@ zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN 
 
     def addTest(path, expectedValue):
         try:
-            result = urllib2.urlopen(sharedtools.SERVER_URL).read()
+            result = urllib2.urlopen(sharedtools.SERVER_URL + path).read()
         except Exception as inst:
             result = str(inst)
         #result = result.strip()

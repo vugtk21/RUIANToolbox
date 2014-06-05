@@ -149,11 +149,11 @@ class MimeBuilder:
         result += lineSeparator + "}"
         return result
 
-    def coordinatesToText(self, listOfCoordinates, lineSeparator = " "):
+    def coordinatesToText(self, listOfCoordinates, lineSeparator = "\n"):
         result = ""
         for line in listOfCoordinates:
-            result += line.JTSKY + ", " + line.JTSKX + lineSeparator
-        return result
+            result += line.JTSKX + ", " + line.JTSKY + lineSeparator
+        return result[:-1]
 
     def coordintesToResponseText(self, ListOfCoordinates):
         if self.formatText == "xml":

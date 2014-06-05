@@ -52,11 +52,11 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
 
     def addTestByID(path, expectedValue):
         try:
-            result = urllib2.urlopen(sharedtools.SERVER_URL).read()
+            result = urllib2.urlopen(sharedtools.SERVER_URL + path).read()
         except Exception as inst:
             result = str(inst)
         #result = result.strip()
-        result = urllib.quote(codecs.encode(result, "utf-8"))
+        #result = urllib.quote(codecs.encode(result, "utf-8"))
         tester.addTest(path, result, expectedValue, "")
 
     def addTestFullText(testerParam = None):
@@ -72,9 +72,9 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
     tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Kladruby", "č.ev. 11, 258 01 Kladruby\nč.p. 95, 258 01 Kladruby")
         
 
-    addTestByID("/CompileAddress/text?AddressPlaceId=21907145", u"Na lánech 598/13\nMichle\n141 00 Praha 4")
-    addTestByID("/CompileAddress/text?AddressPlaceId=25021478", u"Lesní 345/5\n353 01 Mariánské Lázně")
-    addTestByID("/CompileAddress/text?AddressPlaceId=16512171", u"Pašinovice 8\n374 01 Komařice")
+    addTestByID("/CompileAddress/text?AddressPlaceId=21907145", u"Na lánech 598/13\nMichle\n14100 Praha 4")
+    addTestByID("/CompileAddress/text?AddressPlaceId=25021478", u"Lesní 345/5\n35301 Mariánské Lázně")
+    addTestByID("/CompileAddress/text?AddressPlaceId=16512171", u"Pašinovice 8\n37401 Komařice")
 
     addTest(u"Arnošta Valenty", u"670", u"", u"31", u"", u"19800", u"Praha", u"Černý Most", u"9", u"Arnošta Valenty 670/31\nČerný Most\n19800 Praha 9")
     addTest(u"Arnošta Valenty", u"670", u"", u"", u"", u"198 00", u"Praha", u"Černý Most", u"9", u"Arnošta Valenty 670\nČerný Most\n19800 Praha 9")

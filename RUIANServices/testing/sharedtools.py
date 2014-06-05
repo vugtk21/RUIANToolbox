@@ -148,7 +148,7 @@ class FormalTester:
             result = urllib2.urlopen(SERVER_URL + params).read()
         except Exception as inst:
             result = str(inst)
-        result = urllib.quote(codecs.encode(result, "utf-8"))
+        #result = urllib.quote(codecs.encode(result, "utf-8"))
         params = params.decode("utf-8")
         self.addTest(params, result, expectedValue, "")
 
