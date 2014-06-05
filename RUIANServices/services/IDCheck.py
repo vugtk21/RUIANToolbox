@@ -16,5 +16,10 @@ def IDCheckServiceHandler(queryParams, response, builder):
     else:
         response.handled = False
         return response
-    response.htmlData = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.zipCode, address.locality, address.localityPart, address.districtNumber)
+    if address.districtNumber != "":
+        district = address.districtNumber.split(" ")
+        districtNumber = district[1]
+    else:
+        districtNumber = ""
+    response.htmlData = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.zipCode, address.locality, address.localityPart, districtNumber)
     return response
