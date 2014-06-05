@@ -107,6 +107,7 @@ class RUIANDownloader:
         self.downloadInfos = []
         self.downloadInfo = None
         self._fullDownload = True
+        self.pageURL = config.downloadURL
         pass
 
     def getTargetDir(self):
@@ -129,7 +130,7 @@ class RUIANDownloader:
         return self.getList(self.pageURL)
 
     def getList(self, url):
-        logger.debug("RUIANDownloader.getList")
+        logger.info("Downloading list of files from " + url)
         html = urllib2.urlopen(url).read()
         result = []
 

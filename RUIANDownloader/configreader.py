@@ -30,12 +30,14 @@ class Config:
     TRUE_ID = "true"
     RUNIMPORTER_ID = "runimporter"
     AUTOMATIC_DOWNLOAD_ID = "automaticdownloadtime"
+    DOWNLOAD_URL_ID = "downloadurl"
 
     dataDir = ""
     uncompressDownloadedFiles = True
     downloadFullDatabase = True
     runImporter = False
-    automatiDownloadTime = ""
+    automaticDownloadTime = ""
+    downloadURL = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
 
     def __init__(self, configFileName):
         self._configFileName = configFileName
@@ -48,12 +50,13 @@ class Config:
             if line.find("#") >= 0:
                     line = line[:line.find("#") - 1]
             line = strTo127(line.strip())
-            lineParts = line.split("=")
-            name = lineParts[0].lower()
-            if len(lineParts) > 1:
-                value = lineParts[1]
+            valuePos = line.find("=")
+            if valuePos < 0:
+                continue
             else:
                 value = ""
+                name = line[:valuePos].lower()
+                value = line[valuePos+1:]
 
             if name == self.DATADIR_ID:
                 self.dataDir = pathWithLastSlash(value)
@@ -64,7 +67,9 @@ class Config:
             elif name == self.RUNIMPORTER_ID:
                 self.runimporter = value == self.TRUE_ID
             elif name == self.AUTOMATIC_DOWNLOAD_ID:
-                self.automatiDownloadTime = value
+                self.automaticDownloadTime = value
+            elif name == self.DOWNLOAD_URL_ID:
+                self.downloadURL = value
 
         infoFile.load(self.dataDir + "Info.txt")
 
