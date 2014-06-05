@@ -220,8 +220,10 @@ class ServicesHTMLPageBuilder:
         if param.name == '/Format':
             result += '<select input name="' + formName + '_' + param.name + 'title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
+                            '<option value="textToOneRow">text do řádku</option>' + \
                             '<option value="xml">xml</option>' + \
                             '<option value="html">html</option>' + \
+                            '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
                     '</select>'
             #result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \

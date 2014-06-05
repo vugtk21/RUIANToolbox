@@ -50,7 +50,7 @@ class RestParam(URLParam):
 
 def getMimeFormat(self, formatText):
     a = self[formatText].lower()
-    if a in ["html"]:
+    if a in ["html", "htmltoonerow"]:
         return "text/" + self[formatText].lower()
     elif a in ["xml", "json"]:
         return "application/" + self[formatText].lower()
@@ -66,8 +66,8 @@ class MimeBuilder:
     def getMimeFormat(self):
         if self.formatText in ["xml", "json"]:
             return "application/" + self.formatText
-        elif self.formatText == "html":
-            return "text/" + self.formatText
+        elif self.formatText in ["html", "htmltoonerow"]:
+            return "text/html"
         else: # Default value text
             return "text/plain"
 
@@ -116,8 +116,12 @@ class MimeBuilder:
             return self.listToXML(ListOfLines)
         elif self.formatText == "html":
             return self.listToHTML(ListOfLines)
+        elif self.formatText == "htmltoonerow":
+            return self.listToHTML(ListOfLines, " ")
         elif self.formatText == "json":
             return self.listToJSON(ListOfLines)
+        elif self.formatText == "texttoonerow":
+            return self.listToText(ListOfLines, " ")
         else: # default value text
             return self.listToText(ListOfLines)
 
@@ -155,15 +159,19 @@ class MimeBuilder:
             result += line.JTSKX + ", " + line.JTSKY + lineSeparator
         return result[:-1]
 
-    def coordintesToResponseText(self, ListOfCoordinates):
+    def coordintesToResponseText(self, listOfCoordinates):
         if self.formatText == "xml":
-            return self.coordinatesToXML(ListOfCoordinates)
+            return self.coordinatesToXML(listOfCoordinates)
         elif self.formatText == "html":
-            return self.coordinatesToHTML(ListOfCoordinates)
+            return self.coordinatesToHTML(listOfCoordinates)
+        elif self.formatText == "htmltoonerow":
+            return self.coordinatesToHTML(listOfCoordinates, "; ")
         elif self.formatText == "json":
-            return self.coordinatesToJSON(ListOfCoordinates)
+            return self.coordinatesToJSON(listOfCoordinates)
+        elif self.formatText == "texttoonerow":
+            return self.coordinatesToText(listOfCoordinates, "; ")
         else: # default value text
-            return self.coordinatesToText(ListOfCoordinates)
+            return self.coordinatesToText(listOfCoordinates)
 
 
 class WebService:
