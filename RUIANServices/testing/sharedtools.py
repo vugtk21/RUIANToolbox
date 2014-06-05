@@ -138,10 +138,10 @@ class FormalTester:
     def loadAndAddTest(self, path, params, expectedValue):
         paramsList = params.split("&")
         query = []
-        for param in paramsList:
-            v = param.split("=")
-            query.append(v[0] + "=" + urllib.quote(codecs.encode(v[1], "utf-8")))
-        params = "&".join(query)
+        #for param in paramsList:
+            #v = param.split("=")
+            #query.append(v[0] + "=" + urllib.quote(codecs.encode(v[1], "utf-8")))
+        #params = "&".join(query)
 
         params = path + params
         try:

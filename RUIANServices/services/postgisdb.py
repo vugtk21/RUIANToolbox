@@ -14,8 +14,8 @@ ITEM_TO_DBFIELDS = {
     "id": "gid",
     "street": "nazev_ulice",
     "houseNumber": "cislo_domovni",
-    "recordNumber": "nazev_momc",
-    "orientationNumber": "cisloOrientacni",
+    "recordNumber": "cislo_domovni",
+    "orientationNumber": "cislo_orientacni",
     "zipCode": "psc",
     "locality": "nazev_obce",
     "localityPart": "nazev_casti_obce",
@@ -123,5 +123,8 @@ def _findCoordinatesByAddress(dictionary):
     coordinates = []
 
     for row in rows:
-        coordinates.append(Coordinates(str("{:10.2f}".format(row[0])),str("{:10.2f}".format(row[1]))))
+        if (row[0] is not None) and (row[1] is not None):
+            coordinates.append(Coordinates(str("{:10.2f}".format(row[0])),str("{:10.2f}".format(row[1]))))
+        else:
+            pass    #co se ma stat kdyz adresa nema souradnice?
     return coordinates
