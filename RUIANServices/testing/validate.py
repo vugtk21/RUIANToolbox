@@ -39,6 +39,12 @@ def test(testerParam = None):
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507&ZIPCode=27204&LocalityPart=Kladno", "True")
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507&ZIPCode=27206&LocalityPart=Kladno", "False")
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=120", "False")
+    addTest("/Validate/txt?", "Street=%C5%BDi%C5%BEkova&Locality=Jirkov&ZIPCode=43111&LocalityPart=Jirkov&RecordNumber=263", "True")
+    addTest("/Validate/txt?", "Street=Rodinn%C3%A1&Locality=Hav%C3%AD%C5%99ov&HouseNumber=1003&ZIPCode=73601&LocalityPart=Bludovice&OrientationNumber=25", "True")
+    addTest("/Validate/txt?", "Street=U%20Jesl%C3%AD&Locality=Broumov&HouseNumber=222&ZIPCode=55001&LocalityPart=Nov%C3%A9%20M%C4%9Bsto", "True")
+    addTest("/Validate/txt?", "Street=%C5%BDi%C5%BEkova&Locality=Jirkov&ZIPCode=43111&LocalityPart=Jirkov&RecordNumber=273", "False")
+    addTest("/Validate/txt?", "Street=Rodinn%C3%A1&Locality=Hav%C3%AD%C5%99ov&HouseNumber=1027&ZIPCode=73601&LocalityPart=Bludovice", "False")
+    addTest("/Validate/txt?", "Street=U%20Jesl%C3%AD&Locality=Broumov&HouseNumber=226&ZIPCode=55001&LocalityPart=Nov%C3%A9%20M%C4%9Bsto", "False")
 
     tester.closeSection()
 
