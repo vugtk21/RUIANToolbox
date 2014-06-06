@@ -22,7 +22,7 @@ def FormatAddress(address):
     if address.houseNumber != "":
         houseNumberStr += address.houseNumber
         if address.orientationNumber != "":
-            houseNumberStr += "/"+address.orientationNumber
+            houseNumberStr += "/"+address.orientationNumber+address.orientationNumberCharacter
     elif address.recordNumber != "":
         houseNumberStr = u"č. ev. " + address.recordNumber
 

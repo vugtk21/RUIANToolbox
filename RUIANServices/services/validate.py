@@ -14,12 +14,13 @@ __author__ = 'Radek Augustýn'
 from HTTPShared import *
 import RUIANConnection
 
-def validateAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+def validateAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     dict = {
     "street": street,
     "houseNumber": houseNumber,
     "recordNumber": recordNumber,
     "orientationNumber": orientationNumber,
+    "orientationNumberCharacter": orientationNumberCharacter,
     "zipCode": zipCode,
     "locality": locality,
     "localityPart": localityPart,
@@ -38,6 +39,7 @@ def validateAddressServiceHandler(queryParams, response):
         p(queryParams, "HouseNumber"),
         p(queryParams, "RecordNumber"),
         p(queryParams, "OrientationNumber"),
+        p(queryParams, "OrientationNumberCharacter"),
         p(queryParams, "ZIPCode"),
         p(queryParams, "Locality"),
         p(queryParams, "LocalityPart"),
@@ -62,6 +64,7 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
+                URLParam("OrientationNumberCharacter", u"Písmeno čísla orientačního", ""),
                 URLParam("RecordNumber", u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
                 URLParam("DistrictNumber", u"Číslo městského obvodu", u"Číslo městského obvodu, pokud existuje")
             ],

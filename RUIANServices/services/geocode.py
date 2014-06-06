@@ -18,12 +18,13 @@ def geocodeID(builder, AddressID):
     coordinates = RUIANConnection.findCoordinates(AddressID)
     return builder.coordintesToResponseText(coordinates)
 
-def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     dict = {
         "street": street,
         "houseNumber": houseNumber,
         "recordNumber": recordNumber,
         "orientationNumber": orientationNumber,
+        "orientationNumberCharacter": orientationNumberCharacter,
         "zipCode": zipCode,
         "locality": locality,
         "localityPart": localityPart,
@@ -56,6 +57,7 @@ def geocodeAddressServiceHandler(queryParams, response):
             p("HouseNumber"),
             p("RecordNumber"),
             p("OrientationNumber"),
+            p("OrientationNumberCharacter"),
             p("ZIPCode"),
             p("Locality"),
             p("LocalityPart"),
@@ -82,6 +84,7 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
+                URLParam("OrientationNumberCharacter", u"Písmeno čísla orientačního", ""),
                 URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
                 URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
             ],
