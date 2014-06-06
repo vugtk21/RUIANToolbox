@@ -31,7 +31,7 @@ def formatZIPCode(code):
     #code = code[:3] + " " + code[3:]
     return code
 
-def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     """
         @param street            string  Název ulice
         @param locality          string  Obec
@@ -39,6 +39,7 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
         @param zipCode           number  Poštovní směrovací číslo
         @param localityPart      string  Část obce, pokud je známa
         @param orientationNumber number  Číslo orientační
+        @param orientationNumberCharacter string  Písmeno čísla orientačního
     """
     lines = []
     zipCode = formatZIPCode(zipCode)
@@ -49,7 +50,7 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
     if houseNumber != "":
         houseNumberStr = " " + houseNumber
         if orientationNumber != "":
-            houseNumberStr += u"/" + orientationNumber
+            houseNumberStr += u"/" + orientationNumber + orientationNumberCharacter
     elif recordNumber != "":
         houseNumberStr = u" č.ev. " + recordNumber
     else:
@@ -110,6 +111,7 @@ def compileAddressServiceHandler(queryParams, response):
         p("HouseNumber"),
         p("RecordNumber"),
         p("OrientationNumber"),
+        p("OrientationNumberCharacter"),
         p("ZIPCode"),
         p("Locality"),
         p("LocalityPart"),
@@ -138,6 +140,7 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
+                URLParam("OrientationNumberCharacter", u"Písmeno čísla orientačního", ""),
                 URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
                 URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
             ],

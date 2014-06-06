@@ -6,11 +6,12 @@ class Coordinates:
         self.JTSKY = JTSKY
 
 class Address:
-    def __init__(self,street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber):
+    def __init__(self,street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
         self.street = street
         self.houseNumber = houseNumber
         self.recordNumber = recordNumber
         self.orientationNumber = orientationNumber
+        self.orientationNumberCharacter = orientationNumberCharacter
         self.zipCode = zipCode
         self.locality = locality
         self.localityPart = localityPart

@@ -21,5 +21,5 @@ def IDCheckServiceHandler(queryParams, response, builder):
         districtNumber = district[1]
     else:
         districtNumber = ""
-    response.htmlData = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.zipCode, address.locality, address.localityPart, districtNumber)
+    response.htmlData = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, districtNumber)
     return response

@@ -16,6 +16,7 @@ ITEM_TO_DBFIELDS = {
     "houseNumber": "cislo_domovni",
     "recordNumber": "cislo_domovni",
     "orientationNumber": "cislo_orientacni",
+    "orientationNumberCharacter": "znak_cisla_orientacniho",
     "zipCode": "psc",
     "locality": "nazev_obce",
     "localityPart": "nazev_casti_obce",
@@ -39,11 +40,11 @@ def numberToString(number):
 def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    cur.execute("SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
+    cur.execute("SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row:
-        return Address(noneToString(row[0]),numberToString(row[1]),noneToString(row[2]),numberToString(row[3]),numberToString(row[4]),noneToString(row[5]),noneToString(row[6]),noneToString(row[7]))
-        #(street, houseNumber, recordNumber, orientationNumber, zipCode, locality, localityPart, districtNumber)
+        return Address(noneToString(row[0]),numberToString(row[1]),noneToString(row[2]),numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),noneToString(row[8]))
+        #(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
     else:
         return None
 
