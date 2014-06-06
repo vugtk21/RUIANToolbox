@@ -97,7 +97,7 @@ def _findCoordinates(ID):
     cur.execute("SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row:
-        c = Coordinates(str("{:10.2f}".format(row[0])), str("{:10.2f}".format(row[1])))
+        c = Coordinates(str("{:10.2f}".format(row[0])).strip(), str("{:10.2f}".format(row[1])).strip())
         return [c]
     else:
         return []
@@ -124,7 +124,7 @@ def _findCoordinatesByAddress(dictionary):
 
     for row in rows:
         if (row[0] is not None) and (row[1] is not None):
-            coordinates.append(Coordinates(str("{:10.2f}".format(row[0])),str("{:10.2f}".format(row[1]))))
+            coordinates.append(Coordinates(str("{:10.2f}".format(row[0])).strip(),str("{:10.2f}".format(row[1])).strip()))
         else:
             pass    #co se ma stat kdyz adresa nema souradnice?
     return coordinates

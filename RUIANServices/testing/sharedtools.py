@@ -149,6 +149,7 @@ class FormalTester:
         except Exception as inst:
             result = str(inst)
         #result = urllib.quote(codecs.encode(result, "utf-8"))
+        result = makeDelimetersVisible(result)
         params = params.decode("utf-8")
         self.addTest(params, result, expectedValue, "")
 
