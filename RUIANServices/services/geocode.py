@@ -49,7 +49,10 @@ def geocodeAddressServiceHandler(queryParams, response):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         s = geocodeID(builder, queryParams.AddressPlaceId)
         response.htmlData = s
-
+    elif queryParams.has_key("SearchText"):
+        response.handled = True
+        response.htmlData = builder.listToResponseText([u"neimplementováno"])
+        return response
     else:
         s = geocodeAddress(
             builder,
