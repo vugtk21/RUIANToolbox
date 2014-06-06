@@ -70,3 +70,5 @@ LEFT OUTER JOIN ui_mop on (ui_momc.mop_kod=ui_mop.kod)
 
 ALTER TABLE address_points
 ADD PRIMARY KEY (gid)
+
+select UpdateGeometrySRID('public', 'address_points', 'the_geom', 5514) ;
