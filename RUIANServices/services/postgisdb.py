@@ -40,10 +40,18 @@ def numberToString(number):
 def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    cur.execute("SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
+    cur.execute("SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row:
-        return Address(noneToString(row[0]),numberToString(row[1]),noneToString(row[2]),numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),noneToString(row[8]))
+        if row[2][-3:] == ".p.":
+            houseNumber = numberToString(row[1])
+            recordNumber = ""
+        elif row[2][-3:] == "ev.":
+            houseNumber = ""
+            recordNumber = numberToString(row[1])
+        else:
+            return None
+        return Address(noneToString(row[0]),houseNumber,recordNumber,numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),noneToString(row[8]))
         #(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
     else:
         return None
@@ -51,13 +59,21 @@ def _findAddress(ID):
 def _getNearbyLocalities(x,y,distance):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    query = "SELECT nazev_ulice, cislo_domovni, nazev_momc, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(%s %s)',5514),%s)" % (str(y), str(x), str(distance),)
+    query = "SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(%s %s)',5514),%s)" % (str(y), str(x), str(distance),)
     query += " LIMIT 25;"
     cur.execute(query)
     rows = cur.fetchall()
     addresses = []
     for row in rows:
-        adr = Address((noneToString(row[0]).decode("utf-8")),(noneToString(row[1]).decode("utf-8")),(noneToString(row[2]).decode("utf-8")),(noneToString(row[3]).decode("utf-8")),(noneToString(row[4]).decode("utf-8")),(noneToString(row[5]).decode("utf-8")),(noneToString(row[6]).decode("utf-8")),(noneToString(row[7]).decode("utf-8")),(noneToString(row[8]).decode("utf-8")))
+        if row[2][-3:] == ".p.":
+            houseNumber = numberToString(row[1])
+            recordNumber = ""
+        elif row[2][-3:] == "ev.":
+            houseNumber = ""
+            recordNumber = numberToString(row[1])
+        else:
+            continue
+        adr = Address((noneToString(row[0]).decode("utf-8")),houseNumber,recordNumber,(noneToString(row[3]).decode("utf-8")),(noneToString(row[4]).decode("utf-8")),(noneToString(row[5]).decode("utf-8")),(noneToString(row[6]).decode("utf-8")),(noneToString(row[7]).decode("utf-8")),(noneToString(row[8]).decode("utf-8")))
         addresses.append(adr)
     return addresses
 
