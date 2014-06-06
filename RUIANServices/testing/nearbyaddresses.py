@@ -22,14 +22,14 @@ zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN 
         except Exception as inst:
             result = str(inst)
         #result = result.strip()
-        result = urllib.quote(codecs.encode(result, "utf-8"))
+        #result = urllib.quote(codecs.encode(result, "utf-8"))
         tester.addTest(path, result, expectedValue, "")
 
-    addTest("/NearbyAddresses/txt/1030730/655130/100", "č.p. 22, 50315 Pšánky")
+    addTest("/NearbyAddresses/txt/1030730/655130/150", "č.p. 22, 50315 Pšánky")
     addTest("/NearbyAddresses/txt/1025770/625350/200", "č.p. 54, 55203 Říkov")
     
-    addTest("/NearbyAddresses/txt/1026662/560670/300", "Kamenička 22, 79069 Bílá Voda\nKamenička č.ev. 31, 79069 Bílá Voda\nKamenička 29, 79069 Bílá Voda")
-    addTest("/NearbyAddresses/txt/1066880/697180/500", "Červený Hrádek 44, 28504 Bečváry\nČervený Hrádek 111, 28504 Bečváry")
+    addTest("/NearbyAddresses/txt/1026662/560670/80", "Kamenička č. ev. 31, 79069 Bílá Voda")
+    addTest("/NearbyAddresses/txt/1066880/697180/120", "Červený Hrádek 44, 28504 Bečváry")
     
     tester.closeSection()
 
