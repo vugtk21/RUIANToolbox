@@ -96,6 +96,7 @@ if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
     import os
+    serverPathDepth = 0
     if os.environ.has_key('SERVER_SOFTWARE'):
         import cgi
         import cgitb

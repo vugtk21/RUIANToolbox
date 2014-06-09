@@ -5,7 +5,7 @@ import codecs
 import urllib2
 import urllib
 
-SERVER_URL = "http://localhost:8080/services/"
+SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py/"
 
 HTML_PREFIX = u"""
 <html>

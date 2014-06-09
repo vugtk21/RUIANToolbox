@@ -47,7 +47,7 @@ def geocodeAddressServiceHandler(queryParams, response):
 
     if queryParams.has_key("AddressPlaceId"):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
-        s = geocodeID(builder, queryParams.AddressPlaceId)
+        s = geocodeID(builder, queryParams["AddressPlaceId"])
         response.htmlData = s
     elif queryParams.has_key("SearchText"):
         response.handled = True
