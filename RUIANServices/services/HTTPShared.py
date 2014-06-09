@@ -57,6 +57,11 @@ def getMimeFormat(self, formatText):
     else: # Default value text
         return "text/plain"
 
+def noneToString(item):
+    if item is None:
+        return ""
+    else:
+        return str(item)
 
 class MimeBuilder:
     def __init__(self, formatText = "text"):
@@ -172,6 +177,36 @@ class MimeBuilder:
             return self.coordinatesToText(listOfCoordinates, "; ")
         else: # default value text
             return self.coordinatesToText(listOfCoordinates)
+
+    def addressesToHTML(self, listOfAddresses, lineSeparator = "<br>"):
+        result = ""
+        for line in listOfAddresses:
+            if result != "":
+                result += lineSeparator
+            result += line.JTSKY + ", " + line.JTSKX
+        return result
+
+
+    def addressesToText(self, listOfAddresses, lineSeparator = "\n"):
+        result = ""
+        for line in listOfAddresses:
+            orientationNumber = noneToString(line[6])
+            if orientationNumber != "":
+                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
+            else:
+                houseNumbers = noneToString(line[5])
+            result += noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator
+        return result[:-1]
+
+    def addressesToResponseText(self, listOfAddresses):
+        if self.formatText == "xml":
+            return self.addressesToXML(listOfAddresses)
+        elif self.formatText == "html" or self.formatText == "htmltoonerow":
+            return self.addressesToHTML(listOfAddresses)
+        elif self.formatText == "json":
+            return self.addressesToJSON(listOfAddresses)
+        else: # default value text
+            return self.addressesToText(listOfAddresses)
 
 
 class WebService:

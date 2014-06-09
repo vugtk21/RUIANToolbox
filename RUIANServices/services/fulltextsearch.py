@@ -12,19 +12,23 @@
 __author__ = 'raugustyn'
 
 from HTTPShared import *
+import parseaddress
 
-def searchAddress(resultFormat, searchFlag, searchText ):
-    pass
+def searchAddress(builder, searchFlag, searchText ):
+    parser = parseaddress.AddressParser()
+    candidates = parser.fullTextSearchAddress(searchText)
+    return builder.addressesToResponseText(candidates)
 
 def searchAddressServiceHandler(queryParams, response):
+    builder = MimeBuilder(queryParams["Format"])
+    response.mimeFormat = builder.getMimeFormat()
 
     s = searchAddress(
-        p(queryParams, "Format", "xml"),
+        builder,
         p(queryParams, "SearchFlag"),
         p(queryParams, "SearchText")
     )
     response.htmlData = s
-    response.mimeFormat = getMimeFormat(p(queryParams, "Format", "xml"))
     response.handled = True
     return response
 

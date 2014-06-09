@@ -468,7 +468,7 @@ class AddressParser:
             if self.compare(items, candidate):
                 results.append(candidate)
 
-        for result in results:print result
+        #for result in results:print result
         return results
 
 def initModule():
@@ -598,8 +598,9 @@ V této skupině testů je také testováno párování identifikátorů jednotl
         outFile.write(htmlContent.decode("utf-8"))
         outFile.close()
 
+initModule()
+
 def main():
-    initModule()
     #testAnalyse()
     testFullTextSearchAddress()
 
