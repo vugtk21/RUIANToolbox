@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
+"""
+1. najít identifikátory
+2. Separovat texty a čísla
+3. Spojit identifikátory s číslem
+4  najít kandidáty textů
+5. hledat kombinace
+"""
 
 import psycopg2
 import codecs
@@ -12,6 +19,12 @@ ORIENTATION_NUMBER_MAX_LEN = 3
 DESCRIPTION_NUMBER_MAX_LEN = 3
 HOUSE_NUMBER_MAX_LEN = 4
 ZIPCODE_LEN = 5
+
+TOWNNAME_FIELDNAME   = "nazev_obce"
+STREETNAME_FIELDNAME = "nazev_ulice"
+TOWNPART_FIELDNAME   = "nazev_casti_obce"
+
+MAX_TEXT_COUNT = 3 # maximální počet textových položek v adrese ulice, obec, část obce = 3
 
 class RUIANDatabase():
     DATABASE_HOST = "localhost"
@@ -37,7 +50,7 @@ class RUIANDatabase():
 
     def getObecByName(self, name):
         cursor = self.conection.cursor()
-        cursor.execute("SELECT nazev_obce FROM obce WHERE nazev_obce ilike '%" + name + "%' limit 25")
+        cursor.execute("SELECT nazev_obce FROM obce WHERE nazev_obce ilike '%" + name + "%' group by nazev_obce limit 25")
 
         rows = []
         row_count = 0
@@ -48,7 +61,7 @@ class RUIANDatabase():
 
     def getUliceByName(self, name):
         cursor = self.conection.cursor()
-        cursor.execute("SELECT nazev_ulice FROM ulice WHERE nazev_ulice ilike '%" + name + "%' limit 25")
+        cursor.execute("SELECT nazev_ulice FROM ulice WHERE nazev_ulice ilike '%" + name + "%' group by nazev_ulice limit 25")
 
         rows = []
         row_count = 0
@@ -59,7 +72,7 @@ class RUIANDatabase():
 
     def getCastObceByName(self, name):
         cursor = self.conection.cursor()
-        cursor.execute("SELECT nazev_casti_obce FROM casti_obce WHERE nazev_casti_obce ilike '%" + name + "%' limit 25")
+        cursor.execute("SELECT nazev_casti_obce FROM casti_obce WHERE nazev_casti_obce ilike '%" + name + "%' group by nazev_casti_obce limit 25")
 
         rows = []
         row_count = 0
@@ -85,12 +98,21 @@ def isInt(value):
     #    return False
 
 
+class AddresTextList:
+    def __init__(self, fieldName):
+        self.fieldName = fieldName
+        self.items = []
+
+
+    def isEmpty(self):
+        return len(self.items) == 0
+
 class AddressItem:
     def __init__(self, value):
         self.value = value
-        self.town = None
-        self.townPart = None
-        self.street = None
+        self.towns = AddresTextList()
+        self.townParts = AddresTextList()
+        self.streets = AddresTextList()
         self.isRecordNumber = False
         self.isOrientationNumber = False
         self.isDescriptionNumber = False
@@ -100,6 +122,9 @@ class AddressItem:
         self.maxNumberLen = 0
         self.isNumberID = False
         self.analyseValue()
+
+    def isTextField(self):
+        return not self.towns.isEmpty() or not self.streets.isEmpty() or not self.townParts.isEmpty()
 
     def __repr__(self):
         result = ""
@@ -129,7 +154,8 @@ class AddressItem:
         if self.isDescriptionNumber: result += DESCRIPTION_NUMBER_ID + " "
 
         if self.number == None:
-            result += '"' + self.value + '" ' + str(len(self.street)) + "," + str(len(self.town)) + "," + str(len(self.townPart))
+            result += '"' + self.value + '" ' + str(len(self.streets.items)) + "," + str(len(self.towns.items)) + \
+                      "," + str(len(self.townParts.items))
         else:
             result += self.number
 
@@ -152,9 +178,27 @@ class AddressItem:
             self.isNumberID = True
             self.maxNumberLen = DESCRIPTION_NUMBER_MAX_LEN
         else:
-            self.town = ruianDatabase.getObecByName(self.value)
-            self.street = ruianDatabase.getUliceByName(self.value)
-            self.townPart = ruianDatabase.getCastObceByName(self.value)
+            self.towns.items = ruianDatabase.getObecByName(self.value)
+            self.streets.items = ruianDatabase.getUliceByName(self.value)
+            self.townParts.items = ruianDatabase.getCastObceByName(self.value)
+
+
+class _SearchItem:
+    def __init__(self, item, text, fieldName):
+        self.item = item
+        self.text = text
+        self.fieldName = fieldName
+
+    def __repr__(self):
+        return self.text + " (" + self.item.value + ")"
+
+    def getWhereItem(self):
+        if self.item == None:
+            return ""
+        else:
+            return self.fieldName + "= '" + self.text + "'"
+    def getID(self):
+        return self.fieldName + ':' + self.text
 
 class AddressParser:
     def normaliseSeparators(self, address):
@@ -194,6 +238,8 @@ class AddressParser:
         address = address.replace("ev. č.", RECORD_NUMBER_ID)
         address = address.replace("č. ev.", RECORD_NUMBER_ID)
         address = address.replace("čev.",   RECORD_NUMBER_ID)
+        if address.find("č.ev") >= 0 and address.find("č.ev") != address.find(RECORD_NUMBER_ID):
+            address = address.replace("č.ev",   RECORD_NUMBER_ID, 1)
         return address
 
     def separateNumbers(self, address):
@@ -269,6 +315,8 @@ class AddressParser:
                     pass
             else:
                 #else textový řetezec
+                if item.streets.isEmpty() and item.streets.isEmpty() and item.streets.isEmpty():
+                    toBeSkipped = True
                 pass
 
             if not toBeSkipped:
@@ -283,10 +331,105 @@ class AddressParser:
         items = self.parse(address)
         return self.analyseItems(items)
 
+    def old_getCombinedTextSearches(self, items):
+        sqlList = []
+        sqlSubList = []
+
+        def addCombination(sqlCondition):
+            #global sqlSubList
+            if sqlSubList == []:
+                sqlSubList.append(sqlCondition)
+            else:
+                for i in range(len(sqlSubList)):
+                    sqlSubList[i] += " and " + sqlCondition
+
+        def addCandidates(fieldName, list):
+            if list != None and list != []:
+                for item in list:
+                    addCombination(fieldName + " = '" + item + "'")
+
+        for item in items:
+            if item.isTextField():
+                sqlSubList = []
+                addCandidates(TOWNNAME_FIELDNAME,   item.towns.items)
+                addCandidates(TOWNPART_FIELDNAME,   item.townParts.items)
+                addCandidates(STREETNAME_FIELDNAME, item.streets.items)
+
+                if sqlList == []:
+                    sqlList.extend(sqlSubList)
+                else:
+                    newList = []
+                    for oldItem in sqlList:
+                        for newItem in sqlSubList:
+                            newList.append(oldItem + " and " + newItem)
+                    sqlList = []
+                    sqlList.extend(newList)
+        return sqlList
+
+    def getTextItems(self, items):
+        result = []
+        for item in items:
+            if item.isTextField():
+                result.append(item)
+            if len(result) == MAX_TEXT_COUNT:
+                break
+        return result
+
+
+    def getTextVariants(self, textItems):
+        streets = []
+        towns = []
+        townParts = []
+
+        for item in textItems:
+            for street in item.streets.items:
+                streets.append(_SearchItem(item, street, STREETNAME_FIELDNAME))
+            for town in item.towns.items:
+                towns.append(_SearchItem(item, town, TOWNNAME_FIELDNAME))
+            for townPart in item.townParts.items:
+                townParts.append(_SearchItem(item, townPart, TOWNPART_FIELDNAME))
+
+        if streets == []:
+            streets = [_SearchItem(None, None, None)]
+
+        if towns == []:
+            towns = [_SearchItem(None, None, None)]
+
+        if townParts == []:
+            townParts = [_SearchItem(None, None, None)]
+
+
+        return (streets, towns, townParts)
+
+
+    def expandedTextItems(self, searchItems):
+        result = []
+        for item in searchItems:
+            for street in item.streets.items:
+                result.append(_SearchItem(item, street, STREETNAME_FIELDNAME))
+
+            for town in item.towns.items:
+                result.append(_SearchItem(item, town, TOWNNAME_FIELDNAME))
+
+            for townPart in item.townParts.items:
+                result.append(_SearchItem(item, townPart, TOWNPART_FIELDNAME))
+
+        return result
+
+    def getCombinedTextSearches(self, items):
+        textItems = self.getTextItems(items)
+        (streets, towns, townParts) = self.getTextVariants(textItems)
+        for item in textItems:
+            print item
+
+        return []
+
     def fullTextSearchAddress(self, address):
         items = self.analyse(address)
-        for item in items:
-            print str(item)
+        #for item in items: print str(item)
+
+        sqlList = self.getCombinedTextSearches(items)
+        #for item in sqlList: print str(item)
         return ""
 
 def initModule():
@@ -356,6 +499,8 @@ V této skupině testů je také testováno párování identifikátorů jednotl
     def doTest(value, expectedValue, ErrorMessage = ""):
         tester.addTest(value, parser.analyse(value), expectedValue, ErrorMessage)
 
+    doTest("Pod lesem 1370 č. ev. 1530 Lipník n ", '["Pod lesem", 1370, č.ev. 1530, "Lipník nad "]')
+
     doTest("3/13", "[3, č.or. 13]", "Rozpoznání čísla orientačního")
     doTest("3/ 13", "[3, č.or. 13]", "Rozpoznání čísla orientačního")
     doTest("3 / 13", "[3, č.or. 13]", "Rozpoznání čísla orientačního")
@@ -378,7 +523,6 @@ V této skupině testů je také testováno párování identifikátorů jednotl
     doTest("Pod lesem 1370 č. ev.1530, Březová", '["Pod lesem", 1370, č.ev. 1530, "Březová"]', 'Rozpoznání čísla evidenčního')
     doTest("Pod lesem 1370 č.ev 1530, Březová", '["Pod lesem", 1370, č.ev. 1530, "Březová"]', 'Rozpoznání čísla evidenčního')
     doTest("Pod lesem 1370 č.ev1530, Březová", '["Pod lesem", 1370, č.ev. 1530, "Březová"]', 'Rozpoznání čísla evidenčního')
-    doTest("Pod lesem 1370 čev1530, Březová", '["Pod lesem", 1370, č.ev. 1530, "Březová"]', 'Rozpoznání čísla evidenčního')
     doTest("Pod lesem 1370 čev.1530, Březová", '["Pod lesem", 1370, č.ev. 1530, "Březová"]', 'Rozpoznání čísla evidenčního')
 
     doTest("Roudnice n Labem", '["Roudnice nad Labem"]', "Chybný zápis nad")
@@ -386,7 +530,7 @@ V této skupině testů je také testováno párování identifikátorů jednotl
 
     doTest("Brněnská 1370 č. p. 113, Březová", '["Brněnská", 1370, č.p. 113, "Březová"]')
 
-    doTest("Pod lesem 1370 č. ev. 1530 Svatý Jan p skalo", '["Pod lesem", 1370, č.ev. 1530, "Svatý Jan pod skalou"]')
+    doTest("Pod lesem 1370 č. ev. 1530 Svatý Jan p skalo", '["Pod lesem", 1370, č.ev. 1530, "Svatý Jan pod skalo"]')
     doTest("Pod lesem 1370 č. ev. 1530 Lipník n ", '["Pod lesem", 1370, č.ev. 1530, "Lipník nad "]')
 
     with codecs.open("parseaddress_tests.html", "w", "utf-8") as outFile:
@@ -406,10 +550,10 @@ V této skupině testů je také testováno párování identifikátorů jednotl
     def doTest(value, expectedValue, ErrorMessage = ""):
         tester.addTest(value, parser.analyse(value), expectedValue, ErrorMessage)
 
-    parser.fullTextSearchAddress("Klostermannova 586, Hořovice")
-    #parser.fullTextSearchAddress("Hořo, Klostermann 586")
+    #parser.fullTextSearchAddress("Klostermannova 586, Hořovice")
+    parser.fullTextSearchAddress("hfgf, Hořo, Klostermann 586")
 
-    with codecs.open("parseaddress_FullTextSearchTests.html", "w", "utf-8") as outFile:
+    with codecs.open("parseaddress.html", "w", "utf-8") as outFile:
         htmlContent = tester.getHTML()
         outFile.write(htmlContent.decode("utf-8"))
         outFile.close()
