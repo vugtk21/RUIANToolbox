@@ -5,13 +5,13 @@ __author__ = 'raugustyn'
 import psycopg2
 import codecs
 
-DATABASE_HOST = "localhost"
+DATABASE_HOST = "192.168.1.93"
 PORT          = "5432"
-DATABASE_NAME = "adresspoints"
+DATABASE_NAME = "euradin"
 USER_NAME     = "postgres"
-PASSWORD      = "ahoj"
+PASSWORD      = "postgres"
 
-ADDRESSPOINTS_TABLENAME = "addresspoints"
+ADDRESSPOINTS_TABLENAME = "address_points"
 FULLTEXT_TABLENAME = "fulltext"
 
 TOWNNAME_FIELDNAME   = "nazev_obce"
@@ -461,14 +461,14 @@ class AddressParser:
 
 
     def fullTextSearchAddress(self, address):
-        items = self.analyse(address)
+        items = self.analyse(address, False)
         candidatesIDS = self.getCandidateValues(items)
         results = []
         for candidate in candidatesIDS:
             if self.compare(items, candidate):
                 results.append(candidate)
 
-        #for result in results:print result
+        for result in results:print result
         return results
 
 def initModule():
