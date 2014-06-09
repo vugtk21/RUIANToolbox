@@ -1,16 +1,31 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
-"""
-1. najít identifikátory
-2. Separovat texty a čísla
-3. Spojit identifikátory s číslem
-4  najít kandidáty textů
-5. hledat kombinace
-"""
+
 
 import psycopg2
 import codecs
 
+DATABASE_HOST = "localhost"
+PORT          = "5432"
+DATABASE_NAME = "adresspoints"
+USER_NAME     = "postgres"
+PASSWORD      = "ahoj"
+
+ADDRESSPOINTS_TABLENAME = "addresspoints"
+FULLTEXT_TABLENAME = "fulltext"
+
+TOWNNAME_FIELDNAME   = "nazev_obce"
+STREETNAME_FIELDNAME = "nazev_ulice"
+TOWNPART_FIELDNAME   = "nazev_casti_obce"
+GID_FIELDNAME        = "gid"
+TYP_SO_FIELDNAME     = "typ_so"
+CISLO_DOMOVNI_FIELDNAME = "cislo_domovni"
+CISLO_ORIENTACNI_FIELDNAME = "cislo_orientacni"
+ZNAK_CISLA_ORIENTACNIHO_FIELDNAME = "znak_cisla_orientacniho"
+ZIP_CODE_FIELDNAME = "psc"
+
+# Konstanty pro logickou strukturu databáze
+MAX_TEXT_COUNT = 3 # maximální počet textových položek v adrese ulice, obec, část obce = 3
 ORIENTATION_NUMBER_ID = "/"
 RECORD_NUMBER_ID = "č.ev."
 DESCRIPTION_NUMBER_ID = "č.p."
@@ -20,22 +35,9 @@ DESCRIPTION_NUMBER_MAX_LEN = 3
 HOUSE_NUMBER_MAX_LEN = 4
 ZIPCODE_LEN = 5
 
-TOWNNAME_FIELDNAME   = "nazev_obce"
-STREETNAME_FIELDNAME = "nazev_ulice"
-TOWNPART_FIELDNAME   = "nazev_casti_obce"
-
-MAX_TEXT_COUNT = 3 # maximální počet textových položek v adrese ulice, obec, část obce = 3
-
 class RUIANDatabase():
-    DATABASE_HOST = "localhost"
-    PORT          = "5432"
-    DATABASE_NAME = "adresspoints"
-    USER_NAME     = "postgres"
-    PASSWORD      = "ahoj"
-
-
     def __init__(self):
-        self.conection = psycopg2.connect(host = self.DATABASE_HOST, database = self.DATABASE_NAME, port = self.PORT, user = self.USER_NAME, password = self.PASSWORD)
+        self.conection = psycopg2.connect(host = DATABASE_HOST, database = DATABASE_NAME, port = PORT, user = USER_NAME, password = PASSWORD)
 
     def getQueryResult(self, query):
         cursor = self.conection.cursor()
@@ -50,7 +52,7 @@ class RUIANDatabase():
 
     def getObecByName(self, name):
         cursor = self.conection.cursor()
-        cursor.execute("SELECT nazev_obce FROM obce WHERE nazev_obce ilike '%" + name + "%' group by nazev_obce limit 25")
+        cursor.execute("SELECT {0} FROM {1} WHERE {0} ilike '%{2}%' group by {0} limit 25".format(TOWNNAME_FIELDNAME, "obce", name))
 
         rows = []
         row_count = 0
@@ -61,7 +63,7 @@ class RUIANDatabase():
 
     def getUliceByName(self, name):
         cursor = self.conection.cursor()
-        cursor.execute("SELECT nazev_ulice FROM ulice WHERE nazev_ulice ilike '%" + name + "%' group by nazev_ulice limit 25")
+        cursor.execute("SELECT {0} FROM {1} WHERE {0} ilike '%{2}%' group by {0} limit 25".format(STREETNAME_FIELDNAME, "ulice", "name"))
 
         rows = []
         row_count = 0
@@ -81,6 +83,17 @@ class RUIANDatabase():
               rows.append(row[0])
         return rows
 
+    def getSelectResults(self, sqlSelectClause):
+        cursor = self.conection.cursor()
+        cursor.execute(sqlSelectClause)
+
+        rows = []
+        row_count = 0
+        for row in cursor:
+              row_count += 1
+              rows.append(row)
+        return rows
+
 ruianDatabase = None
 
 def isInt(value):
@@ -98,21 +111,12 @@ def isInt(value):
     #    return False
 
 
-class AddresTextList:
-    def __init__(self, fieldName):
-        self.fieldName = fieldName
-        self.items = []
-
-
-    def isEmpty(self):
-        return len(self.items) == 0
-
 class AddressItem:
-    def __init__(self, value):
+    def __init__(self, value, searchDB = True):
         self.value = value
-        self.towns = AddresTextList()
-        self.townParts = AddresTextList()
-        self.streets = AddresTextList()
+        self.towns = []
+        self.townParts = []
+        self.streets = []
         self.isRecordNumber = False
         self.isOrientationNumber = False
         self.isDescriptionNumber = False
@@ -121,10 +125,8 @@ class AddressItem:
         self.number = None
         self.maxNumberLen = 0
         self.isNumberID = False
-        self.analyseValue()
-
-    def isTextField(self):
-        return not self.towns.isEmpty() or not self.streets.isEmpty() or not self.townParts.isEmpty()
+        self.isTextField = False
+        self.analyseValue(searchDB)
 
     def __repr__(self):
         result = ""
@@ -154,14 +156,14 @@ class AddressItem:
         if self.isDescriptionNumber: result += DESCRIPTION_NUMBER_ID + " "
 
         if self.number == None:
-            result += '"' + self.value + '" ' + str(len(self.streets.items)) + "," + str(len(self.towns.items)) + \
-                      "," + str(len(self.townParts.items))
+            result += '"' + self.value + '" ' + str(len(self.streets)) + "," + str(len(self.towns)) + \
+                      "," + str(len(self.townParts))
         else:
             result += self.number
 
         return result
 
-    def analyseValue(self):
+    def analyseValue(self, searchDB = True):
         if isInt(self.value):
             self.number = self.value
             pass
@@ -178,9 +180,11 @@ class AddressItem:
             self.isNumberID = True
             self.maxNumberLen = DESCRIPTION_NUMBER_MAX_LEN
         else:
-            self.towns.items = ruianDatabase.getObecByName(self.value)
-            self.streets.items = ruianDatabase.getUliceByName(self.value)
-            self.townParts.items = ruianDatabase.getCastObceByName(self.value)
+            self.isTextField = True
+            if searchDB:
+                self.towns     = ruianDatabase.getObecByName(self.value)
+                self.streets   = ruianDatabase.getUliceByName(self.value)
+                self.townParts = ruianDatabase.getCastObceByName(self.value)
 
 
 class _SearchItem:
@@ -269,12 +273,12 @@ class AddressParser:
 
         return address
 
-    def parse(self, address):
+    def parse(self, address, searchDB = True):
         address = self.normalize(address)
         stringItems = address.split(",")
         items = []
         for value in stringItems:
-            item = AddressItem(value)
+            item = AddressItem(value, searchDB)
             items.append(item)
         return items
 
@@ -315,8 +319,9 @@ class AddressParser:
                     pass
             else:
                 #else textový řetezec
-                if item.streets.isEmpty() and item.streets.isEmpty() and item.streets.isEmpty():
-                    toBeSkipped = True
+                # @TODO Udelat
+                #if item.streets == [] and item.streets == [] and item.streets == []:
+                #    toBeSkipped = True
                 pass
 
             if not toBeSkipped:
@@ -327,8 +332,8 @@ class AddressParser:
         return newItems
 
 
-    def analyse(self, address):
-        items = self.parse(address)
+    def analyse(self, address, searchDB = True):
+        items = self.parse(address, searchDB)
         return self.analyseItems(items)
 
     def old_getCombinedTextSearches(self, items):
@@ -351,9 +356,9 @@ class AddressParser:
         for item in items:
             if item.isTextField():
                 sqlSubList = []
-                addCandidates(TOWNNAME_FIELDNAME,   item.towns.items)
-                addCandidates(TOWNPART_FIELDNAME,   item.townParts.items)
-                addCandidates(STREETNAME_FIELDNAME, item.streets.items)
+                addCandidates(TOWNNAME_FIELDNAME,   item.towns)
+                addCandidates(TOWNPART_FIELDNAME,   item.townParts)
+                addCandidates(STREETNAME_FIELDNAME, item.streets)
 
                 if sqlList == []:
                     sqlList.extend(sqlSubList)
@@ -382,11 +387,11 @@ class AddressParser:
         townParts = []
 
         for item in textItems:
-            for street in item.streets.items:
+            for street in item.streets:
                 streets.append(_SearchItem(item, street, STREETNAME_FIELDNAME))
-            for town in item.towns.items:
+            for town in item.towns:
                 towns.append(_SearchItem(item, town, TOWNNAME_FIELDNAME))
-            for townPart in item.townParts.items:
+            for townPart in item.townParts:
                 townParts.append(_SearchItem(item, townPart, TOWNPART_FIELDNAME))
 
         if streets == []:
@@ -405,32 +410,66 @@ class AddressParser:
     def expandedTextItems(self, searchItems):
         result = []
         for item in searchItems:
-            for street in item.streets.items:
+            for street in item.streets:
                 result.append(_SearchItem(item, street, STREETNAME_FIELDNAME))
 
-            for town in item.towns.items:
+            for town in item.towns:
                 result.append(_SearchItem(item, town, TOWNNAME_FIELDNAME))
 
-            for townPart in item.townParts.items:
+            for townPart in item.townParts:
                 result.append(_SearchItem(item, townPart, TOWNPART_FIELDNAME))
 
         return result
 
     def getCombinedTextSearches(self, items):
         textItems = self.getTextItems(items)
-        (streets, towns, townParts) = self.getTextVariants(textItems)
+        sqlItems = []
         for item in textItems:
-            print item
+            sqlItems.append()
 
         return []
 
+    def getCandidateValues(self, analysedItems):
+        sqlItems = []
+        for item in analysedItems:
+            if item.isTextField:
+                sqlItems.append("searchstr ilike '%" + item.value + "%'")
+        innerSql = "select {0} from {1} where {2} limit 30".format(GID_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
+        sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8} from {9} where gid IN ({10})".format(
+                GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
+                CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql))
+        #sql = "SELECT {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8} from {9} where gid IN ({10})".format(
+        #        "gid", "nazev_obce", "nazev_casti_obce", "nazev_ulice", "typ_so", \
+        #        "cislo_domovni", "cislo_orientacni", "znak_cisla_orientacniho", "psc"\
+        #        "addresspoints", str(innerSql))
+
+        #print sql
+        candidates = ruianDatabase.getQueryResult(sql)
+        return candidates
+
+
+    def compare(self, items, candidateValues):
+        for item in items:
+            found = False
+            for candidate in candidateValues:
+                if str(candidate).find(item.value) == 0:
+                    found = True
+            if not found:
+                return False
+
+        return True
+
+
     def fullTextSearchAddress(self, address):
         items = self.analyse(address)
-        #for item in items: print str(item)
+        candidatesIDS = self.getCandidateValues(items)
+        results = []
+        for candidate in candidatesIDS:
+            if self.compare(items, candidate):
+                results.append(candidate)
 
-        sqlList = self.getCombinedTextSearches(items)
-        #for item in sqlList: print str(item)
-        return ""
+        #for result in results:print result
+        return results
 
 def initModule():
     global ruianDatabase
@@ -550,8 +589,9 @@ V této skupině testů je také testováno párování identifikátorů jednotl
     def doTest(value, expectedValue, ErrorMessage = ""):
         tester.addTest(value, parser.analyse(value), expectedValue, ErrorMessage)
 
-    #parser.fullTextSearchAddress("Klostermannova 586, Hořovice")
-    parser.fullTextSearchAddress("hfgf, Hořo, Klostermann 586")
+    #parser.fullTextSearchAddress("Klostermannova 586, Hořovice, 26801")
+    #parser.fullTextSearchAddress("Hořo, Klostermann 586, 26801")
+    parser.fullTextSearchAddress("Hořo, Klostermann 7, 26801")
 
     with codecs.open("parseaddress.html", "w", "utf-8") as outFile:
         htmlContent = tester.getHTML()
@@ -565,3 +605,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+#create table
+#fulltext
+#as
+#select gid, concat(nazev_obce, ',', nazev_ulice, ',', nazev_casti_obce) searchstr from addresspoints
