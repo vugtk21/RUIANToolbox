@@ -178,14 +178,47 @@ class MimeBuilder:
         else: # default value text
             return self.coordinatesToText(listOfCoordinates)
 
+    def addressesToXML(self, listOfAddresses, lineSeparator = "\n", tag = "Address"):
+        result = '<?xml version="1.0" encoding="UTF-8"?>' + lineSeparator + "<xml>" + lineSeparator
+        index = 0
+        for line in listOfAddresses:
+            orientationNumber = noneToString(line[6])
+            if orientationNumber != "":
+                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
+            else:
+                houseNumbers = noneToString(line[5])
+            index = index + 1
+            result += "<" + tag + str(index) + ">" + lineSeparator + noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator + "</" + tag + str(index) + ">" + lineSeparator
+        result += "</xml>"
+        return result
+
     def addressesToHTML(self, listOfAddresses, lineSeparator = "<br>"):
         result = ""
         for line in listOfAddresses:
-            if result != "":
-                result += lineSeparator
-            result += line.JTSKY + ", " + line.JTSKX
+            orientationNumber = noneToString(line[6])
+            if orientationNumber != "":
+                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
+            else:
+                houseNumbers = noneToString(line[5])
+            result += noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator
+
         return result
 
+    def addressesToJSON(self, listOfAddresses, lineSeparator = "\n", tag = "Address"):
+        result = "{"
+        index = 0
+        for line in listOfAddresses:
+            index += 1
+            if index > 1:
+                result += ','
+            orientationNumber = noneToString(line[6])
+            if orientationNumber != "":
+                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
+            else:
+                houseNumbers = noneToString(line[5])
+            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator + "\t}"
+        result += lineSeparator + "}"
+        return result
 
     def addressesToText(self, listOfAddresses, lineSeparator = "\n"):
         result = ""
@@ -195,8 +228,17 @@ class MimeBuilder:
                 houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
             else:
                 houseNumbers = noneToString(line[5])
-            result += noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator
-        return result[:-1]
+            street = noneToString(line[3])
+            if street != "":
+                street += " "
+            town = noneToString(line[1])
+            district = noneToString(line[2])
+            if town == district:
+                townDistrict = town
+            else:
+                townDistrict = town + "-" + district
+            result += street + noneToString(line[4]) + " " + houseNumbers + ", " + townDistrict + ", " + noneToString(line[8]) + lineSeparator
+        return result
 
     def addressesToResponseText(self, listOfAddresses):
         if self.formatText == "xml":
