@@ -68,7 +68,6 @@ $(function() {
     <script type="text/javascript" charset="utf-8">
 
 	function displayResult(id, servicePath){
-
         var url = "<#SERVICES_URL>" + temp
 		var xmlHttp;
 		try {// Firefox, Opera 8.0+, Safari
@@ -123,7 +122,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     name = elements[i].name.substr(formNameLen);
 	if (name.charAt(0) == "/") {
 		if (elements[i].value == "") {
-			s = s + "/&#60;" + name.substr(1) + "&#62;";
+			s = s + name.substr(1);
 		}
 		else {
 			s = s + "/" + elements[i].value;
@@ -286,8 +285,8 @@ class ServicesHTMLPageBuilder:
 
             tabDivs += '</table>\n'
 
-            tabDivs += '</form>\n'
             tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
+            tabDivs += '</form>\n'
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"

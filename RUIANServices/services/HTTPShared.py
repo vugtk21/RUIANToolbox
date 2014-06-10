@@ -185,7 +185,7 @@ class MimeBuilder:
             orientationNumber = noneToString(line[6])
             sign = noneToString(line[4])
             if orientationNumber != "":
-                houseNumbers = "\t<" + sign +">" + noneToString(line[5]) + "</" + sign +">" + lineSeparator + "\t<orientační_číslo>" + orientationNumber + noneToString(line[7]) + "</orientační_číslo>"
+                houseNumbers = "\t<" + sign +">" + noneToString(line[5]) + "</" + sign +">" + lineSeparator + "\t<orientacni_cislo>" + orientationNumber + noneToString(line[7]) + "</orientacni_cislo>"
             else:
                 houseNumbers = "\t<" + sign +">" + noneToString(line[5]) + "</" + sign +">"
 
@@ -233,7 +233,7 @@ class MimeBuilder:
             if town == district or district == "":
                 townDistrict = '\t"obec" : ' + town + ","
             else:
-                townDistrict = '\t"obec" : ' + town + "," + lineSeparator + '\t"cast_obce": ' + district + ","
+                townDistrict = '\t"obec" : ' + town + "," + lineSeparator + '\t"část_obce": ' + district + ","
 
 
             result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + '\t"PSČ":' + noneToString(line[8]) + lineSeparator + "\t}"

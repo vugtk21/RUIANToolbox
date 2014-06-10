@@ -45,7 +45,8 @@ def createServiceHandlers():
                 getSearchTextParam()
             ],
             searchAddressServiceHandler,
-            sendButtonCaption = u"Vyhledej adresu"
+            sendButtonCaption = u"Vyhledej adresu",
+            htmlInputTemplate = ''
         )
     )
 
