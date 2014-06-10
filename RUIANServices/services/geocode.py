@@ -13,10 +13,11 @@ __author__ = 'Radek Augustýn'
 
 from HTTPShared import *
 import RUIANConnection
+import parseaddress
 
-def geocodeID(builder, AddressID):
+def geocodeID(AddressID):
     coordinates = RUIANConnection.findCoordinates(AddressID)
-    return builder.coordintesToResponseText(coordinates)
+    return coordinates
 
 def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     dict = {
@@ -47,12 +48,16 @@ def geocodeAddressServiceHandler(queryParams, response):
 
     if queryParams.has_key("AddressPlaceId"):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
-        s = geocodeID(builder, queryParams["AddressPlaceId"])
-        response.htmlData = s
+        s = builder.coordintesToResponseText(geocodeID(queryParams["AddressPlaceId"]))
+
     elif queryParams.has_key("SearchText"):
-        response.handled = True
-        response.htmlData = builder.listToResponseText([u"neimplementováno"])
-        return response
+        parser = parseaddress.AddressParser()
+        candidates = parser.fullTextSearchAddress(queryParams["SearchText"])
+        temp = []
+        for candidate in candidates:
+            temp = geocodeID(candidate[0]) + temp
+        s = builder.coordintesToResponseText(temp)
+
     else:
         s = geocodeAddress(
             builder,
@@ -66,7 +71,7 @@ def geocodeAddressServiceHandler(queryParams, response):
             p("LocalityPart"),
             p("DistrictNumber")
         )
-        response.htmlData = s
+    response.htmlData = s
     response.handled = True
     return response
 

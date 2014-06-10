@@ -114,7 +114,7 @@ def _findCoordinates(ID):
     cur = con.cursor()
     cur.execute("SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
-    if row:
+    if row and row[0] is not None and row[1] is not None:
         c = Coordinates(str("{:10.2f}".format(row[0])).strip(), str("{:10.2f}".format(row[1])).strip())
         return [c]
     else:
