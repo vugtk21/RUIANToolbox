@@ -16,6 +16,7 @@ import codecs
 from HTTPShared import *
 import urllib
 import IDCheck
+import parseaddress
 
 def errorMessage(msg):
     pass
@@ -105,20 +106,26 @@ def compileAddressServiceHandler(queryParams, response):
         response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         return response
 
-    s = compileAddress(
-        builder,
-        p("Street"),
-        p("HouseNumber"),
-        p("RecordNumber"),
-        p("OrientationNumber"),
-        p("OrientationNumberCharacter"),
-        p("ZIPCode"),
-        p("Locality"),
-        p("LocalityPart"),
-        p("DistrictNumber")
-    )
+    elif queryParams.has_key("SearchText"):
+        parser = parseaddress.AddressParser()
+        candidates = parser.fullTextSearchAddress(queryParams["SearchText"])
+        s = builder.addressesToResponseText(candidates)
+
+    else:
+        s = compileAddress(
+            builder,
+            p("Street"),
+            p("HouseNumber"),
+            p("RecordNumber"),
+            p("OrientationNumber"),
+            p("OrientationNumberCharacter"),
+            p("ZIPCode"),
+            p("Locality"),
+            p("LocalityPart"),
+            p("DistrictNumber")
+        )
     response.htmlData = s
-    response.mimeFormat = builder.getMimeFormat() #getMimeFormat(p("Format", "xml"))
+    #response.mimeFormat = builder.getMimeFormat() #getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response
 
