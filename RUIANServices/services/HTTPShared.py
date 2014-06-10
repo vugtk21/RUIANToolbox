@@ -178,45 +178,65 @@ class MimeBuilder:
         else: # default value text
             return self.coordinatesToText(listOfCoordinates)
 
-    def addressesToXML(self, listOfAddresses, lineSeparator = "\n", tag = "Address"):
+    def addressesToXML(self, listOfAddresses, lineSeparator = "\n", tag = "Adresa"):
         result = '<?xml version="1.0" encoding="UTF-8"?>' + lineSeparator + "<xml>" + lineSeparator
         index = 0
         for line in listOfAddresses:
             orientationNumber = noneToString(line[6])
+            sign = noneToString(line[4])
             if orientationNumber != "":
-                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
+                houseNumbers = "\t<" + sign +">" + noneToString(line[5]) + "</" + sign +">" + lineSeparator + "\t<orientační_číslo>" + orientationNumber + noneToString(line[7]) + "</orientační_číslo>"
             else:
-                houseNumbers = noneToString(line[5])
+                houseNumbers = "\t<" + sign +">" + noneToString(line[5]) + "</" + sign +">"
+
             index = index + 1
-            result += "<" + tag + str(index) + ">" + lineSeparator + noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator + "</" + tag + str(index) + ">" + lineSeparator
+            street = noneToString(line[3])
+
+            if street != "":
+                street = "\t<ulice>" + street + "</ulice>" + lineSeparator
+
+            town = noneToString(line[1])
+            district = noneToString(line[2])
+
+            if town == district or district == "":
+                townDistrict = "\t<obec>" + town + "</obec>"
+            else:
+                townDistrict = "\t<obec>" + town + "</obec>" + lineSeparator + "\t<cast_obce>" + district + "</cast_obce>"
+
+            result += "<" + tag + str(index) + ">" + lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + "\t<PSČ>" + noneToString(line[8]) + "</PSČ>" + lineSeparator + "</" + tag + str(index) + ">" + lineSeparator
         result += "</xml>"
         return result
 
-    def addressesToHTML(self, listOfAddresses, lineSeparator = "<br>"):
-        result = ""
-        for line in listOfAddresses:
-            orientationNumber = noneToString(line[6])
-            if orientationNumber != "":
-                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
-            else:
-                houseNumbers = noneToString(line[5])
-            result += noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator
-
-        return result
-
-    def addressesToJSON(self, listOfAddresses, lineSeparator = "\n", tag = "Address"):
+    def addressesToJSON(self, listOfAddresses, lineSeparator = "\n", tag = "Adresa"):
         result = "{"
         index = 0
         for line in listOfAddresses:
             index += 1
             if index > 1:
                 result += ','
+
             orientationNumber = noneToString(line[6])
+            sign = noneToString(line[4])
             if orientationNumber != "":
-                houseNumbers = noneToString(line[5]) + "/" + orientationNumber + noneToString(line[7])
+                houseNumbers = '\t"' + sign +'": ' + noneToString(line[5]) + ',' + lineSeparator + '\t"orientační_číslo":' + orientationNumber + noneToString(line[7]) + ','
             else:
-                houseNumbers = noneToString(line[5])
-            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + noneToString(line[1]) + ", " + noneToString(line[2]) + ", " + noneToString(line[3]) + " " + noneToString(line[4]) + " " + houseNumbers + " " + noneToString(line[8]) + lineSeparator + "\t}"
+                houseNumbers ='\t"' + sign +'": ' + noneToString(line[5]) + ','
+
+            street = noneToString(line[3])
+
+            if street != "":
+                street = '\t"ulice": ' + street + "," + lineSeparator
+
+            town = noneToString(line[1])
+            district = noneToString(line[2])
+
+            if town == district or district == "":
+                townDistrict = '\t"obec" : ' + town + ","
+            else:
+                townDistrict = '\t"obec" : ' + town + "," + lineSeparator + '\t"cast_obce": ' + district + ","
+
+
+            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + '\t"PSČ":' + noneToString(line[8]) + lineSeparator + "\t}"
         result += lineSeparator + "}"
         return result
 
@@ -244,7 +264,7 @@ class MimeBuilder:
         if self.formatText == "xml":
             return self.addressesToXML(listOfAddresses)
         elif self.formatText == "html" or self.formatText == "htmltoonerow":
-            return self.addressesToHTML(listOfAddresses)
+            return self.addressesToText(listOfAddresses, "<br>")
         elif self.formatText == "json":
             return self.addressesToJSON(listOfAddresses)
         else: # default value text
