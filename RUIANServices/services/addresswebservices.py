@@ -54,11 +54,11 @@ $(function() {
         else if (this.value == 'id') {
             $(this).parent().find("td input").attr("disabled", "disabled");
             $(this).parent().find("td input").eq(0).removeAttr("disabled");
-            $(this).parent().find("td input").eq(10).removeAttr("disabled");
+            $(this).parent().find("td input").eq(11).removeAttr("disabled");
         }
         else if (this.value == 'adresa') {
             $(this).parent().find("td input").attr("disabled", "disabled");
-            $(this).parent().find("td input").eq(10).removeAttr("disabled");
+            $(this).parent().find("td input").eq(11).removeAttr("disabled");
             $(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
       });
@@ -90,7 +90,7 @@ $(function() {
 				//Get the response from the server and extract the section that comes in the body section of the second html page avoid inserting the header part of the second page in your first page's element
 				//var respText = xmlHttp.responseText.split('<body>');
 				//elem.innerHTML = respText[1].split('</body>')[0];
-				elem.innerHTML = xmlHttp.responseText
+				elem.innerText = xmlHttp.responseText
 			}
 		}
 
