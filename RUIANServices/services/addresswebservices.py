@@ -291,6 +291,9 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"
 
+            tabDivs += "<a href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>show tests</a>"
+            #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
+
             tabDivs += '<p>\n<img src="' + HTMLDATA_URL + service.pathName + '.png"></p>\n'
 
             tabDivs += '</div>\n'
