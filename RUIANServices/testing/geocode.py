@@ -31,6 +31,23 @@ def test(testerParam = None):
     tester.loadAndAddTest("/Geocode/txt?", "Street=Mari%C3%A1nsk%C3%A1&Locality=Su%C5%A1ice&HouseNumber=67&ZIPCode=34201&LocalityPart=Su%C5%A1ice%20III", "1128217.51, 820609.28")
     tester.loadAndAddTest("/Geocode/txt?", "Street=Dlouh%C3%A1&Locality=Terez%C3%ADn&HouseNumber=22&ZIPCode=41155&LocalityPart=Terez%C3%ADn", "993630.00, 755650.00")
     tester.loadAndAddTest("/Geocode/txt?", "Street=Osadn%C3%AD&Locality=Rumburk&HouseNumber=1456&ZIPCode=40801&LocalityPart=Rumburk%201&OrientationNumber=12", "947618.24, 719309.30")
+    
+    tester.loadAndAddTest("/Geocode/txt?", "HouseNumber=980f", "")
+    tester.loadAndAddTest("/Geocode/txt?", "HouseNumber=f", "")
+    
+    tester.loadAndAddTest("/Geocode/txt?", "ZIPCode=14000a", "")
+    tester.loadAndAddTest("/Geocode/txt?", "ZIPCode=a", "")
+    
+    tester.loadAndAddTest("/Geocode/txt?", "OrientationNumber=12a", "")
+    tester.loadAndAddTest("/Geocode/txt?", "OrientationNumber=a", "")
+    
+    tester.loadAndAddTest("/Geocode/txt?", "RecordNumber=14d", "")
+    tester.loadAndAddTest("/Geocode/txt?", "RecordNumber=d", "")
+    
+    tester.loadAndAddTest("/Geocode/txt?", "", "")
+    
+    
+    
     tester.closeSection()
 
     if testerParam == None:
