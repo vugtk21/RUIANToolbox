@@ -90,7 +90,7 @@ $(function() {
 				//Get the response from the server and extract the section that comes in the body section of the second html page avoid inserting the header part of the second page in your first page's element
 				//var respText = xmlHttp.responseText.split('<body>');
 				//elem.innerHTML = respText[1].split('</body>')[0];
-				elem.innerText = xmlHttp.responseText
+				elem.innerText = xmlHttp.responseText.replace(/<br>/g,"\\n");
 			}
 		}
 
@@ -122,7 +122,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     name = elements[i].name.substr(formNameLen);
 	if (name.charAt(0) == "/") {
 		if (elements[i].value == "") {
-			s = s + name.substr(1);
+			s = s + "/" + name.substr(1);
 		}
 		else {
 			s = s + "/" + elements[i].value;

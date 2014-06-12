@@ -203,7 +203,7 @@ class MimeBuilder:
             else:
                 townDistrict = "\t<obec>" + town + "</obec>" + lineSeparator + "\t<cast_obce>" + district + "</cast_obce>"
 
-            result += "<" + tag + str(index) + ">" + lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + "\t<PSČ>" + noneToString(line[8]) + "</PSČ>" + lineSeparator + "</" + tag + str(index) + ">" + lineSeparator
+            result += "<" + tag + str(index) + ">" + lineSeparator + "<ID>" + noneToString(line[0]) + "</ID>" + lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + "\t<PSČ>" + noneToString(line[8]) + "</PSČ>" + lineSeparator + "</" + tag + str(index) + ">" + lineSeparator
         result += "</xml>"
         return result
 
@@ -236,7 +236,7 @@ class MimeBuilder:
                 townDistrict = '\t"obec" : ' + town + "," + lineSeparator + '\t"část_obce": ' + district + ","
 
 
-            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + '\t"PSČ":' + noneToString(line[8]) + lineSeparator + "\t}"
+            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + '\t"ID": ' + noneToString(line[0])+ lineSeparator + townDistrict + lineSeparator + street + houseNumbers + lineSeparator + '\t"PSČ" :' + noneToString(line[8]) + lineSeparator + "\t}"
         result += lineSeparator + "}"
         return result
 
@@ -257,7 +257,7 @@ class MimeBuilder:
                 townDistrict = town
             else:
                 townDistrict = town + "-" + district
-            result += street + noneToString(line[4]) + " " + houseNumbers + ", " + townDistrict + ", " + noneToString(line[8]) + lineSeparator
+            result += noneToString(line[0]) + " " + street + noneToString(line[4]) + " " + houseNumbers + ", " + townDistrict + ", " + noneToString(line[8]) + lineSeparator
         return result
 
     def addressesToResponseText(self, listOfAddresses):
