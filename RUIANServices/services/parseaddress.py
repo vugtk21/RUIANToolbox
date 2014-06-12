@@ -5,11 +5,11 @@ __author__ = 'raugustyn'
 import psycopg2
 import codecs
 
-DATABASE_HOST = "192.168.1.93"
+DATABASE_HOST = "localhost"
 PORT          = "5432"
-DATABASE_NAME = "euradin"
+DATABASE_NAME = "adresspoints"
 USER_NAME     = "postgres"
-PASSWORD      = "postgres"
+PASSWORD      = "ahoj"
 
 ADDRESSPOINTS_TABLENAME = "address_points"
 FULLTEXT_TABLENAME = "fulltext"
@@ -18,6 +18,7 @@ TOWNNAME_FIELDNAME   = "nazev_obce"
 STREETNAME_FIELDNAME = "nazev_ulice"
 TOWNPART_FIELDNAME   = "nazev_casti_obce"
 GID_FIELDNAME        = "gid"
+GIDS_FIELDNAME       = "gids"
 TYP_SO_FIELDNAME     = "typ_so"
 CISLO_DOMOVNI_FIELDNAME = "cislo_domovni"
 CISLO_ORIENTACNI_FIELDNAME = "cislo_orientacni"
@@ -432,18 +433,15 @@ class AddressParser:
     def getCandidateValues(self, analysedItems):
         sqlItems = []
         for item in analysedItems:
-            if item.isTextField:
+            if item.isTextField and len(item.value) >= 2:
                 sqlItems.append("searchstr ilike '%" + item.value + "%'")
-        innerSql = "select {0} from {1} where {2} limit 30".format(GID_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
+        innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
+        #idLists = ruianDatabase.getQueryResult(innerSql)
+
         sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8} from {9} where gid IN ({10})".format(
                 GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
                 CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql))
-        #sql = "SELECT {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8} from {9} where gid IN ({10})".format(
-        #        "gid", "nazev_obce", "nazev_casti_obce", "nazev_ulice", "typ_so", \
-        #        "cislo_domovni", "cislo_orientacni", "znak_cisla_orientacniho", "psc"\
-        #        "addresspoints", str(innerSql))
 
-        #print sql
         candidates = ruianDatabase.getQueryResult(sql)
         return candidates
 
@@ -592,6 +590,9 @@ V této skupině testů je také testováno párování identifikátorů jednotl
     #parser.fullTextSearchAddress("Klostermannova 586, Hořovice, 26801")
     #parser.fullTextSearchAddress("Hořo, Klostermann 586, 26801")
     parser.fullTextSearchAddress("Hořo, Klostermann 7, 26801")
+    parser.fullTextSearchAddress("Budovatelů 677")
+    parser.fullTextSearchAddress("Budovatelů 676")
+    parser.fullTextSearchAddress("Budovatelů 678")
 
     with codecs.open("parseaddress.html", "w", "utf-8") as outFile:
         htmlContent = tester.getHTML()
