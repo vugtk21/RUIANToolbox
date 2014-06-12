@@ -29,8 +29,16 @@ class TextFormat:
 
 def formatZIPCode(code):
     code = code.replace(" ", "")
-    #code = code[:3] + " " + code[3:]
-    return code
+    if code.isnumeric():
+        return code
+    else:
+        return ""
+
+def numberCheck(possibleNumber):
+    if possibleNumber.isnumeric():
+        return possibleNumber
+    else:
+        return ""
 
 def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     """
