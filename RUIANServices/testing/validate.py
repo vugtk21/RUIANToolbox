@@ -45,6 +45,14 @@ def test(testerParam = None):
     addTest("/Validate/txt?", "Street=Žižkova&Locality=Jirkov&ZIPCode=43111&LocalityPart=Jirkov&RecordNumber=273", "False")
     addTest("/Validate/txt?", "Street=Rodinná&Locality=Havířov&HouseNumber=1027&ZIPCode=73601&LocalityPart=Bludovice", "False")
     addTest("/Validate/txt?", "Street=U%20Jeslí&Locality=Broumov&HouseNumber=226&ZIPCode=55001&LocalityPart=Nové%20Město", "False")
+    
+    addTest("/Validate/txt?", "HouseNumber=507a", "False")
+    addTest("/Validate/txt?", "RecordNumber=145s", "False")
+    addTest("/Validate/txt?", "OrientationNumber=12a", "False")
+    addTest("/Validate/txt?", "ZIPCode=27206r", "False")
+    addTest("/Validate/txt?", "", "False")
+    
+    
 
     tester.closeSection()
 

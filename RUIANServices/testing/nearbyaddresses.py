@@ -25,11 +25,20 @@ zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN 
         #result = urllib.quote(codecs.encode(result, "utf-8"))
         tester.addTest(path, result, expectedValue, "")
 
-    addTest("/NearbyAddresses/txt/1030730/655130/150", "č.p. 22, 50315 Pšánky")
+    addTest("/NearbyAddresses/txt/1030800/655180/50", "č.p. 22, 50315 Pšánky")
     addTest("/NearbyAddresses/txt/1025770/625350/200", "č.p. 54, 55203 Říkov")
     
     addTest("/NearbyAddresses/txt/1026662/560670/80", "Kamenička č. ev. 31, 79069 Bílá Voda")
     addTest("/NearbyAddresses/txt/1066880/697180/120", "Červený Hrádek 44, 28504 Bečváry")
+    
+    addTest("/NearbyAddresses/txt/a/625350/200", "")
+    addTest("/NearbyAddresses/txt/1025770/a/200", "")
+    addTest("/NearbyAddresses/txt/1025770/625350/a", "")
+    addTest("/NearbyAddresses/txt/a/b/c", "")
+    addTest("/NearbyAddresses/txt/a/b/200", "")
+    addTest("/NearbyAddresses/txt/1025770/b/c", "")
+    addTest("/NearbyAddresses/txt/a/625350/c", "")
+    
     
     tester.closeSection()
 

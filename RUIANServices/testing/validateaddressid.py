@@ -37,6 +37,9 @@ def test(testerParam = None):
     addTest("/ValidateAddressId/txt?AddressPlaceId=6084810", "False")
     addTest("/ValidateAddressId/txt?AddressPlaceId=18753880", "False")
     
+    addTest("/ValidateAddressId/txt?AddressPlaceId=12j", "False")
+    addTest("/ValidateAddressId/txt?AddressPlaceId=k", "False")
+    
     tester.closeSection()
 
     if testerParam == None:
