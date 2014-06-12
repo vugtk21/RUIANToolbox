@@ -21,6 +21,7 @@ def test(testerParam = None):
     tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=20388802", "1056492.96, 529426.07")
     tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=8123934", "1098618.98, 568885.13")
     tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=8150656", "1086263.12, 572291.20")
+    tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=140k", "")
     
     tester.loadAndAddTest("/Geocode/txt?", "SearchText=Hromadova%202741%20Kladno", "1033052.61, 766195.05")
     tester.loadAndAddTest("/Geocode/txt?", "SearchText=Pra%C5%BEsk%C3%A1%20848%20Rokycany", "1072374.74, 805063.63")
