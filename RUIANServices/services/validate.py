@@ -59,13 +59,13 @@ def createServiceHandlers():
             ],
             [
                 URLParam("Street",      u"Ulice", u"Název ulice"),
-                URLParam("Locality",    u"Obec", u"Obec"),
                 URLParam("HouseNumber", u"Číslo popisné", ""),
-                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
-                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
+                URLParam("RecordNumber", u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla orientačního", ""),
-                URLParam("RecordNumber", u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
+                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
+                URLParam("Locality",    u"Obec", u"Obec"),
+                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
                 URLParam("DistrictNumber", u"Číslo městského obvodu", u"Číslo městského obvodu, pokud existuje")
             ],
             validateAddressServiceHandler,

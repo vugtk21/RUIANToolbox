@@ -80,8 +80,8 @@ def createServiceHandlers():
                    Vrací záznamy databáze RÚIAN setříděné podle vzdálenosti od zadaných souřadnic.""",
             [
                 getResultFormatParam(),
-                RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
                 RestParam("/JTSKY", u"JTSK Y", u"Souřadnice Y v systému S-JTSK"),
+                RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
                 RestParam("/Distance", u"Vzdálenost", u"Vzdálenost v metrech od vloženého bodu")
             ],
             [ ],
