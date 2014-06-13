@@ -5,11 +5,11 @@ __author__ = 'raugustyn'
 import psycopg2
 import codecs
 
-DATABASE_HOST = "localhost"
+DATABASE_HOST = "192.168.1.93"
 PORT          = "5432"
-DATABASE_NAME = "adresspoints"
+DATABASE_NAME = "euradin"
 USER_NAME     = "postgres"
-PASSWORD      = "ahoj"
+PASSWORD      = "postgres"
 
 ADDRESSPOINTS_TABLENAME = "address_points"
 FULLTEXT_TABLENAME = "fulltext"

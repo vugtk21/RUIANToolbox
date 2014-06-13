@@ -29,13 +29,13 @@ class TextFormat:
 
 def formatZIPCode(code):
     code = code.replace(" ", "")
-    if code.isnumeric():
+    if code.isdigit():
         return code
     else:
         return ""
 
 def numberCheck(possibleNumber):
-    if possibleNumber.isnumeric():
+    if possibleNumber.isdigit():
         return possibleNumber
     else:
         return ""
