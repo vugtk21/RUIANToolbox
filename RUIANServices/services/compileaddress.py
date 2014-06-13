@@ -60,6 +60,7 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
     zipCode = formatZIPCode(zipCode)
     houseNumber = numberCheck(houseNumber)
     orientationNumber = numberCheck(orientationNumber)
+    districtNumber = numberCheck(districtNumber)
     orientationNumberCharacter = alphaCheck(orientationNumberCharacter)
 
     townInfo = zipCode + " " + locality#unicode(locality, "utf-8")
