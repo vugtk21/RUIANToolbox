@@ -338,3 +338,33 @@ def p(queryParams, name, defValue = ""):
         return urllib.unquote(queryParams[name])
     else:
         return defValue
+
+def numberCheck(possibleNumber):
+    if possibleNumber.isdigit():
+        return possibleNumber
+    else:
+        return ""
+
+def alphaCheck(possibleAlpha):
+    if possibleAlpha.isalpha():
+        return possibleAlpha
+    else:
+        return ""
+
+def rightAddress(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+    psc = zipCode.strip()
+    if houseNumber != "" and not houseNumber.isdigit():
+        return False
+    if orientationNumber != "" and not orientationNumber.isdigit():
+        return False
+    if recordNumber != "" and not recordNumber.isdigit():
+        return False
+    if orientationNumberCharacter != "" and not orientationNumberCharacter.isalpha():
+        return False
+    if psc != "" and not psc.isdigit():
+        return False
+    if districtNumber != "" and not districtNumber.isdigit():
+        return False
+    if street == "" and houseNumber == "" and recordNumber == "" and orientationNumber == "" and orientationNumberCharacter == "" and psc == "" and locality == "" and localityPart == "" and districtNumber == "":
+        return False
+    return True

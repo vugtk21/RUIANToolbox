@@ -20,9 +20,12 @@ def validateAddressId(resultFormat, addressPlaceId):
 def validateAddressIdServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
-    address = RUIANConnection.findAddress(queryParams["AddressPlaceId"])
-    if address:
-        response.htmlData = builder.listToResponseText(["True"])
+    if queryParams["AddressPlaceId"].isdigit():
+        address = RUIANConnection.findAddress(queryParams["AddressPlaceId"])
+        if address:
+            response.htmlData = builder.listToResponseText(["True"])
+        else:
+            response.htmlData = builder.listToResponseText(["False"])
     else:
         response.htmlData = builder.listToResponseText(["False"])
     response.handled = True

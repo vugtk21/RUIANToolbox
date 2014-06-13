@@ -48,15 +48,18 @@ def FormatAddress(address):
 
     return FormatedAddress
 
-def nearByAddresses(builder, JTSKX, JTSKY, Distance):
-    addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
-    lines = []
+def nearByAddresses(builder, JTSKY, JTSKX, Distance):
+    if JTSKX.isdigit() and JTSKY.isdigit() and Distance.isdigit():
+        addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
+        lines = []
 
-    for address in addresses:
-        FormatedAdress = FormatAddress(address)
-        lines.append(FormatedAdress)
+        for address in addresses:
+            FormatedAdress = FormatAddress(address)
+            lines.append(FormatedAdress)
 
-    return builder.listToResponseText(lines)
+        return builder.listToResponseText(lines)
+    else:
+        return ""
 
 def nearByAddressesServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
@@ -64,8 +67,8 @@ def nearByAddressesServiceHandler(queryParams, response):
 
     s = nearByAddresses(
         builder,
-        p(queryParams, "JTSKX", ""),
         p(queryParams, "JTSKY", ""),
+        p(queryParams, "JTSKX", ""),
         p(queryParams, "Distance", "")
     )
     response.htmlData = s

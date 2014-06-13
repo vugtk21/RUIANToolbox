@@ -15,6 +15,10 @@ from HTTPShared import *
 import RUIANConnection
 
 def validateAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+
+    if not rightAddress(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+        return "False"
+
     dict = {
     "street": street,
     "houseNumber": houseNumber,

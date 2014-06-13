@@ -34,18 +34,6 @@ def formatZIPCode(code):
     else:
         return ""
 
-def numberCheck(possibleNumber):
-    if possibleNumber.isdigit():
-        return possibleNumber
-    else:
-        return ""
-
-def alphaCheck(possibleAlpha):
-    if possibleAlpha.isalpha():
-        return possibleAlpha
-    else:
-        return ""
-
 def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     """
         @param street            string  Název ulice
@@ -122,7 +110,13 @@ def compileAddressServiceHandler(queryParams, response):
     response.mimeFormat = builder.getMimeFormat()
 
     if queryParams.has_key("AddressPlaceId"):
-        response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
+        queryParams["AddressPlaceId"] = numberCheck(queryParams["AddressPlaceId"])
+        if queryParams["AddressPlaceId"] != "":
+            response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
+        else:
+            response.html = ""
+            response.handled = True
+            response.mimeFormat = builder.getMimeFormat()
         return response
 
     elif queryParams.has_key("SearchText"):

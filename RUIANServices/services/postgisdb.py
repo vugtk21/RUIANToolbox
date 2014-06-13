@@ -56,7 +56,7 @@ def _findAddress(ID):
     else:
         return None
 
-def _getNearbyLocalities(x,y,distance):
+def _getNearbyLocalities(y,x,distance):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
     query = "SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)" % (str(y), str(x), str(distance),)

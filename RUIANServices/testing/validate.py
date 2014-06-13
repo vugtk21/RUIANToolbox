@@ -20,10 +20,13 @@ def test(testerParam = None):
     def addTest(path, params, expectedValue):
         paramsList = params.split("&")
         query = []
-        for param in paramsList:
-            v = param.split("=")
-            query.append(v[0] + "=" + urllib.quote(codecs.encode(v[1], "utf-8")))
-        params = "&".join(query)
+        if paramsList != [""]:
+            for param in paramsList:
+                v = param.split("=")
+                query.append(v[0] + "=" + urllib.quote(codecs.encode(v[1], "utf-8")))
+            params = "&".join(query)
+        else:
+            params = ""
 
         params = path + params
         try:

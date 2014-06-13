@@ -20,19 +20,23 @@ def geocodeID(AddressID):
     return coordinates
 
 def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
-    dict = {
-        "street": street,
-        "houseNumber": houseNumber,
-        "recordNumber": recordNumber,
-        "orientationNumber": orientationNumber,
-        "orientationNumberCharacter": orientationNumberCharacter,
-        "zipCode": zipCode,
-        "locality": locality,
-        "localityPart": localityPart,
-        "districtNumber": districtNumber
-    }
-    coordinates = RUIANConnection.findCoordinatesByAddress(dict)
-    return builder.coordintesToResponseText(coordinates)
+    if rightAddress(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+        dict = {
+            "street": street,
+            "houseNumber": houseNumber,
+            "recordNumber": recordNumber,
+            "orientationNumber": orientationNumber,
+            "orientationNumberCharacter": orientationNumberCharacter,
+            "zipCode": zipCode,
+            "locality": locality,
+            "localityPart": localityPart,
+            "districtNumber": districtNumber
+        }
+        coordinates = RUIANConnection.findCoordinatesByAddress(dict)
+        return builder.coordintesToResponseText(coordinates)
+    else:
+        return ""
+
 
 def geocodeAddressServiceHandler(queryParams, response):
 
@@ -48,7 +52,14 @@ def geocodeAddressServiceHandler(queryParams, response):
 
     if queryParams.has_key("AddressPlaceId"):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
-        s = builder.coordintesToResponseText(geocodeID(queryParams["AddressPlaceId"]))
+        queryParams["AddressPlaceId"] = numberCheck(queryParams["AddressPlaceId"])
+        if queryParams["AddressPlaceId"] != "":
+            s = builder.coordintesToResponseText(geocodeID(queryParams["AddressPlaceId"]))
+        else:
+            response.htmlData = ""
+            response.mimeFormat = builder.getMimeFormat()
+            response.handled = True
+            return response
 
     elif queryParams.has_key("SearchText"):
         parser = parseaddress.AddressParser()
