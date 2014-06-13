@@ -40,6 +40,12 @@ def numberCheck(possibleNumber):
     else:
         return ""
 
+def alphaCheck(possibleAlpha):
+    if possibleAlpha.isalpha():
+        return possibleAlpha
+    else:
+        return ""
+
 def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     """
         @param street            string  Název ulice
@@ -52,6 +58,10 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
     """
     lines = []
     zipCode = formatZIPCode(zipCode)
+    houseNumber = numberCheck(houseNumber)
+    orientationNumber = numberCheck(orientationNumber)
+    orientationNumberCharacter = alphaCheck(orientationNumberCharacter)
+
     townInfo = zipCode + " " + locality#unicode(locality, "utf-8")
     if districtNumber != "":
         townInfo += " " + districtNumber
