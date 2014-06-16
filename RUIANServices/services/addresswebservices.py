@@ -21,7 +21,9 @@ import validateaddressid
 
 from HTTPShared import *
 import compileaddress
-from rest_config import *
+from config import SERVER_HTTP
+from config import PORT_NUMBER
+from config import SERVICES_WEB_PATH
 
 SERVICES_PATH = '' # 'services'
 

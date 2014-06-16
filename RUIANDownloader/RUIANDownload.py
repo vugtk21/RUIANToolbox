@@ -19,9 +19,34 @@ import datetime
 from log import logger, clearLogFile
 from infofile import infoFile
 from htmllog import htmlLog
-from configreader import config
-from configreader import pathWithLastSlash
+#from configreader import config
+#from configreader import pathWithLastSlash
 
+from SharedTools.Config import pathWithLastSlash
+from SharedTools.Config import Config
+
+def convertImportRUIANCfg(config):
+    if config == None: return
+
+    def isTrue(value):
+        return value != None and value.lower() == "true"
+
+    config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
+    config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
+    config.runImporter = isTrue(config.runImporter)
+    config.dataDir = pathWithLastSlash(config.dataDir)
+    pass
+
+config = Config("RUIANDownload.cfg",
+            {
+                "downloadFullDatabase" : False,
+                "uncompressDownloadedFiles" : True,
+                "runImporter" : False,
+                "dataDir" : "Downloads\\",
+                "automaticDownloadTime" : "",
+                "downloadURL" : ""
+            },
+           convertImportRUIANCfg)
 
 def extractFileName(fileName):
     lastDel = fileName.rfind(os.sep)

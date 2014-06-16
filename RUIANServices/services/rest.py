@@ -8,10 +8,9 @@ from HTTPShared import *
 import addresswebservices
 import web
 
-from rest_config import SERVER_HTTP
-from rest_config import PORT_NUMBER
-from rest_config import SERVICES_WEB_PATH
-from rest_config import SERVER_PATH_DEPTH
+from config import SERVER_HTTP
+from config import PORT_NUMBER
+from config import SERVICES_WEB_PATH
 
 path = SERVICES_WEB_PATH.split("/")
 serverPathDepth = 0
