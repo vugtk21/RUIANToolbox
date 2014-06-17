@@ -18,7 +18,7 @@ def test(testerParam = None):
                  Textový řetězec adresy může být nestandardně formátován nebo může být i neúplný.""",
                 "Compiling person", "Tester")
 
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Severn%C3%AD%20Kladno",
+    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Severn%C3%AD,Kladno",
         "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
     tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Severni%20Kladno",
         "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
