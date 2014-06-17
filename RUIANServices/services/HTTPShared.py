@@ -66,6 +66,16 @@ def noneToString(item):
 class MimeBuilder:
     def __init__(self, formatText = "text"):
         self.formatText = formatText.lower()
+
+        if self.formatText in ["xml", "json"]:
+            self.lineSeparator = "\n"
+        elif self.formatText == "html":
+            self.lineSeparator = "<br>"
+        elif self.formatText in ["htmltoonerow", "texttoonerow"]:
+            self.lineSeparator = ", "
+        else: # default value text
+            self.lineSeparator = "\n"
+
         pass
 
     def getMimeFormat(self):

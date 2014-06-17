@@ -485,7 +485,7 @@ class AddressParser:
             )
 
             if withID:
-                subStr = str(item[0]) + "\n" + subStr
+                subStr = str(item[0]) + builder.lineSeparator + subStr
             items.append(subStr)
         return items
 
