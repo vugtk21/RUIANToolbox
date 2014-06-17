@@ -16,7 +16,7 @@ import codecs
 from HTTPShared import *
 import urllib
 import IDCheck
-import parseaddress
+import fulltextsearch
 
 def errorMessage(msg):
     pass
@@ -120,9 +120,7 @@ def compileAddressServiceHandler(queryParams, response):
         return response
 
     elif queryParams.has_key("SearchText"):
-        parser = parseaddress.AddressParser()
-        candidates = parser.fullTextSearchAddress(queryParams["SearchText"])
-        s = builder.addressesToResponseText(candidates)
+        s = fulltextsearch.searchAddress(builder, None, queryParams["SearchText"], False)
 
     else:
         s = compileAddress(

@@ -4,6 +4,8 @@ __author__ = 'raugustyn'
 
 import psycopg2
 import codecs
+import compileaddress
+from HTTPShared import *
 
 DATABASE_HOST = "192.168.1.93"
 PORT          = "5432"
@@ -24,6 +26,7 @@ CISLO_DOMOVNI_FIELDNAME = "cislo_domovni"
 CISLO_ORIENTACNI_FIELDNAME = "cislo_orientacni"
 ZNAK_CISLA_ORIENTACNIHO_FIELDNAME = "znak_cisla_orientacniho"
 ZIP_CODE_FIELDNAME = "psc"
+MOP_NUMBER         = "nazev_mop"
 
 # Konstanty pro logickou strukturu databáze
 MAX_TEXT_COUNT = 3 # maximální počet textových položek v adrese ulice, obec, část obce = 3
@@ -438,9 +441,9 @@ class AddressParser:
         innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
         #idLists = ruianDatabase.getQueryResult(innerSql)
 
-        sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8} from {9} where gid IN ({10})".format(
+        sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10})".format(
                 GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
-                CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql))
+                CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql), MOP_NUMBER)
 
         candidates = ruianDatabase.getQueryResult(sql)
         return candidates
@@ -456,6 +459,35 @@ class AddressParser:
                 return False
 
         return True
+
+
+    def buildAddress(self, builder, candidates, withID):
+        items = []
+        for item in candidates:
+            if item[4] == "č.p.":
+                houseNumber = str(item[5])
+                recordNumber = ""
+            else:
+                houseNumber = ""
+                recordNumber = str(item[5])
+
+            subStr = compileaddress.compileAddress(
+                builder,
+                noneToString(item[3]),
+                houseNumber,
+                recordNumber,
+                str(item[6]),
+                noneToString(item[7]),
+                str(item[8]),
+                noneToString(item[1]),
+                noneToString(item[2]),
+                noneToString(item[9])
+            )
+
+            if withID:
+                subStr = str(item[0]) + "\n" + subStr
+            items.append(subStr)
+        return items
 
 
     def fullTextSearchAddress(self, address):

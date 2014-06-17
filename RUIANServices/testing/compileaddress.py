@@ -65,7 +65,7 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
         else:
             tester = testerParam
 
-    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Severn%C3%AD%20Kladno",
+    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Severn%C3%AD,Kladno",
         "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
     tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Mladeznicka%20Kladno",
         "Mládežnická 841, 272 04 Kladno\nMládežnická 842, 272 04 Kladno")

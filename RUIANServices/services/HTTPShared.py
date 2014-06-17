@@ -79,9 +79,6 @@ class MimeBuilder:
     def listToXML(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutput"):
         result = '<?xml version="1.0" encoding="UTF-8"?>' + lineSeparator + "<xml>" + lineSeparator
         for line in listOfLines:
-            #value = dataDict[key]
-            #if type(value) == dict:
-            #    value = self.dictToXML(value, lineSeparator)
             result += "<" + tag + ">" + line + "</" + tag + ">" + lineSeparator
         return result + "</xml>"
 
@@ -89,9 +86,6 @@ class MimeBuilder:
         result = "{"
         index = 0
         for line in listOfLines:
-            #value = dataDict[key]
-            #if type(value) == dict:
-            #    value = self.dictToJSON(value, lineSeparator)
             index += 1
             if index > 1:
                 result += ','
@@ -102,11 +96,8 @@ class MimeBuilder:
     def listToText(self, listOfLines, lineSeparator = "\n"):
         result = ""
         for line in listOfLines:
-            #value = dataDict[key]
-            #if type(value) == dict:
-            #    value = "<div>" + self.dictToText(value, lineSeparator) + "</div>"
             result += line + lineSeparator
-        return result[:-1]
+        return result[:-len(lineSeparator)]
 
     def listToHTML(self, listOfLines, lineSeparator = "<br>"):
         result = ""
@@ -126,7 +117,7 @@ class MimeBuilder:
         elif self.formatText == "json":
             return self.listToJSON(ListOfLines)
         elif self.formatText == "texttoonerow":
-            return self.listToText(ListOfLines, " ")
+            return self.listToText(ListOfLines, ", ")
         else: # default value text
             return self.listToText(ListOfLines)
 

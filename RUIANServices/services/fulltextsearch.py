@@ -14,10 +14,14 @@ __author__ = 'raugustyn'
 from HTTPShared import *
 import parseaddress
 
-def searchAddress(builder, searchFlag, searchText ):
+def searchAddress(builder, searchFlag, searchText, withID = True):
     parser = parseaddress.AddressParser()
     candidates = parser.fullTextSearchAddress(searchText)
-    return builder.addressesToResponseText(candidates)
+    items = parser.buildAddress(builder, candidates, withID)
+    s = builder.listToResponseText(items)
+    return s
+
+
 
 def searchAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
