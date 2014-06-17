@@ -22,11 +22,13 @@ def test(testerParam = None):
     tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=8123934", "1098618.98, 568885.13")
     tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=8150656", "1086263.12, 572291.20")
     tester.loadAndAddTest("/Geocode/txt?", "AddressPlaceId=140k", "")
+ 
     
-    tester.loadAndAddTest("/Geocode/txt?", "SearchText=Hromadova%202741%20Kladno", "1033052.61, 766195.05")
-    tester.loadAndAddTest("/Geocode/txt?", "SearchText=Pra%C5%BEsk%C3%A1%20848%20Rokycany", "1072374.74, 805063.63")
-    tester.loadAndAddTest("/Geocode/txt?", "SearchText=M%C3%A1chova%2030/13%20Vejprty", "982913.93, 833696.81")
-    tester.loadAndAddTest("/Geocode/txt?", "SearchText=Blahoslavova%201710%20Louny", "1007250.67, 781971.94")
+    tester.loadAndAddTest("/Geocode/txt?", "SearchText=Blahoslavova%201710,%20Louny", "1007250.67, 781971.94")
+    tester.loadAndAddTest("/Geocode/txt?", "SearchText=U%20Kam,%20Vys", "1051248.61 759804.26, 1051222.31 759801.78")
+    tester.loadAndAddTest("/Geocode/txt?", "SearchText=Mramorov%C3%A1,%20Tet%C3%ADn", "1055481.79 767602.15, 1055502.63 767570.69, 1055447.02 767576.82")
+    tester.loadAndAddTest("/Geocode/txt?", "SearchText=12", "")
+    
     
     tester.loadAndAddTest("/Geocode/txt?", "Street=Hromadova&Locality=Kladno&HouseNumber=2741&ZIPCode=27201&LocalityPart=Kladno", "1033052.61, 766195.05")
     tester.loadAndAddTest("/Geocode/txt?", "Street=Mari%C3%A1nsk%C3%A1&Locality=Su%C5%A1ice&HouseNumber=67&ZIPCode=34201&LocalityPart=Su%C5%A1ice%20III", "1128217.51, 820609.28")

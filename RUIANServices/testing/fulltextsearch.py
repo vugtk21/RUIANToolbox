@@ -18,25 +18,16 @@ def test(testerParam = None):
                  Textový řetězec adresy může být nestandardně formátován nebo může být i neúplný.""",
                 "Compiling person", "Tester")
 
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Severn%C3%AD,Kladno",
-        "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Severni%20Kladno",
-        "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Sev.%20Kladno",
-        "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Severni%20Klad",
-        "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Ml%C3%A1de%C5%BEnick%C3%A1%20Kladno",
-        "Mládežnická 841, 272 04 Kladno\nMládežnická 842, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Mladeznicka%20Kladno",
-        "Mládežnická 841, 272 04 Kladno\nMládežnická 842, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Kladruby", "č.ev. 11, Kladruby, 258 01\nč.p. 95, Kladruby, 258 01")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=V.%20Dub%C3%AD%20Kladno",
-        "V. Sembdnera 611, Dubí, 272 03 Kladno\nV. Špály 571, Dubí, 272 03 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=V%C3%A1c%20Kladno",
-        "Václava Řacha 1352, Švermov, 273 09 Kladno\nVáclavova 1678, 272 01 Kladno\nVáclava Millera 163, Rozdělov, 272 04 Kladno")
-    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=V%20Kladno%20Kladno",
-        "Václavova 1678, 272 01 Kladno\nV. Burgra 131, 272 04 Kladno\nV. Burgra 132, 272 04 Kladno")
+        
+    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=12", "")
+    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=V%20Hlink%C3%A1ch,%20Vys", "40973298 V Hlinkách 261, 26716 Vysoký Újezd\n72405651 V Hlinkách 265, 26716 Vysoký Újezd\n41446593 V Hlinkách 269, 26716 Vysoký Újezd\n42535581 V Hlinkách 274, 26716 Vysoký Újezd\n41447018 V Hlinkách 268, 26716 Vysoký Újezd")
+    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=U%20Kam,%20Vys", "41326474 U Kamene 181, 26716 Vysoký Újezd\n42616123 U Kamene 182, 26716 Vysoký Újezd")
+    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Mramor,%20Tet%C3%ADn", "1521209 Mramorová 234, 26601 Tetín\n1521292 Mramorová 243, 26601 Tetín\n1521225 Mramorová 236, 26601 Tetín")
+    tester.loadAndAddTest("/FullTextSearch/txt/?", "SearchText=Fill,%20Praha", "21867178 Fillova 990/1, Krč, 14000 Praha 4\n21867054 Fillova 980/5, Krč, 14000 Praha 4\n21868107 Fillova 1084/11, Krč, 14000 Praha 4\n21867038 Fillova 979/7, Krč, 14000 Praha 4\n21867160 Fillova 989/3, Krč, 14000 Praha 4")
+     
+     
+    
+    
     tester.closeSection()
 
 

@@ -65,13 +65,12 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
         else:
             tester = testerParam
 
-    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Severn%C3%AD,Kladno",
-        "Severní 507, 272 04 Kladno\nSeverní 508, 272 04 Kladno\nSeverní 509, 272 04 Kladno")
-    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Mladeznicka%20Kladno",
-        "Mládežnická 841, 272 04 Kladno\nMládežnická 842, 272 04 Kladno")
-    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Kladruby", "č.ev. 11, 258 01 Kladruby\nč.p. 95, 258 01 Kladruby")
+    
+    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Mramor,%20Tet%C3%ADn", "1521209 Mramorová 234, 26601 Tetín\n1521292 Mramorová 243, 26601 Tetín\n1521225 Mramorová 236, 26601 Tetín")
+    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=12", "")
         
 
+    addTestByID("/CompileAddress/text?AddressPlaceId=41326474", u"U Kamene 181\n26716 Vysoký Újezd")    
     addTestByID("/CompileAddress/text?AddressPlaceId=21907145", u"Na lánech 598/13\nMichle\n14100 Praha 4")
     addTestByID("/CompileAddress/text?AddressPlaceId=25021478", u"Lesní 345/5\n35301 Mariánské Lázně")
     addTestByID("/CompileAddress/text?AddressPlaceId=16512171", u"Pašinovice 8\n37401 Komařice")
@@ -83,8 +82,8 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
     addTest(u"", u"", u"42", u"", u"", u"10400", u"Praha", u"Křeslice", u"10", u"Křeslice č.ev. 42\n10400 Praha 10")
     addTest(u"Lhenická", u"1120", u"", u"1", u"", u"37005", u"České Budějovice", u"České Budějovice 2", u"", u"Lhenická 1120/1\nČeské Budějovice 2\n37005 České Budějovice")
     addTest(u"Holická", u"568", u"", u"31", u"y", u"779 00", u"Olomouc", u"Hodolany", u"", u"Holická 568/31y\nHodolany\n77900 Olomouc")
-    addTest(u"Lhenická", u"1120", u"", u"", u"", u"370 05", u"České Budějovice", u"České Budějovice 2", u"", u"Lhenická 1120\nČeské Budějovice 2\n37005 České Budějovice")
-    addTest(u"Lhenická", u"", u"12", u"", u"", u"37005", u"České Budějovice", u"České Budějovice 2", u"", u"Lhenická č.ev. 12\nČeské Budějovice 2\n37005 České Budějovice")
+    addTest(u"Na Herinkách", u"85", u"", u"", u"", u"26601", u"Beroun", u"Beroun-Závodí", u"", u"Na Herinkách 85\nBeroun-Závodí\n26601 Beroun")
+    addTest(u"Na Herinkách", u"", u"97", u"", u"", u"26601", u"Beroun", u"Beroun-Závodí", u"", u"Na Herinkách č.ev. 97\nBeroun-Závodí\n26601 Beroun")
     addTest(u"Žamberecká", u"339", u"", u"", u"", u"51601", u"Vamberk", u"Vamberk", u"", u"Žamberecká 339\n51601 Vamberk")
     addTest(u"Žamberecká", u"339", u"", u"1", u"", u"51601", u"Vamberk", u"Vamberk", u"", u"Žamberecká 339/1\n51601 Vamberk")
     addTest(u"Lidická", u"2858", u"", u"49", u"F", u"78701", u"Šumperk", u"Šumperk", u"", u"Lidická 2858/49F\n78701 Šumperk")
