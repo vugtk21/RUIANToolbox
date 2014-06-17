@@ -7,10 +7,12 @@ from HTTPShared import *
 
 import addresswebservices
 import web
+import os
 
 from config import SERVER_HTTP
 from config import PORT_NUMBER
 from config import SERVICES_WEB_PATH
+from config import HTMLDATA_URL
 
 path = SERVICES_WEB_PATH.split("/")
 serverPathDepth = 0
@@ -18,12 +20,20 @@ for item in path:
     if item != "":
         serverPathDepth = serverPathDepth + 1
 
+def getHTMLPath():
+    paths = os.path.dirname(__file__).split("/")
+    paths = paths[:len(paths) - 1]
+    return "/".join(paths) + "/html/"
+
 
 def getFileContent(fileName):
-    f = open(fileName)
-    s = f.read()
-    f.close()
-    return s
+    if os.path.exists(fileName):
+        f = open(fileName, "rb")
+        s = f.read()
+        f.close()
+        return s
+    else:
+        return "File " + fileName + " not found."
 
 def ProcessRequest(page, queryParams, response):
     addresswebservices.console.clear()
@@ -31,8 +41,10 @@ def ProcessRequest(page, queryParams, response):
     if page in ["/", ""]:
         response.htmlData = pageBuilder.getServicesHTMLPage("", {})
         response.handled = True
-    elif page.find(".") >= 0:
-        response.htmlData =  getFileContent(SERVICES_WEB_PATH + page) # TODO Implementovat vracení binárních souborů
+    elif page.find(".") >= 0 and page[:len(SERVICES_WEB_PATH)] != SERVICES_WEB_PATH:
+        path = getHTMLPath()
+        page = page.replace(HTMLDATA_URL, path)
+        response.htmlData = getFileContent(page) # TODO Implementovat vracení binárních souborů
         response.handled = True
     else:
         fullPathList = page.replace("//", "/")
@@ -71,9 +83,11 @@ class MyApplication(web.application):
         func = self.wsgifunc(*middleware)
         return web.httpserver.runsimple(func, (SERVER_HTTP, port))
 
+
 class favicon:
     def GET(self):
         pass
+
 
 class handler:
     def doProcessRequest(self, page):
@@ -89,6 +103,7 @@ class handler:
 
     def POST(self, page):
         return self.doProcessRequest(page)
+
 
 if __name__ == "__main__":
     import sys

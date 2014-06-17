@@ -24,6 +24,7 @@ import compileaddress
 from config import SERVER_HTTP
 from config import PORT_NUMBER
 from config import SERVICES_WEB_PATH
+from config import HTMLDATA_URL
 
 SERVICES_PATH = '' # 'services'
 
@@ -243,6 +244,7 @@ class ServicesHTMLPageBuilder:
         result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + ":" + str(PORT_NUMBER) + "/" + SERVICES_WEB_PATH )
 
 
+        #url = SERVER_HTTP + ":" + str(PORT_NUMBER) + HTMLDATA_URL
         result = result.replace("#HTMLDATA_URL#", HTMLDATA_URL)
 
         queryParams = self.normalizeQueryParams(queryParams)
