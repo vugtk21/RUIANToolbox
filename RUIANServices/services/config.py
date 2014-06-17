@@ -1,6 +1,7 @@
 __author__ = 'Augustyn'
 
-from SharedTools.Config import Config
+from SharedTools.config import Config
+import os
 
 def convertServicesCfg(config):
     if config == None: return
@@ -11,7 +12,7 @@ def convertServicesCfg(config):
         config.portNumber = int(config.portNumber)
     pass
 
-config = Config("RUIANDownload.cfg",
+config = Config(os.path.join(os.path.dirname(__file__), "RUIANServices.cfg"),
             {
                 "serverHTTP" : 'www.vugtk.cz',
                 "portNumber" : 80,

@@ -3,6 +3,7 @@ __author__ = 'raugustyn'
 import os
 import codecs
 import sys
+from log import logger
 
 def strTo127(s):
     result = ""
@@ -25,6 +26,7 @@ class Config:
 
     def __init__(self, fileName, attrs = {}, afterLoadProc = None):
         self.fileName = fileName
+        self.afterLoadProc = afterLoadProc
         self.attrs = attrs # Tabulka vsech atributu, jak nactenych, tak povolenych
         self._remapTable = {} # Tabulka mapovani downloadfulldatabase -> downloadFullDatabase
 
@@ -34,8 +36,18 @@ class Config:
                 if key != key.lower():
                     self._remapTable[key.lower()] = key
 
-        basePath = os.path.join(os.path.dirname(__file__), "RUIANDownload.cfg")
-        file = codecs.open(basePath, "r", "utf-8")
+        if not os.path.exists(self.fileName):
+            self.save()
+            logger.error("Configuration file " + self.fileName + " not found.")
+            logger.error("File has been created from template. Please edit configuration file and run program again.")
+            import sys
+            sys.exit()
+        else:
+            self.loadFile()
+
+
+    def loadFile(self):
+        file = codecs.open(self.fileName, "r", "utf-8")
         for line in file:
             if line.find("#") >= 0:
                 line = line[:line.find("#") - 1]
@@ -47,7 +59,8 @@ class Config:
             self.attrs[name] = value
             pass
         file.close()
-        if afterLoadProc != None: afterLoadProc(self)
+        if self.afterLoadProc != None:
+            self.afterLoadProc(self)
 
 
     def _getAttrName(self, name):

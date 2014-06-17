@@ -22,8 +22,8 @@ from htmllog import htmlLog
 #from configreader import config
 #from configreader import pathWithLastSlash
 
-from SharedTools.Config import pathWithLastSlash
-from SharedTools.Config import Config
+from SharedTools.config import pathWithLastSlash
+from SharedTools.config import Config
 
 def convertImportRUIANCfg(config):
     if config == None: return

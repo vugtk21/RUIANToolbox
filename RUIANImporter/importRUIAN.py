@@ -4,8 +4,8 @@ __author__ = 'Augustyn'
 import codecs
 import sys
 
-from SharedTools.Config import pathWithLastSlash
-from SharedTools.Config import Config
+from SharedTools.config import pathWithLastSlash
+from SharedTools.config import Config
 
 config = Config("importRUIAN.cfg",
             {
