@@ -12,7 +12,7 @@ def convertServicesCfg(config):
     if config == None: return
 
     if config.portNumber == "":
-        config.portNumber = 0
+        config.portNumber = 80
     else:
         config.portNumber = int(config.portNumber)
     pass
@@ -33,6 +33,11 @@ config = Config(os.path.join(os.path.dirname(__file__), "RUIANServices.cfg"),
            convertServicesCfg)
 
 SERVER_HTTP = config.serverHTTP
+if config.portNumber == 80:
+    PORT_SPECIFICATION = ""
+else:
+    PORT_SPECIFICATION = ":" + str(config.portNumber)
+
 PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath
 HTMLDATA_URL = config.htmlDataURL
