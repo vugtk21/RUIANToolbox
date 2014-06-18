@@ -95,11 +95,11 @@ class MimeBuilder:
     def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutputLine"):
         result = "{"
         index = 0
-        for line in listOfLines:
+        for item in listOfLines:
             index += 1
             if index > 1:
                 result += ','
-            result += lineSeparator + '"' + tag + str(index) + '" : "' + line + '"'
+            result += lineSeparator + '"' + tag + str(index) + '" : {' + lineSeparator + item + "\t}"
         result += lineSeparator + "}"
         return result
 
@@ -117,16 +117,16 @@ class MimeBuilder:
             result += line
         return result
 
-    def listToResponseText(self, ListOfLines):
+    def listToResponseText(self, ListOfLines, ignoreOneRow=False):
         if self.formatText == "xml":
             return self.listToXML(ListOfLines)
-        elif self.formatText == "html":
+        elif self.formatText == "html" or (ignoreOneRow and self.formatText == "htmltoonerow"):
             return self.listToHTML(ListOfLines)
         elif self.formatText == "htmltoonerow":
             return self.listToHTML(ListOfLines, " ")
         elif self.formatText == "json":
             return self.listToJSON(ListOfLines)
-        elif self.formatText == "texttoonerow":
+        elif not ignoreOneRow and self.formatText == "texttoonerow":
             return self.listToText(ListOfLines, ", ")
         else: # default value text
             return self.listToText(ListOfLines)

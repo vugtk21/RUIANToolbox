@@ -44,6 +44,31 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
         @param orientationNumber number  Číslo orientační
         @param orientationNumberCharacter string  Písmeno čísla orientačního
     """
+
+    if builder.formatText == "json":
+        if houseNumber != "":
+            sign = u"č.p."
+            addressNumber = houseNumber
+        else:
+            sign = u"č.ev."
+            addressNumber = recordNumber
+
+        if orientationNumber != "":
+            houseNumberStr = '\t"' + sign +'": ' + addressNumber + ',\n\t"orientační_číslo": ' + orientationNumber + orientationNumberCharacter + ','
+        else:
+            houseNumberStr ='\t"' + sign +'": ' + addressNumber + ','
+
+        if street != "":
+            street = '\t"ulice": ' + street + ",\n"
+
+        if locality == localityPart or localityPart == "":
+            townDistrict = '\t"obec" : ' + locality
+        else:
+            townDistrict = '\t"obec" : ' + locality + ',\n\t"část_obce": ' + localityPart
+
+        result = street + houseNumberStr + '\n\t"PSČ" :' + zipCode + ",\n" + townDistrict + "\n"
+        return result
+
     lines = []
     zipCode = formatZIPCode(zipCode)
     houseNumber = numberCheck(houseNumber)
@@ -89,9 +114,6 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
             lines.append(townInfo)
         pass
 
-    #textDict = {
-    #  "address" : "\n".join(lines)
-    #}
     return builder.listToResponseText(lines)
 
 def compileAddressServiceHandler(queryParams, response):
@@ -121,6 +143,7 @@ def compileAddressServiceHandler(queryParams, response):
 
     elif queryParams.has_key("SearchText"):
         s = fulltextsearch.searchAddress(builder, None, queryParams["SearchText"], False)
+        response.htmlData = s
 
     else:
         s = compileAddress(
@@ -135,7 +158,7 @@ def compileAddressServiceHandler(queryParams, response):
             p("LocalityPart"),
             p("DistrictNumber")
         )
-    response.htmlData = s
+        response.htmlData = builder.listToResponseText([s])
     #response.mimeFormat = builder.getMimeFormat() #getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response

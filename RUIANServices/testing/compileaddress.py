@@ -42,6 +42,7 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
         params = buildParamString(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
         try:
             result = urllib2.urlopen(sharedtools.SERVER_URL + params).read()
+            result = "\n".join(result.splitlines())
         except Exception as inst:
             result = str(inst)
         #result = "aaa" #result.decode("utf-8")
@@ -56,6 +57,7 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
         except Exception as inst:
             result = str(inst)
         #result = result.strip()
+        result = "\n".join(result.splitlines())
         #result = urllib.quote(codecs.encode(result, "utf-8"))
         tester.addTest(path, result, expectedValue, "")
 

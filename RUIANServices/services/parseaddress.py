@@ -460,7 +460,6 @@ class AddressParser:
 
         return True
 
-
     def buildAddress(self, builder, candidates, withID):
         items = []
         for item in candidates:
@@ -485,10 +484,16 @@ class AddressParser:
             )
 
             if withID:
-                subStr = str(item[0]) + builder.lineSeparator + subStr
+                subStr = self.addId(str(item[0]), subStr, builder)
+                #subStr = str(item[0]) + builder.lineSeparator + subStr
             items.append(subStr)
         return items
 
+    def addId(self, id, str, builder):
+        if builder.formatText == "json":
+            return '\t"id": ' + id + ",\n" + str
+        else:
+            return id + builder.lineSeparator + str
 
     def fullTextSearchAddress(self, address):
         items = self.analyse(address, False)

@@ -18,7 +18,7 @@ def searchAddress(builder, searchFlag, searchText, withID = True):
     parser = parseaddress.AddressParser()
     candidates = parser.fullTextSearchAddress(searchText)
     items = parser.buildAddress(builder, candidates, withID)
-    s = builder.listToResponseText(items)
+    s = builder.listToResponseText(items, True)
     return s
 
 
