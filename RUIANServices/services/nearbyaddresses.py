@@ -14,6 +14,7 @@ __author__ = 'Radek Augustýn'
 
 import RUIANConnection
 from HTTPShared import *
+import compileaddress
 
 def FormatAddress(address):
     FormatedAddress = u""
@@ -54,10 +55,11 @@ def nearByAddresses(builder, JTSKY, JTSKX, Distance):
         lines = []
 
         for address in addresses:
-            FormatedAdress = FormatAddress(address)
-            lines.append(FormatedAdress)
+            #FormatedAdress = FormatAddress(address)
+            FormattedAdress = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
+            lines.append(FormattedAdress)
 
-        return builder.listToResponseText(lines)
+        return builder.listToResponseText(lines, True)
     else:
         return ""
 
