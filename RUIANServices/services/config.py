@@ -5,7 +5,7 @@ import os.path, sys
 basePath = os.path.join(os.path.dirname(__file__), "../..")
 if not basePath in sys.path: sys.path.append(basePath)
 
-from SharedTools.config import Config
+from SharedTools.Config import Config
 import os
 
 def convertServicesCfg(config):
