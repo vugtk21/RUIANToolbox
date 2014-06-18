@@ -66,7 +66,7 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
             tester = testerParam
 
     
-    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Mramor,%20Tet%C3%ADn", "1521209 Mramorová 234, 26601 Tetín\n1521292 Mramorová 243, 26601 Tetín\n1521225 Mramorová 236, 26601 Tetín")
+    tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=Mramor,%20Tet%C3%ADn", "Mramorová 234, 26601 Tetín\nMramorová 243, 26601 Tetín\nMramorová 236, 26601 Tetín")
     tester.loadAndAddTest("/CompileAddress/txt/?", "SearchText=12", "")
         
 
