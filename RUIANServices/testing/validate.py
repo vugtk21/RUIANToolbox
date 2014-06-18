@@ -38,10 +38,11 @@ def test(testerParam = None):
         params = params.decode("utf-8")
         tester.addTest(params, result, expectedValue, "")
 
-    addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507", "True")
+    addTest("/Validate/txt?", "Street=Severní", "False")
+    addTest("/Validate/txt?", "Street=Severní&HouseNumber=507", "False")
+    addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507", "False")
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507&ZIPCode=27204&LocalityPart=Kladno", "True")
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507&ZIPCode=27206&LocalityPart=Kladno", "False")
-    addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=120", "False")
     addTest("/Validate/txt?", "Street=Žižkova&Locality=Jirkov&ZIPCode=43111&LocalityPart=Jirkov&RecordNumber=263", "True")
     addTest("/Validate/txt?", "Street=Rodinná&Locality=Havířov&HouseNumber=1003&ZIPCode=73601&LocalityPart=Bludovice&OrientationNumber=25", "True")
     addTest("/Validate/txt?", "Street=U%20Jeslí&Locality=Broumov&HouseNumber=222&ZIPCode=55001&LocalityPart=Nové%20Město", "True")
