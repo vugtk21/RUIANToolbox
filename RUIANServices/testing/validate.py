@@ -41,6 +41,9 @@ def test(testerParam = None):
     addTest("/Validate/txt?", "Street=Severní", "False")
     addTest("/Validate/txt?", "Street=Severní&HouseNumber=507", "False")
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507", "False")
+    addTest("/Validate/txt?", "Street=Severn%C3%AD&RecordNumber=25", "False")
+    addTest("/Validate/txt?", "Street=Fillova&HouseNumber=980&OrientationNumber=5", "False")
+    
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507&ZIPCode=27204&LocalityPart=Kladno", "True")
     addTest("/Validate/txt?", "Street=Severní&Locality=Kladno&HouseNumber=507&ZIPCode=27206&LocalityPart=Kladno", "False")
     addTest("/Validate/txt?", "Street=Žižkova&Locality=Jirkov&ZIPCode=43111&LocalityPart=Jirkov&RecordNumber=263", "True")
