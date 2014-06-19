@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
 import psycopg2
 from RUIANConnection import *
+
 
 from config import config
 
@@ -39,6 +41,14 @@ def numberToString(number):
         return ""
     else:
         return str(number)
+
+def formatToQuery(item):
+    if item == "":
+        return None
+    elif item.strip().isdigit():
+        return int(item)
+    else:
+        return item
 
 def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
@@ -81,22 +91,59 @@ def _getNearbyLocalities(y,x,distance):
         addresses.append(adr)
     return addresses
 
+def addToQuery(atribute, comparator, first):
+    if first:
+        query = atribute + " " + comparator + " %s"
+    else:
+        query = " AND " + atribute + " " + comparator + " %s"
+    return query
+
 def _validateAddress(dictionary):
     first = True
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cursor = con.cursor()
 
     query = "SELECT * FROM " + TABLE_NAME + " WHERE "
-
+    tuple = ()
     for key in dictionary:
-        if dictionary[key] != "":
-            if first:
-                query += ITEM_TO_DBFIELDS[key] + " = '" + dictionary[key] + "'"
+        if key == "houseNumber":
+            if dictionary[key] != "":
+                if oneHouseNumber:
+                    return ["False"]
+                else:
+                    oneHouseNumber = True
+                query += addToQuery("typ_so","=",first)
                 first = False
+                tuple = tuple + (u"č.p.",)
             else:
-                query += " AND " + ITEM_TO_DBFIELDS[key] + " = '" + dictionary[key] + "'"
+                continue
+        if key == "recordNumber":
+            if dictionary[key] != "":
+                if oneHouseNumber:
+                    return ["False"]
+                else:
+                    oneHouseNumber = True
+                query += addToQuery("typ_so","=",first)
+                first = False
+                tuple = tuple + (u"č.ev.",)
+            else:
+                continue
 
-    cursor.execute(query)
+        if key == "districtNumber" and dictionary[key] != "":
+            value = formatToQuery(dictionary["locality"] + " " + dictionary["districtNumber"])
+        else:
+            value = formatToQuery(dictionary[key])
+        tuple = tuple + (value,)
+
+        if value is None:
+            comparator = "is"
+        else:
+            comparator = "="
+        query += addToQuery(ITEM_TO_DBFIELDS[key], comparator, first)
+        first = False
+
+    a = cursor.mogrify(query,tuple)
+    cursor.execute(a)
     row = cursor.fetchone()
     if row:
         return ["True"]

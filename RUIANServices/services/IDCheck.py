@@ -11,11 +11,10 @@ import sharetools
 def IDCheckServiceHandler(queryParams, response, builder):
     response.mimeFormat = builder.getMimeFormat()
     address = RUIANConnection.findAddress(sharetools.getKeyValue(queryParams, "AddressPlaceId"))
-    if address:
-        response.handled = True
-    else:
-        response.handled = False
+    response.handled = True
+    if not address:
         return response
+
     if address.districtNumber != "":
         district = address.districtNumber.split(" ")
         districtNumber = district[1]
