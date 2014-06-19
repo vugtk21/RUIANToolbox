@@ -42,8 +42,8 @@ def createServiceHandlers():
             u"""Umožňuje nalézt a zobrazit seznam pravděpodobných adres na základě textového řetězce adresy.
             Textový řetězec adresy může být nestandardně formátován nebo může být i neúplný.""",
             [
-                getResultFormatParam(),
-                RestParam("/SearchFlag", u"Způsob vyhledávání", u"Upřesnění způsobu vyhledávání (Match, Similar)")
+                getResultFormatParam()
+                #, RestParam("/SearchFlag", u"Způsob vyhledávání", u"Upřesnění způsobu vyhledávání (Match, Similar)")
             ],
             [
                 getSearchTextParam()

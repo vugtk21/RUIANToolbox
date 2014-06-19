@@ -30,8 +30,13 @@ config = Config("RUIANServices.cfg",
                 "serverHTTP" : 'www.vugtk.cz',
                 "portNumber" : 80,
                 "servicesWebPath" : "euradin/services/rest.py/",
-                "htmlDataDir" : "Downloads\\",
-                "htmlDataURL" : '/euradin/_euradin_services/'
+                "htmlDataDir"  : "Downloads\\",
+                "htmlDataURL"  : '/euradin/_euradin_services/',
+                "databaseHost" : "192.168.1.93",
+                "databasePort" : "5432",
+                "databaseName" : "euradin",
+                "databaseUserName" : "postgres",
+                "databasePassword" : "postgres"
             },
            convertServicesCfg)
 

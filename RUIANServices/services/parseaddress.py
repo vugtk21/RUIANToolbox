@@ -7,11 +7,13 @@ import codecs
 import compileaddress
 from HTTPShared import *
 
-DATABASE_HOST = "192.168.1.93"
-PORT          = "5432"
-DATABASE_NAME = "euradin"
-USER_NAME     = "postgres"
-PASSWORD      = "postgres"
+from config import config
+
+DATABASE_HOST = config.databaseHost
+PORT          = config.databasePort
+DATABASE_NAME = config.databaseName
+USER_NAME     = config.databaseUserName
+PASSWORD      = config.databasePassword
 
 ADDRESSPOINTS_TABLENAME = "address_points"
 FULLTEXT_TABLENAME = "fulltext"
