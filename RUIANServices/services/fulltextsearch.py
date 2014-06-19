@@ -22,7 +22,6 @@ def searchAddress(builder, searchFlag, searchText, withID = True):
     return s
 
 
-
 def searchAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()

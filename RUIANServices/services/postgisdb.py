@@ -3,11 +3,14 @@ __author__ = 'Augustyn'
 import psycopg2
 from RUIANConnection import *
 
-DATABASE_HOST = "192.168.1.93"
-PORT = "5432"
-DATABSE_NAME = "euradin"
-USER_NAME = "postgres"
-PASSWORD = "postgres"
+from config import config
+
+DATABASE_HOST = config.databaseHost
+PORT          = config.databasePort
+DATABASE_NAME = config.databaseName
+USER_NAME     = config.databaseUserName
+PASSWORD      = config.databasePassword
+
 TABLE_NAME = "address_points"
 
 ITEM_TO_DBFIELDS = {
@@ -38,7 +41,7 @@ def numberToString(number):
         return str(number)
 
 def _findAddress(ID):
-    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
     cur.execute("SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
@@ -57,7 +60,7 @@ def _findAddress(ID):
         return None
 
 def _getNearbyLocalities(y,x,distance):
-    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
     query = "SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)" % (str(x), str(y), str(distance),)
     query += " LIMIT 25;"
@@ -80,7 +83,7 @@ def _getNearbyLocalities(y,x,distance):
 
 def _validateAddress(dictionary):
     first = True
-    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cursor = con.cursor()
 
     query = "SELECT * FROM " + TABLE_NAME + " WHERE "
@@ -110,7 +113,7 @@ def _validateAddress(dictionary):
 #    return rows
 
 def _findCoordinates(ID):
-    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
     cur.execute("SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
@@ -122,7 +125,7 @@ def _findCoordinates(ID):
 
 def _findCoordinatesByAddress(dictionary):
     first = True
-    con = psycopg2.connect(host=DATABASE_HOST, database=DATABSE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
 
     query = "SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE "
