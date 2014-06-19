@@ -17,6 +17,9 @@ def convertServicesCfg(config):
         config.portNumber = int(config.portNumber)
     pass
 
+    if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
+        config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
+
     if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
         config.htmlDataURL = config.htmlDataURL[1:]
 
