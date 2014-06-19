@@ -438,15 +438,18 @@ class AddressParser:
         for item in analysedItems:
             if item.isTextField and len(item.value) >= 2:
                 sqlItems.append("searchstr ilike '%" + item.value + "%'")
-        innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
+        if sqlItems != []:
+            innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
         #idLists = ruianDatabase.getQueryResult(innerSql)
 
-        sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10})".format(
+            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10})".format(
                 GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
                 CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql), MOP_NUMBER)
 
-        candidates = ruianDatabase.getQueryResult(sql)
-        return candidates
+            candidates = ruianDatabase.getQueryResult(sql)
+            return candidates
+        else:
+            return []
 
 
     def compare(self, items, candidateValues):
