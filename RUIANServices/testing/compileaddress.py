@@ -75,7 +75,8 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
     addTestByID("/CompileAddress/text?AddressPlaceId=21907145", u"Na lánech 598/13\nMichle\n14100 Praha 4")
     addTestByID("/CompileAddress/text?AddressPlaceId=25021478", u"Lesní 345/5\n35301 Mariánské Lázně")
     addTestByID("/CompileAddress/text?AddressPlaceId=16512171", u"Pašinovice 8\n37401 Komařice")
-    addTestByID("/CompileAddress/text?AddressPlaceId=165k", u"")
+    addTestByID("/CompileAddress/text?AddressPlaceId=165k", u"") #ošetření chyby - zadání omylem znaku do identifikátoru
+    addTestByID("/CompileAddress/text?AddressPlaceId=12", u"") #ošetření chyby - zadání identifikátoru, který není v DB
 
     addTest(u"Arnošta Valenty", u"670", u"", u"31", u"", u"19800", u"Praha", u"Černý Most", u"9", u"Arnošta Valenty 670/31\nČerný Most\n19800 Praha 9")
     addTest(u"Arnošta Valenty", u"670", u"", u"", u"", u"198 00", u"Praha", u"Černý Most", u"9", u"Arnošta Valenty 670\nČerný Most\n19800 Praha 9")
