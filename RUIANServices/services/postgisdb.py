@@ -100,6 +100,7 @@ def addToQuery(atribute, comparator, first):
 
 def _validateAddress(dictionary):
     first = True
+    oneHouseNumber = False
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cursor = con.cursor()
 

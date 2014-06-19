@@ -487,7 +487,7 @@ class AddressParser:
                 noneToString(item[3]),
                 houseNumber,
                 recordNumber,
-                str(item[6]),
+                noneToString(item[6]),
                 noneToString(item[7]),
                 str(item[8]),
                 noneToString(item[1]),

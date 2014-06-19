@@ -25,7 +25,7 @@ def validateAddress(builder, street, houseNumber, recordNumber, orientationNumbe
     "recordNumber": recordNumber,
     "orientationNumber": orientationNumber,
     "orientationNumberCharacter": orientationNumberCharacter,
-    "zipCode": zipCode,
+    "zipCode": zipCode.replace(" ", ""),
     "locality": locality,
     "localityPart": localityPart,
     "districtNumber": districtNumber

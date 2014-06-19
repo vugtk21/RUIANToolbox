@@ -353,7 +353,7 @@ def alphaCheck(possibleAlpha):
         return ""
 
 def rightAddress(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
-    psc = zipCode.strip()
+    psc = zipCode.replace(" ", "")
     if houseNumber != "" and not houseNumber.isdigit():
         return False
     if orientationNumber != "" and not orientationNumber.isdigit():
