@@ -25,7 +25,7 @@ def convertServicesCfg(config):
 
 
 
-config = Config(os.path.join(os.path.dirname(__file__), "RUIANServices.cfg"),
+config = Config("RUIANServices.cfg",
             {
                 "serverHTTP" : 'www.vugtk.cz',
                 "portNumber" : 80,

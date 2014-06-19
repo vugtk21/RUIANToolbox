@@ -37,11 +37,18 @@ class Config:
                     self._remapTable[key.lower()] = key
 
         if not os.path.exists(self.fileName):
-            self.save()
-            logger.error("Configuration file " + self.fileName + " not found.")
-            logger.error("File has been created from template. Please edit configuration file and run program again.")
-            import sys
-            sys.exit()
+            tempCfgFileName = "c:/temp/" + self.fileName
+            if os.path.exists(tempCfgFileName):
+                logger.warning("Configuration file " + self.fileName + " not found.")
+                logger.warning("File was found at c:/temp, using it.")
+                self.fileName = tempCfgFileName
+                self.loadFile()
+            else:
+                self.save()
+                logger.error("Configuration file " + self.fileName + " not found.")
+                logger.error("File has been created from template. Please edit configuration file and run program again.")
+                import sys
+                sys.exit()
         else:
             self.loadFile()
 
