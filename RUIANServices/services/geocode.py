@@ -105,7 +105,7 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("Locality",          u"Obec",  u"Obec"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
+                URLParam("DistrictNumber",    u"Číslo městského obvodu", u"Číslo městského obvodu, pokud existuje")
             ],
             geocodeAddressServiceHandler,
             sendButtonCaption = u"Najdi polohu",

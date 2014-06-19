@@ -61,12 +61,47 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
         if street != "":
             street = '\t"ulice": ' + street + ",\n"
 
-        if locality == localityPart or localityPart == "":
-            townDistrict = '\t"obec" : ' + locality
+        if districtNumber != "":
+            districtNumberStr = ',\n\t"číslo_městského_obvodu": ' + districtNumber
         else:
-            townDistrict = '\t"obec" : ' + locality + ',\n\t"část_obce": ' + localityPart
+            districtNumberStr = ""
+
+        if locality == localityPart or localityPart == "":
+            townDistrict = '\t"obec": ' + locality + districtNumberStr
+        else:
+            townDistrict = '\t"obec": ' + locality + districtNumberStr + ',\n\t"část_obce": ' + localityPart
+
 
         result = street + houseNumberStr + '\n\t"PSČ" :' + zipCode + ",\n" + townDistrict + "\n"
+        return result
+
+    elif builder.formatText == "xml":
+        if houseNumber != "":
+            sign = "c.p."
+            addressNumber = houseNumber
+        else:
+            sign = "c.ev."
+            addressNumber = recordNumber
+
+        if orientationNumber != "":
+            houseNumberStr = '\t<' + sign +'>' + addressNumber + '</' + sign +'>\n\t<orientacni_cislo>' + orientationNumber + orientationNumberCharacter + '</orientacni_cislo>'
+        else:
+            houseNumberStr ='\t<' + sign +'>' + addressNumber + '</' + sign +'>'
+
+        if street != "":
+            street = '\t<ulice>' + street + "</ulice>\n"
+
+        if districtNumber != "":
+            districtNumberStr = '\n\t<cislo_mestskeho_obvodu>' + districtNumber + '</cislo_mestskeho_obvodu>'
+        else:
+            districtNumberStr = ""
+
+        if locality == localityPart or localityPart == "":
+            townDistrict = '\t<obec>' + locality + "</obec>" + districtNumberStr
+        else:
+            townDistrict = '\t<obec>' + locality + '</obec>' + districtNumberStr + '\n\t<cast_obce>' + localityPart + '</cast_obce>'
+
+        result = street + houseNumberStr + '\n\t<PSC>' + zipCode + "</PSC>\n" + townDistrict + "\n"
         return result
 
     lines = []
@@ -183,7 +218,7 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
                 URLParam("Locality",          u"Obec",  u"Obec"),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("DistrictNumber",    u"Obvod", u"Číslo městského obvodu, pokud existuje")
+                URLParam("DistrictNumber",    u"Číslo městského obvodu", u"Číslo městského obvodu, pokud existuje")
             ],
             compileAddressServiceHandler,
             sendButtonCaption = u"Sestav adresu",

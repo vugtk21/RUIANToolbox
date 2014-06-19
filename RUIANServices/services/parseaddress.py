@@ -470,6 +470,13 @@ class AddressParser:
                 houseNumber = ""
                 recordNumber = str(item[5])
 
+            mop = noneToString(item[9])
+            if mop != "":
+                pom = mop.split()
+                districtNumber = pom[1]
+            else:
+                districtNumber = ""
+
             subStr = compileaddress.compileAddress(
                 builder,
                 noneToString(item[3]),
@@ -480,7 +487,7 @@ class AddressParser:
                 str(item[8]),
                 noneToString(item[1]),
                 noneToString(item[2]),
-                noneToString(item[9])
+                districtNumber
             )
 
             if withID:
@@ -492,6 +499,8 @@ class AddressParser:
     def addId(self, id, str, builder):
         if builder.formatText == "json":
             return '\t"id": ' + id + ",\n" + str
+        elif builder.formatText == "xml":
+            return "\t<id>" + id + "</id>\n" + str
         else:
             return id + builder.lineSeparator + str
 

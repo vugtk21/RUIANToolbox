@@ -89,10 +89,10 @@ class MimeBuilder:
     def listToXML(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutput"):
         result = '<?xml version="1.0" encoding="UTF-8"?>' + lineSeparator + "<xml>" + lineSeparator
         for line in listOfLines:
-            result += "<" + tag + ">" + line + "</" + tag + ">" + lineSeparator
+            result += "<" + tag + ">" + lineSeparator + line + "</" + tag + ">" + lineSeparator
         return result + "</xml>"
 
-    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutputLine"):
+    def listToJSON(self, listOfLines, lineSeparator = "\n", tag = "FormattedOutput"):
         result = "{"
         index = 0
         for item in listOfLines:
