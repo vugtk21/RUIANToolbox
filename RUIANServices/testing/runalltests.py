@@ -24,3 +24,10 @@ if __name__ == '__main__':
     validateaddressid.test(tester)
 
     tester.saveToHTML("TestResults.html")
+
+    compileaddress.test()
+    fulltextsearch.test()
+    geocode.test()
+    nearbyaddresses.test()
+    validate.test()
+    validateaddressid.test()

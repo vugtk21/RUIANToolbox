@@ -3,7 +3,7 @@ __author__ = 'Augustyn'
 
 import codecs
 import urllib2
-import urllib
+import os
 
 #SERVER_URL = "http://localhost:5689/"
 #SERVER_URL = "http://localhost/ruian/rest.py/"
@@ -140,19 +140,13 @@ class FormalTester:
     def loadAndAddTest(self, path, params, expectedValue):
         paramsList = params.split("&")
         query = []
-        #for param in paramsList:
-            #v = param.split("=")
-            #query.append(v[0] + "=" + urllib.quote(codecs.encode(v[1], "utf-8")))
-        #params = "&".join(query)
 
         params = path + params
         try:
             result = urllib2.urlopen(SERVER_URL + params).read()
         except Exception as inst:
             result = str(inst)
-        #result = urllib.quote(codecs.encode(result, "utf-8"))
         result = "\n".join(result.splitlines())
-        #result = makeDelimetersVisible(result)
         params = params.decode("utf-8")
         self.addTest(params, result, expectedValue, "")
 
