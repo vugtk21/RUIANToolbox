@@ -232,9 +232,14 @@ class ServicesHTMLPageBuilder:
             #      param.shortDesc + ', parametr ' + param.name + \
             #      '" onchange="' + onChangeProcCode + '" />'
         else:
+            if param.disabled:
+                disabledStr = ' disabled="disabled" '
+            else:
+                disabledStr = ''
+
             result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + ', parametr ' + param.name + \
-                  '" onchange="' + onChangeProcCode + '" />'
+                  '" onchange="' + onChangeProcCode + '" ' + disabledStr + '/>'
         #result += '<td>' + param.name + ' </td><td>'
         result += '</tr>'
         return result
@@ -270,8 +275,8 @@ class ServicesHTMLPageBuilder:
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>
-                <input type="radio" name= "radio""" + service.pathName + u"""" value="id" checked>Identifikátor RÚIAN
-                <input type="radio" name= "radio""" + service.pathName + u"""" value="adresa">Textový řetězec adresy
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="id">Identifikátor RÚIAN
+                <input type="radio" name= "radio""" + service.pathName + u"""" value="adresa"  checked>Textový řetězec adresy
                 <input type="radio" name= "radio""" + service.pathName + u"""" value="vstup">Jednotlivé prvky adresy
                 """
 

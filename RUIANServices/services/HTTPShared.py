@@ -24,7 +24,7 @@ def getAddressPlaceIdParamRest():
     return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
 
 def getAddressPlaceIdParamURL():
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True)
 
 class HTTPResponse():
     def __init__(self, handled, mimeFormat = "text/html", htmlData = ""):
@@ -33,11 +33,12 @@ class HTTPResponse():
         self.htmlData = htmlData
 
 class URLParam:
-    def __init__(self, name, caption, shortDesc, htmlDesc = ""):
+    def __init__(self, name, caption, shortDesc, htmlDesc = "", disabled = False):
         self.name  = name
         self.caption   = caption
         self.shortDesc = shortDesc
         self.htmlDesc  = htmlDesc
+        self.disabled = disabled
 
 class RestParam(URLParam):
     def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):
