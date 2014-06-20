@@ -26,6 +26,9 @@ def getAddressPlaceIdParamRest():
 def getAddressPlaceIdParamURL():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True)
 
+def getAddressPlaceIdParamURL_IdNotDisabled():
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False)
+
 class HTTPResponse():
     def __init__(self, handled, mimeFormat = "text/html", htmlData = ""):
         self.handled = handled

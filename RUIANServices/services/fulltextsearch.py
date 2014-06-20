@@ -25,11 +25,16 @@ def searchAddress(builder, searchFlag, searchText, withID = True):
 def searchAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
+    if queryParams.has_key("SuppressID"):
+        withID = False
+    else:
+        withID = True
 
     s = searchAddress(
         builder,
         p(queryParams, "SearchFlag"),
-        p(queryParams, "SearchText")
+        p(queryParams, "SearchText"),
+        withID
     )
     response.htmlData = s
     response.handled = True
@@ -45,7 +50,8 @@ def createServiceHandlers():
                 #, RestParam("/SearchFlag", u"Způsob vyhledávání", u"Upřesnění způsobu vyhledávání (Match, Similar)")
             ],
             [
-                getSearchTextParam()
+                getSearchTextParam(),
+                URLParam("SuppressID",        u"Potlač identifikátor", u"Nevypíše identifikátor RÚIAN při více než jednom nalezeném záznamu", "", False)
             ],
             searchAddressServiceHandler,
             sendButtonCaption = u"Vyhledej adresu",

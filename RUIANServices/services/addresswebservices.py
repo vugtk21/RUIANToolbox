@@ -59,10 +59,12 @@ $(function() {
             $(this).parent().find("td input").attr("disabled", "disabled");
             $(this).parent().find("td input").eq(0).removeAttr("disabled");
             $(this).parent().find("td input").eq(11).removeAttr("disabled");
+            $(this).parent().find("td input").eq(12).removeAttr("disabled");
         }
         else if (this.value == 'adresa') {
             $(this).parent().find("td input").attr("disabled", "disabled");
             $(this).parent().find("td input").eq(11).removeAttr("disabled");
+            $(this).parent().find("td input").eq(12).removeAttr("disabled");
             $(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
       });
@@ -109,6 +111,15 @@ $(function() {
 
 
 	}
+
+	function stopRKey(evt) {
+        var evt = (evt) ? evt : ((event) ? event : null);
+        var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+        if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+    }
+
+document.onkeypress = stopRKey;
+
     </script>
 
 
@@ -295,7 +306,7 @@ class ServicesHTMLPageBuilder:
             if service.pathName == pathInfo:
                 tabIndex = i
 
-            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
+            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/" + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>

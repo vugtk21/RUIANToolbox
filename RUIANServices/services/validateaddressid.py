@@ -39,7 +39,7 @@ def createServiceHandlers():
                 getResultFormatParam()
             ],
             [
-                getAddressPlaceIdParamURL()
+                getAddressPlaceIdParamURL_IdNotDisabled()
             ],
             validateAddressIdServiceHandler,
             sendButtonCaption = u"Ověř identifikátor adresy",
