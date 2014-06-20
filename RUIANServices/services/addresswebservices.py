@@ -22,7 +22,7 @@ import validateaddressid
 from HTTPShared import *
 import compileaddress
 from config import SERVER_HTTP
-from config import PORT_SPECIFICATION
+from config import getPortSpecification
 from config import SERVICES_WEB_PATH
 from config import HTMLDATA_URL
 
@@ -241,10 +241,10 @@ class ServicesHTMLPageBuilder:
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
         result = PAGE_TEMPLATE.replace("#PAGETITLE#", u"Webové služby RÚIAN")
-        result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + PORT_SPECIFICATION + "/" + SERVICES_WEB_PATH )
+        result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH )
 
 
-        url = "http://" + SERVER_HTTP + PORT_SPECIFICATION + "/" + HTMLDATA_URL
+        url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + HTMLDATA_URL
         result = result.replace("#HTMLDATA_URL#", url)
 
         queryParams = self.normalizeQueryParams(queryParams)
@@ -266,7 +266,7 @@ class ServicesHTMLPageBuilder:
             if service.pathName == pathInfo:
                 tabIndex = i
 
-            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + ":" + str(PORT_SPECIFICATION) + "/" + SERVICES_WEB_PATH + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
+            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>
@@ -298,7 +298,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += "<a href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>show tests</a>"
             #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
 
-            url = "http://" + SERVER_HTTP + PORT_SPECIFICATION + "/" + HTMLDATA_URL + service.pathName + '.png'
+            url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + HTMLDATA_URL + service.pathName + '.png'
             tabDivs += '<p>\n<img src="' + url + '"></p>\n'
 
             tabDivs += '</div>\n'

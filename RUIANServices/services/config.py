@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
 # Setup path to RUIANToolbox
@@ -17,9 +18,17 @@ def convertServicesCfg(config):
         config.portNumber = int(config.portNumber)
     pass
 
+    config.noCGIAppPortNumber = int(config.noCGIAppPortNumber)
+
+    # noCGIAppServerHTTP nemůže být prázdné
+    if config.noCGIAppServerHTTP == "":
+        config.noCGIAppServerHTTP = "localhost"
+
+    # servicesWebPath nemá mít lomítko na konci
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
+    # htmlDataURL nemá mít lomítko na začátku
     if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
         config.htmlDataURL = config.htmlDataURL[1:]
 
@@ -36,15 +45,21 @@ config = Config("RUIANServices.cfg",
                 "databasePort" : "5432",
                 "databaseName" : "euradin",
                 "databaseUserName" : "postgres",
-                "databasePassword" : "postgres"
+                "databasePassword" : "postgres",
+                "noCGIAppServerHTTP" : "localhost",
+                "noCGIAppPortNumber" : 5689
             },
            convertServicesCfg)
 
+
+
+def getPortSpecification():
+    if config.portNumber == 80:
+        return ""
+    else:
+        return ":" + str(config.portNumber)
+
 SERVER_HTTP = config.serverHTTP
-if config.portNumber == 80:
-    PORT_SPECIFICATION = ""
-else:
-    PORT_SPECIFICATION = ":" + str(config.portNumber)
 
 PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath

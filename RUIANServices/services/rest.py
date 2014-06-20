@@ -13,6 +13,7 @@ from config import SERVER_HTTP
 from config import PORT_NUMBER
 from config import SERVICES_WEB_PATH
 from config import HTMLDATA_URL
+from config import config
 
 path = SERVICES_WEB_PATH.split("/")
 serverPathDepth = 0
@@ -79,9 +80,9 @@ def ProcessRequest(page, queryParams, response):
 urls = ('/favicon.ico', 'favicon', '/(.*)', 'handler')
 
 class MyApplication(web.application):
-    def run(self, port = PORT_NUMBER, *middleware):
+    def run(self, port = config.noCGIAppPortNumber, *middleware):
         func = self.wsgifunc(*middleware)
-        return web.httpserver.runsimple(func, (SERVER_HTTP, port))
+        return web.httpserver.runsimple(func, (config.noCGIAppServerHTTP, port))
 
 
 class favicon:
@@ -139,5 +140,10 @@ if __name__ == "__main__":
             print "doProcessRequest Error"
 
     else:
+        config.serverHTTP = config.noCGIAppServerHTTP
+        SERVER_HTTP = config.noCGIAppServerHTTP
+        config.portNumber = config.noCGIAppPortNumber
+        PORT_NUMBER = config.noCGIAppPortNumber
+
         app = MyApplication(urls, globals())
-        app.run(port = PORT_NUMBER)
+        app.run(port = config.noCGIAppPortNumber)
