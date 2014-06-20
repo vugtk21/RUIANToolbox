@@ -5,7 +5,7 @@ import codecs
 import urllib2
 import urllib
 
-#SERVER_URL = "http://localhost:8080/"
+#SERVER_URL = "http://localhost:5689/"
 #SERVER_URL = "http://localhost/ruian/rest.py/"
 SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py/"
 
@@ -97,7 +97,7 @@ class FormalTester:
 
     def addTest(self, inputs, result, expectedResult, errorMessage = ""):
         #result = makeDelimetersVisible(result)
-        result = unicode(result)
+        #result = unicode(result)
         self.numTests = self.numTests + 1
 
         if str(result) == expectedResult:
