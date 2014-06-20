@@ -249,19 +249,22 @@ class ServicesHTMLPageBuilder:
                             '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
                     '</select>'
-            #result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
-            #      param.shortDesc + ', parametr ' + param.name + \
-            #      '" onchange="' + onChangeProcCode + '" />'
         else:
             if param.disabled:
                 disabledStr = ' disabled="disabled" '
             else:
                 disabledStr = ''
 
+            if param.name == "SuppressID":
+                inputTypeStr = ' type="checkbox" '
+            else:
+                inputTypeStr = ""
+
+
             result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + ', parametr ' + param.name + \
-                  '" onchange="' + onChangeProcCode + '" ' + disabledStr + '/>'
-        #result += '<td>' + param.name + ' </td><td>'
+                  '" onchange="' + onChangeProcCode + '" ' + disabledStr + inputTypeStr + '/>'
+
         result += '</tr>'
         return result
 
@@ -315,7 +318,7 @@ class ServicesHTMLPageBuilder:
 
             tabDivs += '</table>\n'
 
-            tabDivs += '<input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
+            tabDivs += '<br><input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
             tabDivs += '</form>\n'
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
