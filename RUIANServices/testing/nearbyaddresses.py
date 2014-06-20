@@ -23,6 +23,7 @@ zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN 
             result = str(inst)
         #result = result.strip()
         #result = urllib.quote(codecs.encode(result, "utf-8"))
+        result = "\n".join(result.splitlines())
         tester.addTest(path, result, expectedValue, "")
 
     addTest("/NearbyAddresses/textToOneRow/655180/1030800/50", "č.p. 22, 50315 Pšánky")
