@@ -94,7 +94,7 @@ class handler:
     def doProcessRequest(self, page):
         response = ProcessRequest(page, web.input(), HTTPResponse(False))
         if response.handled:
-            web.header("Content-Type", response.mimeFormat)
+            web.header("Content-Type", response.mimeFormat + ";charset=utf-8")
             return response.htmlData
         else:
             return "doProcessRequest Error"
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
         response = ProcessRequest(pathInfo, query, HTTPResponse(False))
         if response.handled:
-            print "Content-Type: " + response.mimeFormat    # HTML is following
+            print "Content-Type: " + response.mimeFormat + ";charset=utf-8"   # HTML is following
             print                                           # blank line, end of headers
             #print response.htmlData.encode('utf-8')
             sys.stdout.write(response.htmlData.encode('utf-8'))
