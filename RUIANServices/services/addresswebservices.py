@@ -39,6 +39,7 @@ PAGE_TEMPLATE = u'''
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="#HTMLDATA_URL#" />
     <script>
 $(function() {
     $( "#tabs" ).tabs(#TABSOPTIONS#);
