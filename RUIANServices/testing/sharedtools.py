@@ -87,6 +87,7 @@ class FormalTester:
 
         if desc != "":
             self.content += "<p>" + desc + \
+                                      u" Výpis výsledků testu nemusí být z důvodu úspory místa ve výpisu zcela přesný, pro přesnou podobu je možné použít odkaz" + \
                                       u"<br><br>Testovaný server: <a href='" + SERVER_URL + "'>" + SERVER_URL + "</a><br>" + \
                                       "</p>\n"
 
