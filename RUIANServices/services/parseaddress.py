@@ -457,8 +457,9 @@ class AddressParser:
     def compare(self, items, candidateValues):
         for item in items:
             found = False
+            lowerValue = item.value.lower()
             for candidate in candidateValues:
-                if str(candidate).find(item.value) == 0:
+                if str(candidate).lower().find(lowerValue) == 0:
                     found = True
             if not found:
                 return False
