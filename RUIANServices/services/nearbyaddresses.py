@@ -52,25 +52,17 @@ def FormatAddress(address):
 def nearByAddresses(builder, JTSKY, JTSKX, Distance, withID):
     if JTSKX.isdigit() and JTSKY.isdigit() and Distance.isdigit():
         addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
-        #lines = []
-
-        #for address in addresses:
-            #FormatedAdress = FormatAddress(address)
-            #FormattedAdress = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
         parser = parseaddress.AddressParser()
         FormattedAddress = parser.buildAddress(builder,addresses,withID)
         s = builder.listToResponseText(FormattedAddress, True)
         return s
-        #lines.append(FormattedAdress)
-
-        #return builder.listToResponseText(lines, True)
     else:
         return ""
 
 def nearByAddressesServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
-    withID = queryParams["SuppressID"].lower() == "id"
+    withID = queryParams["ExtraInformation"].lower() == "id"
 
     s = nearByAddresses(
         builder,
@@ -96,7 +88,7 @@ def createServiceHandlers():
                 RestParam("/Distance", u"Vzdálenost", u"Vzdálenost v metrech od vloženého bodu")
             ],
             [
-                URLParam("SuppressID",        u"Potlač identifikátor", u"Nevypíše identifikátor RÚIAN při více než jednom nalezeném záznamu", "", False)
+                URLParam("ExtraInformation", u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
             ],
             nearByAddressesServiceHandler,
             sendButtonCaption = u"Hledej blízké adresy",

@@ -281,7 +281,7 @@ class ServicesHTMLPageBuilder:
             else:
                 addressOption = ""
             result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
-                            '<option value="standard">standardní formát</option>' + \
+                            '<option value="standard">žádné</option>' + \
                             '<option value="id">přidat ID</option>' + addressOption + \
                     '</select>'
         else:
