@@ -33,6 +33,17 @@ PAGE_TEMPLATE = u'''
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <style>
         body { font-family: Tahoma }
+
+        .enhancedGUI{
+          display: none;
+        }
+
+        #enhancedGUIButton{
+          position: absolute;
+          top: 10px;
+          right: 40px;
+          z-index:10;
+        }
     </style>
     <title>#PAGETITLE#</title>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
@@ -47,7 +58,7 @@ $(function() {
     </script>
 
 
-    <script>
+  <script>
     $(document).ready(function() {
       $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
         if (this.value == 'vstup') {
@@ -67,6 +78,9 @@ $(function() {
             $(this).parent().find("td input").eq(12).removeAttr("disabled");
             $(this).parent().find("td input").eq(1).removeAttr("disabled");
         }
+      });
+      $("#enhancedGUIButton").click(function(){
+            $(".enhancedGUI").toggle();
       });
     });
   </script>
@@ -174,6 +188,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
     <body>
     <h1>#PAGETITLE#</h1>
+    <input type = "button" value = "Rozšířené rozhraní" id = "enhancedGUIButton">
     #CONSOLELINES#
 <div id="tabs">
   <ul>
@@ -306,7 +321,7 @@ class ServicesHTMLPageBuilder:
             if service.pathName == pathInfo:
                 tabIndex = i
 
-            tabDivs += u'<span name="' + urlSpanName + '" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/" + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
+            tabDivs += u'<span name="' + urlSpanName + '" class = "enhancedGUI" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/" + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>
@@ -335,11 +350,11 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"
 
-            tabDivs += "<a href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>show tests</a>"
+            tabDivs += "<a class = 'enhancedGUI' href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>show tests</a>"
             #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
 
             url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + HTMLDATA_URL + service.pathName + '.png'
-            tabDivs += '<p>\n<img src="' + url + '"></p>\n'
+            tabDivs += '<p>\n<img class = "enhancedGUI" src="' + url + '"></p>\n'
 
             tabDivs += '</div>\n'
             i = i + 1
