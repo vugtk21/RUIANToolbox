@@ -25,10 +25,10 @@ def searchAddress(builder, searchFlag, searchText, withID = True):
 def searchAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
-    if queryParams.has_key("SuppressID"):
-        withID = False
-    else:
+    if queryParams["SuppressID"] == "id":
         withID = True
+    else:
+        withID = False
 
     s = searchAddress(
         builder,

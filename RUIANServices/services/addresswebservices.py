@@ -267,7 +267,7 @@ class ServicesHTMLPageBuilder:
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
         if param.name == '/Format':
-            result += '<select input name="' + formName + '_' + param.name + 'title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
+            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
                             '<option value="textToOneRow">text do řádku</option>' + \
                             '<option value="xml">xml</option>' + \
@@ -275,21 +275,24 @@ class ServicesHTMLPageBuilder:
                             '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
                     '</select>'
+        elif param.name == 'SuppressID':
+            if formName == "form_1":
+                addressOption = '<option value="address">přidat adresu</option>'
+            else:
+                addressOption = ""
+            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
+                            '<option value="standard">standardní formát</option>' + \
+                            '<option value="id">přidat ID</option>' + addressOption + \
+                    '</select>'
         else:
             if param.disabled:
                 disabledStr = ' disabled="disabled" '
             else:
                 disabledStr = ''
 
-            if param.name == "SuppressID":
-                inputTypeStr = ' type="checkbox" '
-            else:
-                inputTypeStr = ""
-
-
             result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + ', parametr ' + param.name + \
-                  '" onchange="' + onChangeProcCode + '" ' + disabledStr + inputTypeStr + '/>'
+                  '" onchange="' + onChangeProcCode + '" ' + disabledStr + '/>'
 
         result += '</tr>'
         return result

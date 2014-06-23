@@ -177,7 +177,8 @@ def compileAddressServiceHandler(queryParams, response):
         return response
 
     elif queryParams.has_key("SearchText"):
-        s = fulltextsearch.searchAddress(builder, None, queryParams["SearchText"], False)
+        withID = queryParams["SuppressID"].lower() == "id"
+        s = fulltextsearch.searchAddress(builder, None, queryParams["SearchText"], withID)
         response.htmlData = s
 
     else:
@@ -218,7 +219,8 @@ def createServiceHandlers():
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True),
                 URLParam("Locality",          u"Obec",  u"Obec", "", True),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", "", True),
-                URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje", "", True)
+                URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje", "", True),
+                URLParam("SuppressID",        u"Potlač identifikátor", u"Nevypíše identifikátor RÚIAN při více než jednom nalezeném záznamu", "", False)
             ],
             compileAddressServiceHandler,
             sendButtonCaption = u"Sestav adresu",

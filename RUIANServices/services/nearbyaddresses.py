@@ -14,7 +14,7 @@ __author__ = 'Radek Augustýn'
 
 import RUIANConnection
 from HTTPShared import *
-import compileaddress
+import parseaddress
 
 def FormatAddress(address):
     FormatedAddress = u""
@@ -49,29 +49,35 @@ def FormatAddress(address):
 
     return FormatedAddress
 
-def nearByAddresses(builder, JTSKY, JTSKX, Distance):
+def nearByAddresses(builder, JTSKY, JTSKX, Distance, withID):
     if JTSKX.isdigit() and JTSKY.isdigit() and Distance.isdigit():
         addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
-        lines = []
+        #lines = []
 
-        for address in addresses:
+        #for address in addresses:
             #FormatedAdress = FormatAddress(address)
-            FormattedAdress = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
-            lines.append(FormattedAdress)
+            #FormattedAdress = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
+        parser = parseaddress.AddressParser()
+        FormattedAddress = parser.buildAddress(builder,addresses,withID)
+        s = builder.listToResponseText(FormattedAddress, True)
+        return s
+        #lines.append(FormattedAdress)
 
-        return builder.listToResponseText(lines, True)
+        #return builder.listToResponseText(lines, True)
     else:
         return ""
 
 def nearByAddressesServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
+    withID = queryParams["SuppressID"].lower() == "id"
 
     s = nearByAddresses(
         builder,
         p(queryParams, "JTSKY", ""),
         p(queryParams, "JTSKX", ""),
-        p(queryParams, "Distance", "")
+        p(queryParams, "Distance", ""),
+        withID
     )
     response.htmlData = s
     #response.mimeFormat = getMimeFormat(p("Format", "xml"))
@@ -89,7 +95,9 @@ def createServiceHandlers():
                 RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
                 RestParam("/Distance", u"Vzdálenost", u"Vzdálenost v metrech od vloženého bodu")
             ],
-            [ ],
+            [
+                URLParam("SuppressID",        u"Potlač identifikátor", u"Nevypíše identifikátor RÚIAN při více než jednom nalezeném záznamu", "", False)
+            ],
             nearByAddressesServiceHandler,
             sendButtonCaption = u"Hledej blízké adresy",
             htmlInputTemplate = '''<select>

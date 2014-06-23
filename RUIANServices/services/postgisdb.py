@@ -69,27 +69,31 @@ def _findAddress(ID):
     else:
         return None
 
+
+
 def _getNearbyLocalities(y,x,distance):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    query = "SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)" % (str(x), str(y), str(distance),)
+    query = "SELECT gid, nazev_obce, nazev_casti_obce, nazev_ulice, typ_so, cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)" % (str(x), str(y), str(distance),)
     query += " LIMIT 25;"
+    #query = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9} FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-{10} -{11})',5514),{12})".format("gid", "nazev_obce", "nazev_casti_obce", "nazev_ulice", "typ_so", "cislo_domovni", "cislo_orientacni", "znak_cisla_orientacniho", "psc", "nazev_mop", str(x), str(y), str(distance))
     cur.execute(query)
     rows = cur.fetchall()
-    addresses = []
-    for row in rows:
-        if row[2][-3:] == ".p.":
-            houseNumber = numberToString(row[1])
-            recordNumber = ""
-        elif row[2][-3:] == "ev.":
-            houseNumber = ""
-            recordNumber = numberToString(row[1])
-        else:
-            continue
-        #psc = (numberToString(row[5]).decode("utf-8"))
-        adr = Address((noneToString(row[0]).decode("utf-8")),houseNumber,recordNumber,(noneToString(row[3]).decode("utf-8")),(noneToString(row[4]).decode("utf-8")),(numberToString(row[5]).decode("utf-8")),(noneToString(row[6]).decode("utf-8")),(noneToString(row[7]).decode("utf-8")),(noneToString(row[8]).decode("utf-8")))
-        addresses.append(adr)
-    return addresses
+    return rows
+    #addresses = []
+    #for row in rows:
+    #    if row[4][-3:] == ".p.":
+    #        houseNumber = numberToString(row[5])
+    #        recordNumber = ""
+    #    elif row[4][-3:] == "ev.":
+    #        houseNumber = ""
+    #        recordNumber = numberToString(row[5])
+    #    else:
+    #        continue
+    #    #psc = (numberToString(row[5]).decode("utf-8"))
+    #    adr = Address((noneToString(row[1]).decode("utf-8")),houseNumber,recordNumber,(noneToString(row[4]).decode("utf-8")),(noneToString(row[5]).decode("utf-8")),(numberToString(row[6]).decode("utf-8")),(noneToString(row[7]).decode("utf-8")),(noneToString(row[8]).decode("utf-8")),(noneToString(row[9]).decode("utf-8")))
+    #    addresses.append(adr)
+    #return addresses
 
 def addToQuery(atribute, comparator, first):
     if first:
