@@ -275,7 +275,7 @@ class ServicesHTMLPageBuilder:
                             '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
                     '</select>'
-        elif param.name == 'SuppressID':
+        elif param.name == 'ExtraInformation':
             if formName == "form_1":
                 addressOption = '<option value="address">přidat adresu</option>'
             else:
