@@ -27,13 +27,6 @@ class TextFormat:
     json      = 2
     html      = 3
 
-def formatZIPCode(code):
-    code = code.replace(" ", "")
-    if code.isdigit():
-        return code
-    else:
-        return ""
-
 def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     """
         @param street            string  Název ulice
@@ -46,110 +39,16 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
     """
 
     if builder.formatText == "json":
-        if houseNumber != "":
-            sign = u"č.p."
-            addressNumber = houseNumber
-        else:
-            sign = u"č.ev."
-            addressNumber = recordNumber
-
-        if orientationNumber != "":
-            houseNumberStr = '\t"' + sign +'": ' + addressNumber + ',\n\t"orientační_číslo": ' + orientationNumber + orientationNumberCharacter + ','
-        else:
-            houseNumberStr ='\t"' + sign +'": ' + addressNumber + ','
-
-        if street != "":
-            street = '\t"ulice": ' + street + ",\n"
-
-        if districtNumber != "":
-            districtNumberStr = ',\n\t"číslo_městského_obvodu": ' + districtNumber
-        else:
-            districtNumberStr = ""
-
-        if locality == localityPart or localityPart == "":
-            townDistrict = '\t"obec": ' + locality + districtNumberStr
-        else:
-            townDistrict = '\t"obec": ' + locality + districtNumberStr + ',\n\t"část_obce": ' + localityPart
-
-
-        result = street + houseNumberStr + '\n\t"PSČ" :' + zipCode + ",\n" + townDistrict + "\n"
-        return result
+        return compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
 
     elif builder.formatText == "xml":
-        if houseNumber != "":
-            sign = "c.p."
-            addressNumber = houseNumber
-        else:
-            sign = "c.ev."
-            addressNumber = recordNumber
+        return compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
 
-        if orientationNumber != "":
-            houseNumberStr = '\t<' + sign +'>' + addressNumber + '</' + sign +'>\n\t<orientacni_cislo>' + orientationNumber + orientationNumberCharacter + '</orientacni_cislo>'
-        else:
-            houseNumberStr ='\t<' + sign +'>' + addressNumber + '</' + sign +'>'
+    elif builder.formatText == "texttoonerow" or builder.formatText == "htmltoonerow":
+        return compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
 
-        if street != "":
-            street = '\t<ulice>' + street + "</ulice>\n"
-
-        if districtNumber != "":
-            districtNumberStr = '\n\t<cislo_mestskeho_obvodu>' + districtNumber + '</cislo_mestskeho_obvodu>'
-        else:
-            districtNumberStr = ""
-
-        if locality == localityPart or localityPart == "":
-            townDistrict = '\t<obec>' + locality + "</obec>" + districtNumberStr
-        else:
-            townDistrict = '\t<obec>' + locality + '</obec>' + districtNumberStr + '\n\t<cast_obce>' + localityPart + '</cast_obce>'
-
-        result = street + houseNumberStr + '\n\t<PSC>' + zipCode + "</PSC>\n" + townDistrict + "\n"
-        return result
-
-    lines = []
-    zipCode = formatZIPCode(zipCode)
-    houseNumber = numberCheck(houseNumber)
-    orientationNumber = numberCheck(orientationNumber)
-    districtNumber = numberCheck(districtNumber)
-    orientationNumberCharacter = alphaCheck(orientationNumberCharacter)
-
-    townInfo = zipCode + " " + locality#unicode(locality, "utf-8")
-    if districtNumber != "":
-        townInfo += " " + districtNumber
-
-    if houseNumber != "":
-        houseNumberStr = " " + houseNumber
-        if orientationNumber != "":
-            houseNumberStr += u"/" + orientationNumber + orientationNumberCharacter
-    elif recordNumber != "":
-        houseNumberStr = u" č.ev. " + recordNumber
     else:
-        houseNumberStr = ""
-
-    if locality.upper() == "PRAHA":
-        if street != "":
-            lines.append(street + houseNumberStr)#(unicode(street, "utf-8") + houseNumberStr)
-            lines.append(localityPart)#(unicode(localityPart, "utf-8"))
-            lines.append(townInfo)
-        else:
-            lines.append(localityPart + houseNumberStr)#(unicode(localityPart, "utf-8") + houseNumberStr)
-            lines.append(townInfo)
-    else:
-        if street != "":
-            lines.append(street + houseNumberStr)#(unicode(street, "utf-8") + houseNumberStr)
-            if localityPart != locality:
-                lines.append(localityPart)#(unicode(localityPart, "utf-8"))
-            lines.append(townInfo)
-        else:
-            if localityPart != locality:
-                lines.append(localityPart + houseNumberStr)#(unicode(localityPart, "utf-8") + houseNumberStr)
-            else:
-                if houseNumber != "":
-                    lines.append(u"č.p."+houseNumberStr)
-                else:
-                    lines.append(houseNumberStr[1:])
-            lines.append(townInfo)
-        pass
-
-    return builder.listToResponseText(lines)
+        return builder.listToResponseText(compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
 
 def compileAddressServiceHandler(queryParams, response):
 

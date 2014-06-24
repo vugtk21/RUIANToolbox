@@ -54,7 +54,8 @@ def geocodeAddressServiceHandler(queryParams, response):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         queryParams["AddressPlaceId"] = numberCheck(queryParams["AddressPlaceId"])
         if queryParams["AddressPlaceId"] != "":
-            s = builder.coordintesToResponseText(geocodeID(queryParams["AddressPlaceId"]))
+            candidates = geocodeID(queryParams["AddressPlaceId"])
+            s = builder.coordintesToResponseText(candidates)
         else:
             response.htmlData = ""
             response.mimeFormat = builder.getMimeFormat()
@@ -64,10 +65,25 @@ def geocodeAddressServiceHandler(queryParams, response):
     elif queryParams.has_key("SearchText"):
         parser = parseaddress.AddressParser()
         candidates = parser.fullTextSearchAddress(queryParams["SearchText"])
-        temp = []
+        lines = []
         for candidate in candidates:
-            temp = geocodeID(candidate[0]) + temp
-        s = builder.coordintesToResponseText(temp)
+            coordinates = geocodeID(candidate[0])
+            if coordinates == []:
+                continue
+            else:
+                temp = coordinates[0]
+            if candidate[4] == "č.p.":
+                houseNumber = candidate[5]
+                recordNumber = ""
+            else:
+                houseNumber = ""
+                recordNumber = candidate[5]
+            dictionary = {"JTSKX": temp.JTSKX, "JTSKY": temp.JTSKY,"id": str(candidate[0]), "locality": candidate[1], "localityPart": candidate[2], "street": noneToString(candidate[3]), "houseNumber": noneToString(houseNumber), "recordNumber": noneToString(recordNumber), "orientationNumber": noneToString(candidate[6]), "orientationNumberCharacter": noneToString(candidate[7]), "zipCode": noneToString(candidate[8]), "districtNumber": noneToString(candidate[9])}
+            lines.append(dictionary)
+        withID = queryParams["ExtraInformation"] == "id"
+        withAddress = queryParams["ExtraInformation"] == "address"
+        s = builder.listOfDictionariesToResponseText(lines, withID, withAddress)
+        #s = builder.coordintesToResponseText(temp)
 
     else:
         s = geocodeAddress(
