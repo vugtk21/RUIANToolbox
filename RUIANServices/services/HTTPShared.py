@@ -137,7 +137,7 @@ class MimeBuilder:
         else: # default value text
             return self.listToText(ListOfLines)
 
-    def dictionaryToResponseText(self, dictionary, withID, withAddress):
+    def dictionaryToText(self, dictionary, withID, withAddress):
         response = dictionary["JTSKX"] + ", " + dictionary["JTSKY"]
         if withID:
             response = dictionary["id"] + ", " + response
@@ -157,21 +157,43 @@ class MimeBuilder:
         return response
 
     def dictionaryToJSON(self, dict, withID, withAddress):
-        pass
+        response = "\n\t{\n"
+        if withID:
+            response += '\t"id":' + dict["id"] + ",\n"
+        response += '\t"JTSKX":' + dict["JTSKX"] + ",\n"
+        response += '\t"JTSKY":' + dict["JTSKY"]
+        if withAddress:
+            response += ",\n" + compileAddressAsJSON(dict["street"], dict["houseNumber"], dict["recordNumber"], dict["orientationNumber"], dict["orientationNumberCharacter"],dict["zipCode"], dict["locality"], dict["localityPart"], dict["districtNumber"])
+        else:
+            response += "\n"
+        response += "\t}"
+        return response
 
     def listOfDictionariesToResponseText(self, listOfDictionaries, withID, withAddress):
         response = ""
         if self.formatText == "xml":
-            core = ""
+            head = '<?xml version="1.0" encoding="UTF-8"?>\n<xml>\n'
+            body = ""
+            tail = "</xml>"
             for dict in listOfDictionaries:
-                core += self.dictionaryToXML(dict, withID, withAddress)
-            return core #pro testování
+                body += self.dictionaryToXML(dict, withID, withAddress)
+            return head + body + tail
         elif self.formatText == "json":
-            core = self.dictionaryToJSON(dict, withID, withAddress)
-            return core #pro testování
+            head = '{\n"records": ['
+            body = ""
+            tail = "\n]}"
+            first = True
+            for dict in listOfDictionaries:
+                if first:
+                    first = False
+                else:
+                    body += ","
+                body += self.dictionaryToJSON(dict, withID, withAddress)
+            return head + body + tail
         else:
             for dict in listOfDictionaries:
                 response += self.dictionaryToText(dict, withID, withAddress) + self.lineSeparator
+            response = response[:-len(self.lineSeparator)]
         return response
 
     def coordinatesToXML(self, listOfCoordinates, lineSeparator = "\n", tag = "Coordinates"):

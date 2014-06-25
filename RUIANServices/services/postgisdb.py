@@ -76,7 +76,6 @@ def _getNearbyLocalities(y,x,distance):
     cur = con.cursor()
     query = "SELECT gid, nazev_obce, nazev_casti_obce, nazev_ulice, typ_so, cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)" % (str(x), str(y), str(distance),)
     query += " LIMIT 25;"
-    #query = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9} FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-{10} -{11})',5514),{12})".format("gid", "nazev_obce", "nazev_casti_obce", "nazev_ulice", "typ_so", "cislo_domovni", "cislo_orientacni", "znak_cisla_orientacniho", "psc", "nazev_mop", str(x), str(y), str(distance))
     cur.execute(query)
     rows = cur.fetchall()
     return rows
@@ -167,10 +166,16 @@ def _validateAddress(dictionary):
 def _findCoordinates(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    cur.execute("SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
+    cur.execute("SELECT latitude, longitude, gid, nazev_obce, nazev_casti_obce, nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row and row[0] is not None and row[1] is not None:
-        c = Coordinates(str("{:10.2f}".format(row[0])).strip(), str("{:10.2f}".format(row[1])).strip())
+        if row[7] == "č.p.":
+            houseNumber = numberToString(row[6])
+            recordNumber = ""
+        elif row[7] == "č.ev.":
+            houseNumber = ""
+            recordNumber = numberToString(row[6])
+        c = (str("{:10.2f}".format(row[0])).strip(), str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), noneToString(row[11]))
         return [c]
     else:
         return []

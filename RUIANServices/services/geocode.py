@@ -49,18 +49,22 @@ def geocodeAddressServiceHandler(queryParams, response):
     resultFormat = p("Format", "text")
     builder = MimeBuilder(resultFormat)
     response.mimeFormat = builder.getMimeFormat()
+    withID = queryParams["ExtraInformation"] == "id"
+    withAddress = queryParams["ExtraInformation"] == "address"
 
     if queryParams.has_key("AddressPlaceId"):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
         queryParams["AddressPlaceId"] = numberCheck(queryParams["AddressPlaceId"])
         if queryParams["AddressPlaceId"] != "":
-            candidates = geocodeID(queryParams["AddressPlaceId"])
-            s = builder.coordintesToResponseText(candidates)
+            coordinates = geocodeID(queryParams["AddressPlaceId"])
+            if coordinates != []:
+                temp = coordinates[0]
+                dictionary = {"JTSKX": temp[0], "JTSKY": temp[1],"id": str(temp[2]), "locality": temp[3], "localityPart": temp[4], "street": temp[5], "houseNumber": temp[6], "recordNumber": temp[7], "orientationNumber": temp[8], "orientationNumberCharacter": temp[9], "zipCode": temp[10], "districtNumber": temp[11]}
+                s = builder.listOfDictionariesToResponseText([dictionary], withID, withAddress)
+            else:
+                s = ""
         else:
-            response.htmlData = ""
-            response.mimeFormat = builder.getMimeFormat()
-            response.handled = True
-            return response
+            s = ""
 
     elif queryParams.has_key("SearchText"):
         parser = parseaddress.AddressParser()
@@ -72,16 +76,14 @@ def geocodeAddressServiceHandler(queryParams, response):
                 continue
             else:
                 temp = coordinates[0]
-            if candidate[4] == "č.p.":
-                houseNumber = candidate[5]
-                recordNumber = ""
-            else:
-                houseNumber = ""
-                recordNumber = candidate[5]
-            dictionary = {"JTSKX": temp.JTSKX, "JTSKY": temp.JTSKY,"id": str(candidate[0]), "locality": candidate[1], "localityPart": candidate[2], "street": noneToString(candidate[3]), "houseNumber": noneToString(houseNumber), "recordNumber": noneToString(recordNumber), "orientationNumber": noneToString(candidate[6]), "orientationNumberCharacter": noneToString(candidate[7]), "zipCode": noneToString(candidate[8]), "districtNumber": noneToString(candidate[9])}
+            #if candidate[4] == "č.p.":
+            #    houseNumber = candidate[5]
+            #    recordNumber = ""
+            #else:
+            #    houseNumber = ""
+            #    recordNumber = candidate[5]
+            dictionary = {"JTSKX": temp[0], "JTSKY": temp[1],"id": str(temp[2]), "locality": temp[3], "localityPart": temp[4], "street": temp[5], "houseNumber": temp[6], "recordNumber": temp[7], "orientationNumber": temp[8], "orientationNumberCharacter": temp[9], "zipCode": temp[10], "districtNumber": temp[11]}
             lines.append(dictionary)
-        withID = queryParams["ExtraInformation"] == "id"
-        withAddress = queryParams["ExtraInformation"] == "address"
         s = builder.listOfDictionariesToResponseText(lines, withID, withAddress)
         #s = builder.coordintesToResponseText(temp)
 
