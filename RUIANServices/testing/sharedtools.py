@@ -101,14 +101,25 @@ class FormalTester:
         #result = unicode(result)
         self.numTests = self.numTests + 1
 
-        if str(result) == expectedResult:
-            status = "checked"
-            print "   ok :", inputs, "-->", result
-            expectedResultMessage = u""
+        if isinstance(result, list):
+            pom = expectedResult.splitlines()
+            if set(result) == set(pom):
+                status = "checked"
+                print "   ok :", inputs, "-->", "\n".join(result)
+                expectedResultMessage = u""
+            else:
+                status = ""
+                expectedResultMessage = u" ≠ " + expectedResult
+                print "chyba :", inputs, "-->", "\n".join(result), "<>", expectedResult, errorMessage
         else:
-            status = ""
-            expectedResultMessage = u" ≠ " + expectedResult
-            print "chyba :", inputs, "-->", result, "<>", expectedResult, errorMessage
+            if str(result) == expectedResult:
+                status = "checked"
+                print "   ok :", inputs, "-->", result
+                expectedResultMessage = u""
+            else:
+                status = ""
+                expectedResultMessage = u" ≠ " + expectedResult
+                print "chyba :", inputs, "-->", result, "<>", expectedResult, errorMessage
 
         if self.isOddRow:
             oddText = ' class="alt"'
@@ -147,7 +158,8 @@ class FormalTester:
             result = urllib2.urlopen(SERVER_URL + params).read()
         except Exception as inst:
             result = str(inst)
-        result = "\n".join(result.splitlines())
+        #result = "\n".join(result.splitlines())
+        result = result.splitlines()
         params = params.decode("utf-8")
         self.addTest(params, result, expectedValue, "")
 

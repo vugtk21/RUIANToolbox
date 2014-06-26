@@ -62,7 +62,10 @@ def nearByAddresses(builder, JTSKY, JTSKX, Distance, withID):
 def nearByAddressesServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
-    withID = queryParams["ExtraInformation"].lower() == "id"
+    if queryParams.has_key("ExtraInformation"):
+        withID = queryParams["ExtraInformation"].lower() == "id"
+    else:
+        withID = False
 
     s = nearByAddresses(
         builder,

@@ -138,7 +138,7 @@ class MimeBuilder:
             return self.listToText(ListOfLines)
 
     def dictionaryToText(self, dictionary, withID, withAddress):
-        response = dictionary["JTSKX"] + ", " + dictionary["JTSKY"]
+        response = dictionary["JTSKY"] + ", " + dictionary["JTSKX"]
         if withID:
             response = dictionary["id"] + ", " + response
         if withAddress:
@@ -149,8 +149,8 @@ class MimeBuilder:
         response = "<record>\n"
         if withID:
             response += "\t<id>" + dict["id"] + "</id>\n"
-        response += "\t<JTSKX>" + dict["JTSKX"] + "</JTSKX>\n"
         response += "\t<JTSKY>" + dict["JTSKY"] + "</JTSKY>\n"
+        response += "\t<JTSKX>" + dict["JTSKX"] + "</JTSKX>\n"
         if withAddress:
             response += compileAddressAsXML(dict["street"], dict["houseNumber"], dict["recordNumber"], dict["orientationNumber"], dict["orientationNumberCharacter"],dict["zipCode"], dict["locality"], dict["localityPart"], dict["districtNumber"])
         response += "</record>\n"
@@ -160,8 +160,8 @@ class MimeBuilder:
         response = "\n\t{\n"
         if withID:
             response += '\t"id":' + dict["id"] + ",\n"
-        response += '\t"JTSKX":' + dict["JTSKX"] + ",\n"
-        response += '\t"JTSKY":' + dict["JTSKY"]
+        response += '\t"JTSKY":' + dict["JTSKY"] + ",\n"
+        response += '\t"JTSKX":' + dict["JTSKX"]
         if withAddress:
             response += ",\n" + compileAddressAsJSON(dict["street"], dict["houseNumber"], dict["recordNumber"], dict["orientationNumber"], dict["orientationNumberCharacter"],dict["zipCode"], dict["locality"], dict["localityPart"], dict["districtNumber"])
         else:

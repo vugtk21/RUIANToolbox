@@ -15,11 +15,11 @@ def IDCheckServiceHandler(queryParams, response, builder):
     if not address:
         return response
 
-    if address.districtNumber != "":
-        district = address.districtNumber.split(" ")
-        districtNumber = district[1]
-    else:
-        districtNumber = ""
-    html = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, districtNumber)
+    #if address.districtNumber != "":
+    #    district = address.districtNumber.split(" ")
+    #    districtNumber = district[1]
+    #else:
+    #    districtNumber = ""
+    html = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
     response.htmlData = builder.listToResponseText([html])
     return response

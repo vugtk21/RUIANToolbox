@@ -76,7 +76,10 @@ def compileAddressServiceHandler(queryParams, response):
         return response
 
     elif queryParams.has_key("SearchText"):
-        withID = queryParams["ExtraInformation"].lower() == "id"
+        if queryParams.has_key("ExtraInformation"):
+            withID = queryParams["ExtraInformation"].lower() == "id"
+        else:
+            withID = False
         s = fulltextsearch.searchAddress(builder, None, queryParams["SearchText"], withID)
         response.htmlData = s
 

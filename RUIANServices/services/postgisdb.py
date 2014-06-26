@@ -3,7 +3,7 @@ __author__ = 'Augustyn'
 
 import psycopg2
 from RUIANConnection import *
-
+import re
 
 from config import config
 
@@ -50,6 +50,13 @@ def formatToQuery(item):
     else:
         return item
 
+def numberValue(str):
+    if str != "":
+        s = str.split(" ")
+        return s[1]
+    else:
+        return ""
+
 def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
@@ -64,7 +71,8 @@ def _findAddress(ID):
             recordNumber = numberToString(row[1])
         else:
             return None
-        return Address(noneToString(row[0]),houseNumber,recordNumber,numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),noneToString(row[8]))
+        a= numberValue(noneToString(row[8]))
+        return Address(noneToString(row[0]),houseNumber,recordNumber,numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),a)
         #(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
     else:
         return None
@@ -175,7 +183,7 @@ def _findCoordinates(ID):
         elif row[7] == "č.ev.":
             houseNumber = ""
             recordNumber = numberToString(row[6])
-        c = (str("{:10.2f}".format(row[0])).strip(), str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), noneToString(row[11]))
+        c = (str("{:10.2f}".format(row[0])).strip(), str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), numberValue(noneToString(row[11])))
         return [c]
     else:
         return []
@@ -185,7 +193,7 @@ def _findCoordinatesByAddress(dictionary):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
 
-    query = "SELECT latitude, longitude FROM " + TABLE_NAME + " WHERE "
+    query = "SELECT latitude, longitude, gid, nazev_obce, nazev_casti_obce, nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_mop FROM " + TABLE_NAME + " WHERE "
 
     for key in dictionary:
         if dictionary[key] != "":
@@ -202,7 +210,13 @@ def _findCoordinatesByAddress(dictionary):
 
     for row in rows:
         if (row[0] is not None) and (row[1] is not None):
-            coordinates.append(Coordinates(str("{:10.2f}".format(row[0])).strip(),str("{:10.2f}".format(row[1])).strip()))
+            if row[7] == "č.p.":
+                houseNumber = numberToString(row[6])
+                recordNumber = ""
+            elif row[7] == "č.ev.":
+                houseNumber = ""
+                recordNumber = numberToString(row[6])
+            coordinates.append((str("{:10.2f}".format(row[0])).strip(),str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), noneToString(row[11])))
         else:
             pass    #co se ma stat kdyz adresa nema souradnice?
     return coordinates

@@ -25,8 +25,8 @@ def searchAddress(builder, searchFlag, searchText, withID = True):
 def searchAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(queryParams["Format"])
     response.mimeFormat = builder.getMimeFormat()
-    if queryParams["ExtraInformation"] == "id":
-        withID = True
+    if queryParams.has_key("ExtraInformation"):
+        withID = queryParams["ExtraInformation"] == "id"
     else:
         withID = False
 

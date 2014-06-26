@@ -19,7 +19,7 @@ def geocodeID(AddressID):
     coordinates = RUIANConnection.findCoordinates(AddressID)
     return coordinates
 
-def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, withID, withAddress):
     if rightAddress(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
         dict = {
             "street": street,
@@ -33,7 +33,12 @@ def geocodeAddress(builder, street, houseNumber, recordNumber, orientationNumber
             "districtNumber": districtNumber
         }
         coordinates = RUIANConnection.findCoordinatesByAddress(dict)
-        return builder.coordintesToResponseText(coordinates)
+        lines = []
+        for item in coordinates:
+            dictionary = {"JTSKX": item[0], "JTSKY": item[1],"id": str(item[2]), "locality": item[3], "localityPart": item[4], "street": item[5], "houseNumber": item[6], "recordNumber": item[7], "orientationNumber": item[8], "orientationNumberCharacter": item[9], "zipCode": item[10], "districtNumber": item[11]}
+            lines.append(dictionary)
+        s = builder.listOfDictionariesToResponseText(lines, withID, withAddress)
+        return s
     else:
         return ""
 
@@ -49,8 +54,8 @@ def geocodeAddressServiceHandler(queryParams, response):
     resultFormat = p("Format", "text")
     builder = MimeBuilder(resultFormat)
     response.mimeFormat = builder.getMimeFormat()
-    withID = queryParams["ExtraInformation"] == "id"
-    withAddress = queryParams["ExtraInformation"] == "address"
+    withID = p("ExtraInformation") == "id"
+    withAddress = p("ExtraInformation") == "address"
 
     if queryParams.has_key("AddressPlaceId"):
         #response = IDCheck.IDCheckServiceHandler(queryParams, response, builder)
@@ -98,7 +103,9 @@ def geocodeAddressServiceHandler(queryParams, response):
             p("ZIPCode"),
             p("Locality"),
             p("LocalityPart"),
-            p("DistrictNumber")
+            p("DistrictNumber"),
+            withID,
+            withAddress
         )
     response.htmlData = s
     response.handled = True
