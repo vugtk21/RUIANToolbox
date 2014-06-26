@@ -216,7 +216,7 @@ def _findCoordinatesByAddress(dictionary):
             elif row[7] == "č.ev.":
                 houseNumber = ""
                 recordNumber = numberToString(row[6])
-            coordinates.append((str("{:10.2f}".format(row[0])).strip(),str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), noneToString(row[11])))
+            coordinates.append((str("{:10.2f}".format(row[0])).strip(),str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), numberValue(noneToString(row[11]))))
         else:
             pass    #co se ma stat kdyz adresa nema souradnice?
     return coordinates
