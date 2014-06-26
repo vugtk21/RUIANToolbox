@@ -316,7 +316,7 @@ class ServicesHTMLPageBuilder:
             tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
             tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
             tabDivs += service.htmlDesc
-            tabDivs += u"<br><p>Adresa služby:" + service.pathName + "</p>\n"
+            tabDivs += u'<br><p class = "enhancedGUI">Adresa služby:' + service.pathName + "</p>\n"
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
             onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
