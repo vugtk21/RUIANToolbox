@@ -116,7 +116,7 @@ def createServiceHandlers():
                 URLParam("Street",            u"Ulice", u"Název ulice", "", True),
                 URLParam("HouseNumber",       u"Číslo popisné", "", "", True),
                 URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True),
-                URLParam("OrientationNumber", u"Číslo orientační", "", "", True),
+                URLParam("OrientationNumber", u"Číslo orientační", "", "", True, htmlTags=' pattern="[0-9]"'),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True),
                 URLParam("Locality",          u"Obec",  u"Obec", "", True),

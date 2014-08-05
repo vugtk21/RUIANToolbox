@@ -212,7 +212,7 @@ class _SearchItem:
 
 class AddressParser:
     def normaliseSeparators(self, address):
-        address = address.replace(ORIENTATION_NUMBER_ID, " " + ORIENTATION_NUMBER_ID)
+        address = address.replace(ORIENTATION_NUMBER_ID, " ") # address = address.replace(ORIENTATION_NUMBER_ID, " " + ORIENTATION_NUMBER_ID)
         address = address.replace("  ", " ")
 
         address = address.replace(",,", ",")
@@ -651,11 +651,23 @@ V této skupině testů je také testováno párování identifikátorů jednotl
         outFile.write(htmlContent.decode("utf-8"))
         outFile.close()
 
+def testCase():
+    parser = AddressParser()
+    tester = FormalTester("Rozpoznávání typů adresních položek",
+"""Skupina testů zajišťujících rozpoznání jednotlivých typů adresních položek v adresním řetězci.
+Jednotlivé testy spadají do kategorie tzv. "unit testů", tj. hodnoty a kombinace nemusí být zcela reálné, cílem je
+úplná sada eliminující možné chyby.
+V této skupině testů je také testováno párování identifikátorů jednotlivých položek se svými hodnotami.
+""", "Ing. Tomáš Vacek", "Ing. Radek Makovec")
+    print parser.fullTextSearchAddress("Mezilesní 550/18")
+
 initModule()
 
 def main():
     #testAnalyse()
-    testFullTextSearchAddress()
+    #testFullTextSearchAddress()
+    testCase()
+
 
 if __name__ == '__main__':
     main()

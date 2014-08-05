@@ -113,9 +113,9 @@ def geocodeAddressServiceHandler(queryParams, response):
 
 def createServiceHandlers():
     services.append(
-        WebService("/Geocode", u"Geokódování", u"Vyhledávání adresního bodu adresního místa",
+        WebService("/Geocode", u"Geokódování", u"Vyhledávání definičního bodu adresního místa",
             u"""<p>Umožňuje klientům jednotným způsobem získat souřadnice zadaného adresního místa.
-            Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.""",
+            Adresní místo zadáme buď pomocí jeho identifikátoru RÚIAN nebo pomocí textového řetězce adresy.<br>""",
             [
                 getResultFormatParam()
             ],

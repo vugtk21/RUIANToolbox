@@ -57,7 +57,7 @@ def createServiceHandlers():
     services.append(
         WebService("/Validate", u"Ověření adresy", u"Ověřuje existenci dané adresy",
                    u"""Umožňuje ověřit zadanou adresu. Adresa je zadána pomocí jednotlivých
-                   prvků adresního místa.""",
+                   prvků adresy.""",
             [
                 getResultFormatParam()
             ],

@@ -36,12 +36,13 @@ class HTTPResponse():
         self.htmlData = htmlData
 
 class URLParam:
-    def __init__(self, name, caption, shortDesc, htmlDesc = "", disabled = False):
+    def __init__(self, name, caption, shortDesc, htmlDesc = "", disabled = False, htmlTags = ""):
         self.name  = name
         self.caption   = caption
         self.shortDesc = shortDesc
         self.htmlDesc  = htmlDesc
         self.disabled = disabled
+        self.htmlTags = htmlTags
 
 class RestParam(URLParam):
     def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):

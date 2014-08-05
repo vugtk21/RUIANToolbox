@@ -197,11 +197,11 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
   </ul>
     <div id="tabs-0">
     <p>
-    Tento portál umožňuje využívat kopii databáze Registru Územních Identifikací, Adres a Nemovitostí (RÚIAN) pomocí webových služeb.
+    Tento portál umožňuje využívat kopii databáze Registru územní identifikace, adres a nemovitostí (RÚIAN) pomocí webových služeb.
     <br>
     <br>
-    Jednotlivé služby je možné využívat pomocí standardů Representational State Transfer (REST) a
-    Simple Object Access Protocol (SOAP)/Web Services Description Language (WSDL).
+    Jednotlivé služby je možné využívat pomocí standardů Representational State Transfer (REST) v souladu s <a href="http://bivoj.vugtk.cz/euradin/Doc/WP03/MetodikaWeboveSluzby.docx">
+    cerifikovanou metodikou</a>.
     Každá záložka obsahuje popis jedné služby včetně parametrů.
     </p>
     <img src="#HTMLDATA_URL#WebServices.png" >
@@ -267,7 +267,7 @@ class ServicesHTMLPageBuilder:
         result = '<tr>'
         result += '<td>' + param.caption + ' </td><td>'
         if param.name == '/Format':
-            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
+            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
                             '<option value="textToOneRow">text do řádku</option>' + \
                             '<option value="xml">xml</option>' + \
@@ -280,7 +280,7 @@ class ServicesHTMLPageBuilder:
                 addressOption = '<option value="address">přidat adresu</option>'
             else:
                 addressOption = ""
-            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + ', parametr ' + param.name + '" onchange="' + onChangeProcCode + '">' + \
+            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="standard">žádné</option>' + \
                             '<option value="id">přidat ID</option>' + addressOption + \
                     '</select>'
@@ -291,8 +291,7 @@ class ServicesHTMLPageBuilder:
                 disabledStr = ''
 
             result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
-                  param.shortDesc + ', parametr ' + param.name + \
-                  '" onchange="' + onChangeProcCode + '" ' + disabledStr + '/>'
+                  param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + '/>'
 
         result += '</tr>'
         return result
@@ -316,7 +315,7 @@ class ServicesHTMLPageBuilder:
             tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
             tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
             tabDivs += service.htmlDesc
-            tabDivs += u'<br><p class = "enhancedGUI">Adresa služby:' + service.pathName + "</p>\n"
+            tabDivs += u'<br><p class = "enhancedGUI">Adresa služby:' + service.pathName + '</p>\n'
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
             onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
@@ -353,7 +352,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"
 
-            tabDivs += "<a class = 'enhancedGUI' href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>show tests</a>"
+            tabDivs += "<a class = 'enhancedGUI' href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>Výsledky testů</a>"
             #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
 
             url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + HTMLDATA_URL + service.pathName + '.png'
