@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Našeptávač RÚIAN</title>
+  <title>Našeptávače RÚIAN</title>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
   <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   <script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
@@ -76,13 +76,22 @@ function clearInputs()
       }
     });
 	
+    $( "#Id" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
+      minLength: 2,
+      select: function( event, ui ) {
+	    idElement = document.getElementById("Id");
+		idElement.value = ui.item.id;
+      }
+    });
+
 	});
   </script>
 </head>
 <body>
   <h1>Našeptávač RÚIAN</h1>
  
-<b>Našeptávač RÚIAN</b> je chytré rozšíření Vašeho formuláře pro vkládání poštovních adres.</p>
+<b>Našeptávače RÚIAN</b> jsou chytré rozšíření Vašeho formuláře pro vkládání poštovních adres a identifikátoru RÚIAN.</p>
 
 <table>
 <tr>
@@ -114,7 +123,7 @@ function clearInputs()
 </td>
 <td valign="top">
 <p>Zajistí pohodlné vložení poštovní adresy pomocí našeptávače.</p>
-<p>Našeptávač RÚIAN zvyšuje komfort práce s poštovními adresami ve formulářích všech druhů aplikací.</p>
+<p>Našeptávač adresy zvyšuje komfort práce s poštovními adresami ve formulářích všech druhů aplikací.</p>
 <p>Poskytuje kvalitní adresní data na vstupu Vaší aplikace a zároveň nabízí příjemné uživatelské rozhraní.</p>
 <ul>
 	<li>zajistí platné poštovní adresy ve vašich datech</li>
@@ -122,7 +131,19 @@ function clearInputs()
 </ul>
 </td>
 </tr>
-</table>
+		<tr>
+			<td valign="top">
+				<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">
+				<label for="Id">Identifikátor RÚIAN</label>
+				<input id="Id">
+				</div>
+			</td>
+			<td valign="top">
+				<p>Zajistí vložení existujícího identifikátoru RÚIAN.</p>
+			</td>
+		</tr>
+</table>	
+
 
 </body>
 </html>

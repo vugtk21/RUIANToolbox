@@ -85,6 +85,44 @@ def analyseRow(typ_so, cislo_domovni):
 
 builder = HTTPShared.MimeBuilder("texttoonerow")
 
+ID_VALUE = 'id'
+
+def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
+    #logger.info("getCitiesList")
+    if nameToken == "" or nameToken == None:
+        return []
+
+    if ruianType == "":
+        ruianType == ID_VALUE
+
+    nameToken = nameToken.lower()
+
+    joinSeparator = ", "
+    if ruianType == ID_VALUE:
+        searchSQL = "select gid from gids where cast(gid as text) ilike '" + nameToken + "%'"
+
+    searchSQL += " limit " + str(maxCount)
+
+    try:
+        db = PostGISDatabase()
+        cursor = db.conection.cursor()
+        #logger.debug("Database encoding:" , db.conection.encoding)
+        cursor.execute(searchSQL)
+    except:
+        import sys
+        return[sys.exc_info()[0]]
+
+    rows = []
+    rowCount = 0
+    for row in cursor:
+        rowCount += 1
+        v = str(row[0])
+        value = '{"id":"' + v + '","label":"' + v + '","value":"' + v + '"}'
+        rows.append(value)
+        if rowCount >= maxCount:  break
+
+    return rows
+
 def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
     #logger.info("getCitiesList")
     if nameToken == "" or nameToken == None:
@@ -100,6 +138,9 @@ def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
     if ruianType == "town":
         searchSQL = "select nazev_obce, psc from obce where nazev_obce ilike '%" + nameToken + "%'"
         isStreet = False
+    elif ruianType == ID_VALUE:
+        return getAutocompleteOneItemResults(ruianType, nameToken, maxCount)
+
     elif ruianType == "zip":
         searchSQL = "select psc, nazev_obce from psc where psc like '" + nameToken + "%'"
         joinSeparator = " "
@@ -181,7 +222,8 @@ def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
 
 def main():
     #print getAutocompleteResults("zip", "16")
-    print getAutocompleteResults("street", "Mrkvičkova 13")
+    #print getAutocompleteResults("street", "Mrkvičkova 13")
+    print getAutocompleteResults("id", "73")
 
 if __name__ == '__main__':
     import sys
