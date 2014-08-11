@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Našeptávač RÚIAN</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+  <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+  <style>
+  .ui-autocomplete-loading {
+    background: white url("http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif") right center no-repeat;
+  }
+  p {
+    	font-size: 100%;
+  }
+  </style>
+  <script>
+
+function setTownName(townName)
+{
+	townElement = document.getElementById("Town");
+	townElement.value = townName;
+}
+
+function setZIPCode(ZIPCode)
+{
+	ZIPElement = document.getElementById("ZIP");
+	ZIPElement.value = ZIPCode;
+}
+
+function setStreet(street)
+{
+	streetElement = document.getElementById("Street");
+	streetElement.value = street;
+}
+
+function clearInputs()
+{
+	setTownName("");
+	setZIPCode("");
+	setStreet("");
+}
+
+  $(function() {
+
+    $( "#Street" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/street?RUIANType=street",
+      minLength: 2,
+      select: function( event, ui ) {
+		value = ui.item.id
+		delPos = value.indexOf(",");		
+		//ZIPElement = document.getElementById("ZIP");
+		setTownName(value.substr(0, delPos));
+		setZIPCode(value.substr(delPos + 1, value.length))
+		//townElement = document.getElementById("Town");
+		//townElement.value = value.substr(0, delPos);
+      }
+    });
+
+    $( "#Town" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/town?RUIANType=town",
+      minLength: 2,
+      select: function( event, ui ) {
+		setZIPCode(ui.item.id);
+		setStreet("");
+      }
+    });
+
+    $( "#ZIP" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/zipcode?RUIANType=zip&",
+      minLength: 2,
+      select: function( event, ui ) {
+		setTownName(ui.item.id);
+		setStreet("");
+      }
+    });
+	
+	});
+  </script>
+</head>
+<body>
+  <h1>Našeptávač RÚIAN</h1>
+ 
+<b>Našeptávač RÚIAN</b> je chytré rozšíření Vašeho formuláře pro vkládání poštovních adres.</p>
+
+<table>
+<tr>
+<td>
+
+<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">
+	<table>
+		<tr>
+			<td align="right"><label for="Street">Ulice a číslo </label></td>
+			<td><input id="Street"></td>
+		</tr>
+  
+		<tr>
+			<td align="right"><label for="Town">Obec </label></td>
+			<td><input id="Town"></td>
+		</tr>
+
+		<tr>
+			<td align="right"><label for="ZIP">PSČ </label></td>
+			<td><input id="ZIP"></td>
+		</tr>
+
+		<tr>
+			<td align="right"> </td>
+			<td><button type="button" onclick="clearInputs()">Nové zadání</button></td>
+		</tr>
+	</table>
+</div>
+</td>
+<td valign="top">
+<p>Zajistí pohodlné vložení poštovní adresy pomocí našeptávače.</p>
+<p>Našeptávač RÚIAN zvyšuje komfort práce s poštovními adresami ve formulářích všech druhů aplikací.</p>
+<p>Poskytuje kvalitní adresní data na vstupu Vaší aplikace a zároveň nabízí příjemné uživatelské rozhraní.</p>
+<ul>
+	<li>zajistí platné poštovní adresy ve vašich datech</li>
+	<li>usnadní uživatelům vkládání poštovních adres</li>
+</ul>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+

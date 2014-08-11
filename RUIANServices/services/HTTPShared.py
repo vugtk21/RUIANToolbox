@@ -413,7 +413,7 @@ def numberCheck(possibleNumber):
         return ""
 
 def alphaCheck(possibleAlpha):
-    if possibleAlpha.isalpha():
+    if possibleAlpha != None and possibleAlpha.isalpha():
         return possibleAlpha
     else:
         return ""
