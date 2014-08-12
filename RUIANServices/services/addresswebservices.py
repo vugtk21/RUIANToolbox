@@ -28,209 +28,11 @@ from config import HTMLDATA_URL
 
 SERVICES_PATH = '' # 'services'
 
-PAGE_TEMPLATE = u'''
-<html>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <style>
-        body { font-family: Tahoma }
-
-        .enhancedGUI{
-          display: none;
-        }
-
-        #enhancedGUIButton{
-          position: absolute;
-          top: 10px;
-          right: 40px;
-          z-index:10;
-        }
-    </style>
-    <title>#PAGETITLE#</title>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-    <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="#HTMLDATA_URL#favicon.ico" />
-    <script>
-$(function() {
-    $( "#tabs" ).tabs(#TABSOPTIONS#);
-});
-    </script>
-
-
-  <script>
-    $(document).ready(function() {
-      $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
-        if (this.value == 'vstup') {
-            $(this).parent().find("td input").removeAttr("disabled");
-            $(this).parent().find("td input").eq(0).attr("disabled", "disabled");
-            $(this).parent().find("td input").eq(1).attr("disabled", "disabled");
-        }
-        else if (this.value == 'id') {
-            $(this).parent().find("td input").attr("disabled", "disabled");
-            $(this).parent().find("td input").eq(0).removeAttr("disabled");
-            $(this).parent().find("td input").eq(11).removeAttr("disabled");
-            $(this).parent().find("td input").eq(12).removeAttr("disabled");
-        }
-        else if (this.value == 'adresa') {
-            $(this).parent().find("td input").attr("disabled", "disabled");
-            $(this).parent().find("td input").eq(11).removeAttr("disabled");
-            $(this).parent().find("td input").eq(12).removeAttr("disabled");
-            $(this).parent().find("td input").eq(1).removeAttr("disabled");
-        }
-      });
-      $("#enhancedGUIButton").click(function(){
-            $(".enhancedGUI").toggle();
-      });
-    });
-  </script>
-
-    <script type="text/javascript" charset="utf-8">
-
-	function displayResult(id, servicePath){
-        var url = "<#SERVICES_URL>" + temp
-		var xmlHttp;
-		try {// Firefox, Opera 8.0+, Safari
-			xmlHttp = new XMLHttpRequest();
-		} catch (e) {// Internet Explorer
-			try {
-				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
-			} catch (e) {
-				try {
-					xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-				} catch (e) {
-					alert("Your browser does not support AJAX!");
-					return false;
-				}
-			}
-		}
-
-		xmlHttp.onreadystatechange = function(){
-			if (xmlHttp.readyState == 4) {
-				//Get the response from the server and extract the section that comes in the body section of the second html page avoid inserting the header part of the second page in your first page's element
-				//var respText = xmlHttp.responseText.split('<body>');
-				//elem.innerHTML = respText[1].split('</body>')[0];
-				elem.innerText = xmlHttp.responseText.replace(/<br>/g,"\\n");
-			}
-		}
-
-		var elem = document.getElementById(id);
-		if (!elem) {
-			alert('The element with the passed ID'+ id +' does not exists in your page');
-			return;
-		}
-
-		xmlHttp.open("GET", url, true);
-		xmlHttp.send(null);
-
-
-	}
-
-	function stopRKey(evt) {
-        var evt = (evt) ? evt : ((event) ? event : null);
-        var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-        if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
-    }
-
-document.onkeypress = stopRKey;
-
-    </script>
-
-
-    <script type="text/javascript" charset="utf-8">
-var temp;
-function onChangeProc(formElem, urlSpanElem, servicePath)
-{
-
- formNameLen = formElem.name.length + 1;
- console = document.getElementById("console");
- elements = formElem.elements;
- s = ""
- needToOpenQuery = true
- for (i=0; i < elements.length; i++){
-    name = elements[i].name.substr(formNameLen);
-	if (name.charAt(0) == "/") {
-		if (elements[i].value == "") {
-			s = s + "/" + name.substr(1);
-		}
-		else {
-			s = s + "/" + elements[i].value;
-		}
-	}
-	else {
-		if (needToOpenQuery) {
-			delimeter = "";
-			s = s + "?"
-			needToOpenQuery = false;
-		}
-		else {
-			delimeter = "&";
-		}
-		if (name != "" && name != "de") {
-		    if (elements[i].value!="") {
-			    s = s + delimeter + name + "=" + encodeURI(elements[i].value);
-			}
-		}
-	}
-
- }
- urlSpanElem.innerHTML = "<#SERVICES_URL>"+ servicePath + s + "\\n";
- temp = servicePath + s;
-}
-    </script>
-
-      <style>
-  label {
-    display: inline-block;
-    width: 5em;
-  }
-  </style>
-
-    <body>
-    <h1>#PAGETITLE#</h1>
-    <input type = "button" value = "Rozšířené rozhraní" id = "enhancedGUIButton">
-    #CONSOLELINES#
-<div id="tabs">
-  <ul>
-    <li><a href="#tabs-0">Popis služeb</a></li>
-    <#TABCAPTIONS#/>
-  </ul>
-    <div id="tabs-0">
-    <p>
-    Tento portál umožňuje využívat kopii databáze Registru územní identifikace, adres a nemovitostí (RÚIAN) pomocí webových služeb.
-    <br>
-    <br>
-    Jednotlivé služby je možné využívat pomocí standardů Representational State Transfer (REST) v souladu s <a href="http://bivoj.vugtk.cz/euradin/Doc/WP03/MetodikaWeboveSluzby.docx">
-    cerifikovanou metodikou</a>.
-    Každá záložka obsahuje popis jedné služby včetně parametrů.
-    </p>
-    <img src="#HTMLDATA_URL#WebServices.png" >
-    </div>
-  <#TABDIVS#/>
-</div>
-
-<div style="width:80%">
-<br>
-<br>
-<br>
-<p>
-<center>
-<table>
-    <tr>
-        <td><img src="#HTMLDATA_URL#tacr_eng.png" height="55"></td>
-        <td>
-Webové služby RÚIAN byly vytvořeny v rámci čtvrté etapy projektu
-TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURADIN v podmínkách RUIAN    (2012-2014)
-        </td>
-    </tr>
-</table>
-</center>
-</p>
-</div>
-
-    </body>
-</html>
-    '''
+def getPageTemplate():
+    f = codecs.open("..//HTML//RestPageTemplate.htm", "r", "utf-8")
+    result = f.read()
+    f.close()
+    return result
 
 class Console():
     consoleLines = ""
@@ -264,7 +66,12 @@ class ServicesHTMLPageBuilder:
         else:
             valueStr = ""
 
-        result = '<tr>'
+        if param.disabled:
+            visibilityStr = ' style="display:none" '
+        else:
+            visibilityStr = ''
+
+        result = '<tr id="' + formName + '_row_' + param.name + '"' + visibilityStr + '>'
         result += '<td>' + param.caption + ' </td><td>'
         if param.name == '/Format':
             result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
@@ -285,7 +92,7 @@ class ServicesHTMLPageBuilder:
                             '<option value="id">přidat ID</option>' + addressOption + \
                     '</select>'
         else:
-            if param.disabled:
+            if False: #param.disabled:
                 disabledStr = ' disabled="disabled" '
             else:
                 disabledStr = ''
@@ -293,11 +100,11 @@ class ServicesHTMLPageBuilder:
             result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + '/>'
 
-        result += '</tr>'
+        result += '</tr>\n'
         return result
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
-        result = PAGE_TEMPLATE.replace("#PAGETITLE#", u"Webové služby RÚIAN")
+        result = getPageTemplate().replace("#PAGETITLE#", u"Webové služby RÚIAN")
         result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH )
 
 
@@ -337,7 +144,8 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
             # Parameters list
-            tabDivs += '<table>\n'
+            tabDivs += '<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">\n'
+            tabDivs += '<table id="' + formName + '_ParamsTable">\n'
             for param in service.restPathParams:
                 tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams, onChangeProcCode)
 
@@ -345,8 +153,10 @@ class ServicesHTMLPageBuilder:
                 tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
 
             tabDivs += '</table>\n'
+            tabDivs += '</div>\n'
 
             tabDivs += '<br><input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
+            tabDivs += '<input type="button" value="Nové zadání" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
             tabDivs += '</form>\n'
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
@@ -386,6 +196,9 @@ def createServices():
 createServices()
 
 def main():
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     # Build HTML page with service description
     pageBuilder = ServicesHTMLPageBuilder()
     pageContent = pageBuilder.getServicesHTMLPage("", {})

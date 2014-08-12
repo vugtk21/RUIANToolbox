@@ -18,7 +18,7 @@ def getResultFormatParam():
     return RestParam("/Format", u"Formát", u"Formát výsledku služby (HTML, XML, Text, JSON)")
 
 def getSearchTextParam():
-    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy")
+    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy, jednotlivé položky oddělené čárkou")
 
 def getAddressPlaceIdParamRest():
     return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
