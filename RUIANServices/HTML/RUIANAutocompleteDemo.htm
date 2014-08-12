@@ -32,8 +32,7 @@ function clearInputList(list)
  }
 }
 
-
-  $(function() {
+$(function() {
 
     $( "#Street" ).autocomplete({
       source: "/ruian/jqueryautocomplete.py/street?RUIANType=street",
@@ -46,7 +45,7 @@ function clearInputList(list)
 
     $( "#Id" ).autocomplete({
       source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
-      minLength: 2,
+      minLength: 1,
       select: function( event, ui ) {
 	    idElement = document.getElementById("Id");
 		idElement.value = ui.item.id;
@@ -77,7 +76,7 @@ function clearInputList(list)
       }
     });
 	
-	});
+});
   </script>
 </head>
 <body>

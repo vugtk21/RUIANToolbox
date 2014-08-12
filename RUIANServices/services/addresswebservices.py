@@ -72,7 +72,7 @@ class ServicesHTMLPageBuilder:
             visibilityStr = ''
 
         result = '<tr id="' + formName + '_row_' + param.name + '"' + visibilityStr + '>'
-        result += '<td>' + param.caption + ' </td><td>'
+        result += '<td align="right">' + param.caption + ' </td><td>'
         if param.name == '/Format':
             result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
@@ -87,7 +87,8 @@ class ServicesHTMLPageBuilder:
                 addressOption = '<option value="address">přidat adresu</option>'
             else:
                 addressOption = ""
-            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
+
+            result += '<select name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '" >' + \
                             '<option value="standard">žádné</option>' + \
                             '<option value="id">přidat ID</option>' + addressOption + \
                     '</select>'
@@ -97,8 +98,10 @@ class ServicesHTMLPageBuilder:
             else:
                 disabledStr = ''
 
-            result += '<input name="' + formName + '_' + param.name + '" ' + valueStr.decode('utf8') + 'title="' + \
-                  param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + '/>'
+            elemID = formName + '_' + param.name
+            result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \
+                  param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + \
+                      ' id="' + elemID + '"' + ' class="RUIAN_ID_INPUT"/>'
 
         result += '</tr>\n'
         return result

@@ -15,13 +15,9 @@
         }
     </style>
     <title>#PAGETITLE#</title>
-    <!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" /> -->
-    <!-- <script src="http://code.jquery.com/jquery-1.9.1.js"></script> -->
-    <!-- <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script> -->
-    <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css" />
     <link rel="shortcut icon" type="image/x-icon" href="#HTMLDATA_URL#favicon.ico" />
 	
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 	<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	<link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
@@ -35,49 +31,46 @@
   </style>
 	
     <script>
-	
 function clearInputs(formName)
 {
-	formElem = $(this).parent().find(formName);
-	alert(formName + ":" + formElem);
-	formElem.each(
-		function(index, elem) 
-		{ 
-			alert(index);
-			elem.value = "";
-		}
+	formElem = $('#' + formName);
+
+	formElem.find("td input").each(
+		function(index, elem) { elem.value = ""; }
 	);
+
 }
+
+// Našeptávače
+function setInputValue(id, value)
+{
+	streetElement = document.getElementById(id);
+	streetElement.value = value;
+}
+
+function clearInputList(list)
+{
+ for (key in list) {
+     setInputValue(list[key], "");
+ }
+}
+
 $(function() {
     $( "#tabs" ).tabs(#TABSOPTIONS#);
 });
 
 $(document).ready(function() {
     $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
-		//$(this).parent().find("table").each(function(index, elem)
-		//{	tableElem = elem;});
 	    tableElem = $(this).parent().find("table");
 		
-		//alert(tableElem[0].tagName);
 		var visibleRows = [];
         if (this.value == 'vstup') {
-            //$(this).parent().find("td input").removeAttr("disabled");
-            //$(this).parent().find("td input").eq(0).attr("disabled", "disabled");
-            //$(this).parent().find("td input").eq(1).attr("disabled", "disabled");
 			visibleRows = [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
         }
         else if (this.value == 'id') {
-            //$(this).parent().find("td input").attr("disabled", "disabled");
-            //$(this).parent().find("td input").eq(0).removeAttr("disabled");
-            //$(this).parent().find("td input").eq(11).removeAttr("disabled");
-            //$(this).parent().find("td input").eq(12).removeAttr("disabled");
 			visibleRows = [0, 1, 2, 13];
         }
         else if (this.value == 'adresa') {
-            //$(this).parent().find("td input").attr("disabled", "disabled");
-            //$(this).parent().find("td input").eq(11).removeAttr("disabled");
-            //$(this).parent().find("td input").eq(12).removeAttr("disabled");
-            //$(this).parent().find("td input").eq(1).removeAttr("disabled");
 			visibleRows = [0, 1, 3, 13];
         }
 		
@@ -93,8 +86,27 @@ $(document).ready(function() {
       });
       $("#enhancedGUIButton").click(function(){
             $(".enhancedGUI").toggle();
-      });
+      });	  
 });
+
+// Přiřazení našeptávačů
+$(function() {
+    $( ".RUIAN_ID_INPUT" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
+      minLength: 1,
+      select: function( event, ui ) { this.value = ui.item.id; }
+    });
+	
+	
+    //$( "#form_1_AddressPlaceId" ).autocomplete({
+    //  source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
+    //  minLength: 1,
+    //  select: function( event, ui ) {
+	//	this.value = ui.item.id;
+    //  }
+    //});
+});
+
   </script>
 
     <script type="text/javascript" charset="utf-8">
