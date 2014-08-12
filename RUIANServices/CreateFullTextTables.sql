@@ -24,3 +24,8 @@ $$
     select ($1)[s] from generate_series(1,array_upper($1, 1)) as s;
 $$
 language sql immutable;
+
+create table gids
+as
+select gid from address_points
+group by gid order by gid
