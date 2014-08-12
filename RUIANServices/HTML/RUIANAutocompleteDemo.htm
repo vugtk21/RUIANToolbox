@@ -17,65 +17,37 @@
   </style>
   <script>
 
-function setTownName(townName)
+
+function setInputValue(id, value)
 {
-	townElement = document.getElementById("Town");
-	townElement.value = townName;
+	streetElement = document.getElementById(id);
+	streetElement.value = value;
 }
 
-function setZIPCode(ZIPCode)
+function clearInputList(list)
 {
-	ZIPElement = document.getElementById("ZIP");
-	ZIPElement.value = ZIPCode;
-}
-
-function setStreet(street)
-{
-	streetElement = document.getElementById("Street");
-	streetElement.value = street;
+ for (key in list) {
+     setInputValue(list[key], "");
+ }
 }
 
 function clearInputs()
 {
-	setTownName("");
-	setZIPCode("");
-	setStreet("");
+	clearInputList(['Town', 'Street']);
 }
+
 
   $(function() {
 
     $( "#Street" ).autocomplete({
       source: "/ruian/jqueryautocomplete.py/street?RUIANType=street",
       minLength: 2,
-      select: function( event, ui ) {
-		value = ui.item.id
-		delPos = value.indexOf(",");		
-		//ZIPElement = document.getElementById("ZIP");
-		setTownName(value.substr(0, delPos));
-		setZIPCode(value.substr(delPos + 1, value.length))
-		//townElement = document.getElementById("Town");
-		//townElement.value = value.substr(0, delPos);
+      select: function( event, ui ) {	
+		setInputValue("Town", ui.item.id);
       }
     });
 
-    $( "#Town" ).autocomplete({
-      source: "/ruian/jqueryautocomplete.py/town?RUIANType=town",
-      minLength: 2,
-      select: function( event, ui ) {
-		setZIPCode(ui.item.id);
-		setStreet("");
-      }
-    });
 
-    $( "#ZIP" ).autocomplete({
-      source: "/ruian/jqueryautocomplete.py/zipcode?RUIANType=zip&",
-      minLength: 2,
-      select: function( event, ui ) {
-		setTownName(ui.item.id);
-		setStreet("");
-      }
-    });
-	
     $( "#Id" ).autocomplete({
       source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
       minLength: 2,
@@ -85,15 +57,42 @@ function clearInputs()
       }
     });
 
+    $( "#PSC" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/zipcode?RUIANType=zip&",
+      minLength: 2,
+      select: function( event, ui ) {
+	    document.getElementById("PSC").value = ui.item.id;
+      }
+    });
+	
+    $( "#TownZIP_Town" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/town?RUIANType=town",
+      minLength: 2,
+      select: function( event, ui ) {
+		setInputValue("TownZIP_ZIP", ui.item.id);
+      }
+    });
+
+    $( "#TownZIP_ZIP" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/zipcode?RUIANType=zip&",
+      minLength: 2,
+      select: function( event, ui ) {
+		setInputValue("TownZIP_Town", ui.item.id);
+      }
+    });
+	
 	});
   </script>
 </head>
 <body>
-  <h1>Našeptávač RÚIAN</h1>
+  <h1>Našeptávače RÚIAN</h1>
  
 <b>Našeptávače RÚIAN</b> jsou chytré rozšíření Vašeho formuláře pro vkládání poštovních adres a identifikátoru RÚIAN.</p>
 
 <table>
+
+<!-- Adresa -->
+
 <tr>
 <td>
 
@@ -105,13 +104,8 @@ function clearInputs()
 		</tr>
   
 		<tr>
-			<td align="right"><label for="Town">Obec </label></td>
+			<td align="right"><label for="Town">Obec a PSČ</label></td>
 			<td><input id="Town"></td>
-		</tr>
-
-		<tr>
-			<td align="right"><label for="ZIP">PSČ </label></td>
-			<td><input id="ZIP"></td>
 		</tr>
 
 		<tr>
@@ -131,17 +125,63 @@ function clearInputs()
 </ul>
 </td>
 </tr>
+
+
+<!-- Identifikátor RÚIAN -->
+<tr>
+	<td valign="top">
+		<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">
+			<label for="Id">Identifikátor RÚIAN</label>
+			<input id="Id">
+		</div>
+	</td>
+	<td valign="top">
+		<p>Zajistí vložení existujícího identifikátoru RÚIAN.</p>
+	</td>
+</tr>
+
+<!-- PSČ -->
+<tr>
+	<td valign="top">
+		<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">
+			<label for="PSC">PSČ</label>
+			<input id="PSC">
+		</div>
+	</td>
+	<td valign="top">
+		<p>Zajiští vložení existujícího poštovního směrovacího čísla.</p>
+	</td>
+</tr>
+
+<!-- Obec a PSČ -->
+<tr>
+	<td valign="top">
+		<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">
+	<table>
 		<tr>
-			<td valign="top">
-				<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">
-				<label for="Id">Identifikátor RÚIAN</label>
-				<input id="Id">
-				</div>
-			</td>
-			<td valign="top">
-				<p>Zajistí vložení existujícího identifikátoru RÚIAN.</p>
-			</td>
+		<tr>
+			<td align="right"><label for="TownZIP_Town">Obec </label></td>
+			<td><input id="TownZIP_Town"></td>
 		</tr>
+
+		<tr>
+			<td align="right"><label for="TownZIP_ZIP">PSČ </label></td>
+			<td><input id="TownZIP_ZIP"></td>
+		</tr>
+
+		<tr>
+			<td align="right"> </td>
+			<td><button type="button" onclick="clearInputList(['TownZIP_Town', 'TownZIP_ZIP'])">Nové zadání</button></td>
+		</tr>
+		</tr>
+	</table>		
+		</div>
+	</td>
+	<td valign="top">
+		<p>Zajistí vložení správné kombinace názvu obce a poštovního směrovacího čísla.</p>
+	</td>
+</tr>
+
 </table>	
 
 

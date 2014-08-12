@@ -407,7 +407,7 @@ def p(queryParams, name, defValue = ""):
         return defValue
 
 def numberCheck(possibleNumber):
-    if possibleNumber.isdigit():
+    if possibleNumber != None and possibleNumber.isdigit():
         return possibleNumber
     else:
         return ""

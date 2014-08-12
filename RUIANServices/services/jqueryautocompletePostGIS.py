@@ -65,7 +65,7 @@ def numberToString(number):
 
 def extractDictrictNumber(nazev_mop):
     # Praha 10 -> 10
-    if nazev_mop != "":
+    if (nazev_mop != "") and (nazev_mop != None) and (nazev_mop.find(" ") >= 0):
         return nazev_mop.split(" ")[1]
     else:
         return ""
@@ -190,16 +190,15 @@ def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
         rowLabel = None
         if ruianType == "street":
             if hasNumber:
-                idValue = row[2] + "," + row[3]
-
                 street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
 
                 houseNumber, recordNumber = analyseRow(typ_so, houseNumber)
                 districtNumber = extractDictrictNumber(nazev_mop)
 
                 rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+                idValue = rowLabel[rowLabel.find(", ") + 2:]
             else:
-                idValue = row[1] + "," + row[2]
+                idValue = row[1] + ", " + row[2]
         else:
             idValue = row[1]
 
@@ -223,7 +222,7 @@ def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
 def main():
     #print getAutocompleteResults("zip", "16")
     #print getAutocompleteResults("street", "Mrkvičkova 13")
-    print getAutocompleteResults("id", "73")
+    print getAutocompleteResults("street", "Budovatelů 6")
 
 if __name__ == '__main__':
     import sys
