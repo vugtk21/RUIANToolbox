@@ -156,7 +156,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += '</div>\n'
 
             tabDivs += '<br><input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
-            tabDivs += '<input type="button" value="Nové zadání" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
+            tabDivs += '<input type="button" value="Nové zadání" onclick="clearInputs(\'' + formName + '\')">\n'
             tabDivs += '</form>\n'
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'

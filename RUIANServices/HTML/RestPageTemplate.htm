@@ -35,6 +35,19 @@
   </style>
 	
     <script>
+	
+function clearInputs(formName)
+{
+	formElem = $(this).parent().find(formName);
+	alert(formName + ":" + formElem);
+	formElem.each(
+		function(index, elem) 
+		{ 
+			alert(index);
+			elem.value = "";
+		}
+	);
+}
 $(function() {
     $( "#tabs" ).tabs(#TABSOPTIONS#);
 });

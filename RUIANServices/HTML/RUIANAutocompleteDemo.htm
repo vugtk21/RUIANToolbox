@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>Našeptávače RÚIAN</title>
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
   <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
   <style>
   .ui-autocomplete-loading {
@@ -29,11 +30,6 @@ function clearInputList(list)
  for (key in list) {
      setInputValue(list[key], "");
  }
-}
-
-function clearInputs()
-{
-	clearInputList(['Town', 'Street']);
 }
 
 
@@ -110,7 +106,7 @@ function clearInputs()
 
 		<tr>
 			<td align="right"> </td>
-			<td><button type="button" onclick="clearInputs()">Nové zadání</button></td>
+			<td><button type="button" onclick="clearInputList(['Town', 'Street']);">Nové zadání</button></td>
 		</tr>
 	</table>
 </div>
