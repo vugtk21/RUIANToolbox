@@ -134,6 +134,14 @@ $(function() {
 	  }
     });
 	
+    $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/townpart?RUIANType=townpart",
+      minLength: 1,
+      select: function( event, ui ) { 
+		//setInputValueFromMaster(this.id, "_ZIPCode", ui.item.id);  
+	  }
+    });
+
     $( ".RUIAN_STREET_INPUT" ).autocomplete({
       source: "/ruian/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts",
       minLength: 1,

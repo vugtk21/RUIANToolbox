@@ -69,7 +69,7 @@ def createServiceHandlers():
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", ""),
                 URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", htmlTags = ' class="RUIAN_ZIP_INPUT" '),
                 URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
-                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
+                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
                 URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje")
             ],
             validateAddressServiceHandler,

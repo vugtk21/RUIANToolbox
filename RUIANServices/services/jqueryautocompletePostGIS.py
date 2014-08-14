@@ -140,18 +140,16 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
 
     joinSeparator = ", "
     hasNumber = False
-    if ruianType == "town":
+    isStreet = False
+    if ruianType == "townpart":
+        searchSQL = "select nazev_casti_obce, nazev_obce from casti_obce where nazev_casti_obce ilike '%" + nameToken + "%'"
+    elif ruianType == "town":
         searchSQL = "select nazev_obce, psc from obce where nazev_obce ilike '%" + nameToken + "%'"
-        isStreet = False
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from gids where cast(gid as text) like '" + nameToken + "%'"
-        joinSeparator = ", "
-        isStreet = False
-
     elif ruianType == "zip":
         searchSQL = "select psc, nazev_obce from psc where psc like '" + nameToken + "%'"
         joinSeparator = " "
-        isStreet = False
     else:
         # street
         isStreet = True
