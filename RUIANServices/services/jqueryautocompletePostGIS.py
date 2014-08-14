@@ -144,7 +144,9 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
         searchSQL = "select nazev_obce, psc from obce where nazev_obce ilike '%" + nameToken + "%'"
         isStreet = False
     elif ruianType == ID_VALUE:
-        return getAutocompleteOneItemResults(ruianType, nameToken, maxCount)
+        searchSQL = "select cast(gid as text), address from gids where cast(gid as text) like '" + nameToken + "%'"
+        joinSeparator = ", "
+        isStreet = False
 
     elif ruianType == "zip":
         searchSQL = "select psc, nazev_obce from psc where psc like '" + nameToken + "%'"

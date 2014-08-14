@@ -437,11 +437,14 @@ def rightAddress(street, houseNumber, recordNumber, orientationNumber, orientati
     return True
 
 def formatZIPCode(code):
-    code = code.replace(" ", "")
-    if code.isdigit():
-        return code
-    else:
+    if code == None:
         return ""
+    else:
+        code = code.replace(" ", "")
+        if code.isdigit():
+            return code
+        else:
+            return ""
 
 def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     if houseNumber != "":
@@ -523,12 +526,12 @@ def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber,
         houseNumberStr = ""
 
     if locality.upper() == "PRAHA":
-        if street != "":
+        if strIsNotEmpty(street):
             addressStr += street + houseNumberStr + ", " + localityPart + ", " + townInfo
         else:
             addressStr += localityPart + houseNumberStr + ", " + townInfo
     else:
-        if street != "":
+        if strIsNotEmpty(street):
             addressStr += street + houseNumberStr + ", "
             if localityPart != locality:
                 addressStr += localityPart + ", "
@@ -543,6 +546,9 @@ def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber,
                     addressStr += houseNumberStr[1:] + ", "
             addressStr += townInfo
     return addressStr
+
+def strIsNotEmpty(v):
+    return v != None and v != ""
 
 def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     lines = []
@@ -589,3 +595,34 @@ def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, o
                     lines.append(houseNumberStr[1:])
             lines.append(townInfo)
     return lines
+
+def numberToString(number):
+    if number is None:
+        return ""
+    else:
+        return str(number)
+
+def extractDictrictNumber(nazev_mop):
+    # Praha 10 -> 10
+    if (nazev_mop != "") and (nazev_mop != None) and (nazev_mop.find(" ") >= 0):
+        return nazev_mop.split(" ")[1]
+    else:
+        return ""
+
+def analyseRow(typ_so, cislo_domovni):
+    if typ_so[-3:] == ".p.":
+        houseNumber = numberToString(cislo_domovni)
+        recordNumber = ""
+    elif typ_so[-3:] == "ev.":
+        houseNumber = ""
+        recordNumber = numberToString(cislo_domovni)
+    else:
+        pass
+
+    return houseNumber, recordNumber
+
+def itemToStr(item):
+    if item == None:
+        return ""
+    else:
+        return str(item)

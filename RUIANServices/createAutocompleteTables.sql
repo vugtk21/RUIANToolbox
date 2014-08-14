@@ -20,3 +20,9 @@ create table gids
 as
 select gid from address_points
 group by gid order by gid
+
+create table casti_obce as
+select nazev_casti_obce, nazev_obce
+from address_points
+group by nazev_casti_obce, nazev_obce
+order by nazev_casti_obce, nazev_obce
