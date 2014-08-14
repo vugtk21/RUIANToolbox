@@ -113,16 +113,16 @@ def createServiceHandlers():
             [
                 getAddressPlaceIdParamURL(),
                 getSearchTextParam(),
-                URLParam("Street",            u"Ulice", u"Název ulice", "", True),
+                URLParam("Street",            u"Ulice", u"Název ulice", "", True, htmlTags = ' class="RUIAN_STREET_INPUT" '),
                 URLParam("HouseNumber",       u"Číslo popisné", "", "", True),
                 URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True),
                 URLParam("OrientationNumber", u"Číslo orientační", "", "", True, htmlTags=' pattern="[0-9]"'),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
-                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True),
-                URLParam("Locality",          u"Obec",  u"Obec", "", True),
+                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True, htmlTags = ' class="RUIAN_ZIP_INPUT" '),
+                URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", "", True),
                 URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje", "", True),
-                URLParam("ExtraInformation", u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
+                URLParam("ExtraInformation",  u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
             ],
             compileAddressServiceHandler,
             sendButtonCaption = u"Sestav adresu",

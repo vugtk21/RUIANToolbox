@@ -48,12 +48,28 @@ function setInputValue(id, value)
 	streetElement.value = value;
 }
 
+function extractFormName(elemName)
+// form_1_ZIPCode  --> form_1
+{
+	idPart = elemName.substring(5, elemName.length); 
+	
+	return "form_" + idPart.substring(0, idPart.indexOf("_"));
+}
+
+function setInputValueFromMaster(masterElemId, suffix, value)
+{
+	id = extractFormName(masterElemId) + suffix;
+	elem = document.getElementById(id);
+	elem.value = value;
+}
+
 function clearInputList(list)
 {
  for (key in list) {
      setInputValue(list[key], "");
  }
 }
+
 
 $(function() {
     $( "#tabs" ).tabs(#TABSOPTIONS#);
@@ -91,22 +107,68 @@ $(document).ready(function() {
 
 // Přiřazení našeptávačů
 $(function() {
-    $( ".RUIAN_ID_INPUT" ).autocomplete({
+    $(".RUIAN_ID_INPUT").autocomplete({
       source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
       minLength: 1,
       select: function( event, ui ) { this.value = ui.item.id; }
     });
 	
+    $(".RUIAN_ZIP_INPUT").autocomplete({
+      source: "/ruian/jqueryautocomplete.py/zipcode?RUIANType=zip&",
+      minLength: 1,
+      select: function( event, ui ) { 
+	  
+	    idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
+		
+		id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
+		townElem = document.getElementById(id);
+		townElem.value = ui.item.id; 
+	  }
+    });	
 	
-    //$( "#form_1_AddressPlaceId" ).autocomplete({
-    //  source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
-    //  minLength: 1,
-    //  select: function( event, ui ) {
-	//	this.value = ui.item.id;
-    //  }
-    //});
+    $( ".RUIAN_TOWN_INPUT" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/town?RUIANType=town",
+      minLength: 1,
+      select: function( event, ui ) { 
+		setInputValueFromMaster(this.id, "_ZIPCode", ui.item.id);  
+	  }
+    });
+	
+    $( ".RUIAN_STREET_INPUT" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts",
+      minLength: 1,
+      select: function( event, ui ) {	
+		addressItems = ui.item.id.split(",");
+		setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
+		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
+		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  
+		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);  
+		setInputValueFromMaster(this.id, "_OrientationNumberCharacter", addressItems[4]);  		
+		setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);  
+		setInputValueFromMaster(this.id, "_Locality", addressItems[6]);
+		setInputValueFromMaster(this.id, "_LocalityPart", addressItems[7]);
+		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);	
+      }
+    });
+	
+	
+    $( ".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
+      source: "/ruian/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts",
+      minLength: 1,
+      select: function( event, ui ) {	
+		addressItems = ui.item.id.split(",");
+		setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
+		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
+		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  
+		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);  
+		setInputValueFromMaster(this.id, "_OrientationNumberCharacter", addressItems[4]);  		
+		setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);  
+		setInputValueFromMaster(this.id, "_Locality", addressItems[6]);
+		setInputValueFromMaster(this.id, "_LocalityPart", addressItems[7]);
+		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);	
+      }
+    });
 });
-
   </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -243,8 +305,8 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     <tr>
         <td><img src="#HTMLDATA_URL#tacr_eng.png" height="55"></td>
         <td>
-Webové služby RÚIAN byly vytvořeny v rámci čtvrté etapy projektu
-TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURADIN v podmínkách RUIAN    (2012-2014)
+Webové služby RÚIAN byly vytvořeny v rámci projektu
+TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURADIN v podmínkách RUIAN    (2012-2014).
         </td>
     </tr>
 </table>

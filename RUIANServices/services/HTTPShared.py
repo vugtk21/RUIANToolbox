@@ -18,16 +18,16 @@ def getResultFormatParam():
     return RestParam("/Format", u"Formát", u"Formát výsledku služby (HTML, XML, Text, JSON)")
 
 def getSearchTextParam():
-    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy, jednotlivé položky oddělené čárkou")
+    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy, jednotlivé položky oddělené čárkou", htmlTags = ' class="RUIAN_TEXTSEARCH_INPUT" ')
 
 def getAddressPlaceIdParamRest():
     return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
 
 def getAddressPlaceIdParamURL():
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True)
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True,  htmlTags = ' class="RUIAN_ID_INPUT" ')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False)
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
 
 class HTTPResponse():
     def __init__(self, handled, mimeFormat = "text/html", htmlData = ""):

@@ -82,6 +82,11 @@ def analyseRow(typ_so, cislo_domovni):
 
     return houseNumber, recordNumber
 
+def itemToStr(item):
+    if item == None:
+        return ""
+    else:
+        return str(item)
 
 builder = HTTPShared.MimeBuilder("texttoonerow")
 
@@ -123,7 +128,7 @@ def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
 
     return rows
 
-def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
+def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     #logger.info("getCitiesList")
     if nameToken == "" or nameToken == None:
         return []
@@ -148,14 +153,18 @@ def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
     else:
         # street
         isStreet = True
-        delPos = nameToken.rfind(" ")
         hasNumber = False
-        if delPos >= 0:
-            # je tam cislo?
-            name = nameToken[:delPos]
-            cislo = nameToken[delPos + 1:]
-            if cislo.isdigit():
-                hasNumber = True
+        if nameToken[len(nameToken) - 1:] == " ":
+            hasNumber = True
+        else:
+            delPos = nameToken.rfind(" ")
+            if delPos >= 0:
+                # je tam cislo?
+                name = nameToken[:delPos]
+                cislo = nameToken[delPos + 1:]
+                if cislo.isdigit():
+                    hasNumber = True
+
         if hasNumber:
             searchSQL = 'select nazev_ulice, cast(cislo_domovni as text), nazev_obce, cast(psc as text), cast(cislo_orientacni as text), znak_cisla_orientacniho, nazev_casti_obce, typ_so, nazev_mop from address_points ' + \
                         "where nazev_ulice ilike '%" + name + "%' and (cast(cislo_domovni as text) ilike '" + cislo + "%'" + \
@@ -196,7 +205,12 @@ def getAutocompleteResults(ruianType, nameToken, maxCount = 10):
                 districtNumber = extractDictrictNumber(nazev_mop)
 
                 rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-                idValue = rowLabel[rowLabel.find(", ") + 2:]
+                if resultFormat.lower() == "addressparts":
+                    idValue =  street + "," + itemToStr(houseNumber) + "," + itemToStr(recordNumber) + "," + itemToStr(orientationNumber) + "," + \
+                               itemToStr(orientationNumberCharacter) + "," + itemToStr(zipCode) + "," + \
+                               itemToStr(locality) + "," + itemToStr(localityPart) + "," + itemToStr(districtNumber)
+                else:
+                    idValue = rowLabel[rowLabel.find(", ") + 2:]
             else:
                 idValue = row[1] + ", " + row[2]
         else:

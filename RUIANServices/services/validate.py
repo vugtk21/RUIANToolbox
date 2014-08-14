@@ -62,15 +62,15 @@ def createServiceHandlers():
                 getResultFormatParam()
             ],
             [
-                URLParam("Street",      u"Ulice", u"Název ulice"),
-                URLParam("HouseNumber", u"Číslo popisné", ""),
-                URLParam("RecordNumber", u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
+                URLParam("Street",            u"Ulice", u"Název ulice", htmlTags = ' class="RUIAN_STREET_INPUT" '),
+                URLParam("HouseNumber",       u"Číslo popisné", ""),
+                URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno"),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", ""),
-                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo"),
-                URLParam("Locality",    u"Obec", u"Obec"),
+                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", htmlTags = ' class="RUIAN_ZIP_INPUT" '),
+                URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa"),
-                URLParam("DistrictNumber", u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje")
+                URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje")
             ],
             validateAddressServiceHandler,
             sendButtonCaption = u"Ověř adresu",

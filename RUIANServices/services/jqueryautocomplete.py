@@ -17,9 +17,9 @@ def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
     if queryParams:
         token = getQueryValue(queryParams, 'term', "")
         max_matches = int(getQueryValue(queryParams, 'max_matches', 40))
-        use_similar = getQueryValue(queryParams, 'use_similar', "false")
         ruian_type = getQueryValue(queryParams, 'RUIANType', "zip")
-        resultArrray = jqueryautocompletePostGIS.getAutocompleteResults(ruian_type, token, max_matches)
+        resultFormat = getQueryValue(queryParams, 'ResultFormat', "")
+        resultArrray = jqueryautocompletePostGIS.getAutocompleteResults(ruian_type, token, resultFormat, max_matches)
     else:
         resultArrray = []
 

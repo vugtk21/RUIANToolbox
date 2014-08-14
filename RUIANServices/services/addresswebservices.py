@@ -101,7 +101,7 @@ class ServicesHTMLPageBuilder:
             elemID = formName + '_' + param.name
             result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + \
-                      ' id="' + elemID + '"' + ' class="RUIAN_ID_INPUT"/>'
+                      ' id="' + elemID + '"' + ' />'
 
         result += '</tr>\n'
         return result
