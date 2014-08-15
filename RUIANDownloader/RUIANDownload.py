@@ -48,7 +48,11 @@ config = Config("RUIANDownload.cfg",
                 "runImporter" : False,
                 "dataDir" : "DownloadedData\\",
                 "automaticDownloadTime" : "",
-                "downloadURL" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=OB&vf.ds=K&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat"
+                "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
+                                 "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
+                                 "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
+                                 "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
+                "ignoreHistoricalData": True
             },
            convertImportRUIANCfg)
 
@@ -124,19 +128,24 @@ def formatTimeDelta(timeDelta):
         v = "0" + v
     return v + "s"
 
+def getUpdateURL(url, dateStr):
+    url = url.replace("vf.cr=U&", "vf.cr=Z&")
+    url = url.replace("vf.up=ST&", "")
+    url = url.replace("vf.up=OB&", "")
+    url = url.replace("vf.vu=Z&", "")
+    url = url.replace("vf.uo=A&", "")
+    url += "&vf.pd=" + dateStr
+    return url
 
 class RUIANDownloader:
-    pageURL         = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
-    FULL_LIST_URL   = "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/seznamlinku?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=ST&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat"
-    UPDATE_PAGE_URL = 'http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=Z&vf.ds=K&_vf.vu=on&vf.vu=G&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat&vf.pd='
-
     def __init__(self, aTargetDir = ""):
         self._targetDir = ""
         self.setTargetDir(aTargetDir)
         self.downloadInfos = []
         self.downloadInfo = None
         self._fullDownload = True
-        self.pageURL = config.downloadURL
+        self.pageURLs = config.downloadURLs
+        self.ignoreHistoricalData = config.ignoreHistoricalData
         pass
 
     def getTargetDir(self):
@@ -156,23 +165,30 @@ class RUIANDownloader:
     def getFullSetList(self):
         logger.debug("RUIANDownloader.getFullSetList")
         self._fullDownload = True
-        return self.getList(self.pageURL)
+        return self.getList(self.pageURLs)
 
-    def getList(self, url):
-        logger.info("Downloading list of files from " + url)
-        html = urllib2.urlopen(url).read()
+    def getList(self, urls):
+        urls = urls.split(";")
         result = []
+        for url in urls:
+            url = url.replace("vyhledej", "seznamlinku")
+            logger.info("Downloading list of files from " + url)
+            content = urllib2.urlopen(url).read()
+            lines = content.splitlines()
+            result.extend(lines)
+            #break
 
-        tablePos = html.find('<table id="i"')
-        if tablePos >= 0:
-            refTable = html[tablePos:]
-            refTable = refTable[refTable.find('<tbody>'):]
-            refTable = refTable[:refTable.find("</table>")]
-            hrefs = refTable.split('href="')
-            for line in hrefs:
-                if line[:5] == 'http:':
-                    href = line[:line.find('"')]
-                    result.append(href)
+        if self.ignoreHistoricalData:
+            newResult = []
+            stateMonth = datetime.date.today().month - 1
+            for url in result:
+                date = url[url.rfind("/") + 1:]
+                date = date[:date.find("_")]
+                month = int(date[4:6])
+                if month >= stateMonth:
+                    newResult.append(url)
+            result = newResult
+
         return result
 
     def getUpdateList(self, fromDate = ""):
@@ -181,7 +197,8 @@ class RUIANDownloader:
         if fromDate == "" or infoFile.validFor() != "":
             v = infoFile.validFor()
             dateStr = v[8:10] + "." + v[5:7] + "." + v[0:4]
-            return self.getList(self.UPDATE_PAGE_URL + dateStr)
+            firstPageURL = self.pageURLs.split(";")[0]
+            return self.getList(getUpdateURL(firstPageURL, dateStr))
         else:
             return []
 
@@ -191,9 +208,9 @@ class RUIANDownloader:
 
         def addDownloadHeader():
             if self._fullDownload:
-                headerText = "Úplné stažení dat"
+                headerText = "Stažení stavových dat"
             else:
-                headerText = "Stažení aktualizací"
+                headerText = "Stažení aktualizací k "
             v = str(datetime.datetime.now())
             htmlLog.addHeader(headerText + " " + v[8:10] + "." + v[5:7] + "." + v[0:4])
 
@@ -306,7 +323,7 @@ class RUIANDownloader:
                 file_size_dl += len(chunk)
                 logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100.0 / fileSize))
                 self.downloadInfo.compressedFileSize = file_size_dl
-                self.buildIndexHTML()
+                #self.buildIndexHTML()
             fp.close()
         self.downloadInfo.downloadTime = formatTimeDelta(str(datetime.datetime.now() - startTime)[5:])
         self.downloadInfo.fileName = file_name
@@ -356,6 +373,7 @@ class RUIANDownloader:
 
         startTime = datetime.datetime.now()
 
+        callUpdate = False;
         if self._fullDownload or infoFile.lastFullDownload == "":
             logger.info("Running in full mode")
             logger.info("Cleaning directory " + config.dataDir)
@@ -364,8 +382,11 @@ class RUIANDownloader:
                 os.mkdir(config.dataDir)
 
             l = self.getFullSetList()
-            infoFile.lastFullDownload = str(datetime.datetime.now())
+            d = datetime.date.today()
+            infoFile.lastFullDownload = '{:04d}'.format(d.year) + "-" + '{:02d}'.format(d.month) + "-01 14:07:13.084000"
             infoFile.lastPatchDownload = ""
+            callUpdate = True
+
         else:
             logger.info("Running in update mode")
             l = self.getUpdateList()
@@ -380,6 +401,10 @@ class RUIANDownloader:
 
         self.buildIndexHTML()  # informaci o pokusu downloadovat ale vytváříme stejně
         htmlLog.closeSection(config.dataDir + "index.html")
+
+        if callUpdate:
+            self._fullDownload = False
+            self.download()
 
     def saveFileList(self, fileList):
         infoFile.numPatches = infoFile.numPatches + 1
