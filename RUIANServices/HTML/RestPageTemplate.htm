@@ -138,7 +138,8 @@ $(function() {
       source: "/ruian/jqueryautocomplete.py/townpart?RUIANType=townpart",
       minLength: 1,
       select: function( event, ui ) { 
-		//setInputValueFromMaster(this.id, "_ZIPCode", ui.item.id);  
+		setInputValueFromMaster(this.id, "_Locality", ui.item.id);
+		setInputValueFromMaster(this.id, "_ZIPCode", "");  
 	  }
     });
 
@@ -147,7 +148,12 @@ $(function() {
       minLength: 1,
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");
-		setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
+		
+		if (addressItems.length == 2) {
+			addressItems = ["", "", "", "", "", addressItems[2], addressItems[1], "", ""];		
+		}
+			
+		//setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
 		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
 		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  
 		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);  
@@ -165,6 +171,11 @@ $(function() {
       minLength: 1,
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");
+		
+		if (addressItems.length == 2) {
+			addressItems = ["", "", "", "", "", addressItems[2], addressItems[1], "", ""];		
+		}
+			
 		setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
 		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
 		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  

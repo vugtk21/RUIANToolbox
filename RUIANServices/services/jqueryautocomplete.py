@@ -14,6 +14,7 @@ def getQueryValue(queryParams, id, defValue):
         return defValue
 
 def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
+
     if queryParams:
         token = getQueryValue(queryParams, 'term', "")
         max_matches = int(getQueryValue(queryParams, 'max_matches', 40))

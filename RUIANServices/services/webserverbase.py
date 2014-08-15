@@ -26,6 +26,7 @@ if __name__ == "__main__":
 import web
 import re
 from HTTPShared import *
+import os
 
 from config import SERVER_HTTP, PORT_NUMBER, SERVICES_WEB_PATH
 
@@ -51,10 +52,14 @@ def _processRequestProc(page, queryParams, response):
         response.htmlData = EMPTY_HTML_DATA
         response.handled = True
     elif page.find(".") >= 0:
-        f = open(SERVICES_WEB_PATH + page)
-        response.htmlData = f.read()  # TODO Implementovat vracení binárních souborů
-        f.close()
-        response.handled = True
+        if os.path.exists(SERVICES_WEB_PATH + page):
+            f = open(SERVICES_WEB_PATH + page)
+            response.htmlData = f.read()  # TODO Implementovat vracení binárních souborů
+            f.close()
+            response.handled = True
+        else:
+            response.htmlData = EMPTY_HTML_DATA
+            response.handled = True
     else:
         fullPathList = page.split("/")                                # REST parametry
         if SERVER_PATH_DEPTH != 0:
@@ -128,4 +133,4 @@ def mainProcess(aProcessRequestProc):
 
     else:
         app = ServerApplication(urls, globals())
-        app.run(port = PORT_NUMBER)
+        app.run(port = 4567) #PORT_NUMBER)

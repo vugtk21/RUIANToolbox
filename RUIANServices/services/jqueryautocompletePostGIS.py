@@ -128,6 +128,51 @@ def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
 
     return rows
 
+def parseFullTextToken(nameToken):
+    hasNumber = False
+
+    if nameToken.isdigit():
+        # jedná se o PSČ nebo číslo bez ulice
+        if len(nameToken) < 2:
+            return(False, "")
+        else:
+            name = ""
+            cislo = nameToken
+            hasNumber = True
+    else:
+        name = nameToken
+        cislo = ""
+        delPos = nameToken.rfind(" ")
+        if delPos >= 0:
+            # je druhá část cislo?
+            name = nameToken[:delPos]
+            cislo = nameToken[delPos + 1:]
+            if cislo.isdigit():
+                hasNumber = True
+            else:
+                cislo = ""
+                name = nameToken
+
+    if hasNumber:
+        whereList = []
+        if name != "":
+            whereList.append("nazev_ulice ilike '%" + name + "%'")
+        else:
+            whereList.append("nazev_ulice is null")
+
+        if cislo != "":
+            whereList.append("(cast(cislo_domovni as text) ilike '" + cislo + "%'" + \
+                        "or cast(cislo_orientacni as text) ilike '" + cislo + "%')")
+        searchSQL = 'select nazev_ulice, cast(cislo_domovni as text), nazev_obce, cast(psc as text),' \
+                    'cast(cislo_orientacni as text), znak_cisla_orientacniho, nazev_casti_obce, typ_so, nazev_mop from ' \
+                    'address_points where ' + " and ".join(whereList)
+
+
+    else:
+        searchSQL = "select nazev_ulice, nazev_obce, psc from ulice where nazev_ulice ilike '%" + nameToken + "%'"
+
+    return (hasNumber, searchSQL)
+
 def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     #logger.info("getCitiesList")
     if nameToken == "" or nameToken == None:
@@ -137,6 +182,8 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
         ruianType == "town"
 
     nameToken = nameToken.lower()
+
+    rows = []
 
     joinSeparator = ", "
     hasNumber = False
@@ -151,85 +198,67 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
         searchSQL = "select psc, nazev_obce from psc where psc like '" + nameToken + "%'"
         joinSeparator = " "
     else:
-        # street
         isStreet = True
-        hasNumber = False
-        if nameToken[len(nameToken) - 1:] == " ":
-            hasNumber = True
-        else:
-            delPos = nameToken.rfind(" ")
-            if delPos >= 0:
-                # je tam cislo?
-                name = nameToken[:delPos]
-                cislo = nameToken[delPos + 1:]
-                if cislo.isdigit():
-                    hasNumber = True
+        hasNumber, searchSQL = parseFullTextToken(nameToken)
 
-        if hasNumber:
-            searchSQL = 'select nazev_ulice, cast(cislo_domovni as text), nazev_obce, cast(psc as text), cast(cislo_orientacni as text), znak_cisla_orientacniho, nazev_casti_obce, typ_so, nazev_mop from address_points ' + \
-                        "where nazev_ulice ilike '%" + name + "%' and (cast(cislo_domovni as text) ilike '" + cislo + "%'" + \
-                        "or cast(cislo_orientacni as text) ilike '" + cislo + "%')"
-        else:
-            searchSQL = "select nazev_ulice, nazev_obce, psc from ulice where nazev_ulice ilike '%" + nameToken + "%'"
+    if searchSQL != "":
+        searchSQL += " limit " + str(maxCount)
 
-    searchSQL += " limit " + str(maxCount)
+        try:
+            db = PostGISDatabase()
+            cursor = db.conection.cursor()
+            #logger.debug("Database encoding:" , db.conection.encoding)
+            cursor.execute(searchSQL)
+        except:
+            import sys
+            return[sys.exc_info()[0]]
 
-    try:
-        db = PostGISDatabase()
-        cursor = db.conection.cursor()
-        #logger.debug("Database encoding:" , db.conection.encoding)
-        cursor.execute(searchSQL)
-    except:
-        import sys
-        return[sys.exc_info()[0]]
+        rowCount = 0
+        for row in cursor:
+            rowCount += 1
 
-    rows = []
-    rowCount = 0
-    for row in cursor:
-        rowCount += 1
+            htmlItems = []
+            for i in range(len(row)):
+                if True:
+                    htmlItems.append(row[i])
+                else:
+                    item = row[i]
+                    htmlItems.append(item)
 
-        htmlItems = []
-        for i in range(len(row)):
-            if True:
-                htmlItems.append(row[i])
-            else:
-                item = row[i]
-                htmlItems.append(item)
+                rowLabel = None
+            if ruianType == "street":
+                if hasNumber:
+                    street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
 
-        rowLabel = None
-        if ruianType == "street":
-            if hasNumber:
-                street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
+                    houseNumber, recordNumber = analyseRow(typ_so, houseNumber)
+                    districtNumber = extractDictrictNumber(nazev_mop)
 
-                houseNumber, recordNumber = analyseRow(typ_so, houseNumber)
-                districtNumber = extractDictrictNumber(nazev_mop)
-
-                rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-                if resultFormat.lower() == "addressparts":
-                    idValue =  street + "," + itemToStr(houseNumber) + "," + itemToStr(recordNumber) + "," + itemToStr(orientationNumber) + "," + \
+                    rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+                    if resultFormat.lower() == "addressparts":
+                        idValue =  itemToStr(street) + "," + itemToStr(houseNumber) + "," + itemToStr(recordNumber) + "," + itemToStr(orientationNumber) + "," + \
                                itemToStr(orientationNumberCharacter) + "," + itemToStr(zipCode) + "," + \
                                itemToStr(locality) + "," + itemToStr(localityPart) + "," + itemToStr(districtNumber)
+                    else:
+                        idValue = rowLabel[rowLabel.find(", ") + 2:]
                 else:
-                    idValue = rowLabel[rowLabel.find(", ") + 2:]
+                    idValue = row[1] + ", " + row[2]
             else:
-                idValue = row[1] + ", " + row[2]
-        else:
-            idValue = row[1]
+                idValue = row[1]
 
-        if rowLabel == None:
-            rowLabel = joinSeparator.join(htmlItems)
+            if rowLabel == None:
+                rowLabel = joinSeparator.join(htmlItems)
 
-        if hasNumber:
-            rowValue = rowLabel[:rowLabel.find(",")]
-        else:
-            rowValue = row[0]
+            if hasNumber:
+                rowValue = rowLabel[:rowLabel.find(",")]
+            else:
+                rowValue = row[0]
 
-        value = '{"id":"' + idValue + '","label":"' + rowLabel + '","value":"' + rowValue + '"}'
+            value = '{"id":"' + idValue + '","label":"' + rowLabel + '","value":"' + rowValue + '"}'
 
-        rows.append(value)
+            rows.append(value)
 
-        if rowCount >= maxCount:
-            break
+            if rowCount >= maxCount:
+                break
 
     return rows
 
