@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
 import os
@@ -39,14 +40,14 @@ class Config:
         if not os.path.exists(self.fileName):
             tempCfgFileName = "c:/temp/" + self.fileName
             if os.path.exists(tempCfgFileName):
-                logger.warning("Configuration file " + self.fileName + " not found.")
-                logger.warning("File was found at c:/temp, using it.")
+                logger.warning(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
+                logger.warning(u"Soubor byl nalezen a použit z c:/temp.")
                 self.fileName = tempCfgFileName
                 self.loadFile()
             else:
                 self.save()
-                logger.error("Configuration file " + self.fileName + " not found.")
-                logger.error("File has been created from template. Please edit configuration file and run program again.")
+                logger.error(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
+                logger.error(u"Soubor byl vytvořen ze šablony. Nastavte jeho hodnoty a spusťte program znovu.")
                 import sys
                 sys.exit()
         else:
@@ -117,7 +118,7 @@ def convertImportRUIANCfg(config):
 
 
 def main():
-    config = Config("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\RUIANDownload.cfg",
+    config = Config("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\__RUIANDownload.cfg",
             {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : True,

@@ -19,11 +19,14 @@ import datetime
 from log import logger, clearLogFile
 from infofile import infoFile
 from htmllog import htmlLog
-#from configreader import config
-#from configreader import pathWithLastSlash
 
-from SharedTools.config import pathWithLastSlash
-from SharedTools.config import Config
+# Setup path to RUIANToolbox
+import os.path, sys
+basePath = os.path.join(os.path.dirname(__file__), "../..")
+if not basePath in sys.path: sys.path.append(basePath)
+
+from SharedTools.Config import pathWithLastSlash
+from SharedTools.Config import Config
 
 def convertImportRUIANCfg(config):
     if config == None: return
@@ -35,6 +38,7 @@ def convertImportRUIANCfg(config):
     config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
     config.runImporter = isTrue(config.runImporter)
     config.dataDir = pathWithLastSlash(config.dataDir)
+    infoFile.load(config.dataDir + "info.txt")
     pass
 
 config = Config("RUIANDownload.cfg",
@@ -42,9 +46,9 @@ config = Config("RUIANDownload.cfg",
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : True,
                 "runImporter" : False,
-                "dataDir" : "Downloads\\",
+                "dataDir" : "DownloadedData\\",
                 "automaticDownloadTime" : "",
-                "downloadURL" : ""
+                "downloadURL" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&vf.up=OB&vf.ds=K&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat"
             },
            convertImportRUIANCfg)
 
@@ -417,7 +421,7 @@ class RUIANDownloader:
 
 
 def printUsageInfo():
-    logger.info('Usage: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_dir] [-UncompressDownloadedFiles {True | False}][-help]')
+    logger.info(u'Použití: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_dir] [-UncompressDownloadedFiles {True | False}][-help]')
     logger.info('')
     sys.exit(1)
 
@@ -464,7 +468,7 @@ def main(argv = sys.argv):
         downloader.download()
 
         logger.info("Download done.")
-        if config.runimporter:
+        if config.runImporter:
             from RUIANImporter.importRUIAN import doImport
             doImport()
 
