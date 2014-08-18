@@ -299,7 +299,7 @@ class RUIANDownloader:
             fileName = self.downloadURLtoFile(href)
             if config.uncompressDownloadedFiles:
                 self.uncompressFile(fileName, True)
-            self.buildIndexHTML()
+        self.buildIndexHTML()
         pass
 
     def downloadURLtoFile(self, url):
@@ -440,7 +440,6 @@ class RUIANDownloader:
             file_size_dl += len(blockBuffer)
             f.write(blockBuffer)
             filePercentageInfo(file_size, file_size_dl)
-
         f.close()
         pass
 
@@ -449,7 +448,6 @@ def printUsageInfo():
     logger.info(u'Použití: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_dir] [-UncompressDownloadedFiles {True | False}][-help]')
     logger.info('')
     sys.exit(1)
-
 
 def main(argv = sys.argv):
     if (argv is not None) or (len(argv) > 1):
@@ -496,7 +494,6 @@ def main(argv = sys.argv):
         if config.runImporter:
             from RUIANImporter.importRUIAN import doImport
             doImport()
-
 
 if __name__ == '__main__':
     sys.exit(main())
