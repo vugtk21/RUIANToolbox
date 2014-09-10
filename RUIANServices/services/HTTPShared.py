@@ -38,13 +38,13 @@ def getZIPCodeURL():
                     htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 0)" ')
 
 def getHouseNumberURL():
-    # psc = 1...9999
+    # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
     return URLParam("HouseNumber",       u"Číslo popisné", "", "", True,
                     htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
 
-def getHouseNumberURL():
-    # psc = 1...9999
-    return URLParam("HouseNumber",       u"Číslo popisné", "", "", True,
+def getRecordNumberURL():
+    # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
+    return URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True,
                     htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():

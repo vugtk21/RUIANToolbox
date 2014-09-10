@@ -115,7 +115,7 @@ def createServiceHandlers():
                 getSearchTextParam(),
                 URLParam("Street",            u"Ulice", u"Název ulice", "", True, htmlTags = ' class="RUIAN_STREET_INPUT" '),
                 getHouseNumberURL(),
-                URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True),
+                getRecordNumberURL(),
                 URLParam("OrientationNumber", u"Číslo orientační", "", "", True, htmlTags=' pattern="[0-9]"'),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
                 getZIPCodeURL(),
