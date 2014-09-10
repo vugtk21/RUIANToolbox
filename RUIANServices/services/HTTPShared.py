@@ -14,6 +14,10 @@ import urllib
 
 services = []
 
+# cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
+# cislo_orientacni = 1..999
+# znak_cisla_orientacniho = a-zA-Z
+
 def getResultFormatParam():
     return RestParam("/Format", u"Formát", u"Formát výsledku služby (HTML, XML, Text, JSON)")
 
@@ -24,12 +28,24 @@ def getAddressPlaceIdParamRest():
     return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
 
 def getAddressPlaceIdParamURL():
+    # gid = 19..72628626
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True,
                     htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
 
 def getZIPCodeURL():
+    # psc = 10000...79862
     return URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True,
                     htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 0)" ')
+
+def getHouseNumberURL():
+    # psc = 1...9999
+    return URLParam("HouseNumber",       u"Číslo popisné", "", "", True,
+                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
+
+def getHouseNumberURL():
+    # psc = 1...9999
+    return URLParam("HouseNumber",       u"Číslo popisné", "", "", True,
+                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')

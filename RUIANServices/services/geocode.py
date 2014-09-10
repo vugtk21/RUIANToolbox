@@ -123,7 +123,7 @@ def createServiceHandlers():
                 getAddressPlaceIdParamURL(),
                 getSearchTextParam(),
                 URLParam("Street",            u"Ulice", u"Název ulice", "", True, htmlTags = ' class="RUIAN_STREET_INPUT" '),
-                URLParam("HouseNumber",       u"Číslo popisné", "", "", True),
+                getHouseNumberURL(),
                 URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True),
                 URLParam("OrientationNumber", u"Číslo orientační", "", "", True),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
