@@ -63,11 +63,11 @@ def createServiceHandlers():
             ],
             [
                 URLParam("Street",            u"Ulice", u"Název ulice", htmlTags = ' class="RUIAN_STREET_INPUT" '),
-                getHouseNumberURL(),
-                getRecordNumberURL(),
+                getHouseNumberURL(False),
+                getRecordNumberURL(False),
                 URLParam("OrientationNumber", u"Číslo orientační", ""),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", ""),
-                getZIPCodeURL(),
+                getZIPCodeURL(False),
                 URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
                 URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje")

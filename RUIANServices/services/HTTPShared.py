@@ -32,19 +32,19 @@ def getAddressPlaceIdParamURL():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True,
                     htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
 
-def getZIPCodeURL():
+def getZIPCodeURL(disabled = True):
     # psc = 10000...79862
-    return URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True,
-                    htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 0)" ')
+    return URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", disabled,
+                    htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 79862)" ')
 
-def getHouseNumberURL():
+def getHouseNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
-    return URLParam("HouseNumber",       u"Číslo popisné", "", "", True,
+    return URLParam("HouseNumber",       u"Číslo popisné", "", "", disabled,
                     htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
 
-def getRecordNumberURL():
+def getRecordNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
-    return URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True,
+    return URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", disabled,
                     htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
