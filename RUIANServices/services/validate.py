@@ -65,7 +65,7 @@ def createServiceHandlers():
                 URLParam("Street",            u"Ulice", u"Název ulice", htmlTags = ' class="RUIAN_STREET_INPUT" '),
                 getHouseNumberURL(False),
                 getRecordNumberURL(False),
-                URLParam("OrientationNumber", u"Číslo orientační", ""),
+                getOrientationNumberURL(False),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", ""),
                 getZIPCodeURL(False),
                 URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
