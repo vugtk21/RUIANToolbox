@@ -29,7 +29,7 @@ config = Config("importRUIAN.cfg",
                 "os4GeoPath": ".\\OSGeo4W_vfr\\OSGeo4W.bat"
             },
             defSubDir = "RUIANImporter",
-           moduleFile = __file__
+            moduleFile = __file__
            )
 
 

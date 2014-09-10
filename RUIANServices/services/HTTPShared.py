@@ -24,7 +24,8 @@ def getAddressPlaceIdParamRest():
     return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
 
 def getAddressPlaceIdParamURL():
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True,  htmlTags = ' class="RUIAN_ID_INPUT" ')
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True,
+                    htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
