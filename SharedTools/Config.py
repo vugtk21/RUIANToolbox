@@ -22,14 +22,37 @@ def pathWithLastSlash(path):
     return path
 
 
+def getSubDirPath(subDir):
+    path = os.path.dirname(__file__)
+    masterPath = os.path.split(path)[0]
+    return pathWithLastSlash(os.path.join(masterPath, subDir))
+
+def getParentPath(moduleFile):
+    if moduleFile == "": moduleFile = __file__
+    path = os.path.dirname(moduleFile)
+    parentPath = os.path.split(path)[0]
+    return pathWithLastSlash(parentPath)
+
+def getMasterPath(moduleFile):
+    path = getParentPath(moduleFile)
+    masterPath = os.path.split(path)[0]
+    return pathWithLastSlash(masterPath)
+
 class Config:
     TRUE_ID = "true"
 
-    def __init__(self, fileName, attrs = {}, afterLoadProc = None):
-        self.fileName = fileName
+    def __init__(self, fileName, attrs = {}, afterLoadProc = None, basePath = "", defSubDir = "", moduleFile = ""):
+        if basePath != "":
+            basePath = pathWithLastSlash(basePath)
+            if not os.path.exists(basePath):
+                logger.warning("Config.__init__, cesta " + basePath + " neexistuje.")
+                basePath = ""
+
+        self.fileName = basePath + fileName
         self.afterLoadProc = afterLoadProc
         self.attrs = attrs # Tabulka vsech atributu, jak nactenych, tak povolenych
         self._remapTable = {} # Tabulka mapovani downloadfulldatabase -> downloadFullDatabase
+        self.moduleFile = moduleFile
 
         if attrs != None:
             for key in attrs:
@@ -37,22 +60,31 @@ class Config:
                 if key != key.lower():
                     self._remapTable[key.lower()] = key
 
-        if not os.path.exists(self.fileName):
-            tempCfgFileName = "c:/temp/" + self.fileName
-            if os.path.exists(tempCfgFileName):
-                logger.warning(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
-                logger.warning(u"Soubor byl nalezen a použit z c:/temp.")
-                self.fileName = tempCfgFileName
-                self.loadFile()
-            else:
-                self.save()
-                logger.error(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
-                logger.error(u"Soubor byl vytvořen ze šablony. Nastavte jeho hodnoty a spusťte program znovu.")
-                import sys
-                sys.exit()
+        searchFileNames = [self.fileName, getParentPath(moduleFile) + fileName, getMasterPath(moduleFile) + fileName]
+        if defSubDir != "":
+            searchFileNames.append(getSubDirPath(defSubDir) + fileName)
+        searchFileNames.append("c:/temp/" + fileName)
+
+        self.fileName = ""
+        i = 0
+        for fName in searchFileNames:
+            if os.path.exists(fName):
+                self.fileName = fName
+                if i == 3:
+                    logger.warning(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
+                    logger.warning(u"Soubor byl nalezen a použit z c:/temp.")
+                break
+            i = i + 1
+
+        if self.fileName == "":
+            self.fileName = basePath + fileName
+            self.save()
+            logger.error(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
+            logger.error(u"Soubor byl vytvořen ze šablony. Nastavte jeho hodnoty a spusťte program znovu.")
+            import sys
+            sys.exit()
         else:
             self.loadFile()
-
 
     def loadFile(self):
         file = codecs.open(self.fileName, "r", "utf-8")

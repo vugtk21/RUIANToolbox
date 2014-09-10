@@ -3,32 +3,27 @@ __author__ = 'Augustyn'
 
 import os
 
+# Setup path to RUIANToolbox
+import os.path, sys
+basePath = os.path.join(os.path.dirname(__file__), "../..")
+if not basePath in sys.path: sys.path.append(basePath)
 
-class InfoFile:
-    def __init__(self):
-        self.fileName = ""
-        self.lastPatchDownload = ""
-        self.lastFullDownload = ""
-        self.numPatches = 0
+from SharedTools.config import Config
 
-    def load(self, fileName):
-        self.fileName = fileName
-        if os.path.exists(fileName):
-            inFile = open(fileName, "r")
-            self.lastPatchDownload = inFile.readline().strip()
-            self.lastFullDownload = inFile.readline().strip()
-            self.numPatches = int(inFile.readline().strip())
-            inFile.close()
-        else:
-            self.lastFullDownload = ""
-            self.lastPatchDownload = ""
+def convertInfoFile(config):
+    if config == None: return
 
-    def save(self):
-        outFile = open(self.fileName, "w")
-        outFile.write(self.lastPatchDownload + "\n")
-        outFile.write(self.lastFullDownload + "\n")
-        outFile.write(str(self.numPatches) + "\n")
-        outFile.close()
+    def isTrue(value):
+        return value != None and value.lower() == "true"
+
+    if config.numPatches == "":
+        config.numPatches = 0
+    else:
+        config.numPatches = isTrue(config.numPatches)
+
+class InfoFile(Config):
+    def __init__(self, fileName, defSubDir = "", moduleFile = ""):
+        Config.__init__("info.txt", { "lastPatchDownload" : "", "lastFullDownload" : "", "numPatches" : 0)}, convertInfoFile, "", "RUIANDownloader", moduleFile)
 
     def validFor(self):
         if self.lastPatchDownload != "":

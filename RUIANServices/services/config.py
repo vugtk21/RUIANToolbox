@@ -6,7 +6,7 @@ import os.path, sys
 basePath = os.path.join(os.path.dirname(__file__), "../..")
 if not basePath in sys.path: sys.path.append(basePath)
 
-from SharedTools.Config import Config
+from SharedTools.config import Config
 import os
 
 def convertServicesCfg(config):
@@ -49,7 +49,8 @@ config = Config("RUIANServices.cfg",
                 "noCGIAppServerHTTP" : "localhost",
                 "noCGIAppPortNumber" : 5689
             },
-           convertServicesCfg)
+           convertServicesCfg,
+           moduleFile = __file__)
 
 
 

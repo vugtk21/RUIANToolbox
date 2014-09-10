@@ -25,8 +25,8 @@ import os.path, sys
 basePath = os.path.join(os.path.dirname(__file__), "../..")
 if not basePath in sys.path: sys.path.append(basePath)
 
-from SharedTools.Config import pathWithLastSlash
-from SharedTools.Config import Config
+from SharedTools.config import pathWithLastSlash
+from SharedTools.config import Config
 
 def convertImportRUIANCfg(config):
     if config == None: return
@@ -44,7 +44,7 @@ def convertImportRUIANCfg(config):
 config = Config("RUIANDownload.cfg",
             {
                 "downloadFullDatabase" : False,
-                "uncompressDownloadedFiles" : True,
+                "uncompressDownloadedFiles" : False,
                 "runImporter" : False,
                 "dataDir" : "DownloadedData\\",
                 "automaticDownloadTime" : "",
@@ -54,7 +54,9 @@ config = Config("RUIANDownload.cfg",
                                  "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
                 "ignoreHistoricalData": True
             },
-           convertImportRUIANCfg)
+           convertImportRUIANCfg,
+           defSubDir = "RUIANDownloader",
+           moduleFile = __file__)
 
 def extractFileName(fileName):
     lastDel = fileName.rfind(os.sep)
@@ -84,7 +86,7 @@ class DownloadInfo:
         self.fileName = ""
         self.fileSize = 0
         self.compressedFileSize = 0
-        self.downloadTime = ""
+        self.downloadTime = 0
         pass
 
 
@@ -124,8 +126,8 @@ def formatTimeDelta(timeDelta):
     #seconds = s - (minutes * 60)
 
     v = v.strip("0")
-    if v[0:1] == ".":
-        v = "0" + v
+    if v[0:1] == ".": v = "0" + v
+    if v == "": v = "0"
     return v + "s"
 
 def getUpdateURL(url, dateStr):
@@ -146,6 +148,7 @@ class RUIANDownloader:
         self._fullDownload = True
         self.pageURLs = config.downloadURLs
         self.ignoreHistoricalData = config.ignoreHistoricalData
+        self.appendBrokenDownload = False
         pass
 
     def getTargetDir(self):
@@ -230,6 +233,7 @@ class RUIANDownloader:
                 elif info.fileName != "":
                         calcInfo.fileSize += info.fileSize
                         calcInfo.compressedFileSize += info.compressedFileSize
+                        logger.info(info.fileName + ":" + info.downloadTime)
                         time = float(info.downloadTime[:len(info.downloadTime) - 1])
                         calcInfo.downloadTime = calcInfo.downloadTime + time
                 else:
@@ -306,25 +310,30 @@ class RUIANDownloader:
         logger.debug("RUIANDownloader.downloadURLtoFile")
         file_name = self.targetDir + url.split('/')[-1]
         logger.info("Dodnloading " + url + " -> " + extractFileName(file_name))
-
         startTime = datetime.datetime.now()
-        req = urllib2.urlopen(url)
-        meta = req.info()
-        fileSize = int(meta.getheaders("Content-Length")[0])
-        fileDownloadInfo(file_name, fileSize)
-        CHUNK = 1024*1024
-        file_size_dl = 0
-        with open(file_name, 'wb') as fp:
-            while True:
-                chunk = req.read(CHUNK)
-                if not chunk:
-                    break
-                fp.write(chunk)
-                file_size_dl += len(chunk)
-                logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100.0 / fileSize))
-                self.downloadInfo.compressedFileSize = file_size_dl
-                #self.buildIndexHTML()
+
+        if os.path.exists(file_name):
+            logger.info("Already downloaded, skipping it.")
+            fileSize = os.stat(file_name).st_size
+        else:
+            req = urllib2.urlopen(url)
+            meta = req.info()
+            fileSize = int(meta.getheaders("Content-Length")[0])
+            fileDownloadInfo(file_name, fileSize)
+            CHUNK = 1024*1024
+            file_size_dl = 0
+            with open(file_name, 'wb') as fp:
+                while True:
+                    chunk = req.read(CHUNK)
+                    if not chunk:
+                        break
+                    fp.write(chunk)
+                    file_size_dl += len(chunk)
+                    logger.info(r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100.0 / fileSize))
+                    self.downloadInfo.compressedFileSize = file_size_dl
+                    #self.buildIndexHTML()
             fp.close()
+
         self.downloadInfo.downloadTime = formatTimeDelta(str(datetime.datetime.now() - startTime)[5:])
         self.downloadInfo.fileName = file_name
         self.downloadInfo.compressedFileSize = fileSize
@@ -376,10 +385,11 @@ class RUIANDownloader:
         callUpdate = False;
         if self._fullDownload or infoFile.lastFullDownload == "":
             logger.info("Running in full mode")
-            logger.info("Cleaning directory " + config.dataDir)
-            cleanDirectory(config.dataDir)
-            if config.dataDir != "" and not os.path.exists(config.dataDir):
-                os.mkdir(config.dataDir)
+            if not appendBrokenDownload:
+                logger.info("Cleaning directory " + config.dataDir)
+                cleanDirectory(config.dataDir)
+                if config.dataDir != "" and not os.path.exists(config.dataDir):
+                    os.mkdir(config.dataDir)
 
             l = self.getFullSetList()
             d = datetime.date.today()
@@ -449,6 +459,12 @@ def printUsageInfo():
     logger.info('')
     sys.exit(1)
 
+def getDataDirFullPath():
+    result = config.dataDir
+    if not os.path.isabs(config.dataDir):
+        result = pathWithLastSlash(os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir)
+    return result
+
 def main(argv = sys.argv):
     if (argv is not None) or (len(argv) > 1):
         i = 1
@@ -496,4 +512,4 @@ def main(argv = sys.argv):
             doImport()
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
