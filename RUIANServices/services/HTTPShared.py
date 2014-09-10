@@ -27,6 +27,10 @@ def getAddressPlaceIdParamURL():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", True,
                     htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
 
+def getZIPCodeURL():
+    return URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True,
+                    htmlTags = ' class="RUIAN_ZIP_INPUT"  onkeypress="return isNumber(event, this, 5, 0)" ')
+
 def getAddressPlaceIdParamURL_IdNotDisabled():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
 

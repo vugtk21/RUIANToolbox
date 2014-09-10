@@ -127,7 +127,7 @@ def createServiceHandlers():
                 URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno", "", True),
                 URLParam("OrientationNumber", u"Číslo orientační", "", "", True),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
-                URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True, htmlTags = ' class="RUIAN_ZIP_INPUT" '),
+                getZIPCodeURL(),
                 URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", "", True, htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
                 URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje", "", True),
