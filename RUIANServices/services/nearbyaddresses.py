@@ -88,7 +88,8 @@ def createServiceHandlers():
                 getResultFormatParam(),
                 RestParam("/JTSKY", u"JTSK Y", u"Souřadnice Y v systému S-JTSK"),
                 RestParam("/JTSKX", u"JTSK X", u"Souřadnice X v systému S-JTSK"),
-                RestParam("/Distance", u"Vzdálenost [m]", u"Vzdálenost v metrech od vloženého bodu")
+                RestParam("/Distance", u"Vzdálenost [m]", u"Vzdálenost v metrech od vloženého bodu",
+                          htmlTags = ' onkeypress="return isNumber(event, this, 6, 0)" ')
             ],
             [
                 URLParam("ExtraInformation", u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)

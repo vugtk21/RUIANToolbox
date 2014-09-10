@@ -29,7 +29,7 @@ def getAddressPlaceIdParamURL():
 
 def getZIPCodeURL():
     return URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo", "", True,
-                    htmlTags = ' class="RUIAN_ZIP_INPUT"  onkeypress="return isNumber(event, this, 5, 0)" ')
+                    htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 0)" ')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
@@ -50,8 +50,8 @@ class URLParam:
         self.htmlTags = htmlTags
 
 class RestParam(URLParam):
-    def __init__(self, pathName, caption, shortDesc, htmlDesc = ""):
-        URLParam.__init__(self, pathName, caption, shortDesc, htmlDesc)
+    def __init__(self, pathName, caption, shortDesc, htmlDesc = "", htmlTags = ""):
+        URLParam.__init__(self, pathName, caption, shortDesc, htmlDesc, False, htmlTags)
 
     def getPathName(self):
         return self.name
