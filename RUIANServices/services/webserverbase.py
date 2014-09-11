@@ -24,7 +24,6 @@ if __name__ == "__main__":
 #  =============================================================================
 
 import web
-import re
 from HTTPShared import *
 import os
 

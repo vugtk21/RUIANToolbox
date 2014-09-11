@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
-
-#from log import logger
+#-------------------------------------------------------------------------------
+# Name:        jqueryautocompletePostGIS
+# Purpose:     Implementuje funkcionalitu pro autocomplete pomocí jQuery
+#              napojením na databázi RÚIAN uloženou v PostGIS.
+# Author:      raugustyn
+#
+# Created:     10/11/2013
+# Copyright:   (c) raugustyn 2013
+# Licence:
+#-------------------------------------------------------------------------------
 
 import psycopg2
-#from log import logger
 import compileaddress
 import HTTPShared
 from config import config
 
 class PostGISDatabase():
-    DATABASE_HOST = config.databaseHost
-    PORT          = config.databasePort
-    DATABASE_NAME = config.databaseName
-    USER_NAME     = config.databaseUserName
-    PASSWORD      = config.databasePassword
-
 
     def __init__(self):
-        self.conection = psycopg2.connect(host = self.DATABASE_HOST, database = self.DATABASE_NAME, port = self.PORT, user = self.USER_NAME, password = self.PASSWORD)
+        self.conection = psycopg2.connect(host = config.databaseHost, database = config.databaseName,
+                                          port = config.databasePort, user = config.databaseUserName,
+                                          password = config.databasePassword)
 
     def getQueryResult(self, query):
         cursor = self.conection.cursor()
@@ -93,7 +96,6 @@ builder = HTTPShared.MimeBuilder("texttoonerow")
 ID_VALUE = 'id'
 
 def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
-    #logger.info("getCitiesList")
     if nameToken == "" or nameToken == None:
         return []
 
@@ -111,7 +113,6 @@ def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
     try:
         db = PostGISDatabase()
         cursor = db.conection.cursor()
-        #logger.debug("Database encoding:" , db.conection.encoding)
         cursor.execute(searchSQL)
     except:
         import sys
@@ -174,7 +175,6 @@ def parseFullTextToken(nameToken):
     return (hasNumber, searchSQL)
 
 def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
-    #logger.info("getCitiesList")
     if nameToken == "" or nameToken == None:
         return []
 
@@ -198,7 +198,7 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
         searchSQL = "select psc, nazev_obce from psc where psc like '" + nameToken + "%'"
         joinSeparator = " "
     else:
-        isStreet = True
+        # street or textsearch
         hasNumber, searchSQL = parseFullTextToken(nameToken)
 
     if searchSQL != "":
@@ -207,7 +207,6 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
         try:
             db = PostGISDatabase()
             cursor = db.conection.cursor()
-            #logger.debug("Database encoding:" , db.conection.encoding)
             cursor.execute(searchSQL)
         except:
             import sys
@@ -226,7 +225,7 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
                     htmlItems.append(item)
 
                 rowLabel = None
-            if ruianType == "street":
+            if ruianType == "street" or ruianType == "textsearch":
                 if hasNumber:
                     street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
 
@@ -248,10 +247,13 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
             if rowLabel == None:
                 rowLabel = joinSeparator.join(htmlItems)
 
-            if hasNumber:
-                rowValue = rowLabel[:rowLabel.find(",")]
+            if ruianType == "textsearch":
+                rowValue = rowLabel
             else:
-                rowValue = row[0]
+                if hasNumber:
+                    rowValue = rowLabel[:rowLabel.find(",")]
+                else:
+                    rowValue = row[0]
 
             value = '{"id":"' + idValue + '","label":"' + rowLabel + '","value":"' + rowValue + '"}'
 
