@@ -70,7 +70,7 @@ def createServiceHandlers():
                 getZIPCodeURL(False),
                 URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
-                URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje")
+                getDistrictNumberURL(False)
             ],
             validateAddressServiceHandler,
             sendButtonCaption = u"Ověř adresu",

@@ -147,7 +147,8 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
 
             # Parameters list
-            tabDivs += '<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">\n'
+            #tabDivs += '<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">\n'
+            tabDivs += '<div class="warning">\n'
             tabDivs += '<table id="' + formName + '_ParamsTable">\n'
             for param in service.restPathParams:
                 tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams, onChangeProcCode)

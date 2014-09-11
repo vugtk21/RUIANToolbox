@@ -121,7 +121,7 @@ def createServiceHandlers():
                 getZIPCodeURL(),
                 URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", "", True, htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
-                URLParam("DistrictNumber",    u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu, pokud existuje", "", True),
+                getDistrictNumberURL(),
                 URLParam("ExtraInformation",  u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
             ],
             compileAddressServiceHandler,

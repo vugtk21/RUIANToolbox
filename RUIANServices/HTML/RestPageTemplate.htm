@@ -1,19 +1,5 @@
 <html>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <style>
-        body { font-family: Tahoma }
-
-        .enhancedGUI{
-          display: none;
-        }
-
-        #enhancedGUIButton{
-          position: absolute;
-          top: 10px;
-          right: 40px;
-          z-index:10;
-        }
-    </style>
     <title>#PAGETITLE#</title>
     <link rel="shortcut icon" type="image/x-icon" href="#HTMLDATA_URL#favicon.ico" />
 	
@@ -22,14 +8,59 @@
 	<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	<link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
 	<script type="text/javascript" src="#HTMLDATA_URL#NumbersCheck.js"></script>
-  <style>
-  .ui-autocomplete-loading {
-    background: white url("http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif") right center no-repeat;
-  }
-  p {
-    	font-size: 100%;
-  }
-  </style>
+	<style>
+		.ui-autocomplete-loading {
+			background: white url("http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif") right center no-repeat;
+		}
+		p {
+			font-size: 100%;
+		}
+        body { 
+			font-family: Tahoma 
+		}
+
+        .enhancedGUI {
+			display: none;
+        }
+
+        #enhancedGUIButton{
+          position: absolute;
+          top: 10px;
+          right: 40px;
+          z-index:10;
+        }
+
+		.alert {
+			color: #31708f;
+			padding: 15px;
+
+			border-width: 1px;
+			border-style: solid;
+			border-radius: 4px;
+			border-color: #bce8f1;
+			background-color: rgb(217, 237, 247);
+		}
+
+		.warning {
+			color: #8a6d3b;
+			padding: 15px;
+
+			border-width: 1px;
+			border-style: solid;
+			border-radius: 4px;
+			border-color: #faebcc;
+			background-color: rgb(252, 248, 227);
+			font-size: 14px;
+			font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+		}
+		
+		_input {
+			font-size: 14px;
+			font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+			border-color: #faebcc;
+		
+		}
+	</style>
 	
     <script>
 function clearInputs(formName)
@@ -42,14 +73,18 @@ function clearInputs(formName)
 
 }
 
+// ****************************************************************************
 // Našeptávače
+// ****************************************************************************
 function setInputValue(id, value)
+// Nastaví element <INPUT>, zadaného parametrem id na hodnotu value.
 {
 	streetElement = document.getElementById(id);
 	streetElement.value = value;
 }
 
 function extractFormName(elemName)
+// Separuje jméno formuláře, na kterém je umístěn element s názvem elemName
 // form_1_ZIPCode  --> form_1
 {
 	idPart = elemName.substring(5, elemName.length); 
@@ -59,12 +94,14 @@ function extractFormName(elemName)
 
 function setInputValueFromMaster(masterElemId, suffix, value)
 {
+	value = value.trim();
 	id = extractFormName(masterElemId) + suffix;
 	elem = document.getElementById(id);
 	elem.value = value;
 }
 
 function clearInputList(list)
+// Vymaže hodnoty v elementech <INPUT> dle seznamu názvů
 {
  for (key in list) {
      setInputValue(list[key], "");
@@ -151,10 +188,9 @@ $(function() {
 		addressItems = ui.item.id.split(",");
 		
 		if (addressItems.length == 2) {
-			addressItems = ["", "", "", "", "", addressItems[2], addressItems[1], "", ""];		
+			addressItems = ["", "", "", "", "", addressItems[1], addressItems[0], "", ""];		
 		}
 			
-		//setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
 		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
 		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  
 		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);  

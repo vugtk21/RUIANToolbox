@@ -48,6 +48,11 @@ def getOrientationNumberURL(disabled = True):
     return URLParam("OrientationNumber", u"Číslo orientační", "Číslo orientační v rozsahu 1 až 999", "", disabled,
                     htmlTags = ' onkeypress="return isNumber(event, this, 3, 0)" ')
 
+def getDistrictNumberURL(disabled = True):
+    # 1..10
+    return URLParam("DistrictNumber", u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu v Praze v rozsahu 1 až 10",
+                    "", disabled, htmlTags = ' onkeypress="return isNumber(event, this, 2, 10)" ')
+
 def getAddressPlaceIdParamURL_IdNotDisabled():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
 
