@@ -32,14 +32,12 @@ def convertServicesCfg(config):
     if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
         config.htmlDataURL = config.htmlDataURL[1:]
 
-
-
 config = Config("RUIANServices.cfg",
             {
                 "serverHTTP" : 'www.vugtk.cz',
                 "portNumber" : 80,
                 "servicesWebPath" : "euradin/services/rest.py/",
-                "htmlDataDir"  : "Downloads\\",
+                #"htmlDataDir"  : "Downloads\\",
                 "htmlDataURL"  : '/euradin/ruian_html/',
                 "databaseHost" : "192.168.1.93",
                 "databasePort" : "5432",
@@ -52,8 +50,6 @@ config = Config("RUIANServices.cfg",
            convertServicesCfg,
            moduleFile = __file__)
 
-
-
 def getPortSpecification():
     if config.portNumber == 80:
         return ""
@@ -61,7 +57,6 @@ def getPortSpecification():
         return ":" + str(config.portNumber)
 
 SERVER_HTTP = config.serverHTTP
-
 PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath
 HTMLDATA_URL = config.htmlDataURL

@@ -1,5 +1,15 @@
 #!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        rest.py
+# Purpose:     Implementuje funkcionalitu služeb dle standardu REST
+#
+# Author:      raugustyn
+#
+# Created:     10/11/2013
+# Copyright:   (c) raugustyn 2013
+# Licence:
+#-------------------------------------------------------------------------------
 
 import web
 import re
@@ -84,11 +94,9 @@ class MyApplication(web.application):
         func = self.wsgifunc(*middleware)
         return web.httpserver.runsimple(func, (config.noCGIAppServerHTTP, port))
 
-
 class favicon:
     def GET(self):
         pass
-
 
 class handler:
     def doProcessRequest(self, page):
@@ -107,12 +115,15 @@ class handler:
 
 
 if __name__ == "__main__":
+    # Nastavení znakové sady na utf-8
     import sys
     reload(sys)
     sys.setdefaultencoding('utf-8')
+
     import os
     serverPathDepth = 0
     if os.environ.has_key('SERVER_SOFTWARE'):
+        # Script spuštěn jako CGI
         import cgi
         import cgitb
         cgitb.enable()
@@ -140,6 +151,7 @@ if __name__ == "__main__":
             print "doProcessRequest Error"
 
     else:
+        # Script spuštěn jako samostatný server
         config.serverHTTP = config.noCGIAppServerHTTP
         SERVER_HTTP = config.noCGIAppServerHTTP
         config.portNumber = config.noCGIAppPortNumber
