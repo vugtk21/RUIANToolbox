@@ -23,7 +23,14 @@ def convertInfoFile(config):
 
 class InfoFile(Config):
     def __init__(self, fileName, defSubDir = "", moduleFile = ""):
-        Config.__init__("info.txt", { "lastPatchDownload" : "", "lastFullDownload" : "", "numPatches" : 0)}, convertInfoFile, "", "RUIANDownloader", moduleFile)
+        Config.__init__(self, "info.txt",
+            {
+                "lastPatchDownload" : "",
+                "lastFullDownload" : "",
+                "numPatches" : 0
+            },
+            convertInfoFile, "", "RUIANDownloader", moduleFile
+        )
 
     def validFor(self):
         if self.lastPatchDownload != "":
@@ -31,4 +38,8 @@ class InfoFile(Config):
         else:
             return self.lastFullDownload
 
-infoFile = InfoFile()
+    def load(self, fileName):
+        self.fileName = fileName
+        self.loadFile()
+
+infoFile = InfoFile("")

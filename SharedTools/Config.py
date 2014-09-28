@@ -41,7 +41,7 @@ def getMasterPath(moduleFile):
 class Config:
     TRUE_ID = "true"
 
-    def __init__(self, fileName, attrs = {}, afterLoadProc = None, basePath = "", defSubDir = "", moduleFile = ""):
+    def __init__(self, fileName, attrs = {}, afterLoadProc = None, basePath = "", defSubDir = "", moduleFile = "", createIfNotFound = True):
         if basePath != "":
             basePath = pathWithLastSlash(basePath)
             if not os.path.exists(basePath):
@@ -53,6 +53,7 @@ class Config:
         self.attrs = attrs # Tabulka vsech atributu, jak nactenych, tak povolenych
         self._remapTable = {} # Tabulka mapovani downloadfulldatabase -> downloadFullDatabase
         self.moduleFile = moduleFile
+        self.createIfNotFound = createIfNotFound
 
         if attrs != None:
             for key in attrs:
@@ -78,29 +79,31 @@ class Config:
 
         if self.fileName == "":
             self.fileName = basePath + fileName
-            self.save()
             logger.error(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
-            logger.error(u"Soubor byl vytvořen ze šablony. Nastavte jeho hodnoty a spusťte program znovu.")
-            import sys
-            sys.exit()
+            if createIfNotFound:
+                self.save()
+                logger.error(u"Soubor byl vytvořen ze šablony. Nastavte jeho hodnoty a spusťte program znovu.")
+                import sys
+                sys.exit()
         else:
             self.loadFile()
 
     def loadFile(self):
-        file = codecs.open(self.fileName, "r", "utf-8")
-        for line in file:
-            if line.find("#") >= 0:
-                line = line[:line.find("#") - 1]
-            line = strTo127(line.strip())
-            delPos = line.find("=")
-            name = self._getAttrName(line[:delPos])
-            value = line[delPos + 1:]
-            setattr(self, name, value)
-            self.attrs[name] = value
-            pass
-        file.close()
-        if self.afterLoadProc != None:
-            self.afterLoadProc(self)
+        if os.path.exists(self.fileName):
+            file = codecs.open(self.fileName, "r", "utf-8")
+            for line in file:
+                if line.find("#") >= 0:
+                    line = line[:line.find("#") - 1]
+                line = strTo127(line.strip())
+                delPos = line.find("=")
+                name = self._getAttrName(line[:delPos])
+                value = line[delPos + 1:]
+                setattr(self, name, value)
+                self.attrs[name] = value
+                pass
+            file.close()
+            if self.afterLoadProc != None:
+                self.afterLoadProc(self)
 
 
     def _getAttrName(self, name):

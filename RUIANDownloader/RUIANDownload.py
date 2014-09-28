@@ -38,6 +38,7 @@ def convertImportRUIANCfg(config):
     config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
     config.runImporter = isTrue(config.runImporter)
     config.dataDir = pathWithLastSlash(config.dataDir)
+    config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
     infoFile.load(config.dataDir + "info.txt")
     pass
 
