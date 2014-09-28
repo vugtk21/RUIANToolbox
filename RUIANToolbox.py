@@ -10,6 +10,8 @@ from RUIANImporter import importRUIAN
 from RUIANServices.services import config as RUIANServicesConfig
 
 class SetupForm(Frame):
+    tabFramesBorder = 10
+
     def _getFrame(self, aName):
         return Frame(self, name=aName, bd=5)
 
@@ -19,20 +21,15 @@ class SetupForm(Frame):
         #lbl.insert( 1.0, description)
         lbl.grid(row=0, column=0, columnspan=2, sticky=W+E+N+S, pady=5)
 
-    tabFramesBorder = 10
-
     def __init__(self, root):
         Frame.__init__(self, root)
         self.pack(expand=Y, fill=BOTH)
         self.master.title('RÚIAN Toolbox - nastavení')
-        self.createWidgets()
         self.editsRow = 0
+        self.createWidgets()
 
     def createWidgets(self):
-        demoPanel = Frame(self, name='ruiansetupform')
-        demoPanel.pack(side=TOP, fill=BOTH, expand=Y)
-
-        nb = ttk.Notebook(demoPanel, name='notebook')
+        nb = ttk.Notebook(self, name='notebook')
         nb.enable_traversal()
         nb.pack(fill=BOTH, expand=Y, padx=2, pady=3)
 
@@ -41,15 +38,16 @@ class SetupForm(Frame):
         self.createImportTab(nb)
         self.createServicesTab(nb)
 
-        #self.addControl(Button(demoPanel, text='Stáhni data ', underline=0), aSticky=E)
+        buttonsFrame = Frame(self, bd=5)
+        btn = Button(buttonsFrame, text='Uložit konfiguraci a zavřít', underline=0)
+        btn.pack(side = RIGHT, fill = BOTH)
+        buttonsFrame.pack(side = BOTTOM, fill = BOTH)
+
 
     def createDescriptionTab(self, nb):
         frame = self._getFrame('descrip')
 
-        self._getTopLabel(frame,
-"""Tato aplikace umožňuje nastavit parametry komponent RÚIAN Toolbox.
-"""
-            )
+        self._getTopLabel(frame, "Tato aplikace umožňuje nastavit parametry komponent RÚIAN Toolbox.")
 
         frame.rowconfigure(1, weight=1)
         frame.columnconfigure((0,1), weight=1, uniform=1)
@@ -102,7 +100,7 @@ class SetupForm(Frame):
         C1 = self.addControl(Checkbutton(frame, text = "Stahovat automaticky každý den", variable = CheckVar3, onvalue = 1))
 
         self.addControl(Label(frame, wraplength='4i', justify=LEFT, anchor=N, text="  Čas stahování:"))
-        b = self.addControl(Entry(frame, bd=1), aSticky=W+E)
+        b = self.addControl(Entry(frame, bd=1), aSticky=W)
         b.insert(0, config.automaticDownloadTime)
         ToolTip.ToolTip(b, 'Čas, ve který se mají stahovat denní aktualizace')
 
@@ -111,13 +109,14 @@ class SetupForm(Frame):
         neatVar = StringVar()
         self.addControl(Button(frame, text='Stáhni data ', underline=0, command=lambda v=neatVar: self._say_neat(v)), aSticky=E)
 
+        frame.columnconfigure(0, weight=1, uniform=1)
         nb.add(frame, text='Downloader ')
 
     def createImportTab(self, nb):
         frame = self._getFrame("importTabFrame")
         config = importRUIAN.config
 
-        self._getTopLabel(frame, "RÚIAN Importer umožňuje importovat stážený stav do databáze včetně načtení aktualizačních balíčků.")
+        self._getTopLabel(frame, "RÚIAN Importer umožňuje importovat stažený stav do databáze včetně načtení aktualizačních balíčků.")
         self.editsRow = 1
 
         self.addControlWithLabel(frame, Entry(frame, bd=1), "Jméno databáze:", editValue=config.dbname)
@@ -132,6 +131,7 @@ class SetupForm(Frame):
         neatVar = StringVar()
         self.addControl(Button(frame, text='Importuj ', underline=0, command=lambda v=neatVar: self._say_neat(v)), aColumn = 1, aSticky=E)
 
+        frame.columnconfigure(1, weight=1, uniform=1)
         nb.add(frame, text='Importer ', underline=0)
 
     def createServicesTab(self, nb):
@@ -152,25 +152,23 @@ class SetupForm(Frame):
         self.addControlWithLabel(frame, Entry(frame, bd=1), "noCGIAppServerHTTP:", editValue=config.noCGIAppServerHTTP)
         self.addControlWithLabel(frame, Entry(frame, bd=1), "noCGIAppPortNumber:", editValue=config.noCGIAppPortNumber)
 
+        frame.columnconfigure(1, weight=1, uniform=1)
         nb.add(frame, text='Services ', underline=0)
 
-def center_window(w=300, h=200):
-    ws = root.winfo_screenwidth()
-    hs = root.winfo_screenheight()
+def center_window(window, w=300, h=200):
+    ws = window.winfo_screenwidth()
+    hs = window.winfo_screenheight()
 
     x = (ws/2) - (w/2)
     y = (hs/2) - (h/2)
-    root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+    window.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
 if __name__ == '__main__':
     root = Tk()
     setupForm = SetupForm(root)
-    center_window(500, 300)
+    center_window(root, 500, 350)
     root.mainloop()
 
-    #root = Tk()
-    #root.wm_iconbitmap('C:\\Users\\raugustyn\\Desktop\\pyProject.png')
-    #root.mainloop()
 
 
 

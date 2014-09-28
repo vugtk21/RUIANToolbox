@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
-import Config
+import config
 
 
 #print Config.getSubDirPath("RUIANServices")
 
-config = Config.Config("RUIANDownload.cfg",
+config = config.Config("RUIANDownload.cfg",
             {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,
