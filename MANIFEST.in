@@ -1,0 +1,2 @@
+include RUIANToolbox.py README
+recursive-include package/things *
