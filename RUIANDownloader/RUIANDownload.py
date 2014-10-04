@@ -20,7 +20,9 @@ from log import logger, clearLogFile
 from infofile import infoFile
 from htmllog import htmlLog
 
+# ####################################
 # Setup path to RUIANToolbox
+# ####################################
 import os.path, sys
 basePath = os.path.join(os.path.dirname(__file__), "../..")
 if not basePath in sys.path: sys.path.append(basePath)

@@ -16,14 +16,20 @@ class SetupForm(Frame):
         return Frame(self, name=aName, bd=5)
 
     def _getTopLabel(self, frame, description):
-        lbl = Label(frame, wraplength='4i', justify=LEFT, anchor=N, text=description)
-        #lbl = Text(frame, wrap='word')
-        #lbl.insert( 1.0, description)
-        lbl.grid(row=0, column=0, columnspan=2, sticky=W+E+N+S, pady=5)
+        #lbl = Label(frame, wraplength='4i', justify=LEFT, anchor=N, text=description)
+        lbl = Text(frame, height=3, bd=0, wrap=WORD, font=self.customFont, bg="slate gray")
+        lbl.insert(INSERT, description)
+        lbl.config(state=DISABLED)
+        #lbl.pack()
+        lbl.grid(row=0, column=0, columnspan=2, sticky=W+E, pady=5)
 
     def __init__(self, root):
+        import tkFont
+        self.customFont = tkFont.Font(family="Helvetica", size=9)
+
         Frame.__init__(self, root)
         self.pack(expand=Y, fill=BOTH)
+
         self.master.title('RÚIAN Toolbox - nastavení')
         self.editsRow = 0
         self.createWidgets()
@@ -52,7 +58,6 @@ class SetupForm(Frame):
         frame.rowconfigure(1, weight=1)
         frame.columnconfigure((0,1), weight=1, uniform=1)
 
-        # add to notebook (underline = index for short-cut character)
         nb.add(frame, text='Úvod ', underline=0, padding=2)
 
     def _say_neat(self, v):
