@@ -29,6 +29,7 @@ if not basePath in sys.path: sys.path.append(basePath)
 
 from SharedTools.config import pathWithLastSlash
 from SharedTools.config import Config
+from SharedTools.sharetools import safeMkDir
 
 def convertImportRUIANCfg(config):
     if config == None: return
@@ -79,7 +80,9 @@ filePercentageInfo = ___filePercentageInfo
 
 
 def __fileDownloadInfo(fileName, fileSize):
-    logger.info("Downloading: %s Bytes: %s" % (extractFileName(fileName), fileSize))
+    #logger.info("   Size %s Bytes" % (fileSize))
+    # intentionally blank
+    pass
 
 fileDownloadInfo = __fileDownloadInfo
 
@@ -151,7 +154,6 @@ class RUIANDownloader:
         self._fullDownload = True
         self.pageURLs = config.downloadURLs
         self.ignoreHistoricalData = config.ignoreHistoricalData
-        self.appendBrokenDownload = False
         pass
 
     def getTargetDir(self):
@@ -303,29 +305,31 @@ class RUIANDownloader:
         for href in urlList:
             self.downloadInfo = self.downloadInfos[index]
             index = index + 1
-            fileName = self.downloadURLtoFile(href)
+            fileName = self.downloadURLtoFile(href, index, len(urlList))
             if config.uncompressDownloadedFiles:
                 self.uncompressFile(fileName, True)
         self.buildIndexHTML()
         pass
 
-    def downloadURLtoFile(self, url):
+    def downloadURLtoFile(self, url, fileIndex, filesCount):
+        # Downloads to temporary file, if suceeded, then rename result
+        tmpFileName = pathWithLastSlash(self.targetDir) + "tmpfile.bin"
         logger.debug("RUIANDownloader.downloadURLtoFile")
         file_name = self.targetDir + url.split('/')[-1]
-        logger.info("Dodnloading " + url + " -> " + extractFileName(file_name))
         startTime = datetime.datetime.now()
 
         if os.path.exists(file_name):
-            logger.info("Already downloaded, skipping it.")
+            logger.info("File " + extractFileName(file_name) + " is already downloaded, skipping it.")
             fileSize = os.stat(file_name).st_size
         else:
             req = urllib2.urlopen(url)
             meta = req.info()
             fileSize = int(meta.getheaders("Content-Length")[0])
+            logger.info("Downloading file %s [%d/%d %d Bytes]" % (extractFileName(file_name), fileIndex, filesCount, fileSize))
             fileDownloadInfo(file_name, fileSize)
             CHUNK = 1024*1024
             file_size_dl = 0
-            with open(file_name, 'wb') as fp:
+            with open(tmpFileName, 'wb') as fp:
                 while True:
                     chunk = req.read(CHUNK)
                     if not chunk:
@@ -336,6 +340,7 @@ class RUIANDownloader:
                     self.downloadInfo.compressedFileSize = file_size_dl
                     #self.buildIndexHTML()
             fp.close()
+            os.rename(tmpFileName, file_name)
 
         self.downloadInfo.downloadTime = formatTimeDelta(str(datetime.datetime.now() - startTime)[5:])
         self.downloadInfo.fileName = file_name
@@ -374,7 +379,7 @@ class RUIANDownloader:
             if dateTimeStr == "":
                 return False
             else:
-                return datetime.datetime.strptime(dateTimeStr, "%Y-%m-%d %H:%M:%S.%f").date() == datetime.datetime.now().date()
+                return str(datetime.datetime.now().date()) == dateTimeStr.split(" ")[0]
 
         if wasItToday(infoFile.lastFullDownload):
             logger.warning("Process stopped! Nothing to download. Last full download was done Today " + infoFile.lastFullDownload)
@@ -388,11 +393,13 @@ class RUIANDownloader:
         callUpdate = False;
         if self._fullDownload or infoFile.lastFullDownload == "":
             logger.info("Running in full mode")
-            if not appendBrokenDownload:
+            if not infoFile.fullDownloadBroken:
                 logger.info("Cleaning directory " + config.dataDir)
                 cleanDirectory(config.dataDir)
-                if config.dataDir != "" and not os.path.exists(config.dataDir):
-                    os.mkdir(config.dataDir)
+                infoFile.fullDownloadBroken = True
+                infoFile.save()
+
+            safeMkDir(config.dataDir)
 
             l = self.getFullSetList()
             d = datetime.date.today()
@@ -405,6 +412,8 @@ class RUIANDownloader:
             l = self.getUpdateList()
             infoFile.lastPatchDownload = str(datetime.datetime.now())
 
+        self.buildIndexHTML()
+
         if len(l) > 0:   # stahujeme jedině když není seznam prázdný
             self.downloadURLList(l)
             infoFile.save()
@@ -412,8 +421,11 @@ class RUIANDownloader:
         else:
             logger.warning("Nothing to download, list is empty.")
 
-        self.buildIndexHTML()  # informaci o pokusu downloadovat ale vytváříme stejně
+        self.buildIndexHTML()
         htmlLog.closeSection(config.dataDir + "index.html")
+
+        infoFile.fullDownloadBroken = False
+        infoFile.save()
 
         if callUpdate:
             self._fullDownload = False
@@ -434,7 +446,7 @@ class RUIANDownloader:
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
-        logger.info("Dodnloading " + url)
+        logger.info("Downloading " + url)
         file_name = url.split('/')[-1]
         logger.info(file_name)
         u = urllib2.urlopen(url)

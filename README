@@ -1,1 +1,4 @@
-RUIAN ToolBox Library
+# -*- coding: utf-8 -*-
+RÚIAN Toolbox je knihovna nástrojů a služeb, umožňující vytvářet a využívat kopie databáze Registru územní identifikace, adres a nemovitostí RÚIAN v prostředí sítě internetu, v prostředí počítačových sítí oddělených od internetu a v prostředí databází Client Server. Jednotlivé moduly knihovny pokrývají základní fáze životního cyklu repliky databáze RÚIAN s důrazem na využití adres, podporují automatické stahování dat ze serveru Veřejného dálkového přístupu (VDP), import stažených dat do geodatabáze a využívání adresních dat pomocí webových mapových služeb.
+Všechny moduly jsou dostupné jako spustitelné aplikace včetně zdrojového kódu, zveřejněného jako OpenSource tak, aby mohly být jednotlivé komponenty na všech úrovních plnohodnotně začleněny do širších informačních technologií podle potřeby.
+Z technologického hlediska je knihovna vytvořena v jazyku Python, aby bylo možno zabezpečit její přenositelnost na většinu současných platforem, bezpečné a dlouhodobé používání. Testování funkcionality bylo provedeno na platformách Microsoft Windows Desktop, Microsoft Windows Server a Linux.

@@ -5,6 +5,7 @@ import os
 import codecs
 import sys
 from log import logger
+import sharetools
 
 def strTo127(s):
     result = ""
@@ -20,7 +21,6 @@ def pathWithLastSlash(path):
         path = path + os.sep
 
     return path
-
 
 def getSubDirPath(subDir):
     path = os.path.dirname(__file__)
@@ -131,6 +131,9 @@ class Config:
                 return self.TRUE_ID
             else:
                 return "false"
+
+        pathParts = self.fileName.split(os.sep)
+        sharetools.safeMkDir(os.sep.join(pathParts[:len(pathParts)-1]))
 
         outFile = codecs.open(self.fileName, "w", "utf-8")
         for key in self.attrs:
