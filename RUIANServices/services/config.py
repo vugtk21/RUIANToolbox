@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
-# Setup path to RUIANToolbox
-import os.path, sys
-basePath = os.path.join(os.path.dirname(__file__), "../..")
-if not basePath in sys.path: sys.path.append(basePath)
+from shared import setupPaths;setupPaths()
 
 from SharedTools.config import Config
 import os
