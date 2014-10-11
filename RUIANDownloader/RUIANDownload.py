@@ -12,7 +12,7 @@ import os
 import sys
 import datetime
 
-from shared import setupPaths;setupPaths()
+import shared; shared.setupPaths()
 
 # ####################################
 # Specific modules import
@@ -375,12 +375,13 @@ class RUIANDownloader:
             else:
                 return str(datetime.datetime.now().date()) == dateTimeStr.split(" ")[0]
 
-        if wasItToday(infoFile.lastFullDownload):
-            logger.warning("Process stopped! Nothing to download. Last full download was done Today " + infoFile.lastFullDownload)
-            return
-        elif not self._fullDownload and wasItToday(infoFile.lastPatchDownload):
-            logger.warning("Process stopped! Nothing to download. Last patch was downloaded Today " + infoFile.lastPatchDownload)
-            return
+        if not infoFile.fullDownloadBroken:
+            if wasItToday(infoFile.lastFullDownload):
+                logger.warning("Process stopped! Nothing to download. Last full download was done Today " + infoFile.lastFullDownload)
+                return
+            elif not self._fullDownload and wasItToday(infoFile.lastPatchDownload):
+                logger.warning("Process stopped! Nothing to download. Last patch was downloaded Today " + infoFile.lastPatchDownload)
+                return
 
         startTime = datetime.datetime.now()
 
@@ -512,7 +513,7 @@ def main(argv = sys.argv):
         logger.info("---------------------------------------------")
 
         downloader = RUIANDownloader(config.dataDir)
-        downloader._fullDownload = config.downloadFullDatabase
+        downloader._fullDownload = config.downloadFullDatabase or infoFile.fullDownloadBroken
         downloader.download()
 
         logger.info("Download done.")

@@ -44,29 +44,26 @@ class HtmlLog:
             f.close()
         return result
 
+    def saveStrToFile(self, fileName, str):
+        with open(fileName, "w") as f:
+            f.write(str)
+            f.close()
+
     def closeSection(self, fileName):
         htmlPage = self.getHTMLContent(fileName)
-
         htmlPage = htmlPage.replace(self.CHANGES_START_ID, "")
         htmlPage = htmlPage.replace(self.CHANGES_END_ID, self.CHANGES_START_ID + self.CHANGES_END_ID)
         htmlPage = htmlPage.replace("AutoRefresh = true", "AutoRefresh = false")
-
-        with open(fileName, "w") as f:
-            f.write(htmlPage)
-            f.close()
+        self.saveStrToFile(fileName, htmlPage)
 
     def save(self, fileName):
         htmlPage = self.getHTMLContent(fileName)
         htmlPage = htmlPage.replace("AutoRefresh = false", "AutoRefresh = true")
-
-        with open(fileName, "w") as f:
-            prefix = htmlPage[:htmlPage.find(self.CHANGES_START_ID) + len(self.CHANGES_START_ID)]
-            suffix = htmlPage[htmlPage.find(self.CHANGES_END_ID):]
-            f.write(prefix + self.htmlCode + suffix)
-            f.close()
+        prefix = htmlPage[:htmlPage.find(self.CHANGES_START_ID) + len(self.CHANGES_START_ID)]
+        suffix = htmlPage[htmlPage.find(self.CHANGES_END_ID):]
+        self.saveStrToFile(fileName, prefix + self.htmlCode + suffix)
 
     def clear(self):
         self.htmlCode = ""
 
 htmlLog = HtmlLog()
-

@@ -10,8 +10,13 @@
 #-------------------------------------------------------------------------------
 
 firstCall = True
+RUIANToolBoxPath = ""
 
-def setupPaths():
+def moduleExists(moduleName):
+    import os
+    return os.path.exists(RUIANToolBoxPath + os.sep + moduleName)
+
+def setupPaths(depth = 1):
     # ####################################
     # Setup path to RUIANToolbox
     # ####################################
@@ -19,11 +24,12 @@ def setupPaths():
         import os.path, sys
 
         pathParts = os.path.dirname(__file__).split(os.sep)
-        basePath = os.sep.join(pathParts[:len(pathParts) - 1])
-        #basePath = os.path.join(os.path.dirname(__file__), "../..")
+        basePath = os.sep.join(pathParts[:len(pathParts) - depth])
+
+        global RUIANToolBoxPath
+        RUIANToolBoxPath = basePath
+
         if not basePath in sys.path:
             sys.path.append(basePath)
-            print sys.path
-            print "Base path:", basePath
         global firstCall
         firstCall = False

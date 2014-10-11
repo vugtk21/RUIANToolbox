@@ -8,7 +8,7 @@ from os import listdir
 from os.path import isfile, join
 from subprocess import call
 
-from shared import setupPaths;setupPaths()
+import shared; shared.setupPaths()
 
 from SharedTools.config import pathWithLastSlash
 from SharedTools.config import Config
@@ -23,12 +23,42 @@ config = Config("importRUIAN.cfg",
                 "password" : "postgres",
                 "schemaName" : "",
                 "layers" : "",
-                "os4GeoPath": ".\\OSGeo4W_vfr\\OSGeo4W.bat"
+                "os4GeoPath": "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat"
             },
             defSubDir = "RUIANImporter",
             moduleFile = __file__
            )
 
+def execSQLScript(sql):
+    pass
+
+def execSQLScriptFile(sql):
+    pass
+
+def createAuxiliaryTables():
+    " Creates supporting tables for full text search and autocomplete functions"
+    execSQLScriptFile("CreateAutocompleteTables.sql")
+    execSQLScriptFile("CreateFullTextTables.sql")
+    pass
+
+def joinPaths(basePath, relativePath):
+    basePath = basePath.replace("/", os.sep)
+    relativePath = relativePath.replace("/", os.sep)
+    basePathItems = basePath.split(os.sep)
+    relativePathItems = relativePath.split(os.sep)
+    endBaseIndex = len(basePathItems) + 1
+    startRelative = 0
+    for subPath in relativePathItems:
+        if subPath == "..":
+            endBaseIndex = endBaseIndex - 1
+            startRelative = startRelative + 1
+        elif subPath == ".":
+            startRelative = startRelative + 1
+        else:
+            break
+
+    fullPath = os.sep.join(basePathItems[:endBaseIndex]) + os.sep + os.sep.join(relativePathItems[startRelative:])
+    return fullPath
 
 def convertFileToDownloadList(HTTPListName):
     inFile = open(HTTPListName, "r")
@@ -42,7 +72,9 @@ def convertFileToDownloadList(HTTPListName):
     return filesListName
 
 def buildDownloadBatch(fileList):
-    params = ' '.join([config.os4GeoPath, "vfr2pg",
+    os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
+
+    params = ' '.join([os4GeoPath, "vfr2pg",
                 "--file", fileList,
                 "--dbname", config.dbname,
                 "--user", config.user,

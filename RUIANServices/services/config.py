@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
-from shared import setupPaths;setupPaths()
+import shared; shared.setupPaths()
 
 from SharedTools.config import Config
 import os

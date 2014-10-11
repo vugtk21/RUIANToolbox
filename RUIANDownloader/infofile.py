@@ -3,7 +3,7 @@ __author__ = 'Augustyn'
 
 import os
 
-from shared import setupPaths;setupPaths()
+import shared; shared.setupPaths()
 
 from SharedTools.config import Config
 
