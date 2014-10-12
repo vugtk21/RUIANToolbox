@@ -4,8 +4,8 @@ LOG_FILENAME = 'RUIANDownload.log'
 
 
 def clearLogFile():
-    with open(LOG_FILENAME, 'w'):
-        pass
+    f = open(LOG_FILENAME, 'w')
+    f.close()
 
 # create logger
 logger = logging.getLogger(__name__)
