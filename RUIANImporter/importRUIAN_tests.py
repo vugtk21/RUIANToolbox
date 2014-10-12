@@ -11,3 +11,5 @@ from RUIANDownloader.infofile import infoFile
 #(startDate, endDate, type) = importRUIAN.extractDates("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\DownloadedData\\Patch_2014.08.27.txt")
 
 #print importRUIAN.renameFile("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\DownloadedData\\Patch_2014.08.27.txt", "__")
+
+importRUIAN.createAuxiliaryTables()

@@ -2,7 +2,6 @@
 __author__ = 'Augustyn'
 
 import codecs
-import sys
 import os
 from os import listdir
 from os.path import isfile, join
@@ -13,6 +12,7 @@ import shared; shared.setupPaths()
 from SharedTools.config import pathWithLastSlash
 from SharedTools.config import Config
 from SharedTools.log import logger, clearLogFile
+import psycopg2
 
 config = Config("importRUIAN.cfg",
             {
@@ -30,15 +30,29 @@ config = Config("importRUIAN.cfg",
            )
 
 def execSQLScript(sql):
+    con = psycopg2.connect(host=config.host, database=config.dbname, port=config.port, user=config.user, password=config.password)
+    cur = con.cursor()
+    cur.execute(sql)
+    cur.close()
+    con.close()
     pass
 
-def execSQLScriptFile(sql):
-    pass
+def execSQLScriptFile(sqlFileName):
+    if not os.path.exists(sqlFileName): return
+
+    inFile = codecs.open(sqlFileName, "r", "utf-8")
+    sql = inFile.read()
+    inFile.close()
+    execSQLScript(sql)
+
 
 def createAuxiliaryTables():
     " Creates supporting tables for full text search and autocomplete functions"
-    execSQLScriptFile("CreateAutocompleteTables.sql")
-    execSQLScriptFile("CreateFullTextTables.sql")
+    #execSQLScriptFile("../RUIANServices/CreateAuxTables.sql")
+    #execSQLScriptFile("../RUIANServices/CreateFullTextTables.sql")
+    #execSQLScriptFile("../RUIANServices/CreateAutocompleteTables.sql")
+    execSQLScriptFile("../RUIANServices/BuildTables.sql")
+
     pass
 
 def joinPaths(basePath, relativePath):
