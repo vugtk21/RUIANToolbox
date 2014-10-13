@@ -16,6 +16,11 @@ import compileaddress
 import HTTPShared
 from config import config
 
+AC_OBCE  = "ac_obce"
+AC_PSC   = "ac_psc"
+AC_ULICE = "ac_ulice"
+AC_CASTI_OBCE = "ac_casti_obce"
+
 class PostGISDatabase():
 
     def __init__(self):
@@ -36,7 +41,7 @@ class PostGISDatabase():
 
     def getObecByName(self, name):
         cursor = self.conection.cursor()
-        cursor.execute("SELECT obce FROM obce WHERE nazev_obce like '%" + name + "%'")
+        cursor.execute("SELECT obce FROM " + AC_OBCE + " WHERE nazev_obce like '%" + name + "%'")
 
         rows = []
         row_count = 0
@@ -170,7 +175,7 @@ def parseFullTextToken(nameToken):
 
 
     else:
-        searchSQL = "select nazev_ulice, nazev_obce, psc from ulice where nazev_ulice ilike '%" + nameToken + "%'"
+        searchSQL = "select nazev_ulice, nazev_obce, psc from " + AC_ULICE + " where nazev_ulice ilike '%" + nameToken + "%'"
 
     return (hasNumber, searchSQL)
 
@@ -189,13 +194,13 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     hasNumber = False
     isStreet = False
     if ruianType == "townpart":
-        searchSQL = "select nazev_casti_obce, nazev_obce from casti_obce where nazev_casti_obce ilike '%" + nameToken + "%'"
+        searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'"
     elif ruianType == "town":
-        searchSQL = "select nazev_obce, psc from obce where nazev_obce ilike '%" + nameToken + "%'"
+        searchSQL = "select nazev_obce, psc from " + AC_OBCE + " where nazev_obce ilike '%" + nameToken + "%'"
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from gids where cast(gid as text) like '" + nameToken + "%'"
     elif ruianType == "zip":
-        searchSQL = "select psc, nazev_obce from psc where psc like '" + nameToken + "%'"
+        searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'"
         joinSeparator = " "
     else:
         # street or textsearch
