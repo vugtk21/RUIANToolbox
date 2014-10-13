@@ -13,6 +13,7 @@
 __author__ = 'Radek Augustýn'
 
 import codecs
+
 from HTTPShared import *
 import urllib
 import IDCheck

@@ -17,7 +17,6 @@ import validate
 import geocode
 import nearbyaddresses
 import validateaddressid
-#import IDCheck
 
 from HTTPShared import *
 import compileaddress

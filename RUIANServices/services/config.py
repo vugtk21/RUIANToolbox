@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Augustyn'
 
-import shared; shared.setupPaths()
+import shared; shared.setupPaths(depth = 2)
 
 from SharedTools.config import Config
-import os
 
 def convertServicesCfg(config):
     if config == None: return

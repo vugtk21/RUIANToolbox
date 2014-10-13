@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
-
 import psycopg2
 import codecs
 import compileaddress

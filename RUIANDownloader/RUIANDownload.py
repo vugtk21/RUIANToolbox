@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        RUIANDownload
+# Purpose:
+#
+# Author:      Radek Augustýn
+#
+# Copyright:   (c) Radek Augustýn 2014
+#-------------------------------------------------------------------------------
 from cgitb import html
 
 __author__ = 'raugustyn'

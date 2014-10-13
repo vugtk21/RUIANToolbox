@@ -159,3 +159,7 @@ if __name__ == "__main__":
 
         app = MyApplication(urls, globals())
         app.run(port = config.noCGIAppPortNumber)
+
+    f = open("c:\\temp\\ahoj.log", "w")
+    f.write("from SharedTools.config import Config")
+    f.close()
