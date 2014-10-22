@@ -24,6 +24,11 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
+    config.issueNumber = "62"
+    config.issueShortDescription = u"<br><br><table><tr valign='top'><td>Popis</td><td>Přidání čísla verze, rozšíření funkcionality (kamkoli na stránku smysluplně přidat číslo verze software)</td></tr>" + \
+                                   u"<tr valign='top'><td>Řešení</td><td>V návrhu funkcionality je zobrazena podrobná informace v horní liště. V dolní řádce stránky portálu je zobrazena verze.</td>" + \
+                                   u"</table>"
+
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
     #    config.htmlDataURL = config.htmlDataURL[1:]
@@ -40,7 +45,9 @@ config = Config("RUIANServices.cfg",
                 "databaseUserName" : "postgres",
                 "databasePassword" : "postgres",
                 "noCGIAppServerHTTP" : "localhost",
-                "noCGIAppPortNumber" : 5689
+                "noCGIAppPortNumber" : 5689,
+                "issueNumber": "",
+                "issueShortDescription" : ""
             },
            convertServicesCfg,
            moduleFile = __file__)
