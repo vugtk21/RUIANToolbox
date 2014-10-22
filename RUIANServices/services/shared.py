@@ -11,6 +11,8 @@
 
 firstCall = True
 RUIANToolBoxPath = ""
+isCGIApplication = True
+
 
 def moduleExists(moduleName):
     import os
@@ -33,3 +35,9 @@ def setupPaths(depth = 1):
             sys.path.append(basePath)
         global firstCall
         firstCall = False
+
+def initApp(pathDepth = 1):
+    setupPaths(pathDepth)
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')

@@ -23,7 +23,8 @@ import compileaddress
 from config import SERVER_HTTP
 from config import getPortSpecification
 from config import SERVICES_WEB_PATH
-from config import HTMLDATA_URL
+import config as configmodule
+from config import setupVariables
 
 SERVICES_PATH = '' # 'services'
 
@@ -35,6 +36,9 @@ def getPageTemplate():
 
 class Console():
     consoleLines = ""
+    infoLines = ""
+    debugMode = False
+
     def addMsg(self, msg):
         msg = '<div class="ui-widget">' \
                 '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
@@ -42,8 +46,19 @@ class Console():
                 '<strong>Chyba: </strong>' + msg + '</p></div></div>'
         self.consoleLines += msg + "\n"
 
+    def addInfo(self, msg):
+        if not self.debugMode: return
+
+        msg = '<div class="ui-widget">' \
+                '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
+                '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
+                '<strong>Info: </strong>' + msg + '</p></div></div>'
+        self.infoLines += msg + "\n"
+
     def clear(self):
         self.consoleLines = ''
+        self.infoLines = ""
+
 
 console = Console()
 
@@ -109,9 +124,7 @@ class ServicesHTMLPageBuilder:
         result = getPageTemplate().replace("#PAGETITLE#", u"Webové služby RÚIAN")
         result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH )
 
-
-        url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + HTMLDATA_URL
-        result = result.replace("#HTMLDATA_URL#", url)
+        result = result.replace("#HTMLDATA_URL#", configmodule.getHTMLDataURL())
 
         queryParams = self.normalizeQueryParams(queryParams)
 
@@ -168,7 +181,8 @@ class ServicesHTMLPageBuilder:
             tabDivs += "<a class = 'enhancedGUI' href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>Výsledky testů</a>"
             #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
 
-            url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + HTMLDATA_URL + service.pathName + '.png'
+            #url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + configmodule.HTMLDATA_URL + service.pathName + '.png'
+            url = configmodule.getHTMLDataURL() + service.pathName[1:] + ".png"
             tabDivs += '<p>\n<img class = "enhancedGUI" src="' + url + '"></p>\n'
 
             tabDivs += '</div>\n'
@@ -180,7 +194,7 @@ class ServicesHTMLPageBuilder:
             newStr = '{ active: ' + str(tabIndex) + ' }'
         result = result.replace("#TABSOPTIONS#", newStr)
 
-        result = result.replace("#CONSOLELINES#", console.consoleLines)
+        result = result.replace("#CONSOLELINES#", console.consoleLines + "\n" + console.infoLines)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
