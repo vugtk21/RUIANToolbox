@@ -62,6 +62,20 @@ class Console():
 
 console = Console()
 
+def getIssueHTML():
+    if configmodule.config.issueNumber == "":
+        return ""
+    else:
+        result =  u'<div class="ui-widget">' \
+                u'<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
+                u'<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
+                u'<strong>Návrh řešení požadavku č. ' + configmodule.config.issueNumber + u'</strong>'
+        result += configmodule.config.issueShortDescription
+        result += u'<p><a href="https://github.com/vugtk21/RUIANToolbox/issues/' + configmodule.config.issueNumber + '">Podrobnosti na GitHub</a></p>'
+        result += u'</div></div>'
+
+        return result
+
 class ServicesHTMLPageBuilder:
 
     def normalizeQueryParams(self, queryParams):
@@ -195,6 +209,7 @@ class ServicesHTMLPageBuilder:
         result = result.replace("#TABSOPTIONS#", newStr)
 
         result = result.replace("#CONSOLELINES#", console.consoleLines + "\n" + console.infoLines)
+        result = result.replace("#ISSUELINES#", getIssueHTML() + "\n")
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
