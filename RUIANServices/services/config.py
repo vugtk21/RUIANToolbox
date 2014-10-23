@@ -24,10 +24,44 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "62"
-    config.issueShortDescription = u"<br><br><table><tr valign='top'><td>Popis</td><td>Přidání čísla verze, rozšíření funkcionality (kamkoli na stránku smysluplně přidat číslo verze software)</td></tr>" + \
-                                   u"<tr valign='top'><td>Řešení</td><td>V návrhu funkcionality je zobrazena podrobná informace v horní liště. V dolní řádce stránky portálu je zobrazena verze.</td>" + \
-                                   u"</table>"
+    config.issueNumber = "60"
+    config.issueShortDescription = u"""
+<br><br>
+<table>
+    <tr valign='top'>
+        <td>Popis:</td><td>Kontrola číselných položek na portálu<br>
+V číselných polích formulářů, jejichž které jsou kontrolovány funkcí isNumber,
+reaguje klávesnice pouze na znaky 0..9, všechny ostatní klávesy jsou ignorovány. Jedná se také o řídící klávesy
+typu Backspace, delete, pohyb kurzoru apod.<br>
+Jedná se o následující pole: Identifikátor, Číslo popisné, Číslo evidenční, Číslo orientační, PSČ, Číslo městského
+obvodu v Praze, JTSK Y, JTSK X.
+</td>
+    </tr>
+    <tr valign='top'>
+        <td>Řešení:</td>
+        <td>
+Tato chyba se projevuje pouze v prohlížeči Firefox.<br>
+Firefox posílá na rozdíl od ostatních prohlížečů do události onkeypress všechny stisknutí klávesnice včetně řídících znaků.
+Událost event, kterou je možno využít má proto navíc vlastnost isChar, která je True pokud se nejedná o řídící znak.
+<br>
+<code>
+<pre>
+function isNumber(event, scope, numDigits, maxValue)
+{
+ if ((event.isChar == undefined) || (event.isChar)) {
+    value = scope.value +  String.fromCharCode(event.charCode);
+    numValue = Number(value);
+    if (isNaN(value)) return false;
+    if ( (numDigits > 0) && (value.length > numDigits) ) return false;
+    if ( (maxValue > 0) && (numValue > maxValue)) return false;
+ }
+ return true;
+}
+</pre>
+</code>
+</td>
+</tr>
+</table>"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
@@ -60,7 +94,7 @@ def getPortSpecification():
 SERVER_HTTP = config.serverHTTP
 PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath
-HTMLDATA_URL = "ruian_html/"
+HTMLDATA_URL = "html/"
 
 _isFirstCall = True
 def setupVariables():
@@ -75,7 +109,7 @@ def setupVariables():
         SERVICES_WEB_PATH = ""
 
         global HTMLDATA_URL
-        HTMLDATA_URL = "ruian_html/"
+        HTMLDATA_URL = "html/"
 
     global _isFirstCall
     _isFirstCall = False
