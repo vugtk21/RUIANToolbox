@@ -24,24 +24,23 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "63"
+    config.issueNumber = "69"
     config.issueShortDescription = u"""
 <br><br>
 <table>
     <tr valign='top'>
-        <td>Popis:</td><td>Optimalizovat pořadí vstupních polí. Pořadí vstupních polí při zadání jednotlivých prvků adresy optimalizovat tak,
-        aby odpovídalo přístupu ČÚZK, za vzor je možné si vzít aktuální VDP.
-        Například obec by měla být určena dříve než ulice.</td>
+        <td>Popis:</td><td>Přejmenovat <code>Rozšířené rozhraní</code> na <code>Programátorské rozhraní</code></td>
     </tr>
     <tr valign='top'>
         <td>Řešení:</td>
         <td>
-Pořadí vstupních polí pro zadávání adresy bylo voleno podle vzoru z VDP <code>Ověření adresy</code>.
-Nově bude pořadí připraveno podle vzoru <code>Adresní místo</code>.
-<br>Cíle osvětové činnosti v tomto směru mi nesjou zcela zřejmé, samotné vyhledávání adresního místa na VDP je poměrně
-nepřehledné, zřejmě proto, že charakteristika adresního místa vznikala historicky různorodými požadavky.
-<br>Jestli jsem dobře pochopil, cílem je předřadit vstupní pole <code>Obec</code> a <code>Část obce</code> před pole ulice na záložkách
-<code>Geokódování</code>, <code>Sestavení adresy</code> a <code.Ověření adresy</code>. Takto je to realizováno.
+            <ol>
+<li>Fyzicky je přejmenováno tlačítko vpravo nahoře na <code>Programátorské rozhraní</code>.</li>
+<li>Text v tlačítku se při stisnutí mění mezi <code>Programátorské rozhraní</code> a <code>Uživatelské rozhraní</code>.</li>
+<li>Pokud je zvoleno <code>Programátorské rozhraní</code>, zobrazí se výstražný text v horní řádce stránky.</li>
+<li>V režimu <code>Programátorské rozhraní</code> jsou odstraněny všechny našeptávače a vypnuta podpora integrity dotazu.
+Naopak ty jsou zapnuty v režimu <code>Uživatelské rozhraní</code>.</li>
+</ol>
         </td>
     </tr>
 </table>"""
