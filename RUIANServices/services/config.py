@@ -24,10 +24,27 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "62"
-    config.issueShortDescription = u"<br><br><table><tr valign='top'><td>Popis</td><td>Přidání čísla verze, rozšíření funkcionality (kamkoli na stránku smysluplně přidat číslo verze software)</td></tr>" + \
-                                   u"<tr valign='top'><td>Řešení</td><td>V návrhu funkcionality je zobrazena podrobná informace v horní liště. V dolní řádce stránky portálu je zobrazena verze.</td>" + \
-                                   u"</table>"
+    config.issueNumber = "63"
+    config.issueShortDescription = u"""
+<br><br>
+<table>
+    <tr valign='top'>
+        <td>Popis:</td><td>Optimalizovat pořadí vstupních polí. Pořadí vstupních polí při zadání jednotlivých prvků adresy optimalizovat tak,
+        aby odpovídalo přístupu ČÚZK, za vzor je možné si vzít aktuální VDP.
+        Například obec by měla být určena dříve než ulice.</td>
+    </tr>
+    <tr valign='top'>
+        <td>Řešení:</td>
+        <td>
+Pořadí vstupních polí pro zadávání adresy bylo voleno podle vzoru z VDP <code>Ověření adresy</code>.
+Nově bude pořadí připraveno podle vzoru <code>Adresní místo</code>.
+<br>Cíle osvětové činnosti v tomto směru mi nesjou zcela zřejmé, samotné vyhledávání adresního místa na VDP je poměrně
+nepřehledné, zřejmě proto, že charakteristika adresního místa vznikala historicky různorodými požadavky.
+<br>Jestli jsem dobře pochopil, cílem je předřadit vstupní pole <code>Obec</code> a <code>Část obce</code> před pole ulice na záložkách
+<code>Geokódování</code>, <code>Sestavení adresy</code> a <code.Ověření adresy</code>. Takto je to realizováno.
+        </td>
+    </tr>
+</table>"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
@@ -60,7 +77,7 @@ def getPortSpecification():
 SERVER_HTTP = config.serverHTTP
 PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath
-HTMLDATA_URL = "ruian_html/"
+HTMLDATA_URL = "html/"
 
 _isFirstCall = True
 def setupVariables():
@@ -75,7 +92,7 @@ def setupVariables():
         SERVICES_WEB_PATH = ""
 
         global HTMLDATA_URL
-        HTMLDATA_URL = "ruian_html/"
+        HTMLDATA_URL = "html/"
 
     global _isFirstCall
     _isFirstCall = False

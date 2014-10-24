@@ -62,14 +62,14 @@ def createServiceHandlers():
                 getResultFormatParam()
             ],
             [
+                URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
+                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
                 URLParam("Street",            u"Ulice", u"Název ulice", htmlTags = ' class="RUIAN_STREET_INPUT" '),
                 getHouseNumberURL(False),
                 getRecordNumberURL(False),
                 getOrientationNumberURL(False),
                 URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", ""),
                 getZIPCodeURL(False),
-                URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
-                URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
                 getDistrictNumberURL(False)
             ],
             validateAddressServiceHandler,

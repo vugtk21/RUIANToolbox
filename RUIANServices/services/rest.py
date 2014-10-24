@@ -86,7 +86,7 @@ def ProcessRequest(fullPathList, queryParams, response):
         else:
             servicePathInfo = "/" + fullPathList[0]                       # první rest parametr
 
-        if servicePathInfo.lower() == "/ruian_html":
+        if servicePathInfo.lower() == "/html":
             fileName = getHTMLPath() + "/".join(fullPathList[1:])
             response.htmlData = getFileContent(fileName) # TODO Implementovat vracení binárních souborů
             mimeFormat = fileNameToMimeFormat(fileName)
