@@ -139,6 +139,7 @@ class ServicesHTMLPageBuilder:
         result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH )
 
         result = result.replace("#HTMLDATA_URL#", configmodule.getHTMLDataURL())
+        result = result.replace("#VERSIONNUMBER#", configmodule.config.issueNumber)
 
         queryParams = self.normalizeQueryParams(queryParams)
 
