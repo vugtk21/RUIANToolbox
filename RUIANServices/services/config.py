@@ -41,7 +41,8 @@ Nově bude pořadí připraveno podle vzoru <code>Adresní místo</code>.
 <br>Cíle osvětové činnosti v tomto směru mi nesjou zcela zřejmé, samotné vyhledávání adresního místa na VDP je poměrně
 nepřehledné, zřejmě proto, že charakteristika adresního místa vznikala historicky různorodými požadavky.
 <br>Jestli jsem dobře pochopil, cílem je předřadit vstupní pole <code>Obec</code> a <code>Část obce</code> před pole ulice na záložkách
-<code>Geokódování</code>, <code>Sestavení adresy</code> a <code.Ověření adresy</code>. Takto je to realizováno.
+<code>Geokódování</code>, <code>Sestavení adresy</code> a <code.Ověření adresy</code>.
+<br>Takto je to realizováno.
         </td>
     </tr>
 </table>"""
