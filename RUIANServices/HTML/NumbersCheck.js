@@ -19,3 +19,19 @@ function isNumber(event, scope, numDigits, maxValue)
  
  return true;
 }
+
+function isENLetter(event, scope)
+{
+ if ((event.isChar == undefined) || (event.isChar)) {
+    if (scope.value != "") {
+        return false
+    }
+    else {
+        charStr = String.fromCharCode(event.charCode);
+        result = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(charStr) != -1;
+        return result;
+    }
+ }
+
+ return true;
+}
