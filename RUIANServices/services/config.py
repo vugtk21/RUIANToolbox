@@ -24,10 +24,12 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "62"
-    config.issueShortDescription = u"<br><br><table><tr valign='top'><td>Popis</td><td>Přidání čísla verze, rozšíření funkcionality (kamkoli na stránku smysluplně přidat číslo verze software)</td></tr>" + \
-                                   u"<tr valign='top'><td>Řešení</td><td>V návrhu funkcionality je zobrazena podrobná informace v horní liště. V dolní řádce stránky portálu je zobrazena verze.</td>" + \
-                                   u"</table>"
+    config.issueNumber = "65"
+    config.issueShortDescription = u"""
+<br><br><table><tr valign='top'>
+    <td>Popis:</td><td>Úprava našeptávače OBEC - odstranění uvedení PSČ</td></tr>
+    <tr valign='top'><td>Řešení:</td><td></td>
+</table>"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
@@ -60,7 +62,7 @@ def getPortSpecification():
 SERVER_HTTP = config.serverHTTP
 PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath
-HTMLDATA_URL = "ruian_html/"
+HTMLDATA_URL = "html/"
 
 _isFirstCall = True
 def setupVariables():
@@ -75,10 +77,14 @@ def setupVariables():
         SERVICES_WEB_PATH = ""
 
         global HTMLDATA_URL
-        HTMLDATA_URL = "ruian_html/"
+        HTMLDATA_URL = "html/"
 
     global _isFirstCall
     _isFirstCall = False
+
+def getCGIPath():
+    serverItems = "/".split(SERVER_HTTP)
+    return "/".join(serverItems[:len(serverItems) - 1])
 
 def getHTMLDataURL():
     result = getServicesURL()
