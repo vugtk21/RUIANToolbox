@@ -24,31 +24,33 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "73"
+    config.issueNumber = "73.2"
     config.issueShortDescription = u"""
 <br><br>
 <table>
     <tr valign='top'>
         <td>Popis:</td><td>Maska pro vstupní pole <code>Písmeno čísla orientačního</code><br>
-Ve vstupním poli "písmeno čísla orientačního" by měli být možné zadat pouze hodnoty "a..z", "A..Z".
+Ve vstupním poli "písmeno čísla orientačního" by měly být možné zadat pouze hodnoty české abecedy bez háčků a čárek,
+"a..z", "A..Z", včetně "ch" a "CH".
         </td>
     </tr>
     <tr valign='top'>
         <td>Řešení:</td>
         <td>Ve vstupních polích na záložkách <code>Geokódování</code>, <code>Sestavení adresy</code> a
-<code>Ověření adresy</code> se kontrolují zadávané hodnoty tak, aby byl akceptován pouze jeden znak z anglické abecedy.
+<code>Ověření adresy</code> se kontrolují zadávané hodnoty tak, aby byl akceptován pouze jeden znak z anglické abecedy
+(tj. české abecedy bez diakritiky) a česká písmena <code>ch</code> a <code>CH</code>.
 <code>
     <pre>
-function isENLetter(event, scope)
+function isCZLetter(event, scope)
 {
  if ((event.isChar == undefined) || (event.isChar)) {
+    value = scope.value +  String.fromCharCode(event.charCode);
     if (scope.value != "") {
-        return false
+       return (value == "ch") || (value == "CH");
     }
     else {
         charStr = String.fromCharCode(event.charCode);
-        result = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(charStr) != -1;
-        return result;
+        return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(charStr) != -1;
     }
  }
 

@@ -23,13 +23,13 @@ function isNumber(event, scope, numDigits, maxValue)
 function isENLetter(event, scope)
 {
  if ((event.isChar == undefined) || (event.isChar)) {
+    value = scope.value +  String.fromCharCode(event.charCode);
     if (scope.value != "") {
-        return false
+       return (value == "ch") || (value == "CH");
     }
     else {
         charStr = String.fromCharCode(event.charCode);
-        result = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(charStr) != -1;
-        return result;
+        return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(charStr) != -1;
     }
  }
 
