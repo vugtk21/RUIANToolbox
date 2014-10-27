@@ -148,43 +148,18 @@ function clearInputList(list)
  }
 }
 
+function detachAutocompleteListeners()
+{
+    $(".RUIAN_ID_INPUT").autocomplete({source: []});
+    $(".RUIAN_ZIP_INPUT").autocomplete({source: []});
+    $(".RUIAN_TOWN_INPUT").autocomplete({source: []});
+    $(".RUIAN_TOWNPART_INPUT").autocomplete({source: []});
+    $(".RUIAN_STREET_INPUT").autocomplete({source: []});
+    $(".RUIAN_TEXTSEARCH_INPUT").autocomplete({source: []});
+}
 
-$(function() {
-    $( "#tabs" ).tabs(#TABSOPTIONS#);
-});
-
-$(document).ready(function() {
-    $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
-	    tableElem = $(this).parent().find("table");
-		
-		var visibleRows = [];
-        if (this.value == 'vstup') {
-			visibleRows = [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
-        }
-        else if (this.value == 'id') {
-			visibleRows = [0, 1, 2, 13];
-        }
-        else if (this.value == 'adresa') {
-			visibleRows = [0, 1, 3, 13];
-        }
-		
-		tableElem.find('tr').each(function(index, row)
-		{
-			if (visibleRows.indexOf(index) != -1) {
-				$(row).show();
-			}
-			else {
-				$(row).hide();
-			}
-		});
-      });
-      $("#enhancedGUIButton").click(function(){
-            $(".enhancedGUI").toggle();
-      });	  
-});
-
-// Přiřazení našeptávačů
-$(function() {
+function attachAutocompleteListeners()
+{
     $(".RUIAN_ID_INPUT").autocomplete({
       source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/id?RUIANType=id&",
       minLength: 1,
@@ -264,6 +239,56 @@ $(function() {
 		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);	
       }
     });
+
+}
+
+$(function() {
+    $( "#tabs" ).tabs(#TABSOPTIONS#);
+});
+
+$(document).ready(function() {
+    $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
+	    tableElem = $(this).parent().find("table");
+		
+		var visibleRows = [];
+        if (this.value == 'vstup') {
+			visibleRows = [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+        }
+        else if (this.value == 'id') {
+			visibleRows = [0, 1, 2, 13];
+        }
+        else if (this.value == 'adresa') {
+			visibleRows = [0, 1, 3, 13];
+        }
+		
+		tableElem.find('tr').each(function(index, row)
+		{
+			if (visibleRows.indexOf(index) != -1) {
+				$(row).show();
+			}
+			else {
+				$(row).hide();
+			}
+		});
+      });
+      $("#enhancedGUIButton").click(function(){
+            $(".enhancedGUI").toggle();
+			button = document.getElementById("enhancedGUIButton");
+			if (button.value == "Programátorské rozhraní") {
+				button.value = "Uživatelské rozhraní";	
+				detachAutocompleteListeners();				
+			}
+			else
+			{
+				button.value = "Programátorské rozhraní";	
+				attachAutocompleteListeners();
+			}
+      });	  
+});
+
+// Přiřazení našeptávačů
+$(function() {
+	attachAutocompleteListeners();
 });
   </script>
 
@@ -370,7 +395,15 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 
     <body>
     <h1>#PAGETITLE#</h1>
-    <input type = "button" value = "Rozšířené rozhraní" id = "enhancedGUIButton">
+    <input type="button" value="Programátorské rozhraní" id="enhancedGUIButton">
+	<div class="enhancedGUI">
+		<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		<p>
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			<strong>Toto rozhraní umožňuje slouží pro programátory k seznámení s funkcionalitou serveru.
+				Hodnoty vstupních polí nejsou nijak kontrolovány a je tak například možné simulovat zasílání chybných či neúplných požadavků na server.</strong>
+		</div></div>
+	</div>
     #ISSUELINES#
     #CONSOLELINES#
 <div id="tabs">
