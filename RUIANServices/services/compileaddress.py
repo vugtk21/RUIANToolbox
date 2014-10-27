@@ -120,7 +120,8 @@ def createServiceHandlers():
                 getHouseNumberURL(),
                 getRecordNumberURL(),
                 getOrientationNumberURL(),
-                URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
+                getOrientationNumberCharacterURL(),
+                #URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
                 getZIPCodeURL(),
                 getDistrictNumberURL(),
                 URLParam("ExtraInformation",  u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
