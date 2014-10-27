@@ -26,32 +26,32 @@ def getAddressPlaceIdParamRest():
 def getAddressPlaceIdParamURL():
     # gid = 19..72628626
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa, maximálně 8 číslic", "", True,
-                    htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
+                    htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')#onpaste="return isNumber(event, this, 8, 0)"')
 
 def getZIPCodeURL(disabled = True):
     # psc = 10000...79862
     return URLParam("ZIPCode",           u"PSČ", u"Poštovní směrovací číslo v rozsahu 100000 až 79862", "", disabled,
-                    htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 79862)" ')
+                    htmlTags = ' class="RUIAN_ZIP_INPUT" onkeypress="return isNumber(event, this, 5, 79862)" ')#onpaste="return isNumber(event, this, 5, 79862)"')
 
 def getHouseNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
     return URLParam("HouseNumber",       u"Číslo popisné", "Číslo popisné v rozsahu 1 až 9999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
+                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
 
 def getRecordNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
     return URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno, v rozsahu 1 až 9999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')
+                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
 
 def getOrientationNumberURL(disabled = True):
     # cislo_orientacni = 1..999
     return URLParam("OrientationNumber", u"Číslo orientační", "Číslo orientační v rozsahu 1 až 999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 3, 0)" ')
+                    htmlTags = ' onkeypress="return isNumber(event, this, 3, 0)" ')#onpaste="return isNumber(event, this, 3, 0)"')
 
 def getDistrictNumberURL(disabled = True):
     # 1..10
     return URLParam("DistrictNumber", u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu v Praze v rozsahu 1 až 10",
-                    "", disabled, htmlTags = ' onkeypress="return isNumber(event, this, 2, 10)" ')
+                    "", disabled, htmlTags = ' onkeypress="return isNumber(event, this, 2, 10)" ')#onpaste="return isNumber(event, this, 2, 10)"')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
     return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
