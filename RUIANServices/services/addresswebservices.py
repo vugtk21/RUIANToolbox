@@ -140,6 +140,7 @@ class ServicesHTMLPageBuilder:
 
         result = result.replace("#HTMLDATA_URL#", configmodule.getHTMLDataURL())
         result = result.replace("#VERSIONNUMBER#", configmodule.config.issueNumber)
+        result = result.replace("#SERVICES_URL_PATH#", configmodule.getServicesPath())
 
         queryParams = self.normalizeQueryParams(queryParams)
 

@@ -24,8 +24,24 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "60"
-    config.issueShortDescription = u"""shortDesc"""
+    config.issueNumber = "65 a č.66"
+    config.issueShortDescription = u"""
+<br><br><table><tr valign='top'>
+    <td>Popis:</td><td>Úprava našeptávače OBEC - odstranění uvedení PSČ a doplnění části obce<br>
+<br>
+<b>65.</b> Našeptávač položky OBEC zobrazuje za čárkou dostupné varianty PSČ, což není vhodné.
+PSČ se neváže ani k ulici, ale dokonce přímo k příslušným adresním místům.
+<br>
+<br>
+<b>66.</b> Uživatel často nerozlišuje mezi názvem obce a jeho části.
+<br>
+<ol>
+<li>Podlusky, Chvalínská 2278 = Roudnice nad Labem, Podlusky, Chvalínská 2278</li>
+<li>Kaproun 13 = Kunžak, Kaproun 13</li>
+</ol>
+    </td></tr>
+    <tr valign='top'><td>Řešení:</td><td>Upravena funkcionalita našeptávašče Obec a vytváření tabulky ac_obce.</td>
+</table>"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
@@ -78,6 +94,10 @@ def setupVariables():
     global _isFirstCall
     _isFirstCall = False
 
+def getCGIPath():
+    serverItems = "/".split(SERVER_HTTP)
+    return "/".join(serverItems[:len(serverItems) - 1])
+
 def getHTMLDataURL():
     result = getServicesURL()
     if HTMLDATA_URL != "":
@@ -90,3 +110,12 @@ def getServicesURL():
     if SERVICES_WEB_PATH != "":
         result = result + "/" + SERVICES_WEB_PATH
     return result
+
+def getServicesPath():
+    result = getServicesURL().split("/")
+    result = result[:len(result) - 1]
+    return "/".join(result)
+
+
+
+

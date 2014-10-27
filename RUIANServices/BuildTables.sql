@@ -292,10 +292,10 @@ group by psc, nazev_obce;
 drop table if exists ac_obce;
 create table ac_obce
 as
-select nazev_obce, CAST(psc AS text)
+select nazev_obce
 from address_points
-group by nazev_obce, psc
-order by nazev_obce, psc;
+group by nazev_obce
+order by nazev_obce;
 
 -- --------------------------------------------------
 -- Create table ac_ulice

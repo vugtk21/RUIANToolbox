@@ -186,13 +186,13 @@ $(document).ready(function() {
 // Přiřazení našeptávačů
 $(function() {
     $(".RUIAN_ID_INPUT").autocomplete({
-      source: "/ruian/jqueryautocomplete.py/id?RUIANType=id&",
+      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/id?RUIANType=id&",
       minLength: 1,
       select: function( event, ui ) { this.value = ui.item.id; }
     });
 	
     $(".RUIAN_ZIP_INPUT").autocomplete({
-      source: "/ruian/jqueryautocomplete.py/zipcode?RUIANType=zip&",
+      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/zipcode?RUIANType=zip&",
       minLength: 1,
       select: function( event, ui ) { 
 	  
@@ -205,15 +205,15 @@ $(function() {
     });	
 	
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
-      source: "/ruian/jqueryautocomplete.py/town?RUIANType=town",
+      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/town?RUIANType=town",
       minLength: 1,
       select: function( event, ui ) { 
-		setInputValueFromMaster(this.id, "_ZIPCode", ui.item.id);  
+		setInputValueFromMaster(this.id, "_LocalityPart", ui.item.id);
 	  }
     });
 	
     $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
-      source: "/ruian/jqueryautocomplete.py/townpart?RUIANType=townpart",
+      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/townpart?RUIANType=townpart",
       minLength: 1,
       select: function( event, ui ) { 
 		setInputValueFromMaster(this.id, "_Locality", ui.item.id);
@@ -222,7 +222,7 @@ $(function() {
     });
 
     $( ".RUIAN_STREET_INPUT" ).autocomplete({
-      source: "/ruian/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts",
+      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts",
       minLength: 1,
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");
@@ -244,7 +244,7 @@ $(function() {
 	
 	
     $( ".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
-      source: "/ruian/jqueryautocomplete.py/street?RUIANType=textsearch&ResultFormat=AddressParts",
+      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/street?RUIANType=textsearch&ResultFormat=AddressParts",
       minLength: 1,
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");
