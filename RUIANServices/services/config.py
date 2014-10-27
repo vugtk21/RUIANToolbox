@@ -99,5 +99,11 @@ def getServicesURL():
         result = result + "/" + SERVICES_WEB_PATH
     return result
 
+def getServicesPath():
+    result = getServicesURL().split("/")
+    result = result[:len(result) - 1]
+    return "/".join(result)
+
+
 
 
