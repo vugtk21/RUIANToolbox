@@ -179,6 +179,68 @@ def parseFullTextToken(nameToken):
 
     return (hasNumber, searchSQL)
 
+def getRows(searchSQL, maxCount = 10):
+    rows = []
+    if searchSQL != "":
+        searchSQL += " limit " + str(maxCount)
+
+        try:
+            db = PostGISDatabase()
+            cursor = db.conection.cursor()
+            cursor.execute(searchSQL)
+        except:
+            import sys
+            return[sys.exc_info()[0]]
+
+        rowCount = 0
+        for row in cursor:
+            rowCount += 1
+
+            htmlItems = []
+            for i in range(len(row)):
+                if True:
+                    htmlItems.insert(0, row[i])
+                else:
+                    item = row[i]
+                    htmlItems.insert(0, item)
+
+                rowLabel = None
+
+            if len(row) == 1:
+                idValue = ""#row[0]
+                rowValue = row[0]
+            else:
+                rowValue = row[1]
+                idValue = row[0]
+
+            if rowLabel == None:
+                rowLabel = ", ".join(htmlItems)
+
+
+            value = '{"id":"' + idValue + '","label":"' + rowLabel + '","value":"' + rowValue + '"}'
+
+            rows.append(value)
+
+            if rowCount >= maxCount:
+                break
+
+    return rows
+
+def getTownAutocompleteResults(nameToken, resultFormat, maxCount = 10):
+    if nameToken == "" or nameToken == None:
+        return []
+
+    nameToken = nameToken.lower()
+
+    searchSQL = "select nazev_obce from " + AC_OBCE + " where nazev_obce ilike '%" + nameToken + "%'"
+    rows = getRows(searchSQL)
+
+    searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'" + \
+                " and nazev_casti_obce <> nazev_obce"
+    rows.extend(getRows(searchSQL))
+
+    return rows
+
 def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     if nameToken == "" or nameToken == None:
         return []
@@ -196,7 +258,9 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     if ruianType == "townpart":
         searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'"
     elif ruianType == "town":
-        searchSQL = "select nazev_obce, psc from " + AC_OBCE + " where nazev_obce ilike '%" + nameToken + "%'"
+        #searchSQL = "select nazev_obce, nazev_casti_obce from " + AC_OBCE + " where nazev_obce ilike '%" + nameToken + "%'" + \
+        #             " or nazev_casti_obce ilike '%" + nameToken + "%'"
+        return getTownAutocompleteResults(nameToken, resultFormat, maxCount)
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from gids where cast(gid as text) like '" + nameToken + "%'"
     elif ruianType == "zip":
@@ -230,6 +294,7 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
                     htmlItems.append(item)
 
                 rowLabel = None
+
             if ruianType == "street" or ruianType == "textsearch":
                 if hasNumber:
                     street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row

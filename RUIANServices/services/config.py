@@ -24,10 +24,22 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "65"
+    config.issueNumber = "65 a č.66"
     config.issueShortDescription = u"""
 <br><br><table><tr valign='top'>
-    <td>Popis:</td><td>Úprava našeptávače OBEC - odstranění uvedení PSČ</td></tr>
+    <td>Popis:</td><td>Úprava našeptávače OBEC - odstranění uvedení PSČ a doplnění části obce<br>
+<br>
+<b>65.</b> Našeptávač položky OBEC zobrazuje za čárkou dostupné varianty PSČ, což není vhodné.
+PSČ se neváže ani k ulici, ale dokonce přímo k příslušným adresním místům.
+<br>
+<br>
+<b>66.</b> Uživatel často nerozlišuje mezi názvem obce a jeho části.
+<br>
+<ol>
+<li>Podlusky, Chvalínská 2278 = Roudnice nad Labem, Podlusky, Chvalínská 2278</li>
+<li>Kaproun 13 = Kunžak, Kaproun 13</li>
+</ol>
+    </td></tr>
     <tr valign='top'><td>Řešení:</td><td></td>
 </table>"""
 

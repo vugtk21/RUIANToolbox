@@ -187,7 +187,7 @@ $(function() {
       source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/town?RUIANType=town",
       minLength: 1,
       select: function( event, ui ) { 
-		//setInputValueFromMaster(this.id, "_ZIPCode", ui.item.id);
+		setInputValueFromMaster(this.id, "_LocalityPart", ui.item.id);
 	  }
     });
 	
