@@ -258,8 +258,6 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     if ruianType == "townpart":
         searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'"
     elif ruianType == "town":
-        #searchSQL = "select nazev_obce, nazev_casti_obce from " + AC_OBCE + " where nazev_obce ilike '%" + nameToken + "%'" + \
-        #             " or nazev_casti_obce ilike '%" + nameToken + "%'"
         return getTownAutocompleteResults(nameToken, resultFormat, maxCount)
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from gids where cast(gid as text) like '" + nameToken + "%'"

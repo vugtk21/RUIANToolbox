@@ -412,14 +412,15 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     <h1>#PAGETITLE#</h1>
     <input type="button" value="Programátorské rozhraní" id="enhancedGUIButton">
 	<div class="enhancedGUI">
-		<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-		<p>
+		<div class="ui-widget">
+            <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		    <p>
 			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
 			<strong>Toto rozhraní umožňuje slouží pro programátory k seznámení s funkcionalitou serveru.
 				Hodnoty vstupních polí nejsou nijak kontrolovány a je tak například možné simulovat zasílání chybných či neúplných požadavků na server.</strong>
-		</div></div>
+		    </div>
+        </div>
 	</div>
-    #ISSUELINES#
     #CONSOLELINES#
 <div id="tabs">
   <ul>
@@ -430,6 +431,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     <p>
     Tento portál umožňuje využívat kopii databáze Registru územní identifikace, adres a nemovitostí (RÚIAN) pomocí webových služeb.
     <br>
+    #ISSUELINES#
     <br>
     Jednotlivé služby je možné využívat pomocí standardů Representational State Transfer (REST) v souladu s <a href="http://bivoj.vugtk.cz/euradin/Doc/WP03/MetodikaWeboveSluzby.docx">
     cerifikovanou metodikou</a>.

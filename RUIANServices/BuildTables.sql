@@ -315,4 +315,3 @@ select nazev_casti_obce, nazev_obce
 from address_points
 group by nazev_casti_obce, nazev_obce
 order by nazev_casti_obce, nazev_obce;
-
