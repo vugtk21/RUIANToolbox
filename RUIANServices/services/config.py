@@ -40,7 +40,7 @@ PSČ se neváže ani k ulici, ale dokonce přímo k příslušným adresním mí
 <li>Kaproun 13 = Kunžak, Kaproun 13</li>
 </ol>
     </td></tr>
-    <tr valign='top'><td>Řešení:</td><td></td>
+    <tr valign='top'><td>Řešení:</td><td>Upravena funkcionalita našeptávašče Obec a vytváření tabulky ac_obce.</td>
 </table>"""
 
     # htmlDataURL nemá mít lomítko na začátku
