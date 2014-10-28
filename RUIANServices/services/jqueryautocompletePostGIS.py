@@ -260,7 +260,7 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     elif ruianType == "town":
         return getTownAutocompleteResults(nameToken, resultFormat, maxCount)
     elif ruianType == ID_VALUE:
-        searchSQL = "select cast(gid as text), address from gids where cast(gid as text) like '" + nameToken + "%'"
+        searchSQL = "select cast(gid as text), address from ac_gids where cast(gid as text) like '" + nameToken + "%'"
     elif ruianType == "zip":
         searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'"
         joinSeparator = " "

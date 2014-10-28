@@ -7,7 +7,6 @@ import HTTPShared
 import compileaddress
 
 def main():
-
     conection = psycopg2.connect(
         host = config.databaseHost,
         database = config.databaseName,
@@ -15,7 +14,8 @@ def main():
         user = config.databaseUserName, password = config.databasePassword
     )
     cursor = conection.cursor()
-    #cursor.execute("CREATE TABLE gids (gid integer NOT NULL, address text);")
+    cursor.execute("drop table if exists ac_gids;")
+    cursor.execute("CREATE TABLE ac_gids (gid integer NOT NULL, address text);")
     cursor.close()
 
     cursor = conection.cursor()
@@ -36,7 +36,7 @@ def main():
         districtNumber = HTTPShared.extractDictrictNumber(nazev_mop)
 
         rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-        insertSQL = "INSERT INTO gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
+        insertSQL = "INSERT INTO ac_gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
         insertCursor.execute(insertSQL)
         conection.commit()
         if gaugecount >= 1000:

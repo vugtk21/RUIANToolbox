@@ -52,7 +52,8 @@ def createAuxiliaryTables():
     #execSQLScriptFile("../RUIANServices/CreateFullTextTables.sql")
     #execSQLScriptFile("../RUIANServices/CreateAutocompleteTables.sql")
     execSQLScriptFile("../RUIANServices/BuildTables.sql")
-
+    from RUIANServices.services import buildauxtables
+    buildauxtables.main()
     pass
 
 def joinPaths(basePath, relativePath):
@@ -230,6 +231,7 @@ def getFullPath(configFileName, path):
 def doImport():
     from RUIANDownloader.RUIANDownload import getDataDirFullPath
     processDownloadedDirectory(getDataDirFullPath())
+    createAuxiliaryTables()
 
 from SharedTools.sharetools import setupUTF
 setupUTF()
