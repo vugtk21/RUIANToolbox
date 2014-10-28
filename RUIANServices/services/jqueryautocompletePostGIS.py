@@ -175,7 +175,7 @@ def parseFullTextToken(nameToken):
 
 
     else:
-        searchSQL = "select nazev_ulice, nazev_obce, psc from " + AC_ULICE + " where nazev_ulice ilike '%" + nameToken + "%'"
+        searchSQL = "select nazev_ulice, nazev_obce from " + AC_ULICE + " where nazev_ulice ilike '%" + nameToken + "%'"
 
     return (hasNumber, searchSQL)
 
@@ -308,7 +308,7 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
                     else:
                         idValue = rowLabel[rowLabel.find(", ") + 2:]
                 else:
-                    idValue = row[1] + ", " + row[2]
+                    idValue = row[1] # + ", " + row[2]
             else:
                 idValue = row[1]
 

@@ -217,18 +217,18 @@ function attachAutocompleteListeners()
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");
 		
-		if (addressItems.length == 2) {
-			addressItems = ["", "", "", "", "", addressItems[1], addressItems[0], "", ""];		
+		if (addressItems.length == 1) {
+			addressItems = ["", "", "", "", "", "", addressItems[0], "", ""];
 		}
 			
 		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
 		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  
 		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);  
 		setInputValueFromMaster(this.id, "_OrientationNumberCharacter", addressItems[4]);  		
-		setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);  
-		setInputValueFromMaster(this.id, "_Locality", addressItems[6]);
-		setInputValueFromMaster(this.id, "_LocalityPart", addressItems[7]);
-		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);	
+		setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);
+		setInputValueFromMaster(this.id, "_Locality", addressItems[5]);
+		setInputValueFromMaster(this.id, "_LocalityPart", addressItems[6]);
+		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[7]);
       }
     });
 	
