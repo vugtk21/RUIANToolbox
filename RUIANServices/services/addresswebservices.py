@@ -63,7 +63,7 @@ class Console():
 console = Console()
 
 def getIssueHTML():
-    if configmodule.config.issueNumber == "":
+    if configmodule.config.issueShortDescription == "":
         return ""
     else:
         result =  u'<div class="ui-widget">' \
