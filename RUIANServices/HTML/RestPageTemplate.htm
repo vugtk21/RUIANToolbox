@@ -81,6 +81,9 @@
 	</style>
 	
     <script>
+
+var isEnhancedGUI = false; // Je přepnuto do režimu "Programátorské rozhraní"
+
 function clearInputs(formName)
 {
 	formElem = $('#' + formName);
@@ -128,6 +131,7 @@ function isENLetter(event, scope)
 
  return true;
 }
+
 // ****************************************************************************
 // Našeptávače
 // ****************************************************************************
@@ -290,12 +294,14 @@ $(document).ready(function() {
             $(".enhancedGUI").toggle();
 			button = document.getElementById("enhancedGUIButton");
 			if (button.value == "Programátorské rozhraní") {
-				button.value = "Uživatelské rozhraní";	
-				detachAutocompleteListeners();				
+			    isEnhancedGUI = true;
+				button.value = "Uživatelské rozhraní";
+				detachAutocompleteListeners();
 			}
 			else
 			{
-				button.value = "Programátorské rozhraní";	
+			    isEnhancedGUI = false;
+				button.value = "Programátorské rozhraní";
 				attachAutocompleteListeners();
 			}
       });	  
@@ -329,10 +335,19 @@ $(function() {
 
 		xmlHttp.onreadystatechange = function(){
 			if (xmlHttp.readyState == 4) {
-				//Get the response from the server and extract the section that comes in the body section of the second html page avoid inserting the header part of the second page in your first page's element
-				//var respText = xmlHttp.responseText.split('<body>');
-				//elem.innerHTML = respText[1].split('</body>')[0];
-				elem.innerText = xmlHttp.responseText.replace(/<br>/g,"\\n");
+				// Get the response from the server and extract the section that comes in the body section of the second
+				// html page avoid inserting the header part of the second page in your first page's element
+				resultStr = xmlHttp.responseText.replace(/<br>/g,"\\n");
+				if (resultStr == "") {
+				    if (isEnhancedGUI) {
+				        resultStr = "Výsledkem dotazu je prázdný řetězec.";
+				    }
+				    else
+				    {
+				        resultStr = "Nebyly nalezeny žádné informace odpovídající zadání.";
+				    }
+				}
+				elem.innerText = resultStr;
 			}
 		}
 
@@ -342,6 +357,11 @@ $(function() {
 			return;
 		}
 
+        msg = "Odeslal jsem požadavek, čekám na odpověď ze serveru...";
+        if (isEnhancedGUI) {
+            msg = "Odeslán požadavek\n" + url + "\n" + msg
+        }
+        elem.innerText = msg;
 		xmlHttp.open("GET", url, true);
 		xmlHttp.send(null);
 
