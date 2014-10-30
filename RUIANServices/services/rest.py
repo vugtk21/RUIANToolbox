@@ -49,6 +49,7 @@ def fileNameToMimeFormat(fileName):
     knownMimeFormats = {
         ".js": "text/javascript",
         ".png" : "image/png",
+        ".ico" : "image/png",
         ".jpg" : "image/jpeg",
         ".jpeg" : "image/jpeg",
         ".htm" : "text/html",
