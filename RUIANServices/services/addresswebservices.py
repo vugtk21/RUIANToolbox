@@ -69,9 +69,9 @@ def getIssueHTML():
         result =  u'<div class="ui-widget">' \
                 u'<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">' \
                 u'<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>' \
-                u'<strong>Návrh řešení požadavku č. ' + configmodule.config.issueNumber + u'</strong>'
+                u'<strong>Návrh řešení ' + configmodule.config.issueNumber + u'</strong>'
         result += configmodule.config.issueShortDescription
-        result += u'<p><a href="https://github.com/vugtk21/RUIANToolbox/issues/' + configmodule.config.issueNumber + '">Podrobnosti na GitHub</a></p>'
+        #result += u'<p><a href="https://github.com/vugtk21/RUIANToolbox/issues/' + configmodule.config.issueNumber + '">Podrobnosti na GitHub</a></p>'
         result += u'</div></div>'
 
         return result
