@@ -92,6 +92,8 @@ function clearInputs(formName)
 		function(index, elem) { elem.value = ""; }
 	);
 
+    elem = document.getElementById(formName + "_textArea");
+    elem.innerText = "";
 }
 
 function isNumber(event, scope, numDigits, maxValue)
@@ -353,7 +355,7 @@ $(function() {
 
 		var elem = document.getElementById(id);
 		if (!elem) {
-			alert('The element with the passed ID'+ id +' does not exists in your page');
+			alert('The element with the passed ID'+ id +' does not exists on your page');
 			return;
 		}
 
