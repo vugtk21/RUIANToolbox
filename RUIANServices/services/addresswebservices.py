@@ -32,6 +32,9 @@ def getPageTemplate():
     f = codecs.open("..//HTML//RestPageTemplate.htm", "r", "utf-8")
     result = f.read()
     f.close()
+
+    # convert windows line breaks to linux, so firebug places breakpoint properly
+    result = result.replace("\r\n", "\n")
     return result
 
 class Console():
@@ -100,7 +103,12 @@ class ServicesHTMLPageBuilder:
             visibilityStr = ''
 
         result = '<tr id="' + formName + '_row_' + param.name + '"' + visibilityStr + '>'
-        result += '<td align="right">' + param.caption + ' </td><td>'
+
+        if param.name == 'FillAddressButton':
+            result += '<td></td><td align="right">'
+        else:
+            result += '<td align="right">' + param.caption + ' </td><td>'
+
         if param.name == '/Format':
             result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
@@ -120,6 +128,10 @@ class ServicesHTMLPageBuilder:
                             '<option value="standard">žádné</option>' + \
                             '<option value="id">přidat ID</option>' + addressOption + \
                     '</select>'
+
+        elif param.name == 'FillAddressButton':
+            result += '<input type="button" value="Doplň adresu" id="' + formName + '_' + param.name + \
+                      '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
         else:
             if False: #param.disabled:
                 disabledStr = ' disabled="disabled" '
@@ -153,11 +165,11 @@ class ServicesHTMLPageBuilder:
             tabCaptions += '<li><a href="#tabs-' + str(i) + '">' + service.caption + '</a></li>\n'
             tabDivs += '<div id="tabs-' + str(i) + '">   <h2>' + service.shortDesc + '</h2>\n'
             tabDivs += service.htmlDesc
-            tabDivs += u'<br><p class = "enhancedGUI">Adresa služby:' + service.pathName + '</p>\n'
+            tabDivs += u'<p class = "enhancedGUI">Adresa služby:' + service.pathName + '</p>\n'
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
             onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
-            displayResultProcCode = "displayResult('" + formName + "_textArea', '" + service.pathName + "')"
+            displayResultProcCode = "runOrHookDisplayResult('" + formName + "', '" + service.pathName + "')"
             if service.pathName == pathInfo:
                 tabIndex = i
 
@@ -165,14 +177,14 @@ class ServicesHTMLPageBuilder:
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>
-                <input type="radio" name= "radio""" + service.pathName + u"""" value="id">Identifikátor RÚIAN
-                <input type="radio" name= "radio""" + service.pathName + u"""" value="adresa"  checked>Textový řetězec adresy
-                <input type="radio" name= "radio""" + service.pathName + u"""" value="vstup">Jednotlivé prvky adresy
-                """
+                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked>Adresa</input>
+                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB">Prvky adresy</input>
+                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB">Identifikátor RÚIAN</input>
+                """ % (service.pathName, formName, service.pathName, formName, service.pathName, formName)
 
             tabDivs += "<br><br>"
             tabDivs += "<table><tr valign=\"top\"><td>"
-            tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get">\n'
+            tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get" SearchForAddress="false">\n'
 
             # Parameters list
             #tabDivs += '<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">\n'
@@ -187,8 +199,9 @@ class ServicesHTMLPageBuilder:
             tabDivs += '</table>\n'
             tabDivs += '</div>\n'
 
-            tabDivs += '<br><input type="button" value="' + service.sendButtonCaption + '" onclick="' + onChangeProcCode + '; ' + displayResultProcCode + '">\n'
-            tabDivs += '<input type="button" value="Nové zadání" onclick="clearInputs(\'' + formName + '\')">\n'
+            tabDivs += '<br>'
+            tabDivs += '<input style="float: right;" type="button" value="Nové zadání" onclick="clearInputs(\'' + formName + '\')">\n'
+            tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s;%s">\n' % (service.sendButtonCaption, onChangeProcCode, displayResultProcCode)
             tabDivs += '</form>\n'
             tabDivs += "</td><td>"
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'

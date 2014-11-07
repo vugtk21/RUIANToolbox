@@ -64,6 +64,7 @@ def createServiceHandlers():
             [
                 URLParam("Locality",          u"Obec", u"Obec", htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
+                getDistrictNumberURL(False),
                 URLParam("Street",            u"Ulice", u"Název ulice", htmlTags = ' class="RUIAN_STREET_INPUT" '),
                 getHouseNumberURL(False),
                 getRecordNumberURL(False),
@@ -71,7 +72,7 @@ def createServiceHandlers():
                 getOrientationNumberCharacterURL(False),
                 #URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", ""),
                 getZIPCodeURL(False),
-                getDistrictNumberURL(False)
+                URLParam("FillAddressButton",  u"Doplň adresu", u"Najde v databázi adresu odpovídající vyplněným hodnotám", "", False)
             ],
             validateAddressServiceHandler,
             sendButtonCaption = u"Ověř adresu",

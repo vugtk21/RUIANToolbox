@@ -20,6 +20,7 @@ AC_OBCE  = "ac_obce"
 AC_PSC   = "ac_psc"
 AC_ULICE = "ac_ulice"
 AC_CASTI_OBCE = "ac_casti_obce"
+ADDRESSPOINTS_TABLENAME = "address_points"
 
 class PostGISDatabase():
 
@@ -134,7 +135,7 @@ def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
 
     return rows
 
-def parseFullTextToken(nameToken):
+def parseFullTextToken(queryParams, nameToken):
     hasNumber = False
 
     if nameToken.isdigit():
@@ -176,6 +177,14 @@ def parseFullTextToken(nameToken):
 
     else:
         searchSQL = "select nazev_ulice, nazev_obce from " + AC_ULICE + " where nazev_ulice ilike '%" + nameToken + "%'"
+
+    localityName = getQueryValue(queryParams, "localityName", "")
+    if localityName != "":
+        searchSQL += " and nazev_obce ilike '%" + localityName + "%'"
+
+    localityPart = getQueryValue(queryParams, "localityPart", "")
+    if localityPart != "":
+        searchSQL += " and nazev_casti_obce ilike '%" + localityPart + "%'"
 
     return (hasNumber, searchSQL)
 
@@ -241,7 +250,74 @@ def getTownAutocompleteResults(nameToken, resultFormat, maxCount = 10):
 
     return rows
 
-def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
+def getQueryValue(queryParams, id, defValue):
+    # Vrací hodnotu URL Query parametruy id, pokud neexistuje, vrací hodnotu defValue
+    if queryParams.has_key(id):
+        return queryParams[id]
+    else:
+        return defValue
+
+def getSQLWhereClause(queryParams, paramList):
+    result = u""
+    for key in paramList:
+        value =  getQueryValue(queryParams, key, "")
+        if value != "":
+            result += " and " + paramList[key] + " ilike '%" + value + "%'"
+
+    return result
+
+def selectSQL(searchSQL):
+    if searchSQL == None or searchSQL == "": return None
+
+    try:
+        db = PostGISDatabase()
+        cursor = db.conection.cursor()
+        cursor.execute(searchSQL)
+        return cursor
+    except:
+        import sys
+        return[sys.exc_info()[0]]
+
+def getFillResults(queryParams, maxCount = 10):
+    sqlItems = {
+        "HouseNumber"  : "cast(cislo_domovni as text) like '%s%%'",
+        #"RecordNumber" : "cislo_domovni ilike '%s%%'",
+        "OrientationNumber" : "cast(cislo_orientacni as text) like '%s%%'",
+        "OrientationNumberCharacter" : "znak_cisla_orientacniho = '%s'",
+        "ZIPCode" : "cast(psc as text) like '%s%%'",
+        "Locality" : "nazev_obce ilike '%%%s%%'",
+        "Street" : "nazev_ulice ilike '%%%s%%'",
+        "LocalityPart" : "nazev_casti_obce ilike '%%%s%%'",
+        "DistrictNumber" : "nazev_mop ilike '%s%%'"
+    }
+
+    fields = " cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop, nazev_ulice, typ_so "
+    result = ""
+
+    sqlParts = []
+    for key in sqlItems:
+        value = getQueryValue(queryParams, key, "")
+        if value != "":
+            sqlParts.append(sqlItems[key] % (value))
+
+    if len(sqlParts) == 0: return ""
+
+    searchSQL = "select %s from %s where " % (fields, ADDRESSPOINTS_TABLENAME) + " and ".join(sqlParts) + " limit 2"
+    rows = selectSQL(searchSQL)
+
+    rowCount = 0
+    for row in rows:
+        rowCount += 1
+        if rowCount > 1:  return ""
+
+        htmlItems = []
+        for i in range(len(row)):
+            htmlItems.append(numberToString(row[i]))
+        result = ",".join(htmlItems) + ","
+
+    return result
+
+def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxCount = 10):
     if nameToken == "" or nameToken == None:
         return []
 
@@ -256,17 +332,28 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
     hasNumber = False
     isStreet = False
     if ruianType == "townpart":
-        searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'"
+        localityName = getQueryValue(queryParams, "localityName", "")
+        if localityName == "":
+            searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'"
+        else:
+            searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'" + " and nazev_obce ilike '%" + localityName + "%'"
     elif ruianType == "town":
         return getTownAutocompleteResults(nameToken, resultFormat, maxCount)
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from ac_gids where cast(gid as text) like '" + nameToken + "%'"
     elif ruianType == "zip":
-        searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'"
+        searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'" + \
+            getSQLWhereClause(queryParams,
+                {
+                    "localityName" : u"nazev_obce",
+                    "localityPart" : u"nazev_casti_obce"
+                }
+            ) + " group by psc, nazev_obce order by psc, nazev_obce"
+
         joinSeparator = " "
     else:
         # street or textsearch
-        hasNumber, searchSQL = parseFullTextToken(nameToken)
+        hasNumber, searchSQL = parseFullTextToken(queryParams, nameToken)
 
     if searchSQL != "":
         searchSQL += " limit " + str(maxCount)
@@ -319,7 +406,7 @@ def getAutocompleteResults(ruianType, nameToken, resultFormat, maxCount = 10):
                 rowValue = rowLabel
             else:
                 if hasNumber:
-                    rowValue = rowLabel[:rowLabel.find(",")]
+                    rowValue = row[0] #rowLabel[:rowLabel.find(",")]
                 else:
                     rowValue = row[0]
 

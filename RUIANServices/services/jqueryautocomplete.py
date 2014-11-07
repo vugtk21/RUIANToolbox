@@ -18,18 +18,20 @@ def getQueryValue(queryParams, id, defValue):
         return defValue
 
 def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
-    # Zpracovává HTTP request
     if queryParams:
-        token = getQueryValue(queryParams, 'term', "")
         max_matches = int(getQueryValue(queryParams, 'max_matches', 40))
-        ruian_type = getQueryValue(queryParams, 'RUIANType', "zip")
-        resultFormat = getQueryValue(queryParams, 'ResultFormat', "")
-        resultArrray = jqueryautocompletePostGIS.getAutocompleteResults(ruian_type, token, resultFormat, max_matches)
+        if page == "fill":
+            response.htmlData = jqueryautocompletePostGIS.getFillResults(queryParams, max_matches)
+        else:
+            token = getQueryValue(queryParams, 'term', "")
+            ruian_type = getQueryValue(queryParams, 'RUIANType', "zip")
+            resultFormat = getQueryValue(queryParams, 'ResultFormat', "")
+            resultArray = jqueryautocompletePostGIS.getAutocompleteResults(queryParams, ruian_type, token, resultFormat, max_matches)
+            response.htmlData = "[\n" + ",\n\t".join(resultArray) + "\n]"
     else:
-        resultArrray = []
+        response.htmlData = "[  ]"
 
     response.mimeFormat = "text/javascript"
-    response.htmlData = "[\n" + ",\n\t".join(resultArrray) + "\n]"
     response.handled = True
     return response
 

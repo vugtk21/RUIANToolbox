@@ -122,8 +122,9 @@ def createServiceHandlers():
             [
                 getAddressPlaceIdParamURL(),
                 getSearchTextParam(),
-                URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' class="RUIAN_TOWN_INPUT" '),
+                URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' required class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", "", True, htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
+                getDistrictNumberURL(),
                 URLParam("Street",            u"Ulice", u"Název ulice", "", True, htmlTags = ' class="RUIAN_STREET_INPUT" '),
                 getHouseNumberURL(),
                 getRecordNumberURL(),
@@ -131,9 +132,8 @@ def createServiceHandlers():
                 getOrientationNumberCharacterURL(),
                 #URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
                 getZIPCodeURL(),
-                getDistrictNumberURL(),
-                URLParam("ExtraInformation",  u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
-
+                URLParam("ExtraInformation",  u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False),
+                URLParam("FillAddressButton",  u"Doplň adresu", u"Najde v databázi adresu odpovídající vyplněným hodnotám", "", False)
             ],
             geocodeAddressServiceHandler,
             sendButtonCaption = u"Najdi polohu",

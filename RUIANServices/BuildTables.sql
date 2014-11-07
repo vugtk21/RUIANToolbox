@@ -282,9 +282,9 @@ group by gid order by gid;
 drop table if exists ac_psc;
 create table ac_psc
 as
-select CAST(psc AS text), nazev_obce
+select CAST(psc AS text), nazev_obce, nazev_casti_obce
 from address_points
-group by psc, nazev_obce;
+group by psc, nazev_obce, nazev_casti_obce;
 
 -- --------------------------------------------------
 -- Create table address_points
@@ -303,8 +303,8 @@ order by nazev_obce;
 drop table if exists ac_ulice;
 create table ac_ulice
 as
-select nazev_ulice, nazev_obce, CAST(psc AS text) from address_points where nazev_ulice <> '' 
-group by nazev_ulice, nazev_obce, psc order by nazev_ulice, nazev_obce, psc;
+select nazev_ulice, nazev_obce, nazev_casti_obce, CAST(psc AS text) from address_points where nazev_ulice <> '' 
+group by nazev_ulice, nazev_obce, nazev_casti_obce, psc order by nazev_ulice, nazev_obce, nazev_casti_obce, psc;
 
 -- --------------------------------------------------
 -- Create table ac_casti_obce
