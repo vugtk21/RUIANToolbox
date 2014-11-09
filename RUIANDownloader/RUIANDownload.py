@@ -44,6 +44,8 @@ def convertRUIANDownloadCfg(config):
     config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
     config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
     config.runImporter = isTrue(config.runImporter)
+    config.dataDir = config.dataDir.replace("/", os.sep)
+    config.dataDir = config.dataDir.replace("\\", os.sep)
     config.dataDir = pathWithLastSlash(config.dataDir)
     config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
     infoFile.load(config.dataDir + "info.txt")
@@ -54,7 +56,7 @@ config = Config("RUIANDownload.cfg",
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,
                 "runImporter" : False,
-                "dataDir" : "DownloadedData\\",
+                "dataDir" : "..\\DownloadedData\\",
                 "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
                                  "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
                                  "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
