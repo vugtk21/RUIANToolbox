@@ -1,18 +1,27 @@
 # -*- coding: utf-8 -*-
+
 __author__ = 'Augustyn'
 
-import codecs
+DEMO_MODE = False # If set to true, there will be just 50 rows in every state database import lines applied.
+
 import os
-from os import listdir
-from os.path import isfile, join
+from os.path import join
 from subprocess import call
 
 import shared; shared.setupPaths()
 
 from SharedTools.config import pathWithLastSlash
 from SharedTools.config import Config
-from SharedTools.log import logger, clearLogFile
-import psycopg2
+from SharedTools.log import logger
+
+def convertRUIANImporterCfg(config):
+    if config == None: return
+
+    def isTrue(value):
+        return value != None and value.lower() == "true"
+
+    config.buildServicesTables = isTrue(config.buildServicesTables)
+    pass
 
 config = Config("importRUIAN.cfg",
             {
@@ -23,38 +32,13 @@ config = Config("importRUIAN.cfg",
                 "password" : "postgres",
                 "schemaName" : "",
                 "layers" : "",
-                "os4GeoPath": "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat"
+                "os4GeoPath": "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                "buildServicesTables" : "False"
             },
+            convertRUIANImporterCfg,
             defSubDir = "RUIANImporter",
             moduleFile = __file__
            )
-
-def execSQLScript(sql):
-    con = psycopg2.connect(host=config.host, database=config.dbname, port=config.port, user=config.user, password=config.password)
-    cur = con.cursor()
-    cur.execute(sql)
-    cur.close()
-    con.close()
-    pass
-
-def execSQLScriptFile(sqlFileName):
-    if not os.path.exists(sqlFileName): return
-
-    inFile = codecs.open(sqlFileName, "r", "utf-8")
-    sql = inFile.read()
-    inFile.close()
-    execSQLScript(sql)
-
-
-def createAuxiliaryTables():
-    " Creates supporting tables for full text search and autocomplete functions"
-    #execSQLScriptFile("../RUIANServices/CreateAuxTables.sql")
-    #execSQLScriptFile("../RUIANServices/CreateFullTextTables.sql")
-    #execSQLScriptFile("../RUIANServices/CreateAutocompleteTables.sql")
-    execSQLScriptFile("../RUIANServices/BuildTables.sql")
-    from RUIANServices.services import buildauxtables
-    buildauxtables.main()
-    pass
 
 def joinPaths(basePath, relativePath):
     basePath = basePath.replace("/", os.sep)
@@ -75,57 +59,74 @@ def joinPaths(basePath, relativePath):
     fullPath = os.sep.join(basePathItems[:endBaseIndex]) + os.sep + os.sep.join(relativePathItems[startRelative:])
     return fullPath
 
-def convertFileToDownloadList(HTTPListName):
+def convertFileToDownloadLists(HTTPListName):
+    result = []
+
+    def getNextFile():
+        fileName = "%s_list_%d.tmp" % (HTTPListName[:HTTPListName.find(".txt")], len(result))
+        outFile = open(fileName, "w")
+        result.append(fileName)
+        return outFile
+
     inFile = open(HTTPListName, "r")
-    filesListName = HTTPListName[:HTTPListName.find(".txt")] + "_list.txt"
-    outFile = open(filesListName, "w")
-    for line in inFile:
-        line = line[line.rfind("/") + 1:line.find(".xml.gz")]
-        outFile.write(line + "\n")
-    inFile.close()
-    outFile.close()
-    return filesListName
+    try:
+        outFile = getNextFile()
+        linesInFile = 0
+        for line in inFile:
+            if linesInFile >= 500:
+                linesInFile = 0
+                outFile.close()
+                outFile = getNextFile()
 
-def buildDownloadBatch(fileList):
+            linesInFile = linesInFile + 1
+            if DEMO_MODE and linesInFile > 3: continue
+
+            line = line[line.rfind("/") + 1:line.find(".xml.gz")]
+            outFile.write(line + "\n")
+
+        outFile.close()
+    finally:
+        inFile.close()
+    return result
+
+def buildDownloadBatch(path, fileNames):
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
-
-    params = ' '.join([os4GeoPath, "vfr2pg",
-                "--file", fileList,
-                "--dbname", config.dbname,
-                "--user", config.user,
-                "--passwd", config.password,
-                "--o"])
-    logger.debug(params)
-
-    result = os.path.dirname(os.path.abspath(fileList)) + os.sep + "download.bat"
+    result = path + os.sep + "download.bat"
     file = open(result, "w")
-    file.write("cd " + os.path.dirname(os.path.abspath(fileList)) + "\n")
-    file.write(params)
+    file.write("cd %s\n" % path)
+    overwriteCommand = "--o"
+    for fileName in fileNames:
+        importCmd = "call %s vfr2pg --file %s --dbname %s --user %s --passwd %s %s\n" % (os4GeoPath, fileName, config.dbname, config.user, config.password, overwriteCommand)
+        logger.debug(importCmd)
+        file.write(importCmd)
+        overwriteCommand = "--append"
     file.close()
 
     return result
 
-def deleteFilesInList(path, fileList, extension):
+def deleteFilesInLists(path, fileLists, extension):
     path = pathWithLastSlash(path)
-    listFile = open(path + fileList, "r")
-    i = 0
-    for line in listFile:
-        i += 1
-        fileName = path + line.rstrip() + extension
-        if os.path.exists(fileName):
-            os.remove(fileName)
-        logger.debug(str(i), ":", fileName)
+    for fileList in fileLists:
+        listFile = open(fileList, "r")
+        i = 0
+        for line in listFile:
+            i += 1
+            fileName = path + line.rstrip() + extension
+            if os.path.exists(fileName):
+                os.remove(fileName)
+            logger.debug(str(i), ":", fileName)
+        listFile.close()
+        os.remove(fileList)
 
     pass
 
-def createStateDatabase(path, fileList):
-    logger.info("Načítám stavovou databázi ze seznamu " + fileList)
-    GDALFileList = convertFileToDownloadList(fileList)
-    downloadBatchFileName = buildDownloadBatch(GDALFileList)
+def createStateDatabase(path, fileListFileName):
+    logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
+    GDALFileListNames = convertFileToDownloadLists(fileListFileName)
+    downloadBatchFileName = buildDownloadBatch(os.path.dirname(fileListFileName), GDALFileListNames)
 
     call(downloadBatchFileName)
-    deleteFilesInList(path, GDALFileList, ".xml.gz")
-    os.remove(GDALFileList)
+    deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
     os.remove(downloadBatchFileName)
     pass
 
@@ -164,6 +165,8 @@ def renameFile(fileName, prefix):
     resultParts.append(prefix + parts[len(parts) - 1])
 
     newFileName = os.sep.join(resultParts)
+    if os.path.exists(newFileName): os.remove(newFileName)
+
     os.rename(fileName, newFileName)
     return newFileName
 
@@ -200,14 +203,14 @@ def processDownloadedDirectory(path):
     logger.info("Zdrojová data : " + path)
 
     path = pathWithLastSlash(path)
-    files = [ f for f in listdir(path) if isfile(join(path, f)) ]
     stateFileList = ""
     updatesFileList = []
-    for fileName in files:
-        if fileName[len(fileName) - 4:] == ".txt":
-            if fileName.lower().find("download_") == 0:
+    for file in os.listdir(path):
+        fileName = file.lower()
+        if file.endswith(".txt"):
+            if fileName.startswith("download_"):
                 stateFileList = join(path, fileName)
-            elif fileName.lower().find("patch_") == 0:
+            elif fileName.startswith("patch_"):
                 updatesFileList.append(join(path, fileName))
 
     if stateFileList != "":
@@ -221,7 +224,7 @@ def processDownloadedDirectory(path):
         for updateFileName in updatesFileList:
             updateDatabase(updateFileName)
 
-    logger.info("Hotovo.")
+    logger.info("Načítání stažené soubory do databáze - hotovo.")
 
 def getFullPath(configFileName, path):
     if not os.path.exists(path):
@@ -231,7 +234,10 @@ def getFullPath(configFileName, path):
 def doImport():
     from RUIANDownloader.RUIANDownload import getDataDirFullPath
     processDownloadedDirectory(getDataDirFullPath())
-    createAuxiliaryTables()
+
+    if config.buildServicesTables:
+        from RUIANServices.services import auxiliarytables
+        auxiliarytables.createAll()
 
 from SharedTools.sharetools import setupUTF
 setupUTF()

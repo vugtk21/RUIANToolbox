@@ -9,6 +9,8 @@
 #-------------------------------------------------------------------------------
 from cgitb import html
 
+DEBUG_MODE = False
+
 __author__ = 'raugustyn'
 
 # ####################################
@@ -33,7 +35,7 @@ from SharedTools.config import pathWithLastSlash
 from SharedTools.config import Config
 from SharedTools.sharetools import safeMkDir
 
-def convertImportRUIANCfg(config):
+def convertRUIANDownloadCfg(config):
     if config == None: return
 
     def isTrue(value):
@@ -53,14 +55,13 @@ config = Config("RUIANDownload.cfg",
                 "uncompressDownloadedFiles" : False,
                 "runImporter" : False,
                 "dataDir" : "DownloadedData\\",
-                "automaticDownloadTime" : "",
                 "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
                                  "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
                                  "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
                                  "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
                 "ignoreHistoricalData": True
             },
-           convertImportRUIANCfg,
+           convertRUIANDownloadCfg,
            defSubDir = "RUIANDownloader",
            moduleFile = __file__)
 
@@ -182,7 +183,7 @@ class RUIANDownloader:
         result = []
         for url in urls:
             url = url.replace("vyhledej", "seznamlinku")
-            logger.info("Downloading list of files from " + url)
+            logger.info("Downloading file list from " + url)
             content = urllib2.urlopen(url).read()
             lines = content.splitlines()
             result.extend(lines)
@@ -199,6 +200,9 @@ class RUIANDownloader:
                     newResult.append(url)
             result = newResult
 
+        if DEBUG_MODE:
+            result = result[:5]
+            #result = result[len(result)-5:]
         return result
 
     def getUpdateList(self, fromDate = ""):
@@ -480,7 +484,9 @@ def printUsageInfo():
 def getDataDirFullPath():
     result = config.dataDir
     if not os.path.isabs(config.dataDir):
-        result = pathWithLastSlash(os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir)
+        result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
+        result = os.path.normpath(result)
+        result = pathWithLastSlash(result)
     return result
 
 def main(argv = sys.argv):
@@ -513,7 +519,8 @@ def main(argv = sys.argv):
 
         logger.info("RUIANDownloader")
         logger.info("#############################################")
-        logger.info("Data directory : %s",         config.dataDir)
+        logger.info("Data directory : %s", config.dataDir)
+        logger.info("Data directory full path : %s", getDataDirFullPath())
         logger.info("Download full database : %s", str(config.downloadFullDatabase))
         if not config.downloadFullDatabase:
             logger.info("Last full download  : %s", infoFile.lastFullDownload)

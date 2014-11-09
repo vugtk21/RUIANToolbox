@@ -72,17 +72,18 @@ class Config:
             if os.path.exists(fName):
                 self.fileName = fName
                 if i == 3:
-                    logger.warning(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
+                    logger.warning(u"Konfigurační soubor " + fileName + u" nebyl nenalezen.")
                     logger.warning(u"Soubor byl nalezen a použit z c:/temp.")
                 break
             i = i + 1
 
         if self.fileName == "":
             self.fileName = basePath + fileName
-            logger.error(u"Konfigurační soubor " + self.fileName + u" nebyl nenalezen.")
             if createIfNotFound:
+                msg = u"Konfigurační soubor %s nebyl nenalezen." % (pathWithLastSlash(basePath) + self.fileName)
+                logger.error(msg)
                 self.save()
-                logger.error(u"Soubor byl vytvořen ze šablony. Nastavte jeho hodnoty a spusťte program znovu.")
+                logger.error(u"Soubor byl vytvořen ze šablony. Nastavte prosím jeho hodnoty a spusťte program znovu.")
                 import sys
                 sys.exit()
         else:

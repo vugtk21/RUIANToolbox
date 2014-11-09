@@ -29,7 +29,7 @@ class InfoFile(Config):
                 "numPatches" : 0,
                 "fullDownloadBroken": "false"
             },
-            convertInfoFile, "", "RUIANDownloader", moduleFile
+            convertInfoFile, "", "RUIANDownloader", moduleFile, False
         )
 
     def validFor(self):
