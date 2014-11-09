@@ -47,6 +47,11 @@ def convertRUIANDownloadCfg(config):
     config.dataDir = config.dataDir.replace("/", os.sep)
     config.dataDir = config.dataDir.replace("\\", os.sep)
     config.dataDir = pathWithLastSlash(config.dataDir)
+    if not os.path.isabs(config.dataDir):
+        result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
+        result = os.path.normpath(result)
+        config.dataDir = pathWithLastSlash(result)
+
     config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
     infoFile.load(config.dataDir + "info.txt")
     pass

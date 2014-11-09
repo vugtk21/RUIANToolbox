@@ -45,9 +45,14 @@ class HtmlLog:
         return result
 
     def saveStrToFile(self, fileName, str):
-        with open(fileName, "w") as f:
-            f.write(str)
-            f.close()
+        try:
+            with open(fileName, "w") as f:
+                f.write(str)
+                f.close()
+        except:
+            pass
+        finally:
+            pass
 
     def closeSection(self, fileName):
         htmlPage = self.getHTMLContent(fileName)
