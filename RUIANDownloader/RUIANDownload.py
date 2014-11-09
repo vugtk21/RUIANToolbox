@@ -51,7 +51,7 @@ def convertRUIANDownloadCfg(config):
     infoFile.load(config.dataDir + "info.txt")
     pass
 
-config = Config("RUIANDownload.cfg",
+config = Config("DownloadRUIAN.cfg",
             {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,

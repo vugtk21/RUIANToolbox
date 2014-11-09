@@ -61,21 +61,18 @@ class Config:
                 if key != key.lower():
                     self._remapTable[key.lower()] = key
 
-        searchFileNames = [self.fileName, getParentPath(moduleFile) + fileName, getMasterPath(moduleFile) + fileName]
-        if defSubDir != "":
-            searchFileNames.append(getSubDirPath(defSubDir) + fileName)
-        searchFileNames.append("c:/temp/" + fileName)
-
-        self.fileName = ""
-        i = 0
-        for fName in searchFileNames:
-            if os.path.exists(fName):
-                self.fileName = fName
-                if i == 3:
-                    logger.warning(u"Konfigurační soubor " + fileName + u" nebyl nenalezen.")
-                    logger.warning(u"Soubor byl nalezen a použit z c:/temp.")
-                break
-            i = i + 1
+        if os.path.exists(fileName):
+            self.fileName = fileName
+        elif os.path.exists("c:/temp/" + fileName):
+            self.fileName = "c:/temp/" + fileName
+        else:
+            path = sharetools.normalizePathSep(os.path.dirname(__file__))
+            pathItems = path.split(os.sep)
+            for i in range(len(pathItems), 0, -1):
+                path = os.sep.join(pathItems[0:i]) + os.sep + fileName
+                if os.path.exists(path):
+                    self.fileName = path
+                    break
 
         if self.fileName == "":
             self.fileName = basePath + fileName
@@ -157,7 +154,7 @@ def convertImportRUIANCfg(config):
 
 
 def main():
-    config = Config("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\__RUIANDownload.cfg",
+    config = Config("DownloadRUIAN.cfg",
             {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : True,
@@ -165,10 +162,9 @@ def main():
                 "dataDir" : "Downloads\\",
                 "automaticDownloadTime" : "",
                 "downloadURL" : ""
-            },
-           convertImportRUIANCfg)
+            })
 
-    config.save("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\RUIANDownloadSaved.cfg")
+    #config.save("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\RUIANDownloadSaved.cfg")
 
 if __name__ == '__main__':
     main()

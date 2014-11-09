@@ -23,3 +23,8 @@ def setupUTF():
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
+def normalizePathSep(path):
+    path = path.replace("/", os.sep)
+    path = path.replace("\\", os.sep)
+    return path
+
