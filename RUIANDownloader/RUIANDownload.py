@@ -53,7 +53,7 @@ def convertRUIANDownloadCfg(config):
         config.dataDir = pathWithLastSlash(result)
 
     config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
-    infoFile.load(config.dataDir + "info.txt")
+    infoFile.load(config.dataDir + "Info.txt")
     pass
 
 config = Config("DownloadRUIAN.cfg",
@@ -251,7 +251,7 @@ class RUIANDownloader:
                 elif info.fileName != "":
                         calcInfo.fileSize += info.fileSize
                         calcInfo.compressedFileSize += info.compressedFileSize
-                        logger.info(info.fileName + ":" + info.downloadTime)
+                        #logger.info(info.fileName + ":" + info.downloadTime)
                         time = float(info.downloadTime[:len(info.downloadTime) - 1])
                         calcInfo.downloadTime = calcInfo.downloadTime + time
                 else:
@@ -300,7 +300,7 @@ class RUIANDownloader:
         addTableHeader()
         calcSumValues()
         addTableContent()
-        htmlLog.save(config.dataDir + "index.html")
+        htmlLog.save(config.dataDir + "Index.html")
         pass
 
     def downloadURLList(self, urlList):
@@ -321,7 +321,7 @@ class RUIANDownloader:
             fileName = self.downloadURLtoFile(href, index, len(urlList))
             if config.uncompressDownloadedFiles:
                 self.uncompressFile(fileName, True)
-        self.buildIndexHTML()
+        #self.buildIndexHTML()
         pass
 
     def downloadURLtoFile(self, url, fileIndex, filesCount):
