@@ -25,14 +25,14 @@ def convertRUIANImporterCfg(config):
 
 config = Config("importRUIAN.cfg",
             {
-                "dbname" : "euradin",
-                "host" : "localhost",
-                "port" : "5432",
-                "user" : "postgres",
-                "password" : "postgres",
+                "dbname"     : "euradin",
+                "host"       : "localhost",
+                "port"       : "5432",
+                "user"       : "postgres",
+                "password"   : "postgres",
                 "schemaName" : "",
-                "layers" : "",
-                "os4GeoPath": "..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                "layers"     : "",
+                "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
                 "buildServicesTables" : "False"
             },
             convertRUIANImporterCfg,
