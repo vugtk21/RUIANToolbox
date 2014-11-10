@@ -24,10 +24,11 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "Úprav po jednání 13.10."
-    config.issueShortDescription = u"""<br><br>
-<a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22%C3%9Apravy+po+jedn%C3%A1n%C3%AD+13.10.%22+is%3Aclosed">Podrobnosti na GitHub</a>
-"""
+    config.issueNumber = "pro jednání 12.11.2014"
+    config.issueShortDescription = " "
+    #u"""<br><br>
+#<a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22%C3%9Apravy+po+jedn%C3%A1n%C3%AD+13.10.%22+is%3Aclosed">Podrobnosti na GitHub</a>
+#"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
