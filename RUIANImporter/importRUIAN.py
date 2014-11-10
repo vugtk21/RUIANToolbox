@@ -178,7 +178,9 @@ def updateDatabase(updateFileList):
     logger.info("\tKonečné datum:" + endDate)
     logger.info("\tTyp dat:" + type)
 
-    params = ' '.join([config.os4GeoPath, "vfr2pg",
+    os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
+
+    params = ' '.join([os4GeoPath, "vfr2pg",
                 "--dbname", config.dbname,
                 "--user ", config.user,
                 "--passwd ", config.password,
