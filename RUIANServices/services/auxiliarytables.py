@@ -14,16 +14,24 @@ def exitApp():
 
 def execSQLScript(sql):
     sys.stdout.write("   Executing script")
-    conection = psycopg2.connect(host=config.databaseHost, database=config.databaseName, port=config.databasePort,
+    connection = psycopg2.connect(host=config.databaseHost, database=config.databaseName, port=config.databasePort,
                            user=config.databaseUserName, password=config.databasePassword)
-    cur = conection.cursor()
+    cursor = connection.cursor()
     try:
-        cur.execute(sql)
+        if (True):
+            cursor.execute(sql)
+            connection.commit()
+        else:
+            sqlItems = sql.split(";")
+            for sqlItem in sqlItems:
+                cursor.execute(sqlItem)
+                connection.commit()
+
     except psycopg2.Error as e:
         print "ERROR:" + e.pgerror
     finally:
-        cur.close()
-        conection.close()
+        cursor.close()
+        connection.close()
     print " - Done."
     pass
 
@@ -132,7 +140,7 @@ def buildServicesTables():
     scriptList = [
         SQLInfo("TypStObjektu.sql", u"Číselník typu stavebního objektu typ_st_objektu"),
         SQLInfo("momc.sql", u"Číselník městských částí ui_momc"),
-        SQLInfo("mop.sql" , u"Číselník městských částí v Praze ui_mop")
+        SQLInfo("mop.sql" , u"Číselník městských částí v Praze ui_mop"),
         SQLInfo("AddressPoints.sql" , u"Tabulka adresních bodů address_points"),
         SQLInfo("FullText.sql" , u"Tabulka pro fulltextové vyhledávání fulltext"),
         SQLInfo("ExplodeArray.sql" , u"Funkce pro rozbalování souřadnic explode_array"),
