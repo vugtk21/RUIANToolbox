@@ -101,8 +101,5 @@ Adresní místo lze zadat buď pomocí jeho identifikátoru RÚIAN, textového �
 
 
 if __name__ == '__main__':
-    import sys
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
+    sharedtools.setupUTF()
     test()

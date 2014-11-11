@@ -10,9 +10,7 @@ import validate
 import validateaddressid
 
 if __name__ == '__main__':
-    import sys
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+    sharedtools.setupUTF()
 
     tester = sharedtools.FormalTester("Všechny testy")
 

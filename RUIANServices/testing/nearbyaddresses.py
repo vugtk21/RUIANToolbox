@@ -54,10 +54,5 @@ zadaných souřadnic do určité vzdálenosti. Vrací záznamy databáze RÚIAN 
 
 
 if __name__ == '__main__':
-    import sys
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
+    sharedtools.setupUTF()
     test()
-
-

@@ -9,6 +9,11 @@ import os
 #SERVER_URL = "http://localhost/ruian/rest.py/"
 SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py/"
 
+def setupUTF():
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
 HTML_PREFIX = u"""
 <html>
     <head>
