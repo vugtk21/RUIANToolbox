@@ -128,28 +128,31 @@ class SQLInfo:
         self.fileName = fileName
         self.description = description
 
-def runSQLScripts():
+def buildServicesTables():
     scriptList = [
         SQLInfo("TypStObjektu.sql", u"Číselník typu stavebního objektu typ_st_objektu"),
         SQLInfo("momc.sql", u"Číselník městských částí ui_momc"),
         SQLInfo("mop.sql" , u"Číselník městských částí v Praze ui_mop")
-        #SQLInfo("AddressPoints.sql" , u"Tabulka adresních bodů address_points"),
-        #SQLInfo("FullText.sql" , u"Tabulka pro fulltextové vyhledávání fulltext"),
-        #SQLInfo("ExplodeArray.sql" , u"Funkce pro rozbalování souřadnic explode_array"),
-        #SQLInfo("gids.sql" , u"Tabulka RÚIAN ID gids"),
-        #SQLInfo("AutocompleteTables.sql" , u"Tabulky pro HTML našeptávače")
+        SQLInfo("AddressPoints.sql" , u"Tabulka adresních bodů address_points"),
+        SQLInfo("FullText.sql" , u"Tabulka pro fulltextové vyhledávání fulltext"),
+        SQLInfo("ExplodeArray.sql" , u"Funkce pro rozbalování souřadnic explode_array"),
+        SQLInfo("gids.sql" , u"Tabulka RÚIAN ID gids")
     ]
 
     for sqlInfo in scriptList:
         execSQLScriptFile(sqlInfo.fileName, sqlInfo.description)
 
-def createAll():
-    runSQLScripts()
-    #buildGIDsTable()
+def buildAutocompleteTables():
+    execSQLScriptFile("AutocompleteTables.sql", u"Tabulky pro HTML našeptávače")
+    buildGIDsTable()
+
+def buildAll():
+    buildServicesTables()
+    buildAutocompleteTables
     pass
 
 if __name__ == '__main__':
     import sys
     reload(sys)
     sys.setdefaultencoding('utf-8')
-    createAll()
+    buildAll()
