@@ -33,7 +33,7 @@ config = Config("importRUIAN.cfg",
                 "password" : "postgres",
                 "schemaName" : "",
                 "layers" : "",
-                "os4GeoPath": "..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
                 "buildServicesTables" : "False",
                 "buildAutocompleteTables" : "True"
             },
