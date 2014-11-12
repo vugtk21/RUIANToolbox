@@ -34,8 +34,8 @@ config = Config("importRUIAN.cfg",
                 "schemaName" : "",
                 "layers" : "",
                 "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
-                "buildServicesTables" : "False",
-                "buildAutocompleteTables" : "True"
+                "buildServicesTables" : "True",
+                "buildAutocompleteTables" : "False"
             },
             convertRUIANImporterCfg,
             defSubDir = "RUIANImporter",
@@ -240,14 +240,14 @@ def doImport():
     processDownloadedDirectory(getDataDirFullPath())
 
     if config.buildServicesTables:
-        from RUIANServices.services import auxiliarytables
+        from RUIANServices.services.auxiliarytables import buildAll, buildServicesTables
         if config.buildAutocompleteTables:
-            auxiliarytables.createAll()
+            buildAll()
         else:
-            auxiliarytables.buildServicesTables()
+            buildServicesTables()
 
-    import RUIANConnection
-    RUIANConnection.saveRUIANVersionDateToday()
+    from RUIANServices.services.RUIANConnection import saveRUIANVersionDateToday
+    saveRUIANVersionDateToday()
 
 from SharedTools.sharetools import setupUTF
 setupUTF()

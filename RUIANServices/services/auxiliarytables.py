@@ -13,7 +13,7 @@ def exitApp():
     sys.exit()
 
 def execSQLScript(sql):
-    sys.stdout.write("   Executing script")
+    sys.stdout.write("   Provádím SQL příkazy")
     connection = psycopg2.connect(host=config.databaseHost, database=config.databaseName, port=config.databasePort,
                            user=config.databaseUserName, password=config.databasePassword)
     cursor = connection.cursor()
@@ -32,20 +32,22 @@ def execSQLScript(sql):
     finally:
         cursor.close()
         connection.close()
-    print " - Done."
+    print " - hotovo."
     pass
 
 def execSQLScriptFile(sqlFileName, msg):
     print "%s - %s" % (msg, sqlFileName)
+    path = os.path.dirname(__file__)
+    sqlFileName = path + os.sep + sqlFileName
     if not os.path.exists(sqlFileName):
         print "ERROR: File %s not found." % sqlFileName
         exitApp()
 
-    sys.stdout.write("   Loading script")
+    sys.stdout.write("   Načítám SQL příkazy")
     inFile = codecs.open(sqlFileName, "r", "utf-8")
     sql = inFile.read()
     inFile.close()
-    print " - Done."
+    print " - hotovo."
     execSQLScript(sql)
 
 def createTempTable(connection):
@@ -54,7 +56,7 @@ def createTempTable(connection):
     try:
         cursor.execute("drop table if exists _ac_gids;")
         cursor.execute("CREATE TABLE _ac_gids (gid integer NOT NULL, address text);")
-        print " - Done."
+        print " - hotovo."
     finally:
         cursor.close()
 
@@ -64,7 +66,7 @@ def getAddressRows(connection):
     try:
         query = 'select nazev_ulice, cast(cislo_domovni as text), nazev_obce, cast(psc as text), cast(cislo_orientacni as text), znak_cisla_orientacniho, nazev_casti_obce, typ_so, nazev_mop, gid from address_points '
         cursor.execute(query)
-        print " - Done."
+        print " - hotovo."
         return cursor
     except:
         print "Error:Selecting address rows failed."
@@ -76,7 +78,7 @@ def renameTempTable(connection):
     cursor.execute("drop table if exists ac_gids;")
     cursor.execute("alter table _ac_gids rename to ac_gids;")
     cursor.close()
-    print " - Done."
+    print " - hotovo."
 
 def buildGIDsTable():
     print "Building ac_gids table"
@@ -105,18 +107,22 @@ def buildGIDsTable():
             for row in cursor:
                 row_count += 1
                 gaugecount += 1
-                street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop, gid = row
-                houseNumber, recordNumber = HTTPShared.analyseRow(typ_so, houseNumber)
-                districtNumber = HTTPShared.extractDictrictNumber(nazev_mop)
+                try:
+                    street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop, gid = row
+                    houseNumber, recordNumber = HTTPShared.analyseRow(typ_so, houseNumber)
+                    districtNumber = HTTPShared.extractDictrictNumber(nazev_mop)
 
-                rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-                insertSQL = "INSERT INTO _ac_gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
-                insertCursor.execute(insertSQL)
-                connection.commit()
+                    rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+                    insertSQL = "INSERT INTO _ac_gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
+                    insertCursor.execute(insertSQL)
+                    connection.commit()
+                except:
+                    pass
+
                 if gaugecount >= 1000:
                     gaugecount = 0
                     print row_count + " rows"
-            print "Done - " + str(row_count) + " inserted."
+            print "Hotovo - " + str(row_count) + " inserted."
 
         except:
             print "Error: " + insertSQL + " failed."
@@ -156,7 +162,7 @@ def buildAutocompleteTables():
 
 def buildAll():
     buildServicesTables()
-    buildAutocompleteTables
+    buildAutocompleteTables()
     pass
 
 if __name__ == '__main__':
