@@ -217,18 +217,22 @@ def processDownloadedDirectory(path):
             elif fileName.startswith("patch_"):
                 updatesFileList.append(join(path, fileName))
 
+    result = False
     if stateFileList != "":
         createStateDatabase(path, stateFileList)
+        result = True
     else:
         logger.info("Stavová data nejsou obsahem zdrojových dat.")
 
     if len(updatesFileList) == 0:
         logger.info("Denní aktualizace nejsou obsahem zdrojových dat.")
     else:
+        result = True
         for updateFileName in updatesFileList:
             updateDatabase(updateFileName)
 
     logger.info("Načítání stažené soubory do databáze - hotovo.")
+    return result
 
 def getFullPath(configFileName, path):
     if not os.path.exists(path):
@@ -237,9 +241,9 @@ def getFullPath(configFileName, path):
 
 def doImport():
     from RUIANDownloader.RUIANDownload import getDataDirFullPath
-    processDownloadedDirectory(getDataDirFullPath())
+    rebuildAuxiliaryTables = processDownloadedDirectory(getDataDirFullPath())
 
-    if config.buildServicesTables:
+    if config.buildServicesTables and rebuildAuxiliaryTables:
         from RUIANServices.services.auxiliarytables import buildAll, buildServicesTables
         if config.buildAutocompleteTables:
             buildAll()
