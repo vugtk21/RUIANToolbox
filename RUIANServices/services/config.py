@@ -47,7 +47,8 @@ config = Config("RUIANServices.cfg",
                 "noCGIAppServerHTTP" : "localhost",
                 "noCGIAppPortNumber" : 5689,
                 "issueNumber": "",
-                "issueShortDescription" : ""
+                "issueShortDescription" : "",
+                "ruianVersionDate" : ""
             },
            convertServicesCfg,
            moduleFile = __file__)

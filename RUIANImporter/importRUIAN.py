@@ -251,3 +251,6 @@ setupUTF()
 
 if __name__ == "__main__":
     doImport()
+
+# CREATE TABLE ruian_dates (id serial PRIMARY KEY, validfor varchar);
+# INSERT INTO ruian_dates (validfor) VALUES ('16.10.2014')

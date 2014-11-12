@@ -26,6 +26,8 @@ from config import SERVICES_WEB_PATH
 import config as configmodule
 from config import setupVariables
 
+import RUIANConnection
+
 SERVICES_PATH = '' # 'services'
 
 def getPageTemplate():
@@ -153,6 +155,10 @@ class ServicesHTMLPageBuilder:
         result = result.replace("#HTMLDATA_URL#", configmodule.getHTMLDataURL())
         result = result.replace("#VERSIONNUMBER#", configmodule.config.issueNumber)
         result = result.replace("#SERVICES_URL_PATH#", configmodule.getServicesPath())
+        if configmodule.config.ruianVersionDate == "":
+            configmodule.config.ruianVersionDate = RUIANConnection.getRUIANVersionDate()
+
+        result = result.replace("#RUIANVERSIONDATE#", configmodule.config.ruianVersionDate)
 
         queryParams = self.normalizeQueryParams(queryParams)
 

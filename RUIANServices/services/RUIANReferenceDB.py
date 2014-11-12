@@ -52,3 +52,6 @@ def _validateAddress(dict):
                 and (dict["localityPart"] == location.address.localityPart) and (dict["districtNumber"] == location.address.districtNumber):
             return True
     return False
+
+def _getRUIANVersionDate():
+    return "unassigned RUIAN Version"

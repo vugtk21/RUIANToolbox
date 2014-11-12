@@ -220,3 +220,18 @@ def _findCoordinatesByAddress(dictionary):
         else:
             pass    #co se ma stat kdyz adresa nema souradnice?
     return coordinates
+
+def _getRUIANVersionDate():
+    result = "unassigned _getRUIANVersionDate"
+    connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    cursor = connection.cursor()
+    try:
+        query = 'select * from ruian_dates'
+        cursor.execute(query)
+        row = cursor.fetchone()
+        result = row[1]
+    finally:
+        cursor.close()
+        connection.close()
+
+    return result
