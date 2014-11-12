@@ -55,3 +55,6 @@ def _validateAddress(dict):
 
 def _getRUIANVersionDate():
     return "unassigned RUIAN Version"
+
+def _saveRUIANVersionDateToday():
+    pass

@@ -235,3 +235,25 @@ def _getRUIANVersionDate():
         connection.close()
 
     return result
+
+def _saveRUIANVersionDateToday():
+    connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    cursor = connection.cursor()
+    try:
+        query = 'DROP TABLE IF EXISTS ruian_dates;'
+        query += 'CREATE TABLE ruian_dates (id serial PRIMARY KEY, validfor varchar);'
+        import time
+        value = time.strftime("%d.%m.20%y")
+        query += "INSERT INTO ruian_dates (validfor) VALUES ('%s')" % value
+        cursor.execute(query)
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()
+    pass
+
+#_saveRUIANVersionDateToday()
+
+#DROP TABLE IF EXISTS ruian_dates;
+#CREATE TABLE ruian_dates (id serial PRIMARY KEY, validfor varchar);
+#INSERT INTO ruian_dates (validfor) VALUES ('16.10.2014');
