@@ -93,12 +93,17 @@ def convertFileToDownloadLists(HTTPListName):
 
 def buildDownloadBatch(path, fileNames):
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
-    result = path + os.sep + "download.bat"
+    result = path + os.sep + "Import.bat"
     file = open(result, "w")
     file.write("cd %s\n" % path)
     overwriteCommand = "--o"
     for fileName in fileNames:
-        importCmd = "call %s vfr2pg --file %s --dbname %s --user %s --passwd %s %s\n" % (os4GeoPath, fileName, config.dbname, config.user, config.password, overwriteCommand)
+        importCmd = "call %s vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (os4GeoPath, fileName, config.dbname, config.user, config.password, overwriteCommand)
+
+        if config.layers != "": importCmd += " --layer " + config.layers
+
+        importCmd += "\n"
+
         logger.debug(importCmd)
         file.write(importCmd)
         overwriteCommand = "--append"
@@ -189,7 +194,7 @@ def updateDatabase(updateFileList):
                 "--date", startDate + ":" + endDate,
                 "--type", type])
 
-    batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "download.bat"
+    batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import.bat"
     file = open(batchFileName, "w")
     file.write("cd " + os.path.dirname(os.path.abspath(updateFileList)) + "\n")
     file.write(params)
