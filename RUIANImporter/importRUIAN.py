@@ -91,6 +91,7 @@ def convertFileToDownloadLists(HTTPListName):
         inFile.close()
     return result
 
+
 def buildDownloadBatch(path, fileNames):
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
     result = path + os.sep + "Import.bat"
@@ -193,6 +194,8 @@ def updateDatabase(updateFileList):
                 "--passwd ", config.password,
                 "--date", startDate + ":" + endDate,
                 "--type", type])
+    if config.layers != "": params += " --layer " + config.layers
+
 
     batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import.bat"
     file = open(batchFileName, "w")

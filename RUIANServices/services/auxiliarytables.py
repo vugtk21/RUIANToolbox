@@ -94,13 +94,13 @@ def buildGIDsTable():
 
         print "Selecting source rows"
         cursor = getAddressRows(connection)
-        if cursor == None: return
-
-        print "Inserting rows"
-        print "----------------------"
-        insertCursor = connection.cursor()
-        builder = HTTPShared.MimeBuilder("texttoonerow")
         try:
+            if cursor == None: return
+
+            print "Inserting rows"
+            print "----------------------"
+            insertCursor = connection.cursor()
+            builder = HTTPShared.MimeBuilder("texttoonerow")
             row_count = 0
             gaugecount = 0
 
@@ -116,17 +116,17 @@ def buildGIDsTable():
                     insertSQL = "INSERT INTO _ac_gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
                     insertCursor.execute(insertSQL)
                     connection.commit()
-                except:
+                    if gaugecount >= 1000:
+                        gaugecount = 0
+                        print str(row_count) + " rows"
+
+                except psycopg2.Error as e:
+                    print "Error: " + str(row_count) + " " + insertSQL + " failed. " + e.pgerror
+                    exitApp()
                     pass
 
-                if gaugecount >= 1000:
-                    gaugecount = 0
-                    print row_count + " rows"
             print "Hotovo - " + str(row_count) + " inserted."
 
-        except:
-            print "Error: " + insertSQL + " failed."
-            exitApp()
         finally:
             cursor.close()
 
@@ -144,13 +144,13 @@ class SQLInfo:
 
 def buildServicesTables():
     scriptList = [
-        SQLInfo("TypStObjektu.sql", u"Číselník typu stavebního objektu typ_st_objektu"),
-        SQLInfo("momc.sql", u"Číselník městských částí ui_momc"),
-        SQLInfo("mop.sql" , u"Číselník městských částí v Praze ui_mop"),
-        SQLInfo("AddressPoints.sql" , u"Tabulka adresních bodů address_points"),
-        SQLInfo("FullText.sql" , u"Tabulka pro fulltextové vyhledávání fulltext"),
-        SQLInfo("ExplodeArray.sql" , u"Funkce pro rozbalování souřadnic explode_array"),
-        SQLInfo("gids.sql" , u"Tabulka RÚIAN ID gids")
+        SQLInfo("TypStObjektu.sql", u"typ_st_objektu"),
+        SQLInfo("momc.sql", u"ui_momc"),
+        SQLInfo("mop.sql" , u"ui_mop"),
+        SQLInfo("AddressPoints.sql" , u"address_points"),
+        SQLInfo("FullText.sql" , u"fulltext"),
+        SQLInfo("ExplodeArray.sql" , u"explode_array"),
+        SQLInfo("gids.sql" , u"gids")
     ]
 
     for sqlInfo in scriptList:
