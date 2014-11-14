@@ -13,7 +13,7 @@ def exitApp():
     sys.exit()
 
 def execSQLScript(sql):
-    sys.stdout.write("   Provádím SQL příkazy")
+    sys.stdout.write("   Executing SQL commands")
     connection = psycopg2.connect(host=config.databaseHost, database=config.databaseName, port=config.databasePort,
                            user=config.databaseUserName, password=config.databasePassword)
     cursor = connection.cursor()
@@ -32,22 +32,22 @@ def execSQLScript(sql):
     finally:
         cursor.close()
         connection.close()
-    print " - hotovo."
+    print " - done."
     pass
 
 def execSQLScriptFile(sqlFileName, msg):
-    print "%s - %s" % (msg, sqlFileName)
+    print msg
     path = os.path.dirname(__file__)
     sqlFileName = path + os.sep + sqlFileName
     if not os.path.exists(sqlFileName):
         print "ERROR: File %s not found." % sqlFileName
         exitApp()
 
-    sys.stdout.write("   Načítám SQL příkazy")
+    sys.stdout.write("   Loading SQL commands from %s" % sqlFileName)
     inFile = codecs.open(sqlFileName, "r", "utf-8")
     sql = inFile.read()
     inFile.close()
-    print " - hotovo."
+    print " - done."
     execSQLScript(sql)
 
 def createTempTable(connection):
@@ -56,7 +56,7 @@ def createTempTable(connection):
     try:
         cursor.execute("drop table if exists _ac_gids;")
         cursor.execute("CREATE TABLE _ac_gids (gid integer NOT NULL, address text);")
-        print " - hotovo."
+        print " - done."
     finally:
         cursor.close()
 
@@ -81,8 +81,8 @@ def renameTempTable(connection):
     print " - hotovo."
 
 def buildGIDsTable():
-    print "Building ac_gids table"
-    print "----------------------"
+    print "Vytvářím tabulku ac_gids"
+    print "------------------------"
     connection = psycopg2.connect(
         host = config.databaseHost,
         database = config.databaseName,
@@ -92,7 +92,6 @@ def buildGIDsTable():
     try:
         createTempTable(connection)
 
-        print "Selecting source rows"
         cursor = getAddressRows(connection)
         try:
             if cursor == None: return
@@ -125,14 +124,15 @@ def buildGIDsTable():
                     exitApp()
                     pass
 
-            print "Hotovo - " + str(row_count) + " inserted."
+            print "Done - %d rowns inserted." % row_count
 
         finally:
             cursor.close()
 
+        print "Renaming table ac_gids to ac_gids."
         renameTempTable(connection)
 
-        print "Done building ac_gids table"
+        print "Table ac_gids done."
     finally:
         connection.close()
     pass
@@ -144,20 +144,20 @@ class SQLInfo:
 
 def buildServicesTables():
     scriptList = [
-        SQLInfo("TypStObjektu.sql", u"typ_st_objektu"),
-        SQLInfo("momc.sql", u"ui_momc"),
-        SQLInfo("mop.sql" , u"ui_mop"),
-        SQLInfo("AddressPoints.sql" , u"address_points"),
-        SQLInfo("FullText.sql" , u"fulltext"),
-        SQLInfo("ExplodeArray.sql" , u"explode_array"),
-        SQLInfo("gids.sql" , u"gids")
+        SQLInfo("TypStObjektu.sql", "Table typ_st_objektu"),
+        SQLInfo("momc.sql", "Table ui_momc"),
+        SQLInfo("mop.sql" , "Table ui_mop"),
+        SQLInfo("AddressPoints.sql" , "Table address_points"),
+        SQLInfo("FullText.sql" , "Table fulltext"),
+        SQLInfo("ExplodeArray.sql" , "Table explode_array"),
+        SQLInfo("gids.sql" , "Table gids")
     ]
 
     for sqlInfo in scriptList:
         execSQLScriptFile(sqlInfo.fileName, sqlInfo.description)
 
 def buildAutocompleteTables():
-    execSQLScriptFile("AutocompleteTables.sql", u"Tabulky pro HTML našeptávače")
+    execSQLScriptFile("AutocompleteTables.sql", "Autocomplete tables.")
     buildGIDsTable()
 
 def buildAll():
