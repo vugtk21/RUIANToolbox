@@ -61,6 +61,9 @@ def joinPaths(basePath, relativePath):
     fullPath = os.sep.join(basePathItems[:endBaseIndex]) + os.sep + os.sep.join(relativePathItems[startRelative:])
     return fullPath
 
+def getOSGeoPath():
+    return joinPaths(os.path.dirname(__file__), config.os4GeoPath)
+
 def convertFileToDownloadLists(HTTPListName):
     result = []
 
@@ -248,6 +251,12 @@ def getFullPath(configFileName, path):
     return path
 
 def doImport():
+    osGeoPath = getOSGeoPath()
+    if not os.path.exists(osGeoPath):
+        print "Error: Batch file %s doesn't exist" % osGeoPath
+        print "Download file http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip, expand it and run script again."
+        sys.exit()
+
     from RUIANDownloader.RUIANDownload import getDataDirFullPath
     rebuildAuxiliaryTables = processDownloadedDirectory(getDataDirFullPath())
 
