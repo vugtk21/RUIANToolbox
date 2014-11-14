@@ -140,6 +140,29 @@ class Config:
             outFile.write(name + "=" + str(value) + "\n")
         outFile.close()
 
+    def loadFromCommandLine(self, usageMessage):
+        if (argv is not None) or (len(argv) > 1):
+            i = 1
+            while i < len(argv):
+                arg = argv[i].lower()
+                if arg.startswith("-"):
+                    command = arg[1:]
+                    foundCommand = False
+                    i = i + 1
+                    if i < len(argv):
+                        for attrKey in self.attrs:
+                            if attrKey == command:
+                                self.attrs[attrKey] = argv[i]
+                                foundCommand = True
+
+                    if not foundCommand:
+                        logger.warning('Unrecognised command option: %s' % arg)
+                        logger.info(usageMessage)
+                        sys.exit()
+                i = i + 1
+        pass
+
+
 def convertImportRUIANCfg(config):
     if config == None: return
 

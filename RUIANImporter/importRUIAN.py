@@ -1,4 +1,34 @@
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        importRUIAN
+# Purpose:     Imports VFR data downloaded directory
+#
+# Author:      Radek Augustýn
+# Company:     VUGTK, v.v.i.
+# Copyright:   (c) Radek Augustýn 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
+helpStr = """
+Downloads VFR data from http://vdp.cuzk.cz/
+
+Requires: Python 2.7.5 or later
+          OS4Geo with WFS Support (http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip)
+
+Usage: importRUIAN.py [-dbname <database name>] [-host <host name>] [-port <database port>] [-user <user name>]
+                      [-password <database password>] [-layers layer1,layer2,...] [-os4GeoPath <path>]
+                      [-buildServicesTables <{True} {False}>] [-buildAutocompleteTables <{True} {False}>] [-help]')
+
+       -dbname
+       -host
+       -port
+       -user
+       -password
+       -layers
+       -os4GeoPath
+       -buildServicesTables
+       -buildAutocompleteTables
+       -Help         Print help
+"""
 
 __author__ = 'Augustyn'
 
@@ -251,6 +281,8 @@ def getFullPath(configFileName, path):
     return path
 
 def doImport():
+    config.loadFromCommandLine(helpStr)
+
     osGeoPath = getOSGeoPath()
     if not os.path.exists(osGeoPath):
         print "Error: Batch file %s doesn't exist" % osGeoPath

@@ -1,12 +1,29 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        RUIANDownload
-# Purpose:
+# Purpose:     Downloads VFR data from http://vdp.cuzk.cz/
 #
 # Author:      Radek Augustýn
-#
+# Company:     VUGTK, v.v.i.
 # Copyright:   (c) Radek Augustýn 2014
+# License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
+helpStr = """
+Downloads VFR data from http://vdp.cuzk.cz/
+
+Requires: Python 2.7.5 or later
+
+Usage: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_dir] [-UncompressDownloadedFiles {True | False}][-help]')
+
+       -DownloadFullDatabase        Set to True to download whole RUIAN state data
+       -DataDir                     Path to OSGeo4W.bat supproting VFR format, either relative or absolute
+       -UncompressDownloadedFiles   Set to True to uncompress *.xml.gz to *.xml files after download
+       -RunImporter                 Set to True to run RUIANImporter.bat after download
+       -DownloadURLs                Semicolon separated URL masks for downloading state or update file list from VDP
+       -IgnoreHistoricalData        Set to True to download only actual month
+       -Help                        Print help
+"""
+
 from cgitb import html
 
 DEBUG_MODE = False
@@ -484,8 +501,7 @@ class RUIANDownloader:
 
 
 def printUsageInfo():
-    logger.info(u'Použití: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_dir] [-UncompressDownloadedFiles {True | False}][-help]')
-    logger.info('')
+    logger.info(helpStr)
     sys.exit(1)
 
 def getDataDirFullPath():
@@ -497,51 +513,29 @@ def getDataDirFullPath():
     return result
 
 def main(argv = sys.argv):
-    if (argv is not None) or (len(argv) > 1):
-        i = 1
-        while i < len(argv):
-            arg = argv[i].lower()
+    config.loadFromCommandLine(helpStr)
 
-            if arg == "-downloadfulldatabase":
-                i = i + 1
-                config.downloadFullDatabase = argv[i].lower() == "True"
-            elif arg == "-datadir":
-                i = i + 1
-                config.dataDir = pathWithLastSlash(argv[i])
-                if not os.path.exists(config.dataDir):
-                    logger.error("DataDir %s does not exist", config.dataDir)
-                    printUsageInfo()
-            elif arg == "-uncompressdownloadedfiles":
-                i = i + 1
-                config.uncompressDownloadedFiles = argv[i].lower() == "True"
-            else:
-                logger.error('Unrecognised command option: %s' % arg)
-                printUsageInfo()
+    if config.downloadFullDatabase:
+        clearLogFile()
 
-            i = i + 1
-            # while exit
+    logger.info("RUIANDownloader")
+    logger.info("#############################################")
+    logger.info("Data directory : %s", config.dataDir)
+    logger.info("Data directory full path : %s", getDataDirFullPath())
+    logger.info("Download full database : %s", str(config.downloadFullDatabase))
+    if not config.downloadFullDatabase:
+        logger.info("Last full download  : %s", infoFile.lastFullDownload)
+        logger.info("Last patch download : %s", infoFile.lastPatchDownload)
+    logger.info("---------------------------------------------")
 
-        if config.downloadFullDatabase:
-            clearLogFile()
+    downloader = RUIANDownloader(config.dataDir)
+    downloader._fullDownload = config.downloadFullDatabase or infoFile.fullDownloadBroken
+    downloader.download()
 
-        logger.info("RUIANDownloader")
-        logger.info("#############################################")
-        logger.info("Data directory : %s", config.dataDir)
-        logger.info("Data directory full path : %s", getDataDirFullPath())
-        logger.info("Download full database : %s", str(config.downloadFullDatabase))
-        if not config.downloadFullDatabase:
-            logger.info("Last full download  : %s", infoFile.lastFullDownload)
-            logger.info("Last patch download : %s", infoFile.lastPatchDownload)
-        logger.info("---------------------------------------------")
-
-        downloader = RUIANDownloader(config.dataDir)
-        downloader._fullDownload = config.downloadFullDatabase or infoFile.fullDownloadBroken
-        downloader.download()
-
-        logger.info("Download done.")
-        if config.runImporter:
-            from RUIANImporter.importRUIAN import doImport
-            doImport()
+    logger.info("Download done.")
+    if config.runImporter:
+        from RUIANImporter.importRUIAN import doImport
+        doImport()
 
 if __name__ == '__main__':
     main()
