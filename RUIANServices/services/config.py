@@ -3,7 +3,23 @@ __author__ = 'Augustyn'
 
 import shared; shared.setupPaths(depth = 2)
 
-from SharedTools.config import Config
+from SharedTools.config import Config, RUIANImporterConfig
+
+servicesConfigAttrs = {
+                "serverHTTP" : 'www.vugtk.cz',
+                "portNumber" : 80,
+                "servicesWebPath" : "euradin/services/rest.py/",
+                "databaseHost" : "192.168.1.93",
+                "databasePort" : "5432",
+                "databaseName" : "euradin",
+                "databaseUserName" : "postgres",
+                "databasePassword" : "postgres",
+                "noCGIAppServerHTTP" : "localhost",
+                "noCGIAppPortNumber" : 5689,
+                "issueNumber": "",
+                "issueShortDescription" : "",
+                "ruianVersionDate" : ""
+            }
 
 def convertServicesCfg(config):
     if config == None: return
@@ -34,24 +50,20 @@ def convertServicesCfg(config):
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
     #    config.htmlDataURL = config.htmlDataURL[1:]
 
-config = Config("RUIANServices.cfg",
-            {
-                "serverHTTP" : 'www.vugtk.cz',
-                "portNumber" : 80,
-                "servicesWebPath" : "euradin/services/rest.py/",
-                "databaseHost" : "192.168.1.93",
-                "databasePort" : "5432",
-                "databaseName" : "euradin",
-                "databaseUserName" : "postgres",
-                "databasePassword" : "postgres",
-                "noCGIAppServerHTTP" : "localhost",
-                "noCGIAppPortNumber" : 5689,
-                "issueNumber": "",
-                "issueShortDescription" : "",
-                "ruianVersionDate" : ""
-            },
-           convertServicesCfg,
-           moduleFile = __file__)
+    importerAttrsMapper = {
+        "databaseHost" : "host",
+        "databasePort" : "port",
+        "databaseName" : "dbname",
+        "databaseUserName" : "user",
+        "databasePassword" : "password"
+    }
+    importerConfig = RUIANImporterConfig()
+    for servicesAttr in importerAttrsMapper:
+        if config.attrs[servicesAttr] == servicesConfigAttrs[servicesAttr]:
+            config.setAttr(servicesAttr, importerConfig.attrs[importerAttrsMapper[servicesAttr]])
+
+
+config = Config("RUIANServices.cfg", servicesConfigAttrs, convertServicesCfg, moduleFile = __file__)
 
 def getPortSpecification():
     if config.portNumber == 80:
@@ -103,7 +115,3 @@ def getServicesPath():
     result = getServicesURL().split("/")
     result = result[:len(result) - 1]
     return "/".join(result)
-
-
-
-

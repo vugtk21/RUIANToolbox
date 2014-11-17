@@ -49,45 +49,10 @@ from infofile import infoFile
 from htmllog import htmlLog
 
 from SharedTools.config import pathWithLastSlash
-from SharedTools.config import Config
+from SharedTools.config import RUIANDownloadConfig
 from SharedTools.sharetools import safeMkDir
 
-def convertRUIANDownloadCfg(config):
-    if config == None: return
-
-    def isTrue(value):
-        return value != None and value.lower() == "true"
-
-    config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
-    config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
-    config.runImporter = isTrue(config.runImporter)
-    config.dataDir = config.dataDir.replace("/", os.sep)
-    config.dataDir = config.dataDir.replace("\\", os.sep)
-    config.dataDir = pathWithLastSlash(config.dataDir)
-    if not os.path.isabs(config.dataDir):
-        result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
-        result = os.path.normpath(result)
-        config.dataDir = pathWithLastSlash(result)
-
-    config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
-    infoFile.load(config.dataDir + "Info.txt")
-    pass
-
-config = Config("DownloadRUIAN.cfg",
-            {
-                "downloadFullDatabase" : False,
-                "uncompressDownloadedFiles" : False,
-                "runImporter" : False,
-                "dataDir" : "..\\DownloadedData\\",
-                "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
-                                 "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
-                                 "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
-                                 "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
-                "ignoreHistoricalData": True
-            },
-           convertRUIANDownloadCfg,
-           defSubDir = "RUIANDownloader",
-           moduleFile = __file__)
+config = RUIANDownloadConfig()
 
 def extractFileName(fileName):
     lastDel = fileName.rfind(os.sep)

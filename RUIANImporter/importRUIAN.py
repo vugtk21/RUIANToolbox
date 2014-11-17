@@ -41,36 +41,10 @@ from subprocess import call
 import shared; shared.setupPaths()
 
 from SharedTools.config import pathWithLastSlash
-from SharedTools.config import Config
+from SharedTools.config import RUIANImporterConfig()
 from SharedTools.log import logger
 
-def convertRUIANImporterCfg(config):
-    if config == None: return
-
-    def isTrue(value):
-        return value != None and value.lower() == "true"
-
-    config.buildServicesTables = isTrue(config.buildServicesTables)
-    config.buildAutocompleteTables = isTrue(config.buildAutocompleteTables)
-    pass
-
-config = Config("importRUIAN.cfg",
-            {
-                "dbname" : "euradin",
-                "host" : "localhost",
-                "port" : "5432",
-                "user" : "postgres",
-                "password" : "postgres",
-                "schemaName" : "",
-                "layers" : "",
-                "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
-                "buildServicesTables" : "True",
-                "buildAutocompleteTables" : "False"
-            },
-            convertRUIANImporterCfg,
-            defSubDir = "RUIANImporter",
-            moduleFile = __file__
-           )
+config = RUIANImporterConfig()
 
 def joinPaths(basePath, relativePath):
     basePath = basePath.replace("/", os.sep)

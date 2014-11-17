@@ -7,6 +7,9 @@ import sys
 from log import logger
 import sharetools
 
+_RUIANDownloadConfig = None
+_RUIANImporterConfig = None
+
 def strTo127(s):
     result = ""
     for index in range(len(s)):
@@ -54,6 +57,7 @@ class Config:
         self._remapTable = {} # Tabulka mapovani downloadfulldatabase -> downloadFullDatabase
         self.moduleFile = moduleFile
         self.createIfNotFound = createIfNotFound
+        self.isDefault = True
 
         if attrs != None:
             for key in attrs:
@@ -96,13 +100,19 @@ class Config:
                 delPos = line.find("=")
                 name = self._getAttrName(line[:delPos])
                 value = line[delPos + 1:]
-                setattr(self, name, value)
-                self.attrs[name] = value
+                self.setAttr(name, value)
                 pass
+
             file.close()
             if self.afterLoadProc != None:
                 self.afterLoadProc(self)
+            self.isDefault = False
 
+
+    def setAttr(self, name, value):
+        name = self._getAttrName(name)
+        setattr(self, name, value)
+        self.attrs[name] = value
 
     def _getAttrName(self, name):
         name = name.lower()
@@ -175,6 +185,79 @@ def convertImportRUIANCfg(config):
     config.dataDir = pathWithLastSlash(config.dataDir)
     pass
 
+
+def convertRUIANDownloadCfg(config):
+    if config == None: return
+
+    def isTrue(value):
+        return value != None and value.lower() == "true"
+
+    config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
+    config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
+    config.runImporter = isTrue(config.runImporter)
+    config.dataDir = config.dataDir.replace("/", os.sep)
+    config.dataDir = config.dataDir.replace("\\", os.sep)
+    config.dataDir = pathWithLastSlash(config.dataDir)
+    if not os.path.isabs(config.dataDir):
+        result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
+        result = os.path.normpath(result)
+        config.dataDir = pathWithLastSlash(result)
+
+    config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
+    infoFile.load(config.dataDir + "Info.txt")
+    pass
+
+def RUIANDownloadConfig():
+    if _RUIANDownloadConfig == None:
+        global _RUIANDownloadConfig
+        _RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
+            {
+                "downloadFullDatabase" : False,
+                "uncompressDownloadedFiles" : False,
+                "runImporter" : False,
+                "dataDir" : "..\\DownloadedData\\",
+                "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
+                                 "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
+                                 "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
+                                 "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
+                "ignoreHistoricalData": True
+            },
+           convertRUIANDownloadCfg,
+           defSubDir = "RUIANDownloader",
+           moduleFile = __file__)
+    return _RUIANDownloadConfig
+
+def convertRUIANImporterCfg(config):
+    if config == None: return
+
+    def isTrue(value):
+        return value != None and value.lower() == "true"
+
+    config.buildServicesTables = isTrue(config.buildServicesTables)
+    config.buildAutocompleteTables = isTrue(config.buildAutocompleteTables)
+    pass
+
+def RUIANImporterConfig():
+    if _RUIANImporterConfig == None:
+        global _RUIANImporterConfig
+        _RUIANImporterConfig = Config("importRUIAN.cfg",
+            {
+                "dbname" : "euradin",
+                "host" : "localhost",
+                "port" : "5432",
+                "user" : "postgres",
+                "password" : "postgres",
+                "schemaName" : "",
+                "layers" : "",
+                "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                "buildServicesTables" : "True",
+                "buildAutocompleteTables" : "False"
+            },
+            convertRUIANImporterCfg,
+            defSubDir = "RUIANImporter",
+            moduleFile = __file__
+           )
+    return _RUIANImporterConfig
 
 def main():
     config = Config("DownloadRUIAN.cfg",
