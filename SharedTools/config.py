@@ -9,6 +9,7 @@ import sharetools
 
 _RUIANDownloadConfig = None
 _RUIANImporterConfig = None
+_RUIANDownloadInfoFile = None
 
 def strTo127(s):
     result = ""
@@ -18,6 +19,8 @@ def strTo127(s):
             result += ch
     return result
 
+def isTrue(value):
+    return value != None and value.lower() == "true"
 
 def pathWithLastSlash(path):
     if path != "" and path[len(path) - 1:] != os.sep:
@@ -150,7 +153,7 @@ class Config:
             outFile.write(name + "=" + str(value) + "\n")
         outFile.close()
 
-    def loadFromCommandLine(self, usageMessage):
+    def loadFromCommandLine(self, argv, usageMessage):
         if (argv is not None) or (len(argv) > 1):
             i = 1
             while i < len(argv):
@@ -173,24 +176,46 @@ class Config:
         pass
 
 
-def convertImportRUIANCfg(config):
+def convertInfoFile(config):
     if config == None: return
 
-    def isTrue(value):
-        return value != None and value.lower() == "true"
+    if config.numPatches == "":
+        config.numPatches = 0
+    else:
+        config.numPatches = isTrue(config.numPatches)
 
-    config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
-    config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
-    config.runImporter = isTrue(config.runImporter)
-    config.dataDir = pathWithLastSlash(config.dataDir)
-    pass
+    config.fullDownloadBroken = isTrue(config.fullDownloadBroken)
 
+class InfoFile(Config):
+    def __init__(self, fileName, defSubDir = "", moduleFile = ""):
+        Config.__init__(self, "info.txt",
+            {
+                "lastPatchDownload" : "",
+                "lastFullDownload" : "",
+                "numPatches" : 0,
+                "fullDownloadBroken": "false"
+            },
+            convertInfoFile, "", "RUIANDownloader", moduleFile, False
+        )
+
+    def validFor(self):
+        if self.lastPatchDownload != "":
+            return self.lastPatchDownload
+        else:
+            return self.lastFullDownload
+
+    def load(self, fileName):
+        self.fileName = fileName
+        self.loadFile()
+
+def RUIANDownloadInfoFile():
+    if _RUIANDownloadInfoFile == None:
+        global _RUIANDownloadInfoFile
+        _RUIANDownloadInfoFile = InfoFile("")
+    return _RUIANDownloadInfoFile
 
 def convertRUIANDownloadCfg(config):
     if config == None: return
-
-    def isTrue(value):
-        return value != None and value.lower() == "true"
 
     config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
     config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
@@ -204,7 +229,7 @@ def convertRUIANDownloadCfg(config):
         config.dataDir = pathWithLastSlash(result)
 
     config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
-    infoFile.load(config.dataDir + "Info.txt")
+    RUIANDownloadInfoFile().load(config.dataDir + "Info.txt")
     pass
 
 def RUIANDownloadConfig():
@@ -227,11 +252,8 @@ def RUIANDownloadConfig():
            moduleFile = __file__)
     return _RUIANDownloadConfig
 
-def convertRUIANImporterCfg(config):
+def convertRUIANImporterConfig(config):
     if config == None: return
-
-    def isTrue(value):
-        return value != None and value.lower() == "true"
 
     config.buildServicesTables = isTrue(config.buildServicesTables)
     config.buildAutocompleteTables = isTrue(config.buildAutocompleteTables)
@@ -253,11 +275,12 @@ def RUIANImporterConfig():
                 "buildServicesTables" : "True",
                 "buildAutocompleteTables" : "False"
             },
-            convertRUIANImporterCfg,
+            convertRUIANImporterConfig,
             defSubDir = "RUIANImporter",
             moduleFile = __file__
            )
     return _RUIANImporterConfig
+
 
 def main():
     config = Config("DownloadRUIAN.cfg",

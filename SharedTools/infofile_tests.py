@@ -2,8 +2,9 @@
 __author__ = 'Augustyn'
 
 import unittest
-import infofile, os
+import config, os
 
+infofile = config.RUIANDownloadInfoFile()
 
 class TestInfoFile(unittest.TestCase):
     FILENAME = "test.txt"

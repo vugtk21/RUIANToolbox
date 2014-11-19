@@ -45,13 +45,12 @@ import shared; shared.setupPaths()
 # Specific modules import
 # ####################################
 from log import logger, clearLogFile
-from infofile import infoFile
 from htmllog import htmlLog
 
-from SharedTools.config import pathWithLastSlash
-from SharedTools.config import RUIANDownloadConfig
+from SharedTools.config import pathWithLastSlash, RUIANDownloadConfig, RUIANDownloadInfoFile
 from SharedTools.sharetools import safeMkDir
 
+infoFile = RUIANDownloadInfoFile()
 config = RUIANDownloadConfig()
 
 def extractFileName(fileName):
@@ -478,7 +477,7 @@ def getDataDirFullPath():
     return result
 
 def main(argv = sys.argv):
-    config.loadFromCommandLine(helpStr)
+    config.loadFromCommandLine(argv, helpStr)
 
     if config.downloadFullDatabase:
         clearLogFile()

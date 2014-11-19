@@ -35,13 +35,14 @@ __author__ = 'Augustyn'
 DEMO_MODE = False # If set to true, there will be just 50 rows in every state database import lines applied.
 
 import os
+import sys
 from os.path import join
 from subprocess import call
 
 import shared; shared.setupPaths()
 
 from SharedTools.config import pathWithLastSlash
-from SharedTools.config import RUIANImporterConfig()
+from SharedTools.config import RUIANImporterConfig
 from SharedTools.log import logger
 
 config = RUIANImporterConfig()
@@ -82,7 +83,7 @@ def convertFileToDownloadLists(HTTPListName):
         outFile = getNextFile()
         linesInFile = 0
         for line in inFile:
-            if linesInFile >= 500:
+            if linesInFile >= 10000:
                 linesInFile = 0
                 outFile.close()
                 outFile = getNextFile()
@@ -110,7 +111,7 @@ def buildDownloadBatch(path, fileNames):
 
         if config.layers != "": importCmd += " --layer " + config.layers
 
-        importCmd += "\n"
+        importCmd += " >log.txt 2>log_err.txt\n"
 
         logger.debug(importCmd)
         file.write(importCmd)
@@ -202,6 +203,7 @@ def updateDatabase(updateFileList):
                 "--date", startDate + ":" + endDate,
                 "--type", type])
     if config.layers != "": params += " --layer " + config.layers
+    params += " >log.txt 2>log_err.txt"
 
 
     batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import.bat"
@@ -254,8 +256,8 @@ def getFullPath(configFileName, path):
         path = pathWithLastSlash(configFileName) + path
     return path
 
-def doImport():
-    config.loadFromCommandLine(helpStr)
+def doImport(argv):
+    config.loadFromCommandLine(argv, helpStr)
 
     osGeoPath = getOSGeoPath()
     if not os.path.exists(osGeoPath):
@@ -280,4 +282,4 @@ from SharedTools.sharetools import setupUTF
 setupUTF()
 
 if __name__ == "__main__":
-    doImport()
+    doImport(sys.argv)
