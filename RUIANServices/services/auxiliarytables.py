@@ -6,6 +6,8 @@ import psycopg2
 import os, codecs, sys
 
 from config import config
+import sharetools.config
+
 import HTTPShared
 import compileaddress
 
@@ -37,8 +39,7 @@ def execSQLScript(sql):
 
 def execSQLScriptFile(sqlFileName, msg):
     print msg
-    path = os.path.dirname(__file__)
-    sqlFileName = path + os.sep + sqlFileName
+    sqlFileName = sharetools.config.getRUIANServicesSQLScriptsPath + sqlFileName
     if not os.path.exists(sqlFileName):
         print "ERROR: File %s not found." % sqlFileName
         exitApp()

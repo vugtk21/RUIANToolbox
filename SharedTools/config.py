@@ -10,6 +10,7 @@ import sharetools
 _RUIANDownloadConfig = None
 _RUIANImporterConfig = None
 _RUIANDownloadInfoFile = None
+_RUIANToolboxPath = None
 
 def strTo127(s):
     result = ""
@@ -281,19 +282,43 @@ def RUIANImporterConfig():
            )
     return _RUIANImporterConfig
 
+def getRUIANToolboxPath():
+    global _RUIANToolboxPath
+    if _RUIANToolboxPath == None:
+        _RUIANToolboxPath = pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
+        _RUIANToolboxPath = _RUIANToolboxPath.replace("/", os.sep)
+        _RUIANToolboxPath = _RUIANToolboxPath.replace("\\", os.sep)
+    return _RUIANToolboxPath
+
+def getRUIANImporterPath():
+    return getRUIANToolboxPath() + "RUIANImporter" + os.sep
+
+def getRUIANDownloaderPath():
+    return getRUIANToolboxPath() + "RUIANDownloader" + os.sep
+
+def getRUIANServicesBasePath():
+    return getRUIANToolboxPath() + "RUIANServices" + os.sep
+
+def getRUIANServicesPath():
+    return getRUIANToolboxPath() + "RUIANServices" + os.sep + "services" + os.sep
+
+def getRUIANServicesHTMLPath():
+    return getRUIANToolboxPath() + "RUIANServices" + os.sep + "HTML" + os.sep
+
+def getRUIANServicesSQLScriptsPath():
+    return getRUIANToolboxPath() + "RUIANServices" + os.sep + "SQLScripts" + os.sep
 
 def main():
-    config = Config("DownloadRUIAN.cfg",
-            {
-                "downloadFullDatabase" : False,
-                "uncompressDownloadedFiles" : True,
-                "runImporter" : False,
-                "dataDir" : "Downloads\\",
-                "automaticDownloadTime" : "",
-                "downloadURL" : ""
-            })
+    print "This module is a library, it can't be run as an application."
 
-    #config.save("C:\\Users\\raugustyn\\Desktop\\RUIANToolbox\\RUIANDownloader\\RUIANDownloadSaved.cfg")
+    if True:
+        print getRUIANToolboxPath()
+        print getRUIANImporterPath()
+        print getRUIANServicesBasePath()
+        print getRUIANServicesPath()
+        print getRUIANServicesHTMLPath()
+        print getRUIANServicesSQLScriptsPath()
+
 
 if __name__ == '__main__':
     main()
