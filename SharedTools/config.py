@@ -306,7 +306,7 @@ def getRUIANServicesHTMLPath():
     return getRUIANToolboxPath() + "RUIANServices" + os.sep + "HTML" + os.sep
 
 def getRUIANServicesSQLScriptsPath():
-    return getRUIANToolboxPath() + "RUIANServices" + os.sep + "SQLScripts" + os.sep
+    return getRUIANToolboxPath() + "RUIANServices" + os.sep + "SqlScripts" + os.sep
 
 def main():
     print "This module is a library, it can't be run as an application."
