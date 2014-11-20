@@ -67,7 +67,7 @@ def getAddressRows(connection):
     try:
         query = 'select nazev_ulice, cast(cislo_domovni as text), nazev_obce, cast(psc as text), cast(cislo_orientacni as text), znak_cisla_orientacniho, nazev_casti_obce, typ_so, nazev_mop, gid from address_points '
         cursor.execute(query)
-        print " - hotovo."
+        print " - done."
         return cursor
     except:
         print "Error:Selecting address rows failed."
@@ -79,7 +79,7 @@ def renameTempTable(connection):
     cursor.execute("drop table if exists ac_gids;")
     cursor.execute("alter table _ac_gids rename to ac_gids;")
     cursor.close()
-    print " - hotovo."
+    print " - done."
 
 def buildGIDsTable():
     print "Creating table ac_gids"
