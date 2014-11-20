@@ -6,7 +6,7 @@ import psycopg2
 import os, codecs, sys
 
 from config import config
-import sharetools.config
+from SharedTools.config import getRUIANServicesSQLScriptsPath
 
 import HTTPShared
 import compileaddress
@@ -39,7 +39,7 @@ def execSQLScript(sql):
 
 def execSQLScriptFile(sqlFileName, msg):
     print msg
-    sqlFileName = sharetools.config.getRUIANServicesSQLScriptsPath + sqlFileName
+    sqlFileName = getRUIANServicesSQLScriptsPath() + sqlFileName
     if not os.path.exists(sqlFileName):
         print "ERROR: File %s not found." % sqlFileName
         exitApp()
@@ -82,7 +82,7 @@ def renameTempTable(connection):
     print " - hotovo."
 
 def buildGIDsTable():
-    print "Vytvářím tabulku ac_gids"
+    print "Creating table ac_gids"
     print "------------------------"
     connection = psycopg2.connect(
         host = config.databaseHost,
@@ -146,8 +146,6 @@ class SQLInfo:
 def buildServicesTables():
     scriptList = [
         SQLInfo("TypStObjektu.sql", "Table typ_st_objektu"),
-        SQLInfo("momc.sql", "Table ui_momc"),
-        SQLInfo("mop.sql" , "Table ui_mop"),
         SQLInfo("AddressPoints.sql" , "Table address_points"),
         SQLInfo("FullText.sql" , "Table fulltext"),
         SQLInfo("ExplodeArray.sql" , "Table explode_array"),
