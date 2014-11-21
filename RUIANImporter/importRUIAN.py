@@ -44,6 +44,7 @@ import shared; shared.setupPaths()
 from SharedTools.config import pathWithLastSlash
 from SharedTools.config import RUIANImporterConfig
 from SharedTools.log import logger
+import buildhtmllog
 
 config = RUIANImporterConfig()
 
@@ -72,22 +73,13 @@ def getOSGeoPath():
 def convertFileToDownloadLists(HTTPListName):
     result = []
 
-    def getNextFile():
-        fileName = "%s_list_%d.tmp" % (HTTPListName[:HTTPListName.find(".txt")], len(result))
-        outFile = open(fileName, "w")
-        result.append(fileName)
-        return outFile
-
     inFile = open(HTTPListName, "r")
     try:
-        outFile = getNextFile()
+        fileName = "%s_list.tmp" % (HTTPListName[:HTTPListName.find(".txt")])
+        outFile = open(fileName, "w")
+        result.append(fileName)
         linesInFile = 0
         for line in inFile:
-            if linesInFile >= 10000:
-                linesInFile = 0
-                outFile.close()
-                outFile = getNextFile()
-
             linesInFile = linesInFile + 1
             if DEMO_MODE and linesInFile > 3: continue
 
@@ -100,18 +92,21 @@ def convertFileToDownloadLists(HTTPListName):
     return result
 
 
-def buildDownloadBatch(path, fileNames):
+def buildDownloadBatch(fileListFileName, fileNames):
+    path = os.path.dirname(fileListFileName)
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
     result = path + os.sep + "Import.bat"
     file = open(result, "w")
     file.write("cd %s\n" % path)
     overwriteCommand = "--o"
     for fileName in fileNames:
+        (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(fileListFileName)
+
         importCmd = "call %s vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (os4GeoPath, fileName, config.dbname, config.user, config.password, overwriteCommand)
 
         if config.layers != "": importCmd += " --layer " + config.layers
 
-        importCmd += " >log.txt 2>log_err.txt\n"
+        importCmd += " >%s 2>%s\n" % (VFRlogFileName, VFRerrFileName)
 
         logger.debug(importCmd)
         file.write(importCmd)
@@ -139,7 +134,7 @@ def deleteFilesInLists(path, fileLists, extension):
 def createStateDatabase(path, fileListFileName):
     logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
     GDALFileListNames = convertFileToDownloadLists(fileListFileName)
-    downloadBatchFileName = buildDownloadBatch(os.path.dirname(fileListFileName), GDALFileListNames)
+    downloadBatchFileName = buildDownloadBatch(fileListFileName, GDALFileListNames)
 
     call(downloadBatchFileName)
     deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
@@ -196,6 +191,8 @@ def updateDatabase(updateFileList):
 
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
 
+    (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileList)
+
     params = ' '.join([os4GeoPath, "vfr2pg",
                 "--dbname", config.dbname,
                 "--user ", config.user,
@@ -203,8 +200,7 @@ def updateDatabase(updateFileList):
                 "--date", startDate + ":" + endDate,
                 "--type", type])
     if config.layers != "": params += " --layer " + config.layers
-    params += " >log.txt 2>log_err.txt"
-
+    params += " >%s 2>%s" % (VFRlogFileName, VFRerrFileName)
 
     batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import.bat"
     file = open(batchFileName, "w")
@@ -247,6 +243,9 @@ def processDownloadedDirectory(path):
         result = True
         for updateFileName in updatesFileList:
             updateDatabase(updateFileName)
+
+    logger.info(u"Generuji sestavu importů.")
+    buildhtmllog.buildHTMLLog()
 
     logger.info("Načítání stažené soubory do databáze - hotovo.")
     return result

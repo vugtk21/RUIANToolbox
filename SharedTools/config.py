@@ -308,6 +308,14 @@ def getRUIANServicesHTMLPath():
 def getRUIANServicesSQLScriptsPath():
     return getRUIANToolboxPath() + "RUIANServices" + os.sep + "SqlScripts" + os.sep
 
+def getDataDirFullPath():
+    result = RUIANDownloadConfig().dataDir
+    if not os.path.isabs(result):
+        result = getRUIANDownloaderPath() + result
+        result = os.path.normpath(result)
+        result = pathWithLastSlash(result)
+    return result
+
 def main():
     print "This module is a library, it can't be run as an application."
 
