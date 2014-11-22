@@ -148,7 +148,8 @@ class ServicesHTMLPageBuilder:
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
         result = getPageTemplate().replace("#PAGETITLE#", u"Webové služby RÚIAN")
-        result = result.replace("<#SERVICES_URL>", "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH )
+        servicesURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH
+        result = result.replace("<#SERVICES_URL>", servicesURL)
 
         result = result.replace("#HTMLDATA_URL#", configmodule.getHTMLDataURL())
         result = result.replace("#VERSIONNUMBER#", configmodule.config.issueNumber)
@@ -156,7 +157,7 @@ class ServicesHTMLPageBuilder:
         if configmodule.config.ruianVersionDate == "":
             configmodule.config.ruianVersionDate = RUIANConnection.getRUIANVersionDate()
 
-        result = result.replace("#RUIANVERSIONDATE#", configmodule.config.ruianVersionDate)
+        result = result.replace("#RUIANVERSIONDATE#", '<a href="%s/downloaded/Import.html">%s</a>' % (servicesURL, configmodule.config.ruianVersionDate))
 
         queryParams = self.normalizeQueryParams(queryParams)
 
