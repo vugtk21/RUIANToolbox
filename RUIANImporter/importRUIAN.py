@@ -29,8 +29,6 @@ Usage: importRUIAN.py [-dbname <database name>] [-host <host name>] [-port <data
        -Help         Print help
 """
 
-__author__ = 'Augustyn'
-
 DEMO_MODE = False # If set to true, there will be just 50 rows in every state database import lines applied.
 
 import os
@@ -138,6 +136,7 @@ def createStateDatabase(path, fileListFileName):
     call(downloadBatchFileName)
     deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
     os.remove(downloadBatchFileName)
+    renameFile(fileListFileName, "__")
     pass
 
 def extractDatesAndType(patchFileList):

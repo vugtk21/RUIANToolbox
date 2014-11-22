@@ -14,10 +14,10 @@ import sys
 from log import logger
 import sharetools
 
-_RUIANDownloadConfig = None
-_RUIANImporterConfig = None
-_RUIANDownloadInfoFile = None
-_RUIANToolboxPath = None
+x_RUIANDownloadConfig = None
+x_RUIANImporterConfig = None
+x_RUIANDownloadInfoFile = None
+x_RUIANToolboxPath = None
 
 def strTo127(s):
     result = ""
@@ -217,10 +217,10 @@ class InfoFile(Config):
         self.loadFile()
 
 def RUIANDownloadInfoFile():
-    if _RUIANDownloadInfoFile == None:
-        global _RUIANDownloadInfoFile
-        _RUIANDownloadInfoFile = InfoFile("")
-    return _RUIANDownloadInfoFile
+    if x_RUIANDownloadInfoFile == None:
+        global x_RUIANDownloadInfoFile
+        x_RUIANDownloadInfoFile = InfoFile("")
+    return x_RUIANDownloadInfoFile
 
 def convertRUIANDownloadCfg(config):
     if config == None: return
@@ -241,9 +241,9 @@ def convertRUIANDownloadCfg(config):
     pass
 
 def RUIANDownloadConfig():
-    if _RUIANDownloadConfig == None:
-        global _RUIANDownloadConfig
-        _RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
+    if x_RUIANDownloadConfig == None:
+        global x_RUIANDownloadConfig
+        x_RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
             {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,
@@ -258,7 +258,7 @@ def RUIANDownloadConfig():
            convertRUIANDownloadCfg,
            defSubDir = "RUIANDownloader",
            moduleFile = __file__)
-    return _RUIANDownloadConfig
+    return x_RUIANDownloadConfig
 
 def convertRUIANImporterConfig(config):
     if config == None: return
@@ -268,9 +268,9 @@ def convertRUIANImporterConfig(config):
     pass
 
 def RUIANImporterConfig():
-    if _RUIANImporterConfig == None:
-        global _RUIANImporterConfig
-        _RUIANImporterConfig = Config("importRUIAN.cfg",
+    if x_RUIANImporterConfig == None:
+        global x_RUIANImporterConfig
+        x_RUIANImporterConfig = Config("importRUIAN.cfg",
             {
                 "dbname" : "euradin",
                 "host" : "localhost",
@@ -287,15 +287,15 @@ def RUIANImporterConfig():
             defSubDir = "RUIANImporter",
             moduleFile = __file__
            )
-    return _RUIANImporterConfig
+    return x_RUIANImporterConfig
 
 def getRUIANToolboxPath():
-    global _RUIANToolboxPath
-    if _RUIANToolboxPath == None:
-        _RUIANToolboxPath = pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
-        _RUIANToolboxPath = _RUIANToolboxPath.replace("/", os.sep)
-        _RUIANToolboxPath = _RUIANToolboxPath.replace("\\", os.sep)
-    return _RUIANToolboxPath
+    global x_RUIANToolboxPath
+    if x_RUIANToolboxPath == None:
+        x_RUIANToolboxPath = pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
+        x_RUIANToolboxPath = x_RUIANToolboxPath.replace("/", os.sep)
+        x_RUIANToolboxPath = x_RUIANToolboxPath.replace("\\", os.sep)
+    return x_RUIANToolboxPath
 
 def getRUIANImporterPath():
     return getRUIANToolboxPath() + "RUIANImporter" + os.sep
