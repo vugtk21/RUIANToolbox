@@ -7,7 +7,6 @@
 # Copyright:   (c) VUGTK, v.v.i. 2014
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
-__author__ = 'raugustyn'
 helpStr = """
 Builds import HTML Log file.
 
@@ -159,7 +158,9 @@ def main(argv = sys.argv):
     from SharedTools.config import RUIANDownloadConfig
     config = RUIANDownloadConfig()
     config.loadFromCommandLine(argv, helpStr)
+    print "Builds import HTML Log file."
     buildHTMLLog()
+    print "Done."
 
 if __name__ == '__main__':
     main()

@@ -180,6 +180,19 @@ def renameFile(fileName, prefix):
     return newFileName
 
 def updateDatabase(updateFileList):
+
+    def removeDataFiles():
+        dataPath = pathWithLastSlash(os.path.split(updateFileList)[0])
+        inFile = open(updateFileList, "r")
+        try:
+            for line in inFile:
+                fileName = os.path.basename(line)
+                if os.path.exists(dataPath + fileName):
+                    os.remove(dataPath + fileName)
+        finally:
+            inFile.close()
+        pass
+
     logger.info("Načítám denní aktualizace ze souboru " + updateFileList)
 
     (startDate, endDate, type) = extractDatesAndType(updateFileList)
@@ -208,6 +221,7 @@ def updateDatabase(updateFileList):
 
     call(batchFileName)
     os.remove(batchFileName)
+    removeDataFiles()
 
     renameFile(updateFileList, "__")
     pass
@@ -279,4 +293,19 @@ from SharedTools.sharetools import setupUTF
 setupUTF()
 
 if __name__ == "__main__":
-    doImport(sys.argv)
+    def removeDataFiles():
+        dataPath = pathWithLastSlash(os.path.split("C:\\Users\\raugustyn\\Desktop\\RUIAN\\RUIANToolbox\\DownloadedData\\__patch_2014.11.09.txt")[0])
+        inFile = open("C:\\Users\\raugustyn\\Desktop\\RUIAN\\RUIANToolbox\\DownloadedData\\__patch_2014.11.09.txt", "r")
+        try:
+            for line in inFile:
+                line = line.replace("\n", "")
+                fileName = os.path.basename(line)
+                if os.path.exists(dataPath + fileName):
+                    os.remove(dataPath + fileName)
+        finally:
+            inFile.close()
+        pass
+
+    removeDataFiles()
+
+    #doImport(sys.argv)
