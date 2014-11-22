@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Augustyn'
+#-------------------------------------------------------------------------------
+# Name:        htmllog
+# Purpose:     Creates HTML log file from download
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import os
-
 
 class HtmlLog:
     CHANGES_START_ID = "<!-- CHANGES START -->"

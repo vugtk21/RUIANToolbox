@@ -4,8 +4,7 @@
 # Purpose:     Downloads VFR data from http://vdp.cuzk.cz/
 #
 # Author:      Radek Augustýn
-# Company:     VUGTK, v.v.i.
-# Copyright:   (c) Radek Augustýn 2014
+# Copyright:   (c) VUGTK, v.v.i. 2014
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 helpStr = """

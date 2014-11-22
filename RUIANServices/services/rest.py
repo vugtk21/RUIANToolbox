@@ -4,11 +4,9 @@
 # Name:        rest.py
 # Purpose:     Implementuje funkcionalitu služeb dle standardu REST
 #
-# Author:      raugustyn
-#
-# Created:     10/11/2013
-# Copyright:   (c) raugustyn 2013
-# Licence:
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
 import web

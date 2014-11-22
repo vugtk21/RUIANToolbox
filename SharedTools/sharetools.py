@@ -1,4 +1,12 @@
-__author__ = 'raugustyn'
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        sharetools
+# Purpose:     Library shared procedures.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import os
 

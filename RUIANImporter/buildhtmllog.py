@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        buildhtmllog
+# Purpose:     Builds HTML log file in imported directory.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 __author__ = 'raugustyn'
 helpStr = """
 Builds import HTML Log file.

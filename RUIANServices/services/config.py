@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Augustyn'
+#-------------------------------------------------------------------------------
+# Name:        config
+# Purpose:     Implements services config class.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import shared; shared.setupPaths(depth = 2)
 

@@ -1,5 +1,13 @@
 #!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        soap.py
+# Purpose:     Implements soap interface to implemented functionality.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import web
 import re

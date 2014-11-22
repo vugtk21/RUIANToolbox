@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Augustyn'
+#-------------------------------------------------------------------------------
+# Name:        htmllog_tests
+# Purpose:     Test htmllog module routines.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import htmllog
 import unittest

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-__author__ = 'Augustyn'
 #-------------------------------------------------------------------------------
 # Name:        jqueryautocompletePostGIS
 # Purpose:     Implementuje funkcionalitu pro autocomplete pomocí jQuery
 #              napojením na databázi RÚIAN uloženou v PostGIS.
-# Author:      raugustyn
 #
-# Created:     10/11/2013
-# Copyright:   (c) raugustyn 2013
-# Licence:
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
 import psycopg2

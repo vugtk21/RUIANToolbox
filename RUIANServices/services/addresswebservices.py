@@ -4,11 +4,9 @@
 # Name:        addresswebservices
 # Purpose:
 #
-# Author:      Ing. Radek Augustýn
-#
-# Created:     13/11/2013
-# Copyright:   (c) raugustyn 2013
-# Licence:     <your licence>
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 import codecs
 

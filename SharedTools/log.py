@@ -4,8 +4,8 @@
 # Purpose:     This module creates standard logger for whole application.
 #
 # Author:      Radek Augustýn
-#
-# Copyright:   (c) Radek Augustýn 2014
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 import logging
 

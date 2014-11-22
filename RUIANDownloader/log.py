@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        log
+# Purpose:     Implements shared logging functionality.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 import logging
 
 LOG_FILENAME = 'RUIANDownload.log'

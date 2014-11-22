@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
-__author__ = 'raugustyn'
+#-------------------------------------------------------------------------------
+# Name:        config
+# Purpose:     Config files persistency classes implementations.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import os
 import codecs

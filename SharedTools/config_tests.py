@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
-__author__ = 'raugustyn'
+#-------------------------------------------------------------------------------
+# Name:        config_tests
+# Purpose:     Module config testing routines.
+#
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
+#-------------------------------------------------------------------------------
 
 import config
-
 
 #print Config.getSubDirPath("RUIANServices")
 

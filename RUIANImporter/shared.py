@@ -2,11 +2,9 @@
 # Name:        shared
 # Purpose:
 #
-# Author:      Administrator
-#
-# Created:     08/10/2014
-# Copyright:   (c) Administrator 2014
-# Licence:     <your licence>
+# Author:      Radek Augustýn
+# Copyright:   (c) VUGTK, v.v.i. 2014
+# License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
 firstCall = True
