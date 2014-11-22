@@ -158,7 +158,7 @@ def main(argv = sys.argv):
     from SharedTools.config import RUIANDownloadConfig
     config = RUIANDownloadConfig()
     config.loadFromCommandLine(argv, helpStr)
-    print "Builds import HTML Log file."
+    print "Building import HTML Log file."
     buildHTMLLog()
     print "Done."
 

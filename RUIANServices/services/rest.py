@@ -23,6 +23,8 @@ from config import SERVICES_WEB_PATH
 from config import HTMLDATA_URL
 from config import config
 
+from RUIANDownloader.RUIANDownload import getDataDirFullPath
+
 serverPathDepth = 0
 
 def getHTMLPath():
@@ -30,6 +32,10 @@ def getHTMLPath():
     paths = paths[:len(paths) - 1]
     return "/".join(paths) + "/html/"
 
+DATA_ALIASES = {
+        "/html": getHTMLPath,
+        "/downloaded": getDataDirFullPath
+}
 
 def getFileContent(fileName):
     if os.path.exists(fileName):
@@ -51,7 +57,9 @@ def fileNameToMimeFormat(fileName):
         ".jpg" : "image/jpeg",
         ".jpeg" : "image/jpeg",
         ".htm" : "text/html",
-        ".html" : "text/html"
+        ".html" : "text/html",
+        ".txt" : "text/plain",
+        ".log" : "text/plain"
     }
     fileExt = fileName[fileName.find("."):]
     if knownMimeFormats.has_key(fileExt):
@@ -85,8 +93,8 @@ def ProcessRequest(fullPathList, queryParams, response):
         else:
             servicePathInfo = "/" + fullPathList[0]                       # první rest parametr
 
-        if servicePathInfo.lower() == "/html":
-            fileName = getHTMLPath() + "/".join(fullPathList[1:])
+        if DATA_ALIASES.has_key(servicePathInfo.lower()):
+            fileName = DATA_ALIASES[servicePathInfo.lower()]() + "/".join(fullPathList[1:])
             response.htmlData = getFileContent(fileName) # TODO Implementovat vracení binárních souborů
             mimeFormat = fileNameToMimeFormat(fileName)
             if mimeFormat != None:
@@ -190,17 +198,6 @@ if __name__ == "__main__":
 
         response = ProcessRequest(fullPathList, query, HTTPResponse(False))
         if response.handled:
-            #f = open("c:/temp/log.txt", "w")
-            #f.write(response.mimeFormat + "\n")
-            #f.write("is text:" + str(response.mimeFormat in ["text/html", "text/javascript", "text/plain"]) + "\n")
-            #f.write("len:" + str(len(response.htmlData)) + "\n")
-            #f.close()
-
-            #f = open("c:/temp/ahoj.png", "wb")
-            #f.write(response.htmlData)
-            #f.close()
-
-            #response.mimeFormat = "text/html"
             if response.mimeFormat in ["text/html", "text/javascript", "text/plain"]:
                 print "Content-Type: " + response.mimeFormat + ";charset=utf-8"   # HTML is following
                 print                                           # blank line, end of headers
