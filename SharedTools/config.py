@@ -278,7 +278,7 @@ def RUIANImporterConfig():
                 "user" : "postgres",
                 "password" : "postgres",
                 "schemaName" : "",
-                "layers" : "",
+                "layers" : "AdresniMista,Ulice,StavebniObjekty,CastiObci,Obce,Mop,Momc",
                 "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
                 "buildServicesTables" : "True",
                 "buildAutocompleteTables" : "False"

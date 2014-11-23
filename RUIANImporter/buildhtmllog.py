@@ -97,6 +97,7 @@ htmlTemplate = u"""<html>
     <body>
         <h1>Detaily importů do databáze RÚIAN</h1>
         <br>Databáze <b>#DATABASE_NAME#</b> na serveru #DATABASE_SERVER#:#DATABASE_PORT# je aktuální k #DATABASE_DATE#.
+        #LAYERS_DETAILS#
         <br><br>
         #IMPORTS_TABLE_ID#
     </body>
@@ -108,6 +109,7 @@ DATABASE_PORT_ID   = "#DATABASE_PORT#"
 DATABASE_NAME_ID   = "#DATABASE_NAME#"
 IMPORTS_TABLE_ID   = "#IMPORTS_TABLE_ID#"
 DATABASE_DATE_ID   = "#DATABASE_DATE#"
+LAYERS_DETAILS_ID  = "#LAYERS_DETAILS#"
 
 def buildHTMLLog():
     IMPORT_TYPES = [u"Aktualizace", u"Stavová databáze"]
@@ -119,6 +121,13 @@ def buildHTMLLog():
     log = log.replace(DATABASE_PORT_ID, config.port)
     log = log.replace(DATABASE_NAME_ID, config.dbname)
     log = log.replace(DATABASE_DATE_ID, time.strftime("%d.%m.20%y"))
+
+    if config.layers == "":
+        msg = u"Do databáze jsou načteny všechny vrstvy."
+    else:
+        msg = u"Do databáze jsou načteny vrstvy %s." % config.layers
+    log = log.replace(LAYERS_DETAILS_ID, msg)
+
 
     importsTable = u"<table>"
     importsTable += u'<tr valign="bottom"><th>Datum</th><th>Typ importu</th><th>Konverze<br>VFR</th><th>Chyby</th></tr>'

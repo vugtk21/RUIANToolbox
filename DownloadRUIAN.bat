@@ -2,4 +2,3 @@
 cd RUIANDownloader
 RUIANDownload.py
 cd ..
-pause

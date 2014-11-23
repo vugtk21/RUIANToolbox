@@ -2,4 +2,3 @@
 cd RUIANImporter
 importRUIAN.py %*
 cd ..\
-pause
