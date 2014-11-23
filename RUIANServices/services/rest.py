@@ -61,7 +61,7 @@ def fileNameToMimeFormat(fileName):
         ".txt" : "text/plain",
         ".log" : "text/plain"
     }
-    fileExt = fileName[fileName.find("."):]
+    fileExt = fileName[fileName.rfind("."):]
     if knownMimeFormats.has_key(fileExt):
         return knownMimeFormats[fileExt]
     else:
@@ -99,6 +99,8 @@ def ProcessRequest(fullPathList, queryParams, response):
             mimeFormat = fileNameToMimeFormat(fileName)
             if mimeFormat != None:
                 response.mimeFormat = mimeFormat
+                if mimeFormat == "text/plain":
+                    response.htmlData = response.htmlData.replace("\r\n", "\n")
             response.handled = True
         else:
             pathInfos = fullPathList[1:]                                  # ostatní

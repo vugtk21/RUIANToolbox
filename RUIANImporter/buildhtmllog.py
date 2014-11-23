@@ -46,7 +46,7 @@ def getLogFileNames(fileName):
 htmlTemplate = u"""<html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Detaily importů do databáze RÚIAN</title>
+        <title>Detaily importů z databáze RÚIAN</title>
         <style>
             body {
                 font-family:Tahoma;
@@ -130,7 +130,7 @@ def buildHTMLLog():
 
 
     importsTable = u"<table>"
-    importsTable += u'<tr valign="bottom"><th>Datum</th><th>Typ importu</th><th>Konverze<br>VFR</th><th>Chyby</th></tr>'
+    importsTable += u'<tr valign="bottom"><th>Datum</th><th>Import</th><th>Konverze<br>VFR</th><th>Chyby</th></tr>'
     for file in os.listdir(dataPath):
         fileName = file.lower()
         if fileName.endswith(TXT_EXTENSION):
