@@ -83,7 +83,7 @@ class Config:
         else:
             path = sharetools.normalizePathSep(os.path.dirname(__file__))
             pathItems = path.split(os.sep)
-            for i in range(len(pathItems), 0, -1):
+            for i in range(0, len(pathItems)):
                 path = os.sep.join(pathItems[0:i]) + os.sep + fileName
                 if os.path.exists(path):
                     self.fileName = path
@@ -327,12 +327,14 @@ def main():
     print "This module is a library, it can't be run as an application."
 
     if True:
-        print getRUIANToolboxPath()
-        print getRUIANImporterPath()
-        print getRUIANServicesBasePath()
-        print getRUIANServicesPath()
-        print getRUIANServicesHTMLPath()
-        print getRUIANServicesSQLScriptsPath()
+        print "Download Config:", RUIANDownloadConfig().fileName
+        print "Importer Config:", RUIANImporterConfig().fileName
+        print "getRUIANToolboxPath:", getRUIANToolboxPath()
+        print "getRUIANImporterPath:", getRUIANImporterPath()
+        print "getRUIANServicesBasePath:", getRUIANServicesBasePath()
+        print "getRUIANServicesPath:", getRUIANServicesPath()
+        print "getRUIANServicesHTMLPath:", getRUIANServicesHTMLPath()
+        print "getRUIANServicesSQLScriptsPath:", getRUIANServicesSQLScriptsPath()
 
 
 if __name__ == '__main__':
