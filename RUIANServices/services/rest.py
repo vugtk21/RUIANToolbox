@@ -9,7 +9,7 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
-import web
+#import web
 import re
 import os
 import shared as sharedModule
@@ -70,6 +70,7 @@ def fileNameToMimeFormat(fileName):
 
 def ProcessRequest(fullPathList, queryParams, response):
     addresswebservices.console.clear()
+
 
     addresswebservices.console.addInfo(u"SERVICES_WEB_PATH: " + SERVICES_WEB_PATH)
     addresswebservices.console.addInfo(u"HTMLDATA_URL: " + HTMLDATA_URL)
