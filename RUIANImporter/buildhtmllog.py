@@ -48,17 +48,27 @@ htmlTemplate = u"""<html>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Detaily importů z databáze RÚIAN</title>
         <style>
-            body {
-                font-family:Tahoma;
-				color:#353833;
-				font-size:small;
-				margin: 0px 20px 0px 20px;
-            }
+	        body {
+	            font-family: Arial;
+			    font-size: small;
+			    color: #575757;
+			    margin: 10 10 10 10;
+	        }
 
-			tr, td, th {
+			a {
+                color: #1370AB;
+		    }
+
+            tr, td, th {
                 vertical-align:top;
 				font-size:small;
 			}
+
+            th {
+                background-color: #1370AB;
+                color : #fff;
+            }
+
 
 			h1, h2 {
 				font-size:large;
@@ -68,25 +78,21 @@ htmlTemplate = u"""<html>
 				margin: 0px 0px 0px 0px;
 			}
 
-			h1 {
-				font-size:larger;
-				font-weight:bold;
-			}
+            h1 {
+                color: #1370AB;
+			    border-bottom: 1 solid #B6B6B6;
+            }
 
-			th {
-				color: #353833;
-				padding: 3px 5px 3px 5px;
-				margin:0px 0px 0px 0px;
-				border-top-color: #9eadc0;
-				border-top-width: 1px;
-				border-bottom-color: #9eadc0;
-				border-bottom-width: 1px;
-				background-color:rgb(222, 227, 233);
-			}
+            table {
+                border-collapse: collapse;
+        	    font-size: small;
+            }
 
-			table td {
+            td, th {
+                border: 1px solid #4F81BD;
+                vertical-align:top;
 				padding: 2px 5px 2px 5px;
-			}
+            }
 
 			.altColor {
 				background-color:rgb(238, 238, 239);
@@ -96,7 +102,7 @@ htmlTemplate = u"""<html>
     </head>
     <body>
         <h1>Detaily importů do databáze RÚIAN</h1>
-        <br>Databáze <b>#DATABASE_NAME#</b> na serveru #DATABASE_SERVER#:#DATABASE_PORT# je aktuální k #DATABASE_DATE#.
+        <br>Databáze <b>#DATABASE_NAME#</b> je aktuální k #DATABASE_DATE#.
         #LAYERS_DETAILS#
         <br><br>
         #IMPORTS_TABLE_ID#
