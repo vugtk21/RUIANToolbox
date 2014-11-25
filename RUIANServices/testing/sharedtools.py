@@ -21,12 +21,24 @@ HTML_PREFIX = u"""
 	    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	    <style>
 	    body {
-	        font-family: tahoma;
+	        font-family: Arial;
+			font-size: small;
+			color: #575757;
+			margin: 10 10 10 10;
 	    }
 
+		a {
+            color: #1370AB;
+		}
+
         th {
-         background-color: #A7C942;
+         background-color: #1370AB;
          color : #fff;
+        }
+
+        h1 {
+            color: #1370AB;
+			border-bottom: 1 solid #B6B6B6;
         }
 
         tr.alt td {
@@ -36,13 +48,13 @@ HTML_PREFIX = u"""
 
         table {
             border-collapse: collapse;
+        	font-size: small;
         }
 
         td, th {
-            border: 1px solid #98bf21;
+            border: 1px solid #4F81BD;
             vertical-align:top;
         }
-
 	    </style>
 	    <title><#TITLE></title>
 	</head>
@@ -92,14 +104,14 @@ class FormalTester:
 
         if desc != "":
             self.content += "<p>" + desc + \
-                                      u" Výpis výsledků testu nemusí být z důvodu úspory místa ve výpisu zcela přesný, pro přesnou podobu je možné použít odkaz" + \
+                                      u" Výpis výsledků testu nemusí být z důvodu úspory místa zcela přesný, pro přesnou podobu je možné použít odkaz." + \
                                       u"<br><br>Testovaný server: <a href='" + SERVER_URL + "'>" + SERVER_URL + "</a><br>" + \
                                       "</p>\n"
 
 
     def closeSection(self):
         self.content += self.testsHTML + "</table>"
-        self.testsHTML = ""
+        self.testsHTML = u""
 
     def addTest(self, inputs, result, expectedResult, errorMessage = ""):
         #result = makeDelimetersVisible(result)
@@ -133,7 +145,7 @@ class FormalTester:
 
         if self.longPrint:
             self.testsHTML += "<tr" + oddText + ">\n"
-            self.testsHTML += "    <td>" + str(self.numTests) + "</td>"
+            self.testsHTML += '    <td align="center">' + str(self.numTests) + "</td>"
             self.testsHTML += "    <td>" + '<input type="checkbox" value=""' + status + ' \>' + "</td>"
 
             self.testsHTML += "    <td>" + inputs + "</td>"
@@ -142,10 +154,12 @@ class FormalTester:
             self.testsHTML += "</tr>\n"
         else:
             self.testsHTML += "<tr" + oddText + ">\n"
-            self.testsHTML += '    <td>' + str(self.numTests) + "</td>"
+            self.testsHTML += '    <td align="center">' + str(self.numTests) + "</td>"
             self.testsHTML += "    <td>" + '<input type="checkbox" value=""' + status + ' \>' + "</td>"
 
-            self.testsHTML += '    <td><a href="' + SERVER_URL + inputs + '">'  + inputs + "</a><br>"
+            caption = urllib2.unquote(inputs)
+            #caption = caption.encode("utf=8")
+            self.testsHTML += '    <td><a href="' + SERVER_URL + inputs + '">'  + caption + "</a><br>"
             self.testsHTML += str(result) + expectedResultMessage + "<br>"
             if errorMessage != "":
                 self.testsHTML += "    <td>" + errorMessage + "</td>"
