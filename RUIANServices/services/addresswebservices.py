@@ -177,6 +177,7 @@ class ServicesHTMLPageBuilder:
             if service.pathName == pathInfo:
                 tabIndex = i
 
+            restPyURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/"
             tabDivs += u'<span name="' + urlSpanName + '" class = "enhancedGUI" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/" + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
@@ -211,7 +212,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
             tabDivs += "</td></tr></table>"
 
-            tabDivs += "<a class = 'enhancedGUI' href='http://www.vugtk.cz/euradin/testing" + service.pathName + ".html'>Výsledky testů</a>"
+            tabDivs += "<a class = 'enhancedGUI' href='" + restPyURL + "testing" + service.pathName + ".html'>Výsledky testů</a>"
             #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
 
             #url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + configmodule.HTMLDATA_URL + service.pathName + '.png'

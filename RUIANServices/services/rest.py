@@ -32,9 +32,16 @@ def getHTMLPath():
     paths = paths[:len(paths) - 1]
     return "/".join(paths) + "/html/"
 
+def getTestingPath():
+    paths = os.path.dirname(__file__).split("/")
+    paths = paths[:len(paths) - 1]
+    return "/".join(paths) + "/testing/"
+    return
+
 DATA_ALIASES = {
         "/html": getHTMLPath,
-        "/downloaded": getDataDirFullPath
+        "/downloaded": getDataDirFullPath,
+        "/testing" : getTestingPath
 }
 
 def getFileContent(fileName):
