@@ -1,4 +1,4 @@
 @echo off
 cd RUIANDownloader
-RUIANDownload.py
+RUIANDownload.py >> ..\RUIANDownload.log
 cd ..
