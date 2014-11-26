@@ -192,7 +192,6 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<form id="' + formName + '" name="' + formName + '" action="' + SERVICES_PATH + service.pathName + '" method="get" SearchForAddress="false">\n'
 
             # Parameters list
-            #tabDivs += '<div class="ui-widget" style="margin: 0px 20px 20px 0px; padding: 10px 10px 15px 10px; border: solid grey 1px;">\n'
             tabDivs += '<div class="warning">\n'
             tabDivs += '<table id="' + formName + '_ParamsTable">\n'
             for param in service.restPathParams:
@@ -213,9 +212,6 @@ class ServicesHTMLPageBuilder:
             tabDivs += "</td></tr></table>"
 
             tabDivs += "<a class = 'enhancedGUI' href='" + restPyURL + "testing" + service.pathName + ".html'>Výsledky testů</a>"
-            #tabDivs += "<a href='" + SERVER_HTTP + "/euradin/testing" + service.pathName + ".html'>show tests</a>"
-
-            #url = "http://" + SERVER_HTTP + getPortSpecification() + "/" + configmodule.HTMLDATA_URL + service.pathName + '.png'
             url = configmodule.getHTMLDataURL() + service.pathName[1:] + ".png"
             tabDivs += '<p>\n<img class = "enhancedGUI" src="' + url + '"></p>\n'
 
