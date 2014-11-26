@@ -6,8 +6,8 @@ import urllib2
 import os
 
 #SERVER_URL = "http://localhost:5689/"
-#SERVER_URL = "http://localhost/ruian/rest.py/"
-SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py/"
+SERVER_URL = "http://localhost/euradin/services/rest.py/"
+#SERVER_URL = "http://www.vugtk.cz/euradin/services/rest.py/"
 
 def setupUTF():
     import sys

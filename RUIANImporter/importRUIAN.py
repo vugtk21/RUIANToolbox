@@ -259,7 +259,7 @@ def processDownloadedDirectory(path):
     logger.info(u"Generuji sestavu importů.")
     buildhtmllog.buildHTMLLog()
 
-    logger.info("Načítání stažené soubory do databáze - hotovo.")
+    logger.info("Načítání stažených souborů do databáze - hotovo.")
     return result
 
 def getFullPath(configFileName, path):
