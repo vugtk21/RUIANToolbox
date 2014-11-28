@@ -296,16 +296,25 @@ def _getDBDetails():
             table {
                 border-collapse: collapse;
         	    font-size: small;
+                border: 1px solid #4F81BD;
             }
 
             td, th {
-                border: 1px solid #4F81BD;
                 vertical-align:top;
 				padding: 2px 5px 2px 5px;
             }
 
+            th {
+                border: 1px solid #4F81BD;
+            }
+
+            td {
+                border-left: 1px solid #4F81BD;
+                border-right: 1px solid #4F81BD;
+            }
+
 			.altColor {
-				background-color:rgb(238, 238, 239);
+				background-color:#C6D9F1;
 			}
 
         </style>
@@ -322,6 +331,7 @@ def _getDBDetails():
     connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cursor = connection.cursor()
     try:
+        oddRow = False
         tablesList = "<table>"
         tablesList += '\t<tr valign="bottom"><th align="left">Tabulka</th><th>Záznamů</th></tr>'
         cursor.execute("SELECT table_name FROM information_schema.tables where table_schema='public'ORDER BY table_name;")
@@ -331,7 +341,8 @@ def _getDBDetails():
             cursor.execute("SELECT COUNT(*) FROM %s;" % tableName)
             countRow = cursor.fetchone()
 
-            tablesList += '<tr><td>%s</td><td align="right">%s</td></tr>' % (tableName, str(countRow[0]))
+            tablesList += '<tr %s><td>%s</td><td align="right">%s</td></tr>' % (["", 'class="altColor"'][int(oddRow)], tableName, str(countRow[0]))
+            oddRow = not oddRow
         tablesList += "</table>"
         result = result.replace("#TABLES_LIST#", tablesList)
 

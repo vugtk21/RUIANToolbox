@@ -86,16 +86,25 @@ htmlTemplate = u"""<html>
             table {
                 border-collapse: collapse;
         	    font-size: small;
+                border: 1px solid #4F81BD;
             }
 
             td, th {
-                border: 1px solid #4F81BD;
                 vertical-align:top;
 				padding: 2px 5px 2px 5px;
             }
 
+            th {
+                border: 1px solid #4F81BD;
+            }
+
+            td {
+                border-left: 1px solid #4F81BD;
+                border-right: 1px solid #4F81BD;
+            }
+
 			.altColor {
-				background-color:rgb(238, 238, 239);
+				background-color:#C6D9F1;
 			}
 
         </style>
@@ -135,6 +144,7 @@ def buildHTMLLog():
     log = log.replace(LAYERS_DETAILS_ID, msg)
 
 
+    oddRow = False
     importsTable = u"<table>"
     importsTable += u'<tr valign="bottom"><th>Datum</th><th>Import</th><th>Konverze<br>VFR</th><th>Chyby</th></tr>'
     for file in os.listdir(dataPath):
@@ -147,7 +157,7 @@ def buildHTMLLog():
                 if fileName.startswith(prefix):
                     dateStr = fileName[len(prefix):]
                     if len(dateStr) == len("2014.11.09"):
-                        importsTable += '<tr><td>%s</td><td><a href="%s">%s</a></td>' % (dateStr, prefix + dateStr + TXT_EXTENSION, IMPORT_TYPES[isDownload])
+                        importsTable += '<tr %s><td>%s</td><td><a href="%s">%s</a></td>' % (["", 'class="altColor"'][int(oddRow)], dateStr, prefix + dateStr + TXT_EXTENSION, IMPORT_TYPES[isDownload])
                         for detail in DETAILS:
                             detailName = prefix + dateStr + detail + LOG_EXTENSION
                             fileName = dataPath + detailName
@@ -157,6 +167,7 @@ def buildHTMLLog():
                             importsTable += u'<td align="center"><a href="%s">%s</a></td>' % (detailName, caption)
 
                         importsTable += "</tr>"
+                        oddRow = not oddRow
                 isDownload = False
 
     importsTable += "</table>"
