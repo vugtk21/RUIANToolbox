@@ -252,6 +252,95 @@ def _saveRUIANVersionDateToday():
         connection.close()
     pass
 
+def _getDBDetails():
+    result = u"""<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Podrobnosti o obsahu databáze #DATABASE_NAME#</title>
+        <style>
+	        body {
+	            font-family: Arial;
+			    font-size: small;
+			    color: #575757;
+			    margin: 10 10 10 10;
+	        }
+
+			a {
+                color: #1370AB;
+		    }
+
+            tr, td, th {
+                vertical-align:top;
+				font-size:small;
+			}
+
+            th {
+                background-color: #1370AB;
+                color : #fff;
+            }
+
+
+			h1, h2 {
+				font-size:large;
+				color: #2c4557;
+				font-weight:normal;
+				padding: 10px 0px 0px 0px;
+				margin: 0px 0px 0px 0px;
+			}
+
+            h1 {
+                color: #1370AB;
+			    border-bottom: 1 solid #B6B6B6;
+            }
+
+            table {
+                border-collapse: collapse;
+        	    font-size: small;
+            }
+
+            td, th {
+                border: 1px solid #4F81BD;
+                vertical-align:top;
+				padding: 2px 5px 2px 5px;
+            }
+
+			.altColor {
+				background-color:rgb(238, 238, 239);
+			}
+
+        </style>
+    </head>
+    <body>
+        <h1>Podrobnosti o obsahu databáze #DATABASE_NAME#</h1>
+        <br>
+        #TABLES_LIST#
+    </body>
+</html>
+"""
+    result = result.replace("#DATABASE_NAME#", DATABASE_NAME)
+
+    connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+    cursor = connection.cursor()
+    try:
+        tablesList = "<table>"
+        tablesList += '\t<tr valign="bottom"><th align="left">Tabulka</th><th>Záznamů</th></tr>'
+        cursor.execute("SELECT table_name FROM information_schema.tables where table_schema='public'ORDER BY table_name;")
+        rows = cursor.fetchall()
+        for row in rows:
+            tableName = row[0]
+            cursor.execute("SELECT COUNT(*) FROM %s;" % tableName)
+            countRow = cursor.fetchone()
+
+            tablesList += '<tr><td>%s</td><td align="right">%s</td></tr>' % (tableName, str(countRow[0]))
+        tablesList += "</table>"
+        result = result.replace("#TABLES_LIST#", tablesList)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    return result
+
 #_saveRUIANVersionDateToday()
 
 #DROP TABLE IF EXISTS ruian_dates;

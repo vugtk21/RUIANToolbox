@@ -23,9 +23,11 @@ class Locality:
         self.coordinates=coordinates
 
 if (False):
-    from RUIANReferenceDB import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday
+    from RUIANReferenceDB import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, \
+         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails
 else:
-    from postgisdb import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday
+    from postgisdb import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, \
+         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails
 
 
 findAddress = _findAddress
@@ -35,3 +37,5 @@ findCoordinates = _findCoordinates
 findCoordinatesByAddress = _findCoordinatesByAddress
 getRUIANVersionDate = _getRUIANVersionDate
 saveRUIANVersionDateToday = _saveRUIANVersionDateToday
+getDBDetails = _getDBDetails
+

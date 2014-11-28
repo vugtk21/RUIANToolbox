@@ -102,7 +102,7 @@ htmlTemplate = u"""<html>
     </head>
     <body>
         <h1>Detaily importů do databáze RÚIAN</h1>
-        <br>Databáze <b>#DATABASE_NAME#</b> je aktuální k #DATABASE_DATE#.
+        <br>Databáze <b><a href="../dbdetails">#DATABASE_NAME#</a></b> je aktuální k #DATABASE_DATE#.
         #LAYERS_DETAILS#
         <br><br>
         #IMPORTS_TABLE_ID#

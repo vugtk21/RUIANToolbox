@@ -129,8 +129,9 @@ class ServicesHTMLPageBuilder:
                     '</select>'
 
         elif param.name == 'FillAddressButton':
-            result += '<input type="button" value="Doplň adresu" id="' + formName + '_' + param.name + \
+            result += '<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
                       '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
+            result += '<br><input type="checkbox" id="%s_SmartAutocompleteCB" checked>Chytré našeptávače</input>' % (formName)
         else:
             if False: #param.disabled:
                 disabledStr = ' disabled="disabled" '

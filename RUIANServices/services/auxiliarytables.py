@@ -76,8 +76,7 @@ def getAddressRows(connection):
 def renameTempTable(connection):
     sys.stdout.write("Renaming table _ac_gids to ac_gids.")
     cursor = connection.cursor()
-    cursor.execute("drop table if exists ac_gids;")
-    cursor.execute("alter table _ac_gids rename to ac_gids;")
+    cursor.execute("drop table if exists ac_gids;alter table _ac_gids rename to ac_gids;")
     cursor.close()
     print " - done."
 
@@ -130,7 +129,6 @@ def buildGIDsTable():
         finally:
             cursor.close()
 
-        print "Renaming table ac_gids to ac_gids."
         renameTempTable(connection)
 
         print "Table ac_gids done."
@@ -169,3 +167,4 @@ if __name__ == '__main__':
     reload(sys)
     sys.setdefaultencoding('utf-8')
     buildAll()
+

@@ -360,9 +360,9 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
             db = PostGISDatabase()
             cursor = db.conection.cursor()
             cursor.execute(searchSQL)
-        except:
+        except psycopg2.Error as e:
             import sys
-            return[sys.exc_info()[0]]
+            return[e.pgerror, e.pgcode]
 
         rowCount = 0
         for row in cursor:

@@ -58,3 +58,7 @@ def _getRUIANVersionDate():
 
 def _saveRUIANVersionDateToday():
     pass
+
+def _getDBDetails():
+    return "getDBDetails() not implemented."
+    pass

@@ -18,6 +18,7 @@ from HTTPShared import *
 
 import addresswebservices
 import web
+import RUIANConnection
 
 from config import SERVICES_WEB_PATH
 from config import HTMLDATA_URL
@@ -109,6 +110,10 @@ def ProcessRequest(fullPathList, queryParams, response):
                 response.mimeFormat = mimeFormat
                 if mimeFormat == "text/plain":
                     response.htmlData = response.htmlData.replace("\r\n", "\n")
+            response.handled = True
+        elif servicePathInfo.lower() == "/dbdetails":
+            response.htmlData = RUIANConnection._getDBDetails()
+            response.mimeFormat = "text/html"
             response.handled = True
         else:
             pathInfos = fullPathList[1:]                                  # ostatní
