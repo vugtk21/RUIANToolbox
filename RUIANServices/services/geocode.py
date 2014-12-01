@@ -133,7 +133,7 @@ def createServiceHandlers():
                 #URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "", "", True),
                 getZIPCodeURL(),
                 URLParam("ExtraInformation",  u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False),
-                URLParam("FillAddressButton",  u"Doplň adresu", u"Najde v databázi adresu odpovídající vyplněným hodnotám", "", False)
+                URLParam("FillAddressButton",  u"Doplň adresu", u"Najde v databázi adresu odpovídající vyplněným hodnotám", "", True)
             ],
             geocodeAddressServiceHandler,
             sendButtonCaption = u"Najdi polohu",

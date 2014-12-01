@@ -52,11 +52,11 @@ def execSQLScriptFile(sqlFileName, msg):
     execSQLScript(sql)
 
 def createTempTable(connection):
-    sys.stdout.write("Creating temporary table _ac_gids")
+    sys.stdout.write("Creating table ac_gids")
     cursor = connection.cursor()
     try:
-        cursor.execute("drop table if exists _ac_gids;")
-        cursor.execute("CREATE TABLE _ac_gids (gid integer NOT NULL, address text);")
+        cursor.execute("drop table if exists ac_gids;")
+        cursor.execute("CREATE TABLE ac_gids (gid integer NOT NULL, address text);")
         print " - done."
     finally:
         cursor.close()
@@ -81,7 +81,7 @@ def renameTempTable(connection):
     print " - done."
 
 def buildGIDsTable():
-    print "Creating table ac_gids"
+    print "Building table ac_gids"
     print "------------------------"
     connection = psycopg2.connect(
         host = config.databaseHost,
@@ -112,7 +112,7 @@ def buildGIDsTable():
                     districtNumber = HTTPShared.extractDictrictNumber(nazev_mop)
 
                     rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-                    insertSQL = "INSERT INTO _ac_gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
+                    insertSQL = "INSERT INTO ac_gids (gid, address) VALUES (%s, '%s')" % (gid, rowLabel)
                     insertCursor.execute(insertSQL)
                     connection.commit()
                     if gaugecount >= 1000:
@@ -124,14 +124,14 @@ def buildGIDsTable():
                     exitApp()
                     pass
 
-            print "Done - %d rowns inserted." % row_count
+            print "Done - %d rows inserted." % row_count
 
         finally:
             cursor.close()
 
-        renameTempTable(connection)
+        #renameTempTable(connection)
 
-        print "Table ac_gids done."
+        print "Building table ac_gids done."
     finally:
         connection.close()
     pass
