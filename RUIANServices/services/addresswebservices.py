@@ -183,10 +183,10 @@ class ServicesHTMLPageBuilder:
             if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
                 tabDivs += u"""
                 <br><br>
-                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked>Adresa</input>
-                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB">Prvky adresy</input>
-                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB">Identifikátor RÚIAN</input>
-                """ % (service.pathName, formName, service.pathName, formName, service.pathName, formName)
+                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked onclick="%s">Adresa</input>
+                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB" onclick="%s">Prvky adresy</input>
+                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB" onclick="%s">Identifikátor RÚIAN</input>
+                """ % (service.pathName, formName, onChangeProcCode, service.pathName, formName, onChangeProcCode, service.pathName, formName, onChangeProcCode)
 
             tabDivs += "<br><br>"
             tabDivs += "<table><tr valign=\"top\"><td>"

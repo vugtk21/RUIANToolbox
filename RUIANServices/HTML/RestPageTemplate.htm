@@ -667,6 +667,27 @@ var temp;
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
     formNameLen = formElem.name.length + 1;
+
+    addressFields = "&Locality&LocalityPart&DistrictNumber&Street&HouseNumber&RecordNumber&OrientationNumber&OrientationNumberCharacter&ZIPCode";
+
+    var skippedInputs = ""
+    var elem = document.getElementById(formElem.name + "_AddressRB");
+    if (elem && elem.checked) {
+       skippedInputs = "AddressPlaceId" + addressFields;
+    }
+    else {
+        elem = document.getElementById(formElem.name + "_AddressItemsRB");
+        if (elem && elem.checked) {
+            skippedInputs = "AddressPlaceId&SearchText";
+        }
+        else {
+            elem = document.getElementById(formElem.name + "_RuianIdRB");
+            if (elem && elem.checked) {
+                skippedInputs = "SearchText" + addressFields;
+            }
+        }
+    }
+
     setupInputs(formElem.name, "", "");
     elements = formElem.elements;
     s = ""
@@ -691,7 +712,11 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
 			    delimeter = "&";
 		    }
 		    if (name != "" && name != "de") {
-		        if (elements[i].value!="") {
+                isOK = skippedInputs == "";
+                if (! isOK) {
+                   isOK = skippedInputs.indexOf(name) == -1
+                }
+		        if (isOK && elements[i].value != "") {
 			        s = s + delimeter + name + "=" + encodeURI(elements[i].value);
 			    }
 		    }
