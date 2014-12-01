@@ -364,7 +364,7 @@ function findAddress(formName, doShowMsg)
 
     if (params != "") {
         document.getElementById(formName).isLoadingAddress = true;
-        url = "http://localhost/euradin/services/jqueryautocomplete.py/fill?RUIANType=fill" + params;
+        url = "#SERVICES_URL_PATH#/jqueryautocomplete.py/fill?RUIANType=fill" + params;
         fillFormInputs(formName, url, doShowMsg);
     }
 }
