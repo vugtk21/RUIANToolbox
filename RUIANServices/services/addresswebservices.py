@@ -104,7 +104,7 @@ class ServicesHTMLPageBuilder:
         result = '<tr id="' + formName + '_row_' + param.name + '"' + visibilityStr + '>'
 
         if param.name == 'FillAddressButton':
-            result += '<td></td><td align="right">'
+            result += '<td align="right" colspan = "2">'
         else:
             result += '<td align="right">' + param.caption + ' </td><td>'
 
@@ -129,9 +129,9 @@ class ServicesHTMLPageBuilder:
                     '</select>'
 
         elif param.name == 'FillAddressButton':
-            result += '<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
+            result += '<input type="checkbox" id="%s_SmartAutocompleteCB" checked title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input>' % (formName)
+            result += '&nbsp;&nbsp;<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
                       '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
-            result += '<br><input type="checkbox" id="%s_SmartAutocompleteCB" checked>Chytré našeptávače</input>' % (formName)
         else:
             if False: #param.disabled:
                 disabledStr = ' disabled="disabled" '
