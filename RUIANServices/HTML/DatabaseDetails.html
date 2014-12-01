@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head lang="cz">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" charset="UTF-8" />
+        <title>Podrobnosti o obsahu databáze #DATABASE_NAME#</title>
+	    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+
+        <script>
+
+var loadingCount = #TABLES_COUNT#;
+
+function showTableRecordsCount(tableName, recordsCount)
+{
+    element = document.getElementById(tableName + "_TD");
+    if (element) {
+        element.innerText = recordsCount
+    }
+}
+
+function decreaseNumTables()
+{
+    loadingCount = loadingCount - 1;
+    if (loadingCount <= 0) {
+        element = document.getElementById("tablesNumDiv");
+        if (element) {
+            element.style.visibility = "hidden";
+            element.style.display = "none";
+        }
+    }
+    else {
+        element = document.getElementById("tableNumSpan");
+        if (element) {
+            if (loadingCount > 1) {
+                msg = " tabulkách"
+            }
+            else {
+                msg = " tabulce"
+            }
+            element.innerText = loadingCount.toString() + msg;
+        }
+    }
+}
+
+function loadTableRecordCount(tableName)
+{
+	var xmlHttp = getxmlHTTP();
+
+    xmlHttp.onreadystatechange = function()
+    {
+	    if (xmlHttp.readyState == 4) {
+		    resultStr = xmlHttp.responseText.replace("\\n","");
+		    showTableRecordsCount(tableName, resultStr);
+		    decreaseNumTables();
+	    }
+    }
+
+	xmlHttp.open("GET", "#SERVICES_PATH#dbdetails/recordCount/" + tableName, true);
+	xmlHttp.send(null);
+}
+
+function getxmlHTTP()
+{
+	var xmlHttp;
+	try {  // Firefox, Opera 8.0+, Safari
+		xmlHttp = new XMLHttpRequest();
+	} catch (e) {// Internet Explorer
+		try { xmlHttp = new ActiveXObject("Msxml2.XMLHTTP"); }
+		catch (e) {
+				try { xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");	}
+				catch (e) {
+					alert("Your browser does not support AJAX!");
+					return false;
+				}
+		}
+    }
+    return xmlHttp;
+}
+
+function loadRecordCounts()
+{
+    var tableNames = #TABLE_NAMES#;
+    for (var i=0; i < tableNames.length; i++) {
+        //showTableRecordsCount(tableNames[i], i);
+        loadTableRecordCount(tableNames[i]);
+    }
+}
+        </script>
+
+
+        <style>
+	        body {
+	            font-family: Arial;
+			    font-size: small;
+			    color: #575757;
+			    margin: 10 10 10 10;
+	        }
+
+			a {
+                color: #1370AB;
+		    }
+
+            tr, td, th {
+                vertical-align:top;
+				font-size:small;
+			}
+
+            th {
+                background-color: #1370AB;
+                color : #fff;
+            }
+
+            h1 {
+                color: #1370AB;
+			    border-bottom: 1 solid #B6B6B6;
+            }
+
+            table {
+                border-collapse: collapse;
+        	    font-size: small;
+                border: 1px solid #4F81BD;
+            }
+
+            td, th {
+                vertical-align:top;
+				padding: 2px 5px 2px 5px;
+            }
+
+            th {
+                border: 1px solid #4F81BD;
+            }
+
+            td {
+                border-left: 1px solid #4F81BD;
+                border-right: 1px solid #4F81BD;
+            }
+
+			.altColor {
+				background-color:#C6D9F1;
+			}
+        </style>
+
+    </head>
+    <body onload="decreaseNumTables();loadRecordCounts()">
+        <h1>Podrobnosti o obsahu databáze #DATABASE_NAME#</h1>
+		<div class="ui-widget" id="tablesNumDiv">
+            <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		    <p>
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			Načítám informace o <span id="tableNumSpan">#TABLES_COUNT#</span>...
+		    </div>
+        </div>
+        <br>
+        #TABLES_LIST#
+    </body>
+</html>

@@ -24,10 +24,10 @@ class Locality:
 
 if (False):
     from RUIANReferenceDB import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, \
-         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails
+         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails, _getTableNames
 else:
     from postgisdb import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, \
-         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails
+         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails, _getTableNames
 
 
 findAddress = _findAddress
@@ -38,4 +38,5 @@ findCoordinatesByAddress = _findCoordinatesByAddress
 getRUIANVersionDate = _getRUIANVersionDate
 saveRUIANVersionDateToday = _saveRUIANVersionDateToday
 getDBDetails = _getDBDetails
+getTableNames = _getTableNames
 

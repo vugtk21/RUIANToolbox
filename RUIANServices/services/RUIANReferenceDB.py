@@ -61,4 +61,6 @@ def _saveRUIANVersionDateToday():
 
 def _getDBDetails():
     return "getDBDetails() not implemented."
-    pass
+
+def _getTableNames():
+    return ""

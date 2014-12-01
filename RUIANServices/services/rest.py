@@ -39,6 +39,7 @@ def getTestingPath():
     return "/".join(paths) + "/testing/"
     return
 
+DATABASE_DETAILS_PATH = "/dbdetails"
 DATA_ALIASES = {
         "/html": getHTMLPath,
         "/downloaded": getDataDirFullPath,
@@ -67,7 +68,8 @@ def fileNameToMimeFormat(fileName):
         ".htm" : "text/html",
         ".html" : "text/html",
         ".txt" : "text/plain",
-        ".log" : "text/plain"
+        ".log" : "text/plain",
+        ".css" : "text/css"
     }
     fileExt = fileName[fileName.rfind("."):]
     if knownMimeFormats.has_key(fileExt):
@@ -111,12 +113,10 @@ def ProcessRequest(fullPathList, queryParams, response):
                 if mimeFormat == "text/plain":
                     response.htmlData = response.htmlData.replace("\r\n", "\n")
             response.handled = True
-        elif servicePathInfo.lower() == "/dbdetails":
-            response.htmlData = RUIANConnection._getDBDetails()
-            response.mimeFormat = "text/html"
-            response.handled = True
+        elif servicePathInfo.lower().startswith(DATABASE_DETAILS_PATH):
+            RUIANConnection._getDBDetails(fullPathList[1:], queryParams, response)
         else:
-            pathInfos = fullPathList[1:]                                  # ostatní
+            pathInfos = fullPathList[1:]  # ostatní
 
             for service in addresswebservices.services:
                 if (service.pathName == servicePathInfo) and (service.processHandler != None):

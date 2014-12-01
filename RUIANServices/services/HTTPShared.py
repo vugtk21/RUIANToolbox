@@ -101,6 +101,7 @@ def noneToString(item):
 class MimeBuilder:
     def __init__(self, formatText = "text"):
         self.formatText = formatText.lower()
+        self.recordSeparator = "EndOfRecord\n"
 
         if self.formatText in ["xml", "json"]:
             self.lineSeparator = "\n"
@@ -158,15 +159,20 @@ class MimeBuilder:
             result += line
         return result
 
-    def listToResponseText(self, ListOfLines, ignoreOneRow=False):
+    def listToResponseText(self, ListOfLines, ignoreOneRow=False, recordSeparator = ""):
+        if recordSeparator == "":
+            lineSeparator = self.lineSeparator
+        else:
+            lineSeparator = recordSeparator
+
         if self.formatText == "xml":
-            return self.listToXML(ListOfLines)
+            return self.listToXML(ListOfLines, lineSeparator)
         elif self.formatText == "html" or self.formatText == "htmltoonerow":
-            return self.listToHTML(ListOfLines)
+            return self.listToHTML(ListOfLines, lineSeparator)
         elif self.formatText == "json":
-            return self.listToJSON(ListOfLines)
+            return self.listToJSON(ListOfLines, lineSeparator)
         else: # default value text
-            return self.listToText(ListOfLines)
+            return self.listToText(ListOfLines, lineSeparator)
 
     def dictionaryToText(self, dictionary, withID, withAddress):
         response = dictionary["JTSKY"] + ", " + dictionary["JTSKX"]

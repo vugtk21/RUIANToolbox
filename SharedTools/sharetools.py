@@ -36,3 +36,15 @@ def normalizePathSep(path):
     path = path.replace("\\", os.sep)
     return path
 
+def getFileContent(fileName, charSet = "utf-8"):
+    if os.path.exists(fileName):
+        import codecs
+        inFile = codecs.open(fileName, "r", charSet)
+        result = inFile.read()
+        inFile.close()
+    else:
+        result = ""
+
+    return result
+
+

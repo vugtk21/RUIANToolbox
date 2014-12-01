@@ -208,9 +208,17 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<input style="float: right;" type="button" value="Nové zadání" onclick="clearInputs(\'' + formName + '\')">\n'
             tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s;%s">\n' % (service.sendButtonCaption, onChangeProcCode, displayResultProcCode)
             tabDivs += '</form>\n'
-            tabDivs += "</td><td>"
-            tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea>'
-            tabDivs += "</td></tr></table>"
+            tabDivs += "</td>"
+            tabDivs += '<td><textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea></td>'
+            tabDivs += '<td><div class="resizeAbleDiv">' \
+                       '<table class="resultsTable" id=' + formName + '_resultsTable>' \
+                       '<tr><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
+                       '<tr class="altColor"><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
+                       '<tr><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
+                       '<tr class="altColor"><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
+                       '</table>' \
+                       '</td>'
+            tabDivs += "</tr></table>"
 
             tabDivs += "<a class = 'enhancedGUI' href='" + restPyURL + "testing" + service.pathName + ".html'>Výsledky testů</a>"
             url = configmodule.getHTMLDataURL() + service.pathName[1:] + ".png"

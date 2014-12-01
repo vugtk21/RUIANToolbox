@@ -55,7 +55,7 @@ def compileAddressServiceHandler(queryParams, response):
 
     def p(name, defValue = ""):
         if queryParams.has_key(name):
-            a = urllib.unquote(queryParams[name])
+            #a = urllib.unquote(queryParams[name])
             #a = a.replace("%u017E",u"ž")
             #return mapping(a)
             return urllib.unquote(queryParams[name]) #decode("utf-8"))

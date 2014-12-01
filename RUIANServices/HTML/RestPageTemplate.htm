@@ -6,17 +6,20 @@
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 	<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
-	<link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+
 	<style>
 		.ui-autocomplete-loading {
 			background: white url("http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif") right center no-repeat;
 		}
-		p {
-			font-size: 100%;
-		}
-        body { 
+
+        body {
 			font-family: Tahoma;
 			color: #575757;
+	        font-size: 62.5%;
+		}
+
+		p {
+			font-size: 100%;
 		}
 
         .enhancedGUI {
@@ -70,8 +73,23 @@
 		button {
 			margin: 10px 15px 10px 15px;
 		}
-		
-		textarea, .warning {
+
+        .resizeAbleDiv {
+            width:300px;
+            resize:both;
+            overflow:auto;
+        }
+
+        .resultsTable {
+            width: 100%;
+        	font-size: small;
+        }
+
+		.altColor {
+			background-color:#C6D9F1;
+		}
+
+		textarea, .warning, .resizeAbleDiv {
 			padding: 10px 15px;
 			border: 1px solid #ccc;
 			background: white;
@@ -88,6 +106,10 @@
             color: #1370AB;
         }
 
+        .resizeAbleDiv {
+            visibility : hidden;
+            display : none;
+        }
 	</style>
 	
     <script type="text/javascript" charset="utf-8">
@@ -566,6 +588,24 @@ $(function() {
 	attachAutocompleteListeners();
 });
 
+function displayResultInTable(textAreaID, resultStr)
+{
+ classStrings = {
+   true: ' class="altColor" ',
+   false: ''
+ }
+
+ id = '#' + textAreaID.substr(0, textAreaID.length - ("_textarea").length) + "_resultsTable";
+ $(id + " tr").remove();
+
+ items = resultStr.split("EndOfRecord");
+ var isOdd = false;
+ for (var i=0; i < items.length; i++) {
+	$(id).append('<tr' + classStrings[isOdd] + '><td>' + items[i] + '</td></tr>');
+	isOdd = ! isOdd;
+ }
+}
+
 function displayResult(id, servicePath)
 {
     var url = "<#SERVICES_URL>" + temp
@@ -599,6 +639,7 @@ function displayResult(id, servicePath)
 		        }
 		    }
 		    elem.innerText = resultStr;
+		    displayResultInTable(id, resultStr);
 	    }
     }
 

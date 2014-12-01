@@ -6,12 +6,18 @@ from RUIANConnection import *
 import re
 
 from config import config
+from SharedTools.config import getRUIANServicesHTMLPath
+from SharedTools.sharetools import getFileContent
 
 DATABASE_HOST = config.databaseHost
 PORT          = config.databasePort
 DATABASE_NAME = config.databaseName
 USER_NAME     = config.databaseUserName
 PASSWORD      = config.databasePassword
+
+SERVER_HTTP = config.serverHTTP
+PORT_NUMBER = config.portNumber
+SERVICES_WEB_PATH = config.servicesWebPath
 
 TABLE_NAME = "address_points"
 
@@ -252,105 +258,68 @@ def _saveRUIANVersionDateToday():
         connection.close()
     pass
 
-def _getDBDetails():
-    result = u"""<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Podrobnosti o obsahu databáze #DATABASE_NAME#</title>
-        <style>
-	        body {
-	            font-family: Arial;
-			    font-size: small;
-			    color: #575757;
-			    margin: 10 10 10 10;
-	        }
-
-			a {
-                color: #1370AB;
-		    }
-
-            tr, td, th {
-                vertical-align:top;
-				font-size:small;
-			}
-
-            th {
-                background-color: #1370AB;
-                color : #fff;
-            }
-
-
-			h1, h2 {
-				font-size:large;
-				color: #2c4557;
-				font-weight:normal;
-				padding: 10px 0px 0px 0px;
-				margin: 0px 0px 0px 0px;
-			}
-
-            h1 {
-                color: #1370AB;
-			    border-bottom: 1 solid #B6B6B6;
-            }
-
-            table {
-                border-collapse: collapse;
-        	    font-size: small;
-                border: 1px solid #4F81BD;
-            }
-
-            td, th {
-                vertical-align:top;
-				padding: 2px 5px 2px 5px;
-            }
-
-            th {
-                border: 1px solid #4F81BD;
-            }
-
-            td {
-                border-left: 1px solid #4F81BD;
-                border-right: 1px solid #4F81BD;
-            }
-
-			.altColor {
-				background-color:#C6D9F1;
-			}
-
-        </style>
-    </head>
-    <body>
-        <h1>Podrobnosti o obsahu databáze #DATABASE_NAME#</h1>
-        <br>
-        #TABLES_LIST#
-    </body>
-</html>
-"""
-    result = result.replace("#DATABASE_NAME#", DATABASE_NAME)
-
+def getTableCount(tableName):
     connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cursor = connection.cursor()
     try:
-        oddRow = False
-        tablesList = "<table>"
-        tablesList += '\t<tr valign="bottom"><th align="left">Tabulka</th><th>Záznamů</th></tr>'
-        cursor.execute("SELECT table_name FROM information_schema.tables where table_schema='public'ORDER BY table_name;")
-        rows = cursor.fetchall()
-        for row in rows:
-            tableName = row[0]
-            cursor.execute("SELECT COUNT(*) FROM %s;" % tableName)
-            countRow = cursor.fetchone()
-
-            tablesList += '<tr %s><td>%s</td><td align="right">%s</td></tr>' % (["", 'class="altColor"'][int(oddRow)], tableName, str(countRow[0]))
-            oddRow = not oddRow
-        tablesList += "</table>"
-        result = result.replace("#TABLES_LIST#", tablesList)
-
+        cursor.execute("SELECT count(*) FROM %s;" % tableName)
+        row = cursor.fetchone()
+        result = row[0]
     finally:
         cursor.close()
         connection.close()
+    return str(result)
 
-    return result
+def getPortSpecification():
+    if config.portNumber == 80:
+        return ""
+    else:
+        return ":" + str(config.portNumber)
+
+def _getDBDetails(servicePathInfo, queryParams, response):
+    if servicePathInfo != None and len(servicePathInfo) > 1 and servicePathInfo[0].lower() == "recordcount":
+        response.htmlData = getTableCount(servicePathInfo[1])
+        response.mimeFormat = "text/plain"
+        response.handled = True
+    else:
+        response.mimeFormat = "text/html"
+        response.handled = True
+
+        result = getFileContent(getRUIANServicesHTMLPath() + "DatabaseDetails.html")
+        result = result.replace("#DATABASE_NAME#", DATABASE_NAME)
+
+        connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+        cursor = connection.cursor()
+        try:
+            oddRow = False
+            tablesList = "<table>\n"
+            tablesList += '\t\t<tr valign="bottom"><th align="left">Tabulka</th><th>Záznamů</th></tr>\n'
+            cursor.execute("SELECT table_name FROM information_schema.tables where table_schema='public'ORDER BY table_name;")
+            tableNames = []
+            rows = cursor.fetchall()
+            for row in rows:
+                tableName = row[0]
+                tableNames.append(tableName)
+                tablesList += '\t\t<tr %s><td>%s</td><td align="right" id="%s_TD"></td></tr>\n' % (["", 'class="altColor"'][int(oddRow)], tableName, tableName)
+                oddRow = not oddRow
+            tablesList += "\t</table>"
+            result = result.replace("#TABLES_LIST#", tablesList)
+            result = result.replace("#TABLES_COUNT#", str(len(rows) + 1))
+            result = result.replace("#TABLE_NAMES#", str(tableNames))
+            restPyURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/"
+            result = result.replace("#SERVICES_PATH#", restPyURL)
+
+
+            result = result.replace("\r\n", "\n")
+            response.htmlData = result
+        finally:
+            cursor.close()
+            connection.close()
+
+    pass
+
+def _getTableNames():
+    return '"ahoj", "table2"'
 
 #_saveRUIANVersionDateToday()
 
