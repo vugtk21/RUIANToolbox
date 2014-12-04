@@ -4,7 +4,7 @@ echo ------------------------------------------------------
 echo Pro informaci o prubehu importu, sledujte obsah souboru ImportRUIAN.log a ImportRUIANErr.log, pripadne ostatni logovaci soubory v adresari se stazenymi daty.
 echo Import muze dle nastaveni a rychlosti pocitace trvat i nekolik hodin.
 echo ------------------------------------------------------
-echo !!!Nezavirejte toto okno do ukonceni davky!!!
+echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd RUIANImporter
 importRUIAN.py %*  >> ..\ImportRUIAN.log 2>>..\ImportRUIANErr.log
 cd ..\
