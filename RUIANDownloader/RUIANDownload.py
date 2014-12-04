@@ -33,7 +33,6 @@ __author__ = 'raugustyn'
 # Standard modules import
 # ####################################
 import urllib2
-import gzip
 import os
 import sys
 import datetime
@@ -353,14 +352,15 @@ class RUIANDownloader:
         if ext == ".gz":
             outFileName = fileName[:-len(ext)]
             logger.info("Uncompressing " + extractFileName(fileName) + " -> " + extractFileName(outFileName))
+            import gzip
             f = gzip.open(fileName, 'rb')
-            # @TODO tady by se melo cist po kouskach
-            fileContent = f.read()
-            f.close()
             out = open(outFileName, "wb")
-            out.write(fileContent)
-            self.downloadInfo.fileSize = len(fileContent)
-            out.close()
+            try:
+                out.write(f.read())
+            finally:
+                f.close()
+                out.close()
+            self.downloadInfo.fileSize = os.path.getsize(outFileName)
             if deleteSource:
                 os.remove(fileName)
             return outFileName
