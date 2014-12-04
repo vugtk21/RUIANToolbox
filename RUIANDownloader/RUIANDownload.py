@@ -299,7 +299,7 @@ class RUIANDownloader:
             index = index + 1
             fileName = self.downloadURLtoFile(href, index, len(urlList))
             if config.uncompressDownloadedFiles:
-                self.uncompressFile(fileName, True)
+                self.uncompressFile(fileName, not config.runImporter)
         #self.buildIndexHTML()
         pass
 
