@@ -76,10 +76,8 @@ class Config:
                 if key != key.lower():
                     self._remapTable[key.lower()] = key
 
-        if os.path.exists(fileName):
-            self.fileName = fileName
-        elif os.path.exists("c:/temp/" + fileName):
-            self.fileName = "c:/temp/" + fileName
+        if os.path.exists(basePath + fileName):
+            self.fileName = basePath + fileName
         else:
             path = sharetools.normalizePathSep(os.path.dirname(__file__))
             pathItems = path.split(os.sep)
@@ -254,10 +252,13 @@ def RUIANDownloadConfig():
                                  "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
                                  "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
                 "ignoreHistoricalData": True
+
             },
            convertRUIANDownloadCfg,
            defSubDir = "RUIANDownloader",
-           moduleFile = __file__)
+           moduleFile = __file__,
+           basePath = getRUIANDownloaderPath()
+        )
     return x_RUIANDownloadConfig
 
 def convertRUIANImporterConfig(config):
@@ -285,7 +286,8 @@ def RUIANImporterConfig():
             },
             convertRUIANImporterConfig,
             defSubDir = "RUIANImporter",
-            moduleFile = __file__
+            moduleFile = __file__,
+            basePath = getRUIANImporterPath()
            )
     return x_RUIANImporterConfig
 
