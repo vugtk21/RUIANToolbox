@@ -353,7 +353,7 @@ class RUIANDownloader:
             outFileName = fileName[:-len(ext)]
             logger.info("Uncompressing " + extractFileName(fileName) + " -> " + extractFileName(outFileName))
             import gzip
-            f = gzip.open(fileName, 'rb')
+            f = gzip.open(fileName, 'rb', 1024*1024*20)
             out = open(outFileName, "wb")
             try:
                 out.write(f.read())
