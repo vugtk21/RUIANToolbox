@@ -211,6 +211,26 @@ function setupInputs(formName)
         if (localityPart != "")
             subParams = subParams + "&localityPart=" + localityPart;
 
+        $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
+          source: [
+            {"id":"","label":"Praha 1","value":"1"},
+            {"id":"","label":"Praha 2","value":"2"},
+            {"id":"","label":"Praha 3","value":"3"},
+            {"id":"","label":"Praha 4","value":"4"},
+            {"id":"","label":"Praha 5","value":"5"},
+            {"id":"","label":"Praha 6","value":"6"},
+            {"id":"","label":"Praha 7","value":"7"},
+            {"id":"","label":"Praha 8","value":"8"},
+            {"id":"","label":"Praha 9","value":"9"},
+            {"id":"","label":"Praha 10","value":"10"}
+          ],
+          minLength: 1,
+            select: function( event, ui ) {
+		        setInputValueFromMaster(this.id, "_Locality", "Praha");
+		        setInputValueFromMaster(this.id, "_ZIPCode", "");
+	        }
+        });
+
         $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
             source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/townpart?RUIANType=townpart" + subParams,
             minLength: 1,
@@ -450,6 +470,7 @@ function detachAutocompleteListeners()
     $(".RUIAN_TOWNPART_INPUT").autocomplete({source: []});
     $(".RUIAN_STREET_INPUT").autocomplete({source: []});
     $(".RUIAN_TEXTSEARCH_INPUT").autocomplete({source: []});
+    $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({source: []});
 }
 
 function attachAutocompleteListeners()
