@@ -129,7 +129,7 @@ class ServicesHTMLPageBuilder:
                     '</select>'
 
         elif param.name == 'FillAddressButton':
-            result += '<input type="checkbox" id="%s_SmartAutocompleteCB" checked title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input>' % (formName)
+            result += '<input type="checkbox" id="%s_SmartAutocompleteCB" checked onchange="setupInputs(\'%s\')" title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input>' % (formName, formName)
             result += '&nbsp;&nbsp;<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
                       '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
         else:

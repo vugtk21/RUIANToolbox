@@ -211,6 +211,10 @@ function setupInputs(formName)
         if (localityPart != "")
             subParams = subParams + "&localityPart=" + localityPart;
 
+        if (document.getElementById(formName + "_SmartAutocompleteCB").checked) {
+            subParams = subParams + "&SmartAutocomplete=true"
+        }
+
         $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
           source: [
             {"id":"","label":"Praha 1","value":"1"},
