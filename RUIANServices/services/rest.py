@@ -40,6 +40,7 @@ def getTestingPath():
     return
 
 DATABASE_DETAILS_PATH = "/dbdetails"
+AUTOCOMPLETES_PATH = '/autocomplete'
 DATA_ALIASES = {
         "/html": getHTMLPath,
         "/downloaded": getDataDirFullPath,
@@ -81,7 +82,6 @@ def fileNameToMimeFormat(fileName):
 def ProcessRequest(fullPathList, queryParams, response):
     addresswebservices.console.clear()
 
-
     addresswebservices.console.addInfo(u"SERVICES_WEB_PATH: " + SERVICES_WEB_PATH)
     addresswebservices.console.addInfo(u"HTMLDATA_URL: " + HTMLDATA_URL)
     if addresswebservices.console.debugMode:
@@ -92,7 +92,6 @@ def ProcessRequest(fullPathList, queryParams, response):
         addresswebservices.console.addInfo(u"configModule.HTMLDATA_URL: " + configModule.HTMLDATA_URL)
         addresswebservices.console.addInfo(u"configModule.SERVER_HTTP: " + configModule.SERVER_HTTP)
         addresswebservices.console.addInfo(u"configModule.getPortSpecification(): " + configModule.getPortSpecification())
-
 
     pageBuilder = addresswebservices.ServicesHTMLPageBuilder()
     if fullPathList in [["/"], []]:
@@ -106,13 +105,16 @@ def ProcessRequest(fullPathList, queryParams, response):
 
         if DATA_ALIASES.has_key(servicePathInfo.lower()):
             fileName = DATA_ALIASES[servicePathInfo.lower()]() + "/".join(fullPathList[1:])
-            response.htmlData = getFileContent(fileName) # TODO Implementovat vracení binárních souborů
+            response.htmlData = getFileContent(fileName)
             mimeFormat = fileNameToMimeFormat(fileName)
             if mimeFormat != None:
                 response.mimeFormat = mimeFormat
                 if mimeFormat == "text/plain":
                     response.htmlData = response.htmlData.replace("\r\n", "\n")
             response.handled = True
+        elif servicePathInfo.lower().startswith(AUTOCOMPLETES_PATH):
+            import jqueryautocomplete
+            response = jqueryautocomplete.processRequest("/".join(fullPathList), "", "", queryParams, response)
         elif servicePathInfo.lower().startswith(DATABASE_DETAILS_PATH):
             RUIANConnection._getDBDetails(fullPathList[1:], queryParams, response)
         else:

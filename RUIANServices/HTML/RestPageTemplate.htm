@@ -232,7 +232,7 @@ function setupInputs(formName)
         });
 
         $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
-            source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/townpart?RUIANType=townpart" + subParams,
+            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/townpart?RUIANType=townpart" + subParams,
             minLength: 1,
             select: function( event, ui ) {
 		        setInputValueFromMaster(this.id, "_Locality", ui.item.id);
@@ -241,7 +241,7 @@ function setupInputs(formName)
         });
 
         $( ".RUIAN_STREET_INPUT" ).autocomplete({
-            source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
+            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
             minLength: 1,
             select: function( event, ui ) {
 		        addressItems = ui.item.id.split(",");
@@ -262,7 +262,7 @@ function setupInputs(formName)
         });
 
         $(".RUIAN_ZIP_INPUT").autocomplete({
-            source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/zipcode?RUIANType=zip&" + subParams,
+            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/zipcode?RUIANType=zip&" + subParams,
             minLength: 3,
             select: function( event, ui ) {
 
@@ -384,7 +384,7 @@ function findAddress(formName, doShowMsg)
 
     if (params != "") {
         document.getElementById(formName).isLoadingAddress = true;
-        url = "#SERVICES_URL_PATH#/jqueryautocomplete.py/fill?RUIANType=fill" + params;
+        url = "#SERVICES_URL_PATH#/rest.py/autocomplete/fill?RUIANType=fill" + params;
         fillFormInputs(formName, url, doShowMsg);
     }
 }
@@ -476,13 +476,13 @@ function detachAutocompleteListeners()
 function attachAutocompleteListeners()
 {
     $(".RUIAN_ID_INPUT").autocomplete({
-      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/id?RUIANType=id&",
+      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/id?RUIANType=id&",
       minLength: 1,
       select: function( event, ui ) { this.value = ui.item.id; }
     });
 	
     $(".RUIAN_ZIP_INPUT").autocomplete({
-      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/zipcode?RUIANType=zip&",
+      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/zipcode?RUIANType=zip&",
       minLength: 3,
       select: function( event, ui ) { 
 	  
@@ -495,7 +495,7 @@ function attachAutocompleteListeners()
     });	
 	
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/town?RUIANType=town",
+      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town",
       minLength: 1,
       select: function( event, ui ) { 
 		setInputValueFromMaster(this.id, "_LocalityPart", ui.item.id);
@@ -503,7 +503,7 @@ function attachAutocompleteListeners()
     });
 	
     $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/townpart?RUIANType=townpart",
+      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/townpart?RUIANType=townpart",
       minLength: 1,
       select: function( event, ui ) { 
 		setInputValueFromMaster(this.id, "_Locality", ui.item.id);
@@ -512,7 +512,7 @@ function attachAutocompleteListeners()
     });
 
     $( ".RUIAN_STREET_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/street?RUIANType=street&ResultFormat=AddressParts",
+      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=street&ResultFormat=AddressParts",
       minLength: 1,
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");
@@ -534,7 +534,7 @@ function attachAutocompleteListeners()
 	
 	
     $( ".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/jqueryautocomplete.py/street?RUIANType=textsearch&ResultFormat=AddressParts",
+      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
       minLength: 1,
       select: function( event, ui ) {	
 		addressItems = ui.item.id.split(",");

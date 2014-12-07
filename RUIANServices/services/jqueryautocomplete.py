@@ -20,7 +20,7 @@ def getQueryValue(queryParams, id, defValue):
 def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
     if queryParams:
         max_matches = int(getQueryValue(queryParams, 'max_matches', 40))
-        if page == "fill":
+        if page.lower().startswith("fill"):
             response.htmlData = jqueryautocompletePostGIS.getFillResults(queryParams, max_matches)
         else:
             token = getQueryValue(queryParams, 'term', "")
