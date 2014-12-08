@@ -117,6 +117,20 @@ class ServicesHTMLPageBuilder:
                             '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
                     '</select>'
+        elif param.name == "DistrictNumber":
+            result += '<select id="%s_%s" title="%s" onchange="districtNumberChanged(\'%s\')">' % (formName, param.name, param.shortDesc, formName)+ \
+                            '<option value=""></option>' + \
+                            '<option value="1">Praha 1</option>' + \
+                            '<option value="2">Praha 2</option>' + \
+                            '<option value="3">Praha 3</option>' + \
+                            '<option value="4">Praha 4</option>' + \
+                            '<option value="5">Praha 5</option>' + \
+                            '<option value="6">Praha 6</option>' + \
+                            '<option value="7">Praha 7</option>' + \
+                            '<option value="8">Praha 8</option>' + \
+                            '<option value="9">Praha 9</option>' + \
+                            '<option value="10">Praha 10</option>' + \
+                    '</select>'
         elif param.name == 'ExtraInformation':
             if formName == "form_1":
                 addressOption = '<option value="address">přidat adresu</option>'

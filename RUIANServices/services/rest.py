@@ -114,7 +114,7 @@ def ProcessRequest(fullPathList, queryParams, response):
             response.handled = True
         elif servicePathInfo.lower().startswith(AUTOCOMPLETES_PATH):
             import jqueryautocomplete
-            response = jqueryautocomplete.processRequest("/".join(fullPathList), "", "", queryParams, response)
+            response = jqueryautocomplete.processRequest("/".join(fullPathList[1:]), "", "", queryParams, response)
         elif servicePathInfo.lower().startswith(DATABASE_DETAILS_PATH):
             RUIANConnection._getDBDetails(fullPathList[1:], queryParams, response)
         else:

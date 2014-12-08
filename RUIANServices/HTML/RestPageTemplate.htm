@@ -131,6 +131,9 @@ function clearInputs(formName)
 		}
 	);
 
+    elem = document.getElementById(formName + "_DistrictNumber");
+    if (elem) elem.selectedIndex = 0;
+
     elem = document.getElementById(formName + "_textArea");
     elem.innerText = "";
 }
@@ -164,6 +167,29 @@ function enableElement(elementName)
 function disableElement(elementName)
 {
     document.getElementById(elementName).disabled = true;
+}
+
+function getSubParamsQuery(formName)
+{
+    autocompleteSubParamsList = ["Locality", "LocalityPart", "DistrictNumber", "Street", "HouseNumber", "RecordNumber", "OrientationNumber", "OrientationNumberCharacter", "ZIPCode"]
+
+    result = [];
+    for (var i = 0; i < autocompleteSubParamsList.length; i++) {
+        elem = document.getElementById(formName + "_" + autocompleteSubParamsList[i]);
+        value = elem.value;
+        if (value != "") {
+            result.push(autocompleteSubParamsList[i] + "=" + value);
+        }
+    }
+    return result;
+}
+
+function districtNumberChanged(formName)
+{
+    if (document.getElementById(formName + "_DistrictNumber").value != "") {
+        document.getElementById(formName + "_Locality").value = "Praha"
+    }
+    setupInputs(formName);
 }
 
 function setupInputs(formName)
@@ -204,16 +230,11 @@ function setupInputs(formName)
     showOrHideElement(formName + "_SmartAutocompleteCB", showDetails);
 
     if (! isEnhancedGUI) {
-        subParams = ""
-        if (localityName != "")
-            subParams = subParams + "&localityName=" + localityName;
-
-        if (localityPart != "")
-            subParams = subParams + "&localityPart=" + localityPart;
-
+        var subParamsList = getSubParamsQuery(formName);
         if (document.getElementById(formName + "_SmartAutocompleteCB").checked) {
-            subParams = subParams + "&SmartAutocomplete=true"
+            subParamsList.push("SmartAutocomplete=true");
         }
+        subParams = "&" + subParamsList.join("&");
 
         $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
           source: [
@@ -233,6 +254,11 @@ function setupInputs(formName)
 		        setInputValueFromMaster(this.id, "_Locality", "Praha");
 		        setInputValueFromMaster(this.id, "_ZIPCode", "");
 	        }
+        });
+
+        $( ".RUIAN_TOWN_INPUT" ).autocomplete({
+            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town" + subParams,
+            minLength: 1
         });
 
         $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
@@ -500,10 +526,7 @@ function attachAutocompleteListeners()
 	
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
       source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town",
-      minLength: 1,
-      select: function( event, ui ) { 
-		setInputValueFromMaster(this.id, "_LocalityPart", ui.item.id);
-	  }
+      minLength: 1
     });
 	
     $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({

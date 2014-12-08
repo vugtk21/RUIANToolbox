@@ -19,6 +19,8 @@ AC_PSC   = "ac_psc"
 AC_ULICE = "ac_ulice"
 AC_CASTI_OBCE = "ac_casti_obce"
 ADDRESSPOINTS_TABLENAME = "address_points"
+LOCALITY_QUERY_ID = "Locality"
+LOCALITY_PART_QUERY_ID = "LocalityPart"
 
 class PostGISDatabase():
 
@@ -233,18 +235,22 @@ def getRows(searchSQL, maxCount = 10):
 
     return rows
 
-def getTownAutocompleteResults(nameToken, resultFormat, maxCount = 10):
+def getTownAutocompleteResults(queryParams, nameToken, resultFormat, maxCount = 10):
     if nameToken == "" or nameToken == None:
         return []
 
     nameToken = nameToken.lower()
 
-    searchSQL = "select nazev_obce from " + AC_OBCE + " where nazev_obce ilike '%" + nameToken + "%'"
-    rows = getRows(searchSQL)
-
-    searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'" + \
-                " and nazev_casti_obce <> nazev_obce"
-    rows.extend(getRows(searchSQL))
+    localityPart = getQueryValue(queryParams, LOCALITY_PART_QUERY_ID, "")
+    if localityPart == "":
+        searchSQL = "select nazev_obce from %s where nazev_obce ilike '%%%s%%'" % (AC_OBCE, nameToken)
+        rows = getRows(searchSQL)
+        searchSQL = "select nazev_casti_obce, nazev_obce from %s where nazev_casti_obce ilike '%%%s%%'" + \
+                    " and nazev_casti_obce <> nazev_obce" % (AC_CASTI_OBCE, nameToken)
+        rows.extend(getRows(searchSQL))
+    else:
+        searchSQL = "select nazev_obce from %s where nazev_casti_obce = '%s' and nazev_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityPart, nameToken)
+        rows = getRows(searchSQL)
 
     return rows
 
@@ -315,6 +321,24 @@ def getFillResults(queryParams, maxCount = 10):
 
     return result
 
+def getTownPartResults(queryParams, nameToken, resultFormat, maxCount = 10):
+    if nameToken == "" or nameToken == None:
+        return []
+
+    nameToken = nameToken.lower()
+
+    locality = getQueryValue(queryParams, LOCALITY_QUERY_ID, "")
+    if locality == "":
+        localityClause = ""
+    else:
+        localityClause = " nazev_obce = '%s' and " % locality
+
+    searchSQL = "select nazev_casti_obce, nazev_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
+    rows = getRows(searchSQL)
+
+    return rows
+
+
 def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxCount = 10):
     if nameToken == "" or nameToken == None:
         return []
@@ -330,13 +354,9 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
     hasNumber = False
     isStreet = False
     if ruianType == "townpart":
-        localityName = getQueryValue(queryParams, "localityName", "")
-        if localityName == "":
-            searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'"
-        else:
-            searchSQL = "select nazev_casti_obce, nazev_obce from " + AC_CASTI_OBCE + " where nazev_casti_obce ilike '%" + nameToken + "%'" + " and nazev_obce ilike '%" + localityName + "%'"
+        return getTownPartResults(queryParams, nameToken, resultFormat, maxCount)
     elif ruianType == "town":
-        return getTownAutocompleteResults(nameToken, resultFormat, maxCount)
+        return getTownAutocompleteResults(queryParams, nameToken, resultFormat, maxCount)
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from ac_gids where cast(gid as text) like '" + nameToken + "%'"
     elif ruianType == "zip":

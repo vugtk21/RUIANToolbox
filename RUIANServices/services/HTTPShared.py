@@ -53,7 +53,7 @@ def getOrientationNumberCharacterURL(disabled = True):
 
 def getDistrictNumberURL(disabled = True):
     # 1..10
-    return URLParam("DistrictNumber", u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu v Praze v rozsahu 1 až 10",
+    return URLParam("DistrictNumber", u"Městský obvod", u"Číslo městského obvodu v Praze",
                     "", disabled, htmlTags = ' class="RUIAN_DISTRICTNUMBER_INPUT" onkeypress="return isNumber(event, this, 2, 10)" ')#onpaste="return isNumber(event, this, 2, 10)"')
 
 def getAddressPlaceIdParamURL_IdNotDisabled():
