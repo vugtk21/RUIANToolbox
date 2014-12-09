@@ -273,7 +273,7 @@ function setupInputs(formName)
         if (document.getElementById(formName + "_SmartAutocompleteCB").checked) {
             subParamsList.push("SmartAutocomplete=true");
         }
-        subParams = "&" + subParamsList.join("&");
+        var subParams = "&" + subParamsList.join("&");
 
         if (USE_DATA_LISTS) {
             requestAndfillDataList(formName, "_HouseNumber_DataList");
@@ -301,7 +301,13 @@ function setupInputs(formName)
 
         $( ".RUIAN_TOWN_INPUT" ).autocomplete({
             source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town" + subParams,
-            minLength: 1
+            minLength: 1,
+            select: function( event, ui ) {
+		        addressItems = ui.item.label.split(",");
+		        if (addressItems.length == 2) {
+		            setInputValueFromMaster(this.id, "_LocalityPart", addressItems[1]);
+		        }
+	        }
         });
 
         $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({

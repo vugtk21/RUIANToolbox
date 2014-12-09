@@ -335,7 +335,7 @@ def getTownPartResults(queryParams, nameToken, resultFormat, maxCount = 10):
     else:
         localityClause = " nazev_obce = '%s' and " % locality
 
-    searchSQL = u"select nazev_casti_obce, nazev_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
+    searchSQL = u"select nazev_obce, nazev_casti_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
     rows = getRows(searchSQL)
 
     return rows
