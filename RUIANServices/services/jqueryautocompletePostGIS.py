@@ -188,7 +188,7 @@ def parseFullTextToken(queryParams, nameToken):
 
     return (hasNumber, searchSQL)
 
-def getRows(searchSQL, maxCount = 10):
+def getRows(searchSQL, maxCount = 15):
     rows = []
     if searchSQL != "":
         searchSQL += " limit " + str(maxCount)
@@ -260,12 +260,18 @@ def getQueryValue(queryParams, id, defValue):
     else:
         return defValue
 
-def getSQLWhereClause(queryParams, paramList):
+def getSQLWhereClause(queryParams, paramList, andIsBeroreClause = True):
     result = u""
     for key in paramList:
         value =  getQueryValue(queryParams, key, "")
         if value != "":
-            result += " and " + paramList[key] + " ilike '%" + value + "%'"
+            if andIsBeroreClause:
+                result += " and "
+            result += paramList[key] + " ilike '%" + value + "%'"
+            if not andIsBeroreClause:
+                result += " and "
+
+
 
     return result
 
@@ -335,11 +341,35 @@ def getTownPartResults(queryParams, nameToken, resultFormat, maxCount = 10):
     else:
         localityClause = " nazev_obce = '%s' and " % locality
 
-    searchSQL = u"select nazev_obce, nazev_casti_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
+    searchSQL = u"select nazev_ulice, nazev_casti_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
     rows = getRows(searchSQL)
 
     return rows
 
+def getStreetResults(queryParams, nameToken, resultFormat, maxCount = 10):
+    if nameToken == "" or nameToken == None:
+        return []
+
+    nameToken = nameToken.lower()
+
+    whereClause = getSQLWhereClause(queryParams,
+                    {
+                        "Locality" : u"nazev_obce",
+                        "LocalityPart" : u"nazev_casti_obce"
+                    },
+                    False
+                  )
+
+    searchSQL = (u"select nazev_obce, nazev_casti_obce, nazev_ulice from %s where nazev_obce <> nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
+                u"order by nazev_obce, nazev_casti_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
+    rows = getRows(searchSQL)
+
+    searchSQL = (u"select nazev_casti_obce, nazev_ulice from %s where nazev_obce = nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
+                u"order by nazev_casti_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
+
+    rows.extend(getRows(searchSQL))
+
+    return rows
 
 def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxCount = 10):
     if nameToken == "" or nameToken == None:
@@ -372,6 +402,8 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
             ) + " group by psc, nazev_obce order by psc, nazev_obce"
 
         joinSeparator = " "
+    elif ruianType == "street":
+        return getStreetResults(queryParams, nameToken, resultFormat, maxCount)
     else:
         # street or textsearch
         hasNumber, searchSQL = parseFullTextToken(queryParams, nameToken)
