@@ -12,6 +12,13 @@ import urllib
 
 services = []
 
+def getQueryValue(queryParams, id, defValue):
+    # Vrací hodnotu URL Query parametruy id, pokud neexistuje, vrací hodnotu defValue
+    if queryParams.has_key(id):
+        return queryParams[id]
+    else:
+        return defValue
+
 def getResultFormatParam():
     return RestParam("/Format", u"Formát", u"Formát výsledku služby (HTML, XML, Text, JSON)")
 

@@ -26,6 +26,7 @@ from config import setupVariables
 
 import RUIANConnection
 
+USE_DATA_LISTS = False
 SERVICES_PATH = '' # 'services'
 
 def getPageTemplate():
@@ -79,6 +80,8 @@ def getIssueHTML():
         return result
 
 class ServicesHTMLPageBuilder:
+    def __init__(self):
+        self.dataListHTML = ""
 
     def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
@@ -153,14 +156,23 @@ class ServicesHTMLPageBuilder:
                 disabledStr = ''
 
             elemID = formName + '_' + param.name
+
+            dataListRef = ""
+            if USE_DATA_LISTS and param.name == "HouseNumber":
+                dataListID = "%s_%s_DataList" % (formName, param.name)
+                self.dataListHTML += '<datalist id="%s">\n</datalist>\n' % (dataListID)
+                dataListRef = ' list="%s"' % dataListID
+
             result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + \
-                      ' id="' + elemID + '"' + ' />'
+                      ' id="' + elemID + '"' + dataListRef + ' />'
 
         result += '</tr>\n'
+
         return result
 
     def getServicesHTMLPage(self, pathInfo, queryParams):
+        self.dataListHTML = ""
         result = getPageTemplate().replace("#PAGETITLE#", u"Webové služby RÚIAN")
         servicesURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH
         result = result.replace("<#SERVICES_URL>", servicesURL)
@@ -252,6 +264,8 @@ class ServicesHTMLPageBuilder:
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
+        result = result.replace("</body>", self.dataListHTML + "</body>")
+
         return result
 
 def createServices():

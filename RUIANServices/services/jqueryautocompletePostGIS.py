@@ -243,13 +243,12 @@ def getTownAutocompleteResults(queryParams, nameToken, resultFormat, maxCount = 
 
     localityPart = getQueryValue(queryParams, LOCALITY_PART_QUERY_ID, "")
     if localityPart == "":
-        searchSQL = "select nazev_obce from %s where nazev_obce ilike '%%%s%%'" % (AC_OBCE, nameToken)
+        searchSQL = u"select nazev_obce from %s where nazev_obce ilike '%%%s%%'" % (AC_OBCE, nameToken)
         rows = getRows(searchSQL)
-        searchSQL = "select nazev_casti_obce, nazev_obce from %s where nazev_casti_obce ilike '%%%s%%'" + \
-                    " and nazev_casti_obce <> nazev_obce" % (AC_CASTI_OBCE, nameToken)
+        searchSQL = u"select nazev_casti_obce, nazev_obce from %s where nazev_casti_obce ilike '%%%s%%' and nazev_casti_obce <> nazev_obce" % (AC_CASTI_OBCE, nameToken)
         rows.extend(getRows(searchSQL))
     else:
-        searchSQL = "select nazev_obce from %s where nazev_casti_obce = '%s' and nazev_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityPart, nameToken)
+        searchSQL = u"select nazev_obce from %s where nazev_casti_obce = '%s' and nazev_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityPart, nameToken)
         rows = getRows(searchSQL)
 
     return rows
@@ -282,6 +281,9 @@ def selectSQL(searchSQL):
         import sys
         return[sys.exc_info()[0]]
 
+def getDataListValues(queryParams, maxCount = 10):
+    return '1351,1352,1353,1354,1355,1356,1357,1358,1359,1360'
+
 def getFillResults(queryParams, maxCount = 10):
     sqlItems = {
         "HouseNumber"  : "cast(cislo_domovni as text) like '%s%%'",
@@ -306,7 +308,7 @@ def getFillResults(queryParams, maxCount = 10):
 
     if len(sqlParts) == 0: return ""
 
-    searchSQL = "select %s from %s where " % (fields, ADDRESSPOINTS_TABLENAME) + " and ".join(sqlParts) + " limit 2"
+    searchSQL = u"select %s from %s where " % (fields, ADDRESSPOINTS_TABLENAME) + " and ".join(sqlParts) + " limit 2"
     rows = selectSQL(searchSQL)
 
     rowCount = 0
@@ -333,7 +335,7 @@ def getTownPartResults(queryParams, nameToken, resultFormat, maxCount = 10):
     else:
         localityClause = " nazev_obce = '%s' and " % locality
 
-    searchSQL = "select nazev_casti_obce, nazev_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
+    searchSQL = u"select nazev_casti_obce, nazev_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
     rows = getRows(searchSQL)
 
     return rows
@@ -363,8 +365,9 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
         searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'" + \
             getSQLWhereClause(queryParams,
                 {
-                    "localityName" : u"nazev_obce",
-                    "localityPart" : u"nazev_casti_obce"
+                    "Locality" : u"nazev_obce",
+                    "LocalityPart" : u"nazev_casti_obce",
+                    "Street" : u"nazev_ulice"
                 }
             ) + " group by psc, nazev_obce order by psc, nazev_obce"
 

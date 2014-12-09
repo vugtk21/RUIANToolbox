@@ -118,6 +118,7 @@ var isEnhancedGUI = false; // Je přepnuto do režimu "Programátorské rozhran�
 var DEBUG_MODE = false;
 var CALL_TEXTAREA = "";
 var CALL_PATH = "";
+var USE_DATA_LISTS = false;
 
 function clearInputs(formName)
 {
@@ -184,6 +185,44 @@ function getSubParamsQuery(formName)
     return result;
 }
 
+function fillDataList(dataListID, dataStr, separator)
+{
+    if (USE_DATA_LISTS) {
+	    dataItems = dataStr.split(separator);
+	    innerHTML = ''
+	    for (var i = 0; i < dataItems.length; i++) {
+		    innerHTML = innerHTML + '<option value="' + dataItems[i] + '">\n';
+	    }
+	    elem = document.getElementById(dataListID);
+	    elem.innerHTML = innerHTML;
+	}
+}
+
+function requestAndfillDataList(formName, elemId)
+{
+    if (USE_DATA_LISTS) {
+	    var xmlHttp = getxmlHTTP();
+
+        xmlHttp.onreadystatechange = function()
+        {
+	        if (xmlHttp.readyState == 4) {
+		        resultStr = xmlHttp.responseText.replace("\\n","");
+		        fillDataList(formName + elemId, resultStr, ",");
+	        }
+        }
+
+        var subParams = getSubParamsQuery(formName);
+        if (subParams != "") {
+            url = "#SERVICES_URL_PATH#/rest.py/autocomplete/datalist?" + subParams;
+	        xmlHttp.open("GET", url, true);
+	        xmlHttp.send(null);
+	    }
+	    else {
+	        fillDataList(formName + elemId, "", ",");
+	    }
+	}
+}
+
 function districtNumberChanged(formName)
 {
     if (document.getElementById(formName + "_DistrictNumber").value != "") {
@@ -235,6 +274,10 @@ function setupInputs(formName)
             subParamsList.push("SmartAutocomplete=true");
         }
         subParams = "&" + subParamsList.join("&");
+
+        if (USE_DATA_LISTS) {
+            requestAndfillDataList(formName, "_HouseNumber_DataList");
+        }
 
         $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
           source: [
@@ -293,7 +336,7 @@ function setupInputs(formName)
 
         $(".RUIAN_ZIP_INPUT").autocomplete({
             source: "#SERVICES_URL_PATH#/rest.py/autocomplete/zipcode?RUIANType=zip&" + subParams,
-            minLength: 3,
+            minLength: 0,
             select: function( event, ui ) {
 
 	            idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
@@ -830,7 +873,7 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
         <td><img src="#HTMLDATA_URL#tacr_eng.png" height="55"></td>
         <td>
 Webové služby RÚIAN byly vytvořeny v rámci projektu
-TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURADIN v podmínkách RUIAN    (2012-2014).<br>
+TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURADIN v podmínkách RUIAN (2012-2014).<br>
             RÚIAN Toolbox verze #VERSIONNUMBER#, <a href="#SERVICES_URL_PATH#/rest.py/dbdetails">data RÚIAN</a> aktuální k #RUIANVERSIONDATE#.
         </td>
     </tr>
