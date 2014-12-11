@@ -26,7 +26,7 @@ from config import setupVariables
 
 import RUIANConnection
 
-USE_DATA_LISTS = False
+USE_DATA_LISTS = True
 SERVICES_PATH = '' # 'services'
 
 def getPageTemplate():
@@ -158,7 +158,7 @@ class ServicesHTMLPageBuilder:
             elemID = formName + '_' + param.name
 
             dataListRef = ""
-            if USE_DATA_LISTS and param.name == "HouseNumber":
+            if USE_DATA_LISTS and param.name in ["HouseNumber", "OrientationNumber", "RecordNumber", "OrientationNumberCharacter"]:
                 dataListID = "%s_%s_DataList" % (formName, param.name)
                 self.dataListHTML += '<datalist id="%s">\n</datalist>\n' % (dataListID)
                 dataListRef = ' list="%s"' % dataListID
@@ -264,6 +264,8 @@ class ServicesHTMLPageBuilder:
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
+        result = result.replace("#USE_DATA_LISTS#", str(USE_DATA_LISTS).lower())
+
         result = result.replace("</body>", self.dataListHTML + "</body>")
 
         return result

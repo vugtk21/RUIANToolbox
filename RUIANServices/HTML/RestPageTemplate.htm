@@ -114,11 +114,11 @@
 	
     <script type="text/javascript" charset="utf-8">
 
-var isEnhancedGUI = false; // Je přepnuto do režimu "Programátorské rozhraní"
+var isEnhancedGUI = false; // Je přepnuto do režimu "Uživatelské rozhraní"
 var DEBUG_MODE = false;
 var CALL_TEXTAREA = "";
 var CALL_PATH = "";
-var USE_DATA_LISTS = false;
+var USE_DATA_LISTS = #USE_DATA_LISTS#;
 
 function clearInputs(formName)
 {
@@ -137,6 +137,8 @@ function clearInputs(formName)
 
     elem = document.getElementById(formName + "_textArea");
     elem.innerText = "";
+
+    setupInputs(formName);
 }
 
 function hideElement(elementName)
@@ -188,8 +190,12 @@ function getSubParamsQuery(formName)
 function fillDataList(dataListID, dataStr, separator)
 {
     if (USE_DATA_LISTS) {
+        id = dataListID.substring(0, dataListID.lastIndexOf("_"));
+        rowID = id.substring(0, id.lastIndexOf("_")) + "_row" + id.substring(id.lastIndexOf("_"));
+        showOrHideElement(rowID, dataStr != "");
+
 	    dataItems = dataStr.split(separator);
-	    innerHTML = ''
+	    innerHTML = '';
 	    for (var i = 0; i < dataItems.length; i++) {
 		    innerHTML = innerHTML + '<option value="' + dataItems[i] + '">\n';
 	    }
@@ -198,27 +204,48 @@ function fillDataList(dataListID, dataStr, separator)
 	}
 }
 
-function requestAndfillDataList(formName, elemId)
+function requestAndFillDataLists(formName)
 {
+    if (formName == "" || formName == undefined) { return }
+
     if (USE_DATA_LISTS) {
-	    var xmlHttp = getxmlHTTP();
+        localityName = document.getElementById(formName + "_Locality").value
+        localityPartName = document.getElementById(formName + "_LocalityPart").value
 
-        xmlHttp.onreadystatechange = function()
-        {
-	        if (xmlHttp.readyState == 4) {
-		        resultStr = xmlHttp.responseText.replace("\\n","");
-		        fillDataList(formName + elemId, resultStr, ",");
-	        }
-        }
-
-        var subParams = getSubParamsQuery(formName);
-        if (subParams != "") {
-            url = "#SERVICES_URL_PATH#/rest.py/autocomplete/datalist?" + subParams;
-	        xmlHttp.open("GET", url, true);
-	        xmlHttp.send(null);
+        if (localityName == "" && localityPartName == "") {
+		    fillDataList(formName + "_HouseNumber_DataList", "", ",");
+		    fillDataList(formName + "_RecordNumber_DataList", "", ",");
+		    fillDataList(formName + "_OrientationNumber_DataList", "", ",");
+		    fillDataList(formName + "_OrientationNumberCharacter_DataList", "", ",");
+            showElement(formName + "row_HouseNumber");
+            showElement(formName + "row_RecordNumber");
+            showElement(formName + "row_OrientationNumber");
+            showElement(formName + "row_OrientationNumberCharacter");
 	    }
 	    else {
-	        fillDataList(formName + elemId, "", ",");
+	        var xmlHttp = getxmlHTTP();
+
+            xmlHttp.onreadystatechange = function()
+            {
+	            if (xmlHttp.readyState == 4) {
+		            resultStr = xmlHttp.responseText.replace("\\n","");
+		            dataLists = resultStr.split(";");
+		            fillDataList(formName + "_HouseNumber_DataList", dataLists[0], ",");
+		            fillDataList(formName + "_RecordNumber_DataList", dataLists[1], ",");
+		            fillDataList(formName + "_OrientationNumber_DataList", dataLists[2], ",");
+		            fillDataList(formName + "_OrientationNumberCharacter_DataList", dataLists[3], ",");
+	            }
+            }
+
+            var subParams = getSubParamsQuery(formName).join("&");
+            if (subParams != "") {
+                url = "#SERVICES_URL_PATH#/rest.py/autocomplete/datalists?" + subParams;
+	            xmlHttp.open("GET", url, true);
+	            xmlHttp.send(null);
+	        }
+	        else {
+	            fillDataList(formName + elemId, "", ",");
+	        }
 	    }
 	}
 }
@@ -235,6 +262,7 @@ function setupInputs(formName)
 // Tato funkce nastaví viditelnost a přístupnost jednotlivých vstupních polí
 // pro formulář formName podle obsahu jednotlivých polí.
 {
+    if (formName == "") { return }
     if (!document.getElementById(formName + "_AddressItemsRB") && (formName != "form_4")) { return; }
 
     findAddress(formName, true);
@@ -250,7 +278,7 @@ function setupInputs(formName)
     localityPart = document.getElementById(formName + "_LocalityPart").value;
     street = document.getElementById(formName + "_Street").value;
 
-    //showOrHideElement(formName + "_row_DistrictNumber", localityName.toLowerCase() == "praha");
+    showOrHideElement(formName + "_row_DistrictNumber", localityName.toLowerCase() == "praha");
 
     if (isEnhancedGUI) {
         showDetails = true;
@@ -275,84 +303,7 @@ function setupInputs(formName)
         }
         var subParams = "&" + subParamsList.join("&");
 
-        if (USE_DATA_LISTS) {
-            requestAndfillDataList(formName, "_HouseNumber_DataList");
-        }
-
-        $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
-          source: [
-            {"id":"","label":"Praha 1","value":"1"},
-            {"id":"","label":"Praha 2","value":"2"},
-            {"id":"","label":"Praha 3","value":"3"},
-            {"id":"","label":"Praha 4","value":"4"},
-            {"id":"","label":"Praha 5","value":"5"},
-            {"id":"","label":"Praha 6","value":"6"},
-            {"id":"","label":"Praha 7","value":"7"},
-            {"id":"","label":"Praha 8","value":"8"},
-            {"id":"","label":"Praha 9","value":"9"},
-            {"id":"","label":"Praha 10","value":"10"}
-          ],
-          minLength: 1,
-            select: function( event, ui ) {
-		        setInputValueFromMaster(this.id, "_Locality", "Praha");
-		        setInputValueFromMaster(this.id, "_ZIPCode", "");
-	        }
-        });
-
-        $( ".RUIAN_TOWN_INPUT" ).autocomplete({
-            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town" + subParams,
-            minLength: 1,
-            select: function( event, ui ) {
-		        addressItems = ui.item.label.split(",");
-		        if (addressItems.length == 2) {
-		            setInputValueFromMaster(this.id, "_LocalityPart", addressItems[1]);
-		        }
-	        }
-        });
-
-        $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
-            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/townpart?RUIANType=townpart" + subParams,
-            minLength: 1,
-            select: function( event, ui ) {
-		        setInputValueFromMaster(this.id, "_Locality", ui.item.id);
-		        setInputValueFromMaster(this.id, "_ZIPCode", "");
-	        }
-        });
-
-        $( ".RUIAN_STREET_INPUT" ).autocomplete({
-            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
-            minLength: 1,
-            select: function( event, ui ) {
-		        addressItems = ui.item.id.split(",");
-
-		        if (addressItems.length == 1) {
-			        addressItems = ["", "", "", "", "", "", addressItems[0], "", ""];
-		        }
-
-		        setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);
-		        setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);
-		        setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);
-		        setInputValueFromMaster(this.id, "_OrientationNumberCharacter", addressItems[4]);
-		        setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);
-		        setInputValueFromMaster(this.id, "_Locality", addressItems[6]);
-		        setInputValueFromMaster(this.id, "_LocalityPart", addressItems[7]);
-		        setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);
-            }
-        });
-
-        $(".RUIAN_ZIP_INPUT").autocomplete({
-            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/zipcode?RUIANType=zip&" + subParams,
-            minLength: 0,
-            select: function( event, ui ) {
-
-	            idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
-
-		        id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
-		        townElem = document.getElementById(id);
-		        townElem.value = ui.item.id;
-	        }
-        });
-
+        attachAutocompleteListeners(formName, subParams);
     }
 }
 
@@ -550,65 +501,98 @@ function detachAutocompleteListeners()
     $(".RUIAN_STREET_INPUT").autocomplete({source: []});
     $(".RUIAN_TEXTSEARCH_INPUT").autocomplete({source: []});
     $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({source: []});
+    if (USE_DATA_LISTS) {
+	        //fillDataList(formName + elemId, "", ","); TODO Vynulovat data listy
+    }
+    else {
+        $(".RUIAN_HOUSENUMBER_INPUT").autocomplete({source: []});
+    }
 }
 
-function attachAutocompleteListeners()
+function attachAutocompleteListeners(formName, subParams)
 {
+    $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
+        source: [
+            {"id":"","label":"Praha 1","value":"1"},
+            {"id":"","label":"Praha 2","value":"2"},
+            {"id":"","label":"Praha 3","value":"3"},
+            {"id":"","label":"Praha 4","value":"4"},
+            {"id":"","label":"Praha 5","value":"5"},
+            {"id":"","label":"Praha 6","value":"6"},
+            {"id":"","label":"Praha 7","value":"7"},
+            {"id":"","label":"Praha 8","value":"8"},
+            {"id":"","label":"Praha 9","value":"9"},
+            {"id":"","label":"Praha 10","value":"10"}
+        ],
+        minLength: 1,
+        select: function( event, ui ) {
+		        setInputValueFromMaster(this.id, "_Locality", "Praha");
+		        setInputValueFromMaster(this.id, "_ZIPCode", "");
+		        setupInputs(formName);
+	    }
+    });
+
+    $( ".RUIAN_TOWN_INPUT" ).autocomplete({
+        source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town" + subParams,
+        minLength: 1,
+        select: function( event, ui ) {
+	        addressItems = ui.item.label.split(",");
+		    if (addressItems.length == 2) {
+		        setInputValueFromMaster(this.id, "_LocalityPart", addressItems[1]);
+		    }
+		        setupInputs(formName);
+	    }
+    });
+
+    $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
+        source: "#SERVICES_URL_PATH#/rest.py/autocomplete/townpart?RUIANType=townpart" + subParams,
+        minLength: 1,
+        select: function( event, ui ) {
+		    setInputValueFromMaster(this.id, "_Locality", ui.item.id);
+		    setInputValueFromMaster(this.id, "_ZIPCode", "");
+		    setupInputs(formName);
+	    }
+    });
+
+    $( ".RUIAN_STREET_INPUT" ).autocomplete({
+        source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
+        minLength: 1,
+        select: function( event, ui ) {
+		    addressItems = ui.item.id.split(",");
+		    setInputValueFromMaster(this.id, "_Locality", addressItems[0]);
+		    setInputValueFromMaster(this.id, "_LocalityPart", addressItems[1]);
+		    setupInputs(formName);
+        }
+    });
+
+    $(".RUIAN_ZIP_INPUT").autocomplete({
+        source: "#SERVICES_URL_PATH#/rest.py/autocomplete/zipcode?RUIANType=zip&" + subParams,
+        minLength: 0,
+        select: function( event, ui ) {
+	        idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
+		    id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
+		    townElem = document.getElementById(id);
+		    townElem.value = ui.item.id;
+		    setupInputs(formName);
+	    }
+    });
+
     $(".RUIAN_ID_INPUT").autocomplete({
       source: "#SERVICES_URL_PATH#/rest.py/autocomplete/id?RUIANType=id&",
       minLength: 1,
       select: function( event, ui ) { this.value = ui.item.id; }
     });
-	
-    $(".RUIAN_ZIP_INPUT").autocomplete({
-      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/zipcode?RUIANType=zip&",
-      minLength: 3,
-      select: function( event, ui ) { 
-	  
-	    idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
-		
-		id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
-		townElem = document.getElementById(id);
-		townElem.value = ui.item.id; 
-	  }
-    });	
-	
-    $( ".RUIAN_TOWN_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town",
-      minLength: 1
-    });
-	
-    $( ".RUIAN_TOWNPART_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/townpart?RUIANType=townpart",
-      minLength: 1,
-      select: function( event, ui ) { 
-		setInputValueFromMaster(this.id, "_Locality", ui.item.id);
-		setInputValueFromMaster(this.id, "_ZIPCode", "");  
-	  }
-    });
 
-    $( ".RUIAN_STREET_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=street&ResultFormat=AddressParts",
-      minLength: 1,
-      select: function( event, ui ) {	
-		addressItems = ui.item.id.split(",");
-		
-		if (addressItems.length == 1) {
-		    addressItems = ["", "", "", "", "", "", addressItems[0], "", ""];
-		}
+    if (USE_DATA_LISTS) {
+       requestAndFillDataLists(formName);
+    }
+    else {
+        $( ".RUIAN_HOUSENUMBER_INPUT" ).autocomplete({
+            source: "#SERVICES_URL_PATH#/rest.py/autocomplete/housenumber?RUIANType=housenumber&" + subParams,
+            minLength: 1
+        });
+    }
 
-		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);
-		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);
-		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);
-		setInputValueFromMaster(this.id, "_OrientationNumberCharacter", addressItems[4]);
-		setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);
-		setInputValueFromMaster(this.id, "_Locality", addressItems[6]);
-		setInputValueFromMaster(this.id, "_LocalityPart", addressItems[7]);
-		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);
-      }
-    });
-	
-	
     $( ".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
       source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
       minLength: 1,
@@ -675,7 +659,7 @@ $(document).ready(function() {
 			{
 			    isEnhancedGUI = false;
 				button.value = "Programátorské rozhraní";
-				attachAutocompleteListeners();
+				attachAutocompleteListeners("", "");
 			}
       });	  
 });

@@ -72,6 +72,12 @@ def numberToString(number):
     else:
         return str(number)
 
+def valueToStr(value):
+    if value is None:
+        return ""
+    else:
+        return str(value)
+
 def extractDictrictNumber(nazev_mop):
     # Praha 10 -> 10
     if (nazev_mop != "") and (nazev_mop != None) and (nazev_mop.find(" ") >= 0):
@@ -102,9 +108,6 @@ builder = HTTPShared.MimeBuilder("texttoonerow")
 ID_VALUE = 'id'
 
 def getAutocompleteOneItemResults(ruianType, nameToken, maxCount = 10):
-    if nameToken == "" or nameToken == None:
-        return []
-
     if ruianType == "":
         ruianType == ID_VALUE
 
@@ -216,7 +219,7 @@ def getRows(searchSQL, maxCount = 15):
                 rowLabel = None
 
             if len(row) == 1:
-                idValue = ""#row[0]
+                idValue = ""
                 rowValue = row[0]
             else:
                 rowValue = row[1]
@@ -226,7 +229,7 @@ def getRows(searchSQL, maxCount = 15):
                 rowLabel = ", ".join(htmlItems)
 
 
-            value = '{"id":"' + idValue + '","label":"' + rowLabel + '","value":"' + rowValue + '"}'
+            value = '{ "id" : "%s", "label" : "%s", "value" : "%s" }' % (idValue, rowLabel, rowValue)
 
             rows.append(value)
 
@@ -235,21 +238,42 @@ def getRows(searchSQL, maxCount = 15):
 
     return rows
 
-def getTownAutocompleteResults(queryParams, nameToken, resultFormat, maxCount = 10):
-    if nameToken == "" or nameToken == None:
-        return []
+def getAutocompleteRows(searchSQL, fieldCount = 0, maxCount = 15):
+    rows = []
+    if searchSQL != "":
+        searchSQL += " limit " + str(maxCount)
 
-    nameToken = nameToken.lower()
+        try:
+            db = PostGISDatabase()
+            cursor = db.conection.cursor()
+            cursor.execute(searchSQL)
+        except:
+            import sys
+            return[sys.exc_info()[0]]
+            # TODO ošetřit výjimku
 
-    localityPart = getQueryValue(queryParams, LOCALITY_PART_QUERY_ID, "")
-    if localityPart == "":
-        searchSQL = u"select nazev_obce from %s where nazev_obce ilike '%%%s%%'" % (AC_OBCE, nameToken)
-        rows = getRows(searchSQL)
-        searchSQL = u"select nazev_casti_obce, nazev_obce from %s where nazev_casti_obce ilike '%%%s%%' and nazev_casti_obce <> nazev_obce" % (AC_CASTI_OBCE, nameToken)
-        rows.extend(getRows(searchSQL))
-    else:
-        searchSQL = u"select nazev_obce from %s where nazev_casti_obce = '%s' and nazev_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityPart, nameToken)
-        rows = getRows(searchSQL)
+        rowCount = 0
+        for row in cursor:
+            rowCount += 1
+
+            labelItems = []
+            idItems = []
+            for field in row:
+                labelItems.append(str(field))
+                idItems.append(str(field))
+
+            while len(idItems) < fieldCount:
+                idItems.append("")
+
+            rowLabel = ", ".join(labelItems)
+            idValue = ", ".join(idItems[1:])
+
+            value = '{ "id" : "%s", "label" : "%s", "value" : "%s" }' % (idValue, rowLabel, row[0])
+
+            rows.append(value)
+
+            if rowCount >= maxCount:
+                break
 
     return rows
 
@@ -286,9 +310,6 @@ def selectSQL(searchSQL):
     except:
         import sys
         return[sys.exc_info()[0]]
-
-def getDataListValues(queryParams, maxCount = 10):
-    return '1351,1352,1353,1354,1355,1356,1357,1358,1359,1360'
 
 def getFillResults(queryParams, maxCount = 10):
     sqlItems = {
@@ -329,81 +350,94 @@ def getFillResults(queryParams, maxCount = 10):
 
     return result
 
-def getTownPartResults(queryParams, nameToken, resultFormat, maxCount = 10):
-    if nameToken == "" or nameToken == None:
-        return []
+def getTownPartResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
+    localityClause = ""
+    if smartAutocomplete:
+        locality = getQueryValue(queryParams, LOCALITY_QUERY_ID, "")
+        if locality != "":
+            localityClause = " nazev_obce = '%s' and " % locality
 
-    nameToken = nameToken.lower()
-
-    locality = getQueryValue(queryParams, LOCALITY_QUERY_ID, "")
-    if locality == "":
-        localityClause = ""
-    else:
-        localityClause = " nazev_obce = '%s' and " % locality
-
-    searchSQL = u"select nazev_ulice, nazev_casti_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
-    rows = getRows(searchSQL)
+    searchSQL = u"select nazev_casti_obce, nazev_obce from %s where %s nazev_casti_obce ilike '%%%s%%'" % (AC_CASTI_OBCE, localityClause, nameToken)
+    rows = getAutocompleteRows(searchSQL, 0, maxCount)
 
     return rows
 
-def getStreetResults(queryParams, nameToken, resultFormat, maxCount = 10):
-    if nameToken == "" or nameToken == None:
-        return []
+def getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
+    if smartAutocomplete:
+        whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce"}, False)
+    else:
+        whereClause = ""
 
-    nameToken = nameToken.lower()
+    searchSQL = (u"select nazev_ulice, nazev_obce, nazev_casti_obce from %s where nazev_obce <> nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
+                u"order by nazev_casti_obce, nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
+    rows = getAutocompleteRows(searchSQL, 0, maxCount)
 
-    whereClause = getSQLWhereClause(queryParams,
-                    {
-                        "Locality" : u"nazev_obce",
-                        "LocalityPart" : u"nazev_casti_obce"
-                    },
-                    False
-                  )
-
-    searchSQL = (u"select nazev_obce, nazev_casti_obce, nazev_ulice from %s where nazev_obce <> nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
-                u"order by nazev_obce, nazev_casti_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
-    rows = getRows(searchSQL)
-
-    searchSQL = (u"select nazev_casti_obce, nazev_ulice from %s where nazev_obce = nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
+    searchSQL = (u"select nazev_ulice, nazev_casti_obce from %s where nazev_obce = nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
                 u"order by nazev_casti_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
 
-    rows.extend(getRows(searchSQL))
+    rows.extend(getAutocompleteRows(searchSQL, 3, maxCount))
 
     return rows
 
-def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxCount = 10):
-    if nameToken == "" or nameToken == None:
+def getTownAutocompleteResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
+    localityPart = getQueryValue(queryParams, LOCALITY_PART_QUERY_ID, "")
+    if localityPart == "" or smartAutocomplete == False:
+        searchSQL = u"select nazev_obce from %s where nazev_obce ilike '%%%s%%'" % (AC_OBCE, nameToken)
+        rows = getRows(searchSQL)
+        searchSQL = u"select nazev_casti_obce, nazev_obce from %s where nazev_casti_obce ilike '%%%s%%' and nazev_casti_obce <> nazev_obce" % (AC_CASTI_OBCE, nameToken)
+        rows.extend(getRows(searchSQL, maxCount))
+    else:
+        searchSQL = u"select nazev_obce from %s where nazev_casti_obce = '%s' and nazev_obce ilike '%%%s%%'" % (AC_OBCE, localityPart, nameToken)
+        rows = getRows(searchSQL, maxCount)
+
+    return rows
+
+def getZIPResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
+    if smartAutocomplete:
+        whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce"}, False)
+    else:
+        whereClause = ""
+
+    searchSQL = "select psc, nazev_obce from %s where %s psc like '%s%%' group by psc, nazev_obce order by psc, nazev_obce" % (AC_PSC, whereClause, nameToken)
+    rows = getAutocompleteRows(searchSQL, 0, maxCount)
+
+    return rows
+
+def getHouseNumberAutocompleteResults(queryParams, nameToken, maxCount = 10):
+    whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce", "Street" : "nazev_ulice"}, False)
+
+    if whereClause == "":
         return []
+    else:
+        searchSQL = "select cislo_domovni from %s where %s cast(cislo_domovni as text) like '%s%%' order by cislo_domovni" % (ADDRESSPOINTS_TABLENAME, whereClause, nameToken)
 
-    if ruianType == "":
-        ruianType == "town"
+    rows = getAutocompleteRows(searchSQL, 0, maxCount)
 
+    return rows
+
+def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, smartAutocomplete, maxCount = 10):
+    if ruianType == "": ruianType == "town"
     nameToken = nameToken.lower()
 
     rows = []
 
     joinSeparator = ", "
     hasNumber = False
-    isStreet = False
     if ruianType == "townpart":
-        return getTownPartResults(queryParams, nameToken, resultFormat, maxCount)
+        return getTownPartResults(queryParams, nameToken, smartAutocomplete, maxCount)
     elif ruianType == "town":
-        return getTownAutocompleteResults(queryParams, nameToken, resultFormat, maxCount)
+        return getTownAutocompleteResults(queryParams, nameToken, smartAutocomplete, maxCount)
+    elif ruianType == "housenumber":
+        return getHouseNumberAutocompleteResults(queryParams, nameToken, maxCount)
     elif ruianType == ID_VALUE:
         searchSQL = "select cast(gid as text), address from ac_gids where cast(gid as text) like '" + nameToken + "%'"
     elif ruianType == "zip":
-        searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'" + \
-            getSQLWhereClause(queryParams,
-                {
-                    "Locality" : u"nazev_obce",
-                    "LocalityPart" : u"nazev_casti_obce",
-                    "Street" : u"nazev_ulice"
-                }
-            ) + " group by psc, nazev_obce order by psc, nazev_obce"
-
-        joinSeparator = " "
+        return getZIPResults(queryParams, nameToken, smartAutocomplete, maxCount)
+        #searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'" + \
+        #    getSQLWhereClause(queryParams, { "Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce" }
+        #    ) + " group by psc, nazev_obce order by psc, nazev_obce"
     elif ruianType == "street":
-        return getStreetResults(queryParams, nameToken, resultFormat, maxCount)
+        return getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount)
     else:
         # street or textsearch
         hasNumber, searchSQL = parseFullTextToken(queryParams, nameToken)
@@ -433,7 +467,7 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
 
                 rowLabel = None
 
-            if ruianType == "street" or ruianType == "textsearch":
+            if ruianType == "textsearch":
                 if hasNumber:
                     street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
 
@@ -455,13 +489,7 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
             if rowLabel == None:
                 rowLabel = joinSeparator.join(htmlItems)
 
-            if ruianType == "textsearch":
-                rowValue = rowLabel
-            else:
-                if hasNumber:
-                    rowValue = row[0] #rowLabel[:rowLabel.find(",")]
-                else:
-                    rowValue = row[0]
+            rowValue = rowLabel
 
             value = '{"id":"' + idValue + '","label":"' + rowLabel + '","value":"' + rowValue + '"}'
 
@@ -472,14 +500,85 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, maxC
 
     return rows
 
+def geDataListResponse(searchSQL, maxCount = 0):
+    result = ""
+    if searchSQL != "":
+        if maxCount != 0:
+            searchSQL += " limit " + str(maxCount)
+
+        try:
+            db = PostGISDatabase()
+            cursor = db.conection.cursor()
+            cursor.execute(searchSQL)
+        except:
+            import sys
+            return[sys.exc_info()[0]]
+            # TODO ošetřit výjimku
+
+        resultList = []
+        rowCount = 0
+        for row in cursor:
+            rowCount += 1
+            resultList.append(str(row[0]))
+            if maxCount != 0 and rowCount >= maxCount:
+                break
+        result = ",".join(resultList)
+
+    return result
+
+def getDataListValues(queryParams, maxCount = 50):
+    result = ';;;'
+    whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce", "Street" : "nazev_ulice"}, False)
+    whereClause = whereClause[:whereClause.rfind(" and")]
+
+    if whereClause != "":
+        searchSQL = "select cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, typ_so from %s where %s order by cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, typ_so" % (ADDRESSPOINTS_TABLENAME, whereClause)
+        if maxCount != 0:
+            searchSQL += " limit " + str(maxCount)
+
+        try:
+            db = PostGISDatabase()
+            cursor = db.conection.cursor()
+            cursor.execute(searchSQL)
+        except:
+            import sys
+            return[sys.exc_info()[0]]
+            # TODO ošetřit výjimku
+
+        houseNumberList = []
+        recordNumberList = []
+        orientationNumberList = []
+        orientationNumberCharacterList = []
+
+        rowCount = 0
+        for row in cursor:
+            rowCount += 1
+            (houseNumber, orientationNumber, orientationNumberCharacter, typ_so) = row
+            if typ_so == "č.p.":
+                houseNumberList.append(valueToStr(houseNumber))
+            else:
+                recordNumberList.append(valueToStr(houseNumber))
+            orientationNumberList.append(valueToStr(orientationNumber))
+            if orientationNumberCharacter != None:
+                orientationNumberCharacterList.append(valueToStr(orientationNumberCharacter))
+
+            if maxCount != 0 and rowCount >= maxCount:
+                break
+        result = ",".join(houseNumberList) + ";"
+        result += ",".join(recordNumberList) + ";"
+        result += ",".join(orientationNumberList) + ";"
+        result += ",".join(orientationNumberCharacterList)
+
+    return result
+
 def main():
     #print getAutocompleteResults("zip", "16")
     #print getAutocompleteResults("street", "Mrkvičkova 13")
-    print getAutocompleteResults("street", "Budovatelů 6")
+    #print getAutocompleteResults("street", "Budovatelů 6")
+    pass
 
 if __name__ == '__main__':
     import sys
     reload(sys)
     sys.setdefaultencoding('utf-8')
     main()
-

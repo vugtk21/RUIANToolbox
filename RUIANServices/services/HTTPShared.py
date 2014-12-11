@@ -41,7 +41,7 @@ def getZIPCodeURL(disabled = True):
 def getHouseNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
     return URLParam("HouseNumber",       u"Číslo popisné", "Číslo popisné v rozsahu 1 až 9999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
+                    htmlTags = ' class="RUIAN_HOUSENUMBER_INPUT" onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
 
 def getRecordNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
@@ -51,7 +51,7 @@ def getRecordNumberURL(disabled = True):
 def getOrientationNumberURL(disabled = True):
     # cislo_orientacni = 1..999
     return URLParam("OrientationNumber", u"Číslo orientační", "Číslo orientační v rozsahu 1 až 999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 3, 0)" ')#onpaste="return isNumber(event, this, 3, 0)"')
+                    htmlTags = ' class="RUIAN_ORIENTATIONNUMBER_INPUT"   onkeypress="return isNumber(event, this, 3, 0)" ')#onpaste="return isNumber(event, this, 3, 0)"')
 
 def getOrientationNumberCharacterURL(disabled = True):
     # Písmeno čísla orientačního a..z, A..Z
