@@ -157,9 +157,11 @@ class ServicesHTMLPageBuilder:
 
         if configmodule.config.ruianVersionDate == "":
             versionDate = RUIANConnection.getRUIANVersionDate()
+            configmodule.config.databaseIsOK = not versionDate.upper().startswith("ERROR:")
             if versionDate.upper().startswith("ERROR:"):
                 versionDate = u"Nepřipojeno"
                 ruianVersionCode = u"<b>!!! Data RÚIAN nejsou připojena !!!</b>"
+                console.addMsg(u"Data RÚIAN nejsou připojena, obraťte se na správce webového serveru.")
             else:
                 ruianVersionCode = '<a href="%s/downloaded/Import.html">%s</a>' % (servicesURL, versionDate)
 
@@ -236,10 +238,18 @@ class ServicesHTMLPageBuilder:
             tabDivs += '</div>\n'
             i = i + 1
 
-        if tabIndex == 0:
-            newStr = ""
+        if configmodule.config.databaseIsOK:
+            separateStr = ""
+            inStr = ""
         else:
-            newStr = '{ active: ' + str(tabIndex) + ' }'
+            separateStr = "{ disabled: [1, 2, 3, 4, 5, 6] }"
+            inStr = ", disabled: [1, 2, 3, 4, 5, 6]"
+
+        if tabIndex == 0:
+            newStr = separateStr
+        else:
+            newStr = '{ active: %s %s }' % (str(tabIndex), inStr)
+
         result = result.replace("#TABSOPTIONS#", newStr)
 
         result = result.replace("#CONSOLELINES#", console.consoleLines + "\n" + console.infoLines)
