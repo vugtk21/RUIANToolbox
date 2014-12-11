@@ -497,8 +497,10 @@ def main(argv = sys.argv):
 
     logger.info("Download done.")
     if config.runImporter:
+        logger.info("Executing RUIANImporter.importRUIAN.doImport().")
         from RUIANImporter.importRUIAN import doImport
         doImport(argv)
+        logger.info("Done - RUIANImporter.importRUIAN.doImport().")
 
 if __name__ == '__main__':
     main()

@@ -8,7 +8,7 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 helpStr = """
-Downloads VFR data from http://vdp.cuzk.cz/
+Import VFR data to database.
 
 Requires: Python 2.7.5 or later
           OS4Geo with WFS Support (http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip)
@@ -193,7 +193,7 @@ def updateDatabase(updateFileList):
             inFile.close()
         pass
 
-    logger.info("Načítám denní aktualizace ze souboru " + updateFileList)
+    logger.info("Importing update data from " + updateFileList)
 
     (startDate, endDate, type) = extractDatesAndType(updateFileList)
     logger.info("\tPočáteční datum:" + startDate)
@@ -224,6 +224,7 @@ def updateDatabase(updateFileList):
     removeDataFiles()
 
     renameFile(updateFileList, "__")
+    logger.info("Import update data done.")
     pass
 
 def processDownloadedDirectory(path):
@@ -268,6 +269,7 @@ def getFullPath(configFileName, path):
     return path
 
 def doImport(argv):
+    logger.info("Importing VFR data to database.")
     config.loadFromCommandLine(argv, helpStr)
 
     osGeoPath = getOSGeoPath()

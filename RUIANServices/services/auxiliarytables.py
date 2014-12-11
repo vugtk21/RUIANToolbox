@@ -6,6 +6,10 @@ import psycopg2
 import os, codecs, sys
 
 from config import config
+
+import shared; shared.setupPaths()
+from SharedTools.log import logger
+
 from SharedTools.config import getRUIANServicesSQLScriptsPath
 
 import HTTPShared
@@ -15,7 +19,7 @@ def exitApp():
     sys.exit()
 
 def execSQLScript(sql):
-    sys.stdout.write("   Executing SQL commands")
+    logger.info("   Executing SQL commands")
     connection = psycopg2.connect(host=config.databaseHost, database=config.databaseName, port=config.databasePort,
                            user=config.databaseUserName, password=config.databasePassword)
     cursor = connection.cursor()
@@ -30,59 +34,59 @@ def execSQLScript(sql):
                 connection.commit()
 
     except psycopg2.Error as e:
-        print "ERROR:" + e.pgerror
+        logger.error("ERROR:" + e.pgerror)
     finally:
         cursor.close()
         connection.close()
-    print " - done."
+    logger.info("   Executing SQL commands - done.")
     pass
 
 def execSQLScriptFile(sqlFileName, msg):
-    print msg
+    logger.info(msg)
     sqlFileName = getRUIANServicesSQLScriptsPath() + sqlFileName
     if not os.path.exists(sqlFileName):
-        print "ERROR: File %s not found." % sqlFileName
+        logger.error("ERROR: File %s not found." % sqlFileName)
         exitApp()
 
-    sys.stdout.write("   Loading SQL commands from %s" % sqlFileName)
+    logger.info("   Loading SQL commands from %s" % sqlFileName)
     inFile = codecs.open(sqlFileName, "r", "utf-8")
     sql = inFile.read()
     inFile.close()
-    print " - done."
+    logger.info("   Loading SQL commands - done.")
     execSQLScript(sql)
 
 def createTempTable(connection):
-    sys.stdout.write("Creating table ac_gids")
+    logger.info("Creating table ac_gids")
     cursor = connection.cursor()
     try:
         cursor.execute("drop table if exists ac_gids;")
         cursor.execute("CREATE TABLE ac_gids (gid integer NOT NULL, address text);")
-        print " - done."
+        logger.info("Done.")
     finally:
         cursor.close()
 
 def getAddressRows(connection):
-    sys.stdout.write("Retrieving address rows")
+    logger.info("Retrieving address rows")
     cursor = connection.cursor()
     try:
         query = 'select nazev_ulice, cast(cislo_domovni as text), nazev_obce, cast(psc as text), cast(cislo_orientacni as text), znak_cisla_orientacniho, nazev_casti_obce, typ_so, nazev_mop, gid from address_points '
         cursor.execute(query)
-        print " - done."
+        logger.info("Done.")
         return cursor
     except:
-        print "Error:Selecting address rows failed."
+        logger.error("Error:Selecting address rows failed.")
         exitApp()
 
 def renameTempTable(connection):
-    sys.stdout.write("Renaming table _ac_gids to ac_gids.")
+    logger.info("Renaming table _ac_gids to ac_gids.")
     cursor = connection.cursor()
     cursor.execute("drop table if exists ac_gids;alter table _ac_gids rename to ac_gids;")
     cursor.close()
-    print " - done."
+    logger.info("Done.")
 
 def buildGIDsTable():
-    print "Building table ac_gids"
-    print "------------------------"
+    logger.info("Building table ac_gids")
+    logger.info("------------------------")
     connection = psycopg2.connect(
         host = config.databaseHost,
         database = config.databaseName,
@@ -96,8 +100,8 @@ def buildGIDsTable():
         try:
             if cursor == None: return
 
-            print "Inserting rows"
-            print "----------------------"
+            logger.info("Inserting rows")
+            logger.info("----------------------")
             insertCursor = connection.cursor()
             builder = HTTPShared.MimeBuilder("texttoonerow")
             row_count = 0
@@ -117,21 +121,21 @@ def buildGIDsTable():
                     connection.commit()
                     if gaugecount >= 1000:
                         gaugecount = 0
-                        print str(row_count) + " rows"
+                        logger.info(str(row_count) + " rows")
 
                 except psycopg2.Error as e:
-                    print "Error: " + str(row_count) + " " + insertSQL + " failed. " + e.pgerror
+                    logger.info("Error: " + str(row_count) + " " + insertSQL + " failed. " + e.pgerror)
                     exitApp()
                     pass
 
-            print "Done - %d rows inserted." % row_count
+            logger.info("Done - %d rows inserted." % row_count)
 
         finally:
             cursor.close()
 
         #renameTempTable(connection)
 
-        print "Building table ac_gids done."
+        logger.info("Building table ac_gids done.")
     finally:
         connection.close()
     pass
@@ -167,4 +171,3 @@ if __name__ == '__main__':
     reload(sys)
     sys.setdefaultencoding('utf-8')
     buildAll()
-

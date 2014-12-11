@@ -9,7 +9,7 @@
 #-------------------------------------------------------------------------------
 import logging
 
-LOG_FILENAME = 'RUIANDownload.log'
+LOG_FILENAME = 'RUIANToolbox.log'
 
 
 def clearLogFile():
@@ -22,15 +22,20 @@ logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.INFO)
 
-# Create and setup console log parameters
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s %(message)s', "%H:%M:%S"))
-logger.addHandler(ch)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s %(message)s', datefmt="%H:%M:%S")
 
 # Create and setup log file parameters
-fileHandler = logging.FileHandler(LOG_FILENAME)
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-fileHandler.setFormatter(formatter)
-logger.addHandler(fileHandler)
+#fileHandler = logging.FileHandler(LOG_FILENAME)
+#formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+#fileHandler.setFormatter(formatter)
+#logger.addHandler(fileHandler)
+
+logger.error("Testing error message")
+logger.error("--------------------------------")
+
+if __name__ == '__main__':
+    logger.info("Logger test info")
+    logger.debug("Logger test debug")
+    logger.error("Logger test error")
+    logger.critical("Logger test critical")
 

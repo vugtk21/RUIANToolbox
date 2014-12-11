@@ -6,5 +6,5 @@ echo Import muze dle nastaveni a rychlosti pocitace trvat i nekolik hodin.
 echo ------------------------------------------------------
 echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd RUIANImporter
-importRUIAN.py %*  >> ..\ImportRUIAN.log 2>>..\ImportRUIANErr.log
+importRUIAN.py %*  >> ..\ImportRUIAN.log 2>>&1 3>>..\ImportRUIANErr.log
 cd ..\
