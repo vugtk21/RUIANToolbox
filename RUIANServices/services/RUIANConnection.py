@@ -39,4 +39,3 @@ getRUIANVersionDate = _getRUIANVersionDate
 saveRUIANVersionDateToday = _saveRUIANVersionDateToday
 getDBDetails = _getDBDetails
 getTableNames = _getTableNames
-

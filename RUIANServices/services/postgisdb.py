@@ -6,6 +6,9 @@ from RUIANConnection import *
 import re
 
 from config import config
+import shared; shared.setupPaths()
+from SharedTools.log import logger
+
 from SharedTools.config import getRUIANServicesHTMLPath
 from SharedTools.sharetools import getFileContent
 
@@ -229,16 +232,25 @@ def _findCoordinatesByAddress(dictionary):
 
 def _getRUIANVersionDate():
     result = "unassigned _getRUIANVersionDate"
-    connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
-    cursor = connection.cursor()
     try:
-        query = 'select * from ruian_dates'
-        cursor.execute(query)
-        row = cursor.fetchone()
-        result = row[1]
-    finally:
-        cursor.close()
-        connection.close()
+        connection = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
+        cursor = connection.cursor()
+        try:
+            query = 'select * from ruian_dates'
+            cursor.execute(query)
+            row = cursor.fetchone()
+            result = row[1]
+        except psycopg2.Error as e:
+            result = "Error: Could not execute query to %s at %s:%s as %s:%s" % (DATABASE_NAME, DATABASE_HOST, PORT, USER_NAME, query)
+            logger.info("Error: " + e.pgerror)
+            return "ERROR:" + e.pgerror
+        finally:
+            cursor.close()
+            connection.close()
+
+    except psycopg2.Error as e:
+        result = "Error: Could connect to %s at %s:%s as %s\n%s" % (DATABASE_NAME, DATABASE_HOST, PORT, USER_NAME, str(e))
+        logger.info(result)
 
     return result
 

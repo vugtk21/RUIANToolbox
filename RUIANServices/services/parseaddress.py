@@ -6,6 +6,9 @@ import codecs
 import compileaddress
 from HTTPShared import *
 
+import shared; shared.setupPaths()
+from SharedTools.log import logger
+
 from config import config
 
 DATABASE_HOST = config.databaseHost
@@ -42,7 +45,11 @@ ZIPCODE_LEN = 5
 
 class RUIANDatabase():
     def __init__(self):
-        self.conection = psycopg2.connect(host = DATABASE_HOST, database = DATABASE_NAME, port = PORT, user = USER_NAME, password = PASSWORD)
+        try:
+            self.conection = psycopg2.connect(host = DATABASE_HOST, database = DATABASE_NAME, port = PORT, user = USER_NAME, password = PASSWORD)
+        except psycopg2.Error as e:
+            logger.info("Error: Could not connect to database %s at %s:%s as %s\n%s" % (DATABASE_NAME, DATABASE_HOST, PORT, USER_NAME, str(e)))
+            self.conection = None
 
     def getQueryResult(self, query):
         cursor = self.conection.cursor()

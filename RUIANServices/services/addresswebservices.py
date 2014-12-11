@@ -154,10 +154,19 @@ class ServicesHTMLPageBuilder:
         result = result.replace("#HTMLDATA_URL#", configmodule.getHTMLDataURL())
         result = result.replace("#VERSIONNUMBER#", configmodule.config.issueNumber)
         result = result.replace("#SERVICES_URL_PATH#", configmodule.getServicesPath())
-        if configmodule.config.ruianVersionDate == "":
-            configmodule.config.ruianVersionDate = RUIANConnection.getRUIANVersionDate()
 
-        result = result.replace("#RUIANVERSIONDATE#", '<a href="%s/downloaded/Import.html">%s</a>' % (servicesURL, configmodule.config.ruianVersionDate))
+        if configmodule.config.ruianVersionDate == "":
+            versionDate = RUIANConnection.getRUIANVersionDate()
+            if versionDate.upper().startswith("ERROR:"):
+                versionDate = u"Nepřipojeno"
+                ruianVersionCode = u"<b>!!! Data RÚIAN nejsou připojena !!!</b>"
+            else:
+                ruianVersionCode = '<a href="%s/downloaded/Import.html">%s</a>' % (servicesURL, versionDate)
+
+            configmodule.config.ruianVersionDate = versionDate
+            configmodule.config.ruianVersionCode = ruianVersionCode
+
+        result = result.replace("#RUIANVERSIONDATE#", configmodule.config.ruianVersionCode)
 
         queryParams = self.normalizeQueryParams(queryParams)
 

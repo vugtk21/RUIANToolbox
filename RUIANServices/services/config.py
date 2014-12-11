@@ -47,7 +47,7 @@ def convertServicesCfg(config):
     if config.servicesWebPath[len(config.servicesWebPath)-1:] == "/":
         config.servicesWebPath = config.servicesWebPath[:len(config.servicesWebPath) - 1]
 
-    config.issueNumber = "1.9.66"
+    config.issueNumber = "1.9.67"
     config.issueShortDescription = ""
     #u"""<br><br>
 #<a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22%C3%9Apravy+po+jedn%C3%A1n%C3%AD+13.10.%22+is%3Aclosed">Podrobnosti na GitHub</a>
