@@ -19,23 +19,18 @@ def clearLogFile():
 
 # create logger
 logger = logging.getLogger(__name__)
-
 logger.setLevel(logging.INFO)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s %(message)s', datefmt="%H:%M:%S")
 
 # Create and setup log file parameters
-#fileHandler = logging.FileHandler(LOG_FILENAME)
-#formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-#fileHandler.setFormatter(formatter)
-#logger.addHandler(fileHandler)
-
-logger.error("Testing error message")
-logger.error("--------------------------------")
+fileHandler = logging.FileHandler(LOG_FILENAME)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+fileHandler.setFormatter(formatter)
+logger.addHandler(fileHandler)
 
 if __name__ == '__main__':
     logger.info("Logger test info")
     logger.debug("Logger test debug")
     logger.error("Logger test error")
     logger.critical("Logger test critical")
-
