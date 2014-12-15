@@ -353,13 +353,22 @@ class RUIANDownloader:
             outFileName = fileName[:-len(ext)]
             logger.info("Uncompressing " + extractFileName(fileName) + " -> " + extractFileName(outFileName))
             import gzip
-            f = gzip.open(fileName, 'rb', 1024*1024*20)
-            out = open(outFileName, "wb")
-            try:
-                out.write(f.read())
-            finally:
-                f.close()
-                out.close()
+
+            bufferSize = 1024*1024*20
+            size = 0
+            with gzip.open(fileName, 'rb') as inputFile:
+                with open(outFileName, 'wb') as outputFile:
+                    while True:
+                        data = inputFile.read(bufferSize)
+                        size = size + len(data)
+                        if len(data) == 0 :
+                            break
+                        outputFile.write(data)
+                        outputFile.flush()
+                    outputFile.close()
+                inputFile.close()
+
+
             self.downloadInfo.fileSize = os.path.getsize(outFileName)
             if deleteSource:
                 os.remove(fileName)
