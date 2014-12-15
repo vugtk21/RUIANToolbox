@@ -112,7 +112,8 @@ class ServicesHTMLPageBuilder:
             result += '<td align="right">' + param.caption + ' </td><td>'
 
         if param.name == '/Format':
-            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
+            buildRotatingCircle = False
+            selectHTML = '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
                             '<option value="textToOneRow">text do řádku</option>' + \
                             '<option value="xml">xml</option>' + \
@@ -120,6 +121,10 @@ class ServicesHTMLPageBuilder:
                             '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
                     '</select>'
+            if buildRotatingCircle:
+                result += '<span>%s</span><span id="%s_WaitCursorSpan" class="WAITCURSORSPAN" style="width:100%%;text-align:right;"><img src="http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif" /></span>' % (selectHTML, formName)
+            else:
+                result += selectHTML
         elif param.name == "DistrictNumber":
             result += '<select id="%s_%s" title="%s" onchange="districtNumberChanged(\'%s\')">' % (formName, param.name, param.shortDesc, formName)+ \
                             '<option value=""></option>' + \
@@ -160,7 +165,7 @@ class ServicesHTMLPageBuilder:
             dataListRef = ""
             if USE_DATA_LISTS and param.name in ["HouseNumber", "OrientationNumber", "RecordNumber", "OrientationNumberCharacter"]:
                 dataListID = "%s_%s_DataList" % (formName, param.name)
-                self.dataListHTML += '<datalist id="%s">\n</datalist>\n' % (dataListID)
+                self.dataListHTML += '<datalist id="%s" class="DATALIST_CLASS">\n</datalist>\n' % (dataListID)
                 dataListRef = ' list="%s"' % dataListID
 
             result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \

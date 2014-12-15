@@ -564,6 +564,10 @@ def getDataListValues(queryParams, maxCount = 50):
 
             if maxCount != 0 and rowCount >= maxCount:
                 break
+        houseNumberList.sort(key=int)
+        houseNumberList.sort(key=int)
+        orientationNumberList.sort(key=int)
+        orientationNumberCharacterList.sort(key=int)
         result = ",".join(houseNumberList) + ";"
         result += ",".join(recordNumberList) + ";"
         result += ",".join(orientationNumberList) + ";"

@@ -33,6 +33,13 @@
           z-index:10;
         }
 
+        #WaitCursorSpan {
+          position: absolute;
+          top: 10px;
+          right: 16px;
+          z-index:10;
+        }
+
 		.alert {
 			color: #31708f;
 			padding: 15px;
@@ -115,13 +122,70 @@
     <script type="text/javascript" charset="utf-8">
 
 var isEnhancedGUI = false; // Je přepnuto do režimu "Uživatelské rozhraní"
-var DEBUG_MODE = false;
+var DEBUG_MODE = true;
 var CALL_TEXTAREA = "";
 var CALL_PATH = "";
 var USE_DATA_LISTS = #USE_DATA_LISTS#;
 
+var _logLevel = -1;
+var _logPrefix = "";
+
+function setLogLevel(newLevelValue)
+{
+ _logLevel = newLevelValue;
+ if (_logLevel < 0) _logLevel = 0;
+ _logPrefix = "";
+ for (var i=1; i < 2*_logLevel; i++) {
+    _logPrefix = _logPrefix + " "
+ }
+}
+
+function log(msg)
+{
+ if (DEBUG_MODE) console.log(_logPrefix + msg);
+}
+
+function openLogSection(msg)
+{
+ if (DEBUG_MODE) {
+    setLogLevel(_logLevel + 1);
+    log(msg);
+ }
+}
+
+function closeLogSection(msg)
+{
+ if (DEBUG_MODE) {
+    if (!msg || msg == undefined) {  }
+    else {
+        log(msg);
+    }
+    setLogLevel(_logLevel - 1);
+ }
+}
+
+var _waitCursorCount = 1;
+
+function showWaitCursor(logMsg)
+{
+    if (logMsg != "") log("sending request for " + logMsg);
+    _waitCursorCount = _waitCursorCount + 1;
+    $(".WAITCURSORSPAN").show();
+}
+
+function hideWaitCursor(logMsg)
+{
+    if (logMsg != "") log("return result for " + logMsg);
+    _waitCursorCount = _waitCursorCount - 1;
+    if (_waitCursorCount <= 0) {
+        $(".WAITCURSORSPAN").hide();
+    }
+}
+
 function clearInputs(formName)
 {
+    openLogSection("clearInputs(" + formName + ")");
+
 	formElem = $('#' + formName);
 
 	formElem.find("td input").each(
@@ -139,32 +203,43 @@ function clearInputs(formName)
     elem.innerText = "";
 
     setupInputs(formName);
+    closeLogSection("");
 }
 
 function hideElement(elementName)
 {
- document.getElementById(elementName).style.visibility = "hidden";
+ if (elementName && (elementName != "")) {
+    document.getElementById(elementName).style.visibility = "hidden";
+ }
 }
 
 function showElement(elementName)
 {
+ if (elementName && (elementName != "")) {
     var elem = document.getElementById(elementName);
     if (elem) { elem.style.visibility = "visible"; }
+ }
 }
 
 function showOrHideElement(elementName, value)
 {
- if (value) {
-    showElement(elementName);
- }
- else {
-    hideElement(elementName);
+ if (elementName && (elementName != "")) {
+    if (value) {
+	    $("#" + elementName).show();
+        //showElement(elementName);
+    }
+    else {
+	    $("#" + elementName).hide();
+        //hideElement(elementName);
+    }
  }
 }
 
 function enableElement(elementName)
 {
+ if (elementName && (elementName != "")) {
     document.getElementById(elementName).disabled = false;
+ }
 }
 
 function disableElement(elementName)
@@ -194,7 +269,12 @@ function fillDataList(dataListID, dataStr, separator)
         rowID = id.substring(0, id.lastIndexOf("_")) + "_row" + id.substring(id.lastIndexOf("_"));
         showOrHideElement(rowID, dataStr != "");
 
-	    dataItems = dataStr.split(separator);
+        if (dataStr == undefined) {
+           dataItems = [];
+        }
+        else {
+	        dataItems = dataStr.split(separator);
+	    }
 	    innerHTML = '';
 	    for (var i = 0; i < dataItems.length; i++) {
 		    innerHTML = innerHTML + '<option value="' + dataItems[i] + '">\n';
@@ -211,8 +291,9 @@ function requestAndFillDataLists(formName)
     if (USE_DATA_LISTS) {
         localityName = document.getElementById(formName + "_Locality").value
         localityPartName = document.getElementById(formName + "_LocalityPart").value
+        streetName = document.getElementById(formName + "_Street").value
 
-        if (localityName == "" && localityPartName == "") {
+        if (localityName == "" && localityPartName == "" && streetName == "") {
 		    fillDataList(formName + "_HouseNumber_DataList", "", ",");
 		    fillDataList(formName + "_RecordNumber_DataList", "", ",");
 		    fillDataList(formName + "_OrientationNumber_DataList", "", ",");
@@ -223,11 +304,13 @@ function requestAndFillDataLists(formName)
             showElement(formName + "row_OrientationNumberCharacter");
 	    }
 	    else {
-	        var xmlHttp = getxmlHTTP();
+	        var xmlHttp = getxmlHTTP(1);
 
             xmlHttp.onreadystatechange = function()
             {
 	            if (xmlHttp.readyState == 4) {
+	                hideWaitCursor("requestAndFillDataLists(" + formName + ")");
+	                log("requesting DataList in  requestAndFillDataLists(" + formName + ")");
 		            resultStr = xmlHttp.responseText.replace("\\n","");
 		            dataLists = resultStr.split(";");
 		            fillDataList(formName + "_HouseNumber_DataList", dataLists[0], ",");
@@ -240,6 +323,7 @@ function requestAndFillDataLists(formName)
             var subParams = getSubParamsQuery(formName).join("&");
             if (subParams != "") {
                 url = "#SERVICES_URL_PATH#/rest.py/autocomplete/datalists?" + subParams;
+                showWaitCursor("requestAndFillDataLists" + formName + ")");
 	            xmlHttp.open("GET", url, true);
 	            xmlHttp.send(null);
 	        }
@@ -253,7 +337,8 @@ function requestAndFillDataLists(formName)
 function districtNumberChanged(formName)
 {
     if (document.getElementById(formName + "_DistrictNumber").value != "") {
-        document.getElementById(formName + "_Locality").value = "Praha"
+        document.getElementById(formName + "_Locality").value = "Praha";
+        document.getElementById(formName + "_LocalityPart").value = "";
     }
     setupInputs(formName);
 }
@@ -265,29 +350,21 @@ function setupInputs(formName)
     if (formName == "") { return }
     if (!document.getElementById(formName + "_AddressItemsRB") && (formName != "form_4")) { return; }
 
+    openLogSection("setupInputs(" + formName + ")");
     findAddress(formName, true);
-
-    var elementValue = function(formName, elementSuffix)
-    {
-        return document.getElementById(formName + elementSuffix).value;
-    }
-
-    //disableElement(formName + "_Locality");
-
-    localityName = document.getElementById(formName + "_Locality").value;
-    localityPart = document.getElementById(formName + "_LocalityPart").value;
-    street = document.getElementById(formName + "_Street").value;
-
-    showOrHideElement(formName + "_row_DistrictNumber", localityName.toLowerCase() == "praha");
 
     if (isEnhancedGUI) {
         showDetails = true;
+        showDistrictNumber = true;
     }
     else {
-        showDetails = (localityName != "" || localityPart != "");
+        showDetails = true;
+        localityName = document.getElementById(formName + "_Locality").value;
+        showDistrictNumber = localityName == "" || localityName.toLowerCase() == "praha";
     }
 
     showDetails = true;
+    showOrHideElement(formName + "_row_DistrictNumber", showDistrictNumber);
     showOrHideElement(formName + "_row_HouseNumber", showDetails);
     showOrHideElement(formName + "_row_RecordNumber", showDetails);
     showOrHideElement(formName + "_row_OrientationNumber", showDetails);
@@ -305,11 +382,27 @@ function setupInputs(formName)
 
         attachAutocompleteListeners(formName, subParams);
     }
+    closeLogSection("");
 }
 
-function getxmlHTTP()
+/*
+* V tomto poli se uchovávají otevřené XML requesty, aby se případně daly uzavřít
+* 0-fillFormInputs, 1-requestAndFillDataLists
+*/
+_xmlHTTPRequests = [null, null]
+
+function getxmlHTTP(index)
+/*
+
+*/
 {
+    if (_xmlHTTPRequests[index] != null) {
+        _xmlHTTPRequests[index].abort();
+        _xmlHTTPRequests[index] = null;
+        log("Aborting XML request at " + index.toString());
+    }
 	var xmlHttp;
+
 	try {  // Firefox, Opera 8.0+, Safari
 		xmlHttp = new XMLHttpRequest();
 	} catch (e) {// Internet Explorer
@@ -322,6 +415,9 @@ function getxmlHTTP()
 				}
 		}
     }
+
+    log("Requesting XML request at " + index.toString());
+    _xmlHTTPRequests[index] = xmlHttp;
     return xmlHttp;
 }
 
@@ -345,12 +441,17 @@ function runOrHookDisplayResult(formName, path)
 }
 
 function fillFormInputs(formName, url, doShowMsg)
+/*
+ Pokud je vyplněno dostatečné množství položek adresy, zavolá na server a ověří, jestli je adresa oky.
+ Pokud je nalezen právě jeden záznam, tak vyplní všechny položky adresy.
+*/
 {
-	var xmlHttp = getxmlHTTP();
+	var xmlHttp = getxmlHTTP(0);
 
     xmlHttp.onreadystatechange = function()
     {
 	    if (xmlHttp.readyState == 4) {
+	        hideWaitCursor("received result of fillFormInputs" + formName + "," + url + ",??)");
 		    resultStr = xmlHttp.responseText.replace("\\n","");
 		    addressItems = resultStr.split(",");
 		    if (addressItems.length == 10) {
@@ -385,13 +486,46 @@ function fillFormInputs(formName, url, doShowMsg)
     msg = "Hledám odpovídající adresu...";
     if (isEnhancedGUI || DEBUG_MODE) {  msg = "\nOdeslán požadavek\n" + url + "\n" + msg  }
     if (doShowMsg) { showMsg(formName, msg); }
+    showWaitCursor("requesting DataList in  fillFormInputs(" + formName + "," + url + ",??)");
 	xmlHttp.open("GET", url, true);
 	xmlHttp.send(null);
 }
 
-function findAddress(formName, doShowMsg)
+function getInputValue(formName, inputName, defValue)
+/*
+ form_1 + HouseNumber => form_1_HouseNumber
+*/
 {
-	formElem = $('#' + formName);
+ elm = document.getElementById(formName + "_" + inputName);
+ if (elm) {
+    return elm.value;
+ }
+ else {
+    return defValue;
+ }
+}
+
+function findAddress(formName, doShowMsg)
+/*
+ Pokusí se najít adresu podle polí vyplněných ve formuláři formName. Pokud je nalezena, doplní nevyplněná pole
+ a zneviditelní prázdná.
+*/
+{
+	if (
+	    (
+	        getInputValue(formName, "Locality", "") == "" &&
+	        getInputValue(formName, "LocalityPart", "") == "" &&
+	        getInputValue(formName, "ZIPCode", "") == "" &&
+	        getInputValue(formName, "Street", "") == ""
+	    ) || (
+	        getInputValue(formName, "HouseNumber", "") == "" &&
+	        getInputValue(formName, "RecordNumber", "") == "" &&
+	        getInputValue(formName, "OrientationNumber", "") == ""
+
+	    )
+	   ) return;
+
+    openLogSection("findAddress(" + formName + ", ??)");
 
     var addParam = function(formName, value, inputName) {
         inputValue = document.getElementById(formName + "_" + inputName).value;
@@ -417,6 +551,7 @@ function findAddress(formName, doShowMsg)
         url = "#SERVICES_URL_PATH#/rest.py/autocomplete/fill?RUIANType=fill" + params;
         fillFormInputs(formName, url, doShowMsg);
     }
+    closeLogSection("");
 }
 
 function isNumber(event, scope, numDigits, maxValue)
@@ -500,9 +635,12 @@ function detachAutocompleteListeners()
     $(".RUIAN_TOWNPART_INPUT").autocomplete({source: []});
     $(".RUIAN_STREET_INPUT").autocomplete({source: []});
     $(".RUIAN_TEXTSEARCH_INPUT").autocomplete({source: []});
-    $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({source: []});
+
     if (USE_DATA_LISTS) {
-	        //fillDataList(formName + elemId, "", ","); TODO Vynulovat data listy
+        dataLists = document.getElementsByClassName('DATALIST_CLASS');
+        for (var i=0; i<dataLists.length; i++) {
+            dataLists[i].innerHTML = "";
+		}
     }
     else {
         $(".RUIAN_HOUSENUMBER_INPUT").autocomplete({source: []});
@@ -511,26 +649,7 @@ function detachAutocompleteListeners()
 
 function attachAutocompleteListeners(formName, subParams)
 {
-    $(".RUIAN_DISTRICTNUMBER_INPUT").autocomplete({
-        source: [
-            {"id":"","label":"Praha 1","value":"1"},
-            {"id":"","label":"Praha 2","value":"2"},
-            {"id":"","label":"Praha 3","value":"3"},
-            {"id":"","label":"Praha 4","value":"4"},
-            {"id":"","label":"Praha 5","value":"5"},
-            {"id":"","label":"Praha 6","value":"6"},
-            {"id":"","label":"Praha 7","value":"7"},
-            {"id":"","label":"Praha 8","value":"8"},
-            {"id":"","label":"Praha 9","value":"9"},
-            {"id":"","label":"Praha 10","value":"10"}
-        ],
-        minLength: 1,
-        select: function( event, ui ) {
-		        setInputValueFromMaster(this.id, "_Locality", "Praha");
-		        setInputValueFromMaster(this.id, "_ZIPCode", "");
-		        setupInputs(formName);
-	    }
-    });
+    openLogSection("attachAutocompleteListeners(" + formName + "," + subParams + ")");
 
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
         source: "#SERVICES_URL_PATH#/rest.py/autocomplete/town?RUIANType=town" + subParams,
@@ -593,7 +712,7 @@ function attachAutocompleteListeners(formName, subParams)
         });
     }
 
-    $( ".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
+    $(".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
       source: "#SERVICES_URL_PATH#/rest.py/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
       minLength: 1,
       select: function( event, ui ) {	
@@ -614,7 +733,7 @@ function attachAutocompleteListeners(formName, subParams)
 		setInputValueFromMaster(this.id, "_DistrictNumber", addressItems[8]);	
       }
     });
-
+    closeLogSection("");
 }
 
 $(function() {
@@ -622,6 +741,7 @@ $(function() {
 });
 
 $(document).ready(function() {
+    // Přiřadíme vyvolání události při přepnutí mezi Radio buttony na stránkách geocode a compileaddress
     $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {
 	    tableElem = $(this).parent().find("table");
 		
@@ -639,16 +759,22 @@ $(document).ready(function() {
 		tableElem.find('tr').each(function(index, row)
 		{
 			if (visibleRows.indexOf(index) != -1) {
+			    // TODO systemizovat
+			    //showElement(row.id);
 				$(row).show();
 			}
 			else {
+			    //hideElement(row.id);
 				$(row).hide();
 			}
 		});
       });
 
-      $("#enhancedGUIButton").click(function(){
-            $(".enhancedGUI").toggle();
+
+    hideWaitCursor();
+
+    $("#enhancedGUIButton").click(function(){
+        $(".enhancedGUI").toggle();
 			button = document.getElementById("enhancedGUIButton");
 			if (button.value == "Programátorské rozhraní") {
 			    isEnhancedGUI = true;
@@ -661,12 +787,12 @@ $(document).ready(function() {
 				button.value = "Programátorské rozhraní";
 				attachAutocompleteListeners("", "");
 			}
-      });	  
+    });
 });
 
 // Přiřazení našeptávačů
 $(function() {
-	attachAutocompleteListeners();
+	attachAutocompleteListeners("", "");
 });
 
 function displayResultInTable(textAreaID, resultStr)
@@ -709,6 +835,7 @@ function displayResult(id, servicePath)
 	    if (xmlHttp.readyState == 4) {
 		    // Get the response from the server and extract the section that comes in the body section of the second
 		    // html page avoid inserting the header part of the second page in your first page's element
+	        hideWaitCursor("displayResult");
 		    resultStr = xmlHttp.responseText.replace(/<br>/g,"\\n");
 		    if (resultStr == "") {
 		        if (isEnhancedGUI) {
@@ -730,6 +857,7 @@ function displayResult(id, servicePath)
     if (isEnhancedGUI) { msg = "Odeslán požadavek\n" + url + "\n" + msg  }
     elem.innerText = msg;
 
+    showWaitCursor("displayResult");
 	xmlHttp.open("GET", url, true);
 	xmlHttp.send(null);
 }
@@ -747,6 +875,7 @@ var temp;
 
 function onChangeProc(formElem, urlSpanElem, servicePath)
 {
+    openLogSection("onChangeProc('" + formElem.name + "',??,'" + servicePath + "')");
     formNameLen = formElem.name.length + 1;
 
     addressFields = "&Locality&LocalityPart&DistrictNumber&Street&HouseNumber&RecordNumber&OrientationNumber&OrientationNumberCharacter&ZIPCode";
@@ -805,7 +934,9 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     }
     urlSpanElem.innerHTML = "<#SERVICES_URL>"+ servicePath + s; //+ "\\n";
     temp = servicePath + s;
+    closeLogSection("");
 }
+
     </script>
 
       <style>
@@ -818,6 +949,9 @@ function onChangeProc(formElem, urlSpanElem, servicePath)
     <body>
     <h1>#PAGETITLE#</h1>
     <input type="button" value="Programátorské rozhraní" id="enhancedGUIButton">
+    <span id="WaitCursorSpan" class="WAITCURSORSPAN" style="width:100%%;text-align:right;">
+        <img src="http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif" />
+    </span>
 	<div class="enhancedGUI">
 		<div class="ui-widget">
             <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
@@ -871,6 +1005,5 @@ TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURAD
 </center>
 </p>
 </div>
-
     </body>
 </html>
