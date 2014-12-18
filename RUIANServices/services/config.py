@@ -26,7 +26,7 @@ servicesConfigAttrs = {
                 "issueNumber": "",
                 "issueShortDescription" : "",
                 "ruianVersionDate" : "",
-                "disableGUISwitch" : "true"
+                "disableGUISwitch" : "false"
             }
 
 def convertServicesCfg(config):
