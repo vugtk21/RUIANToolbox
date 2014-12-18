@@ -84,6 +84,101 @@ def renameTempTable(connection):
     cursor.close()
     logger.info("Done.")
 
+def buildTownsNoStreets():
+
+    def _createTable(connection):
+        sys.stdout.write("Creating table ac_townsnostreets")
+        cursor = connection.cursor()
+        try:
+            cursor.execute("drop table if exists ac_townsnostreets;")
+            cursor.execute("CREATE TABLE ac_townsnostreets (nazev_obce text, nazev_casti_obce text);")
+            print " - done."
+        finally:
+            cursor.close()
+
+    def _getRows(connection):
+        sys.stdout.write("Retrieving records to be processes")
+        cursor = connection.cursor()
+        try:
+            query = 'select nazev_ulice, nazev_casti_obce, nazev_obce from address_points group by nazev_casti_obce, nazev_ulice, nazev_obce order by nazev_casti_obce, nazev_ulice, nazev_obce'
+            cursor.execute(query)
+            print " - done."
+            return cursor
+        except:
+            print "Error:Selecting towns with no streets failed."
+            exitApp()
+
+    print "Building table ac_townsnostreets"
+    print "------------------------"
+    connection = psycopg2.connect(
+        host = config.databaseHost,
+        database = config.databaseName,
+        port = config.databasePort,
+        user = config.databaseUserName, password = config.databasePassword
+    )
+    try:
+        #_createTable(connection)
+        cursor = _getRows(connection)
+
+        try:
+            if cursor == None: return
+
+            print "Inserting rows"
+            print "----------------------"
+            insertCursor = connection.cursor()
+
+            def insertRow(nazev_casti_obce, nazev_obce):
+                insertSQL = "INSERT INTO ac_townsnostreets (nazev_casti_obce, nazev_obce) VALUES ('%s', '%s')" % (nazev_casti_obce, nazev_obce)
+                insertCursor.execute(insertSQL)
+                connection.commit()
+                pass
+
+            row_count = 0
+            gaugecount = 0
+            last_nazev_casti_obce = None
+            last_nazev_obce = None
+            numStreets = 0
+            for row in cursor:
+                gaugecount += 1
+                try:
+                    nazev_ulice, nazev_casti_obce, nazev_obce = row
+
+                    if (last_nazev_casti_obce == None or last_nazev_casti_obce == nazev_casti_obce) and \
+                        (last_nazev_obce == None or last_nazev_obce == nazev_obce):
+                        if nazev_ulice != None and nazev_ulice <> "": numStreets = numStreets + 1
+                    else:
+                        if last_nazev_casti_obce != "":
+                            if numStreets == 0:
+                                insertRow(nazev_casti_obce, nazev_obce)
+                                row_count += 1
+
+                        numStreets = 0
+                        last_nazev_casti_obce = None
+                        last_nazev_obce = None
+
+                    last_nazev_casti_obce = nazev_casti_obce
+                    last_nazev_obce = nazev_obce
+
+
+                    if gaugecount >= 1000:
+                        gaugecount = 0
+                        print str(row_count) + " rows"
+
+                except psycopg2.Error as e:
+                    print "Error: " + str(row_count) + e.pgerror
+                    exitApp()
+                    pass
+
+            print "Done - %d rows inserted." % row_count
+
+        finally:
+            cursor.close()
+
+
+
+    finally:
+        connection.close()
+
 def buildGIDsTable():
     logger.info("Building table ac_gids")
     logger.info("------------------------")

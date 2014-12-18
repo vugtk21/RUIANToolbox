@@ -9,9 +9,9 @@
 drop table if exists ac_psc;
 create table ac_psc
 as
-select CAST(psc AS text), nazev_obce, nazev_casti_obce
+select CAST(psc AS text), nazev_obce, nazev_casti_obce, nazev_ulice
 from address_points
-group by psc, nazev_obce, nazev_casti_obce;
+group by psc, nazev_obce, nazev_casti_obce, nazev_ulice;
 
 -- --------------------------------------------------
 -- Create table address_points

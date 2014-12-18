@@ -9,6 +9,7 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 import codecs
+import os.path
 
 import fulltextsearch
 import validate
@@ -26,6 +27,7 @@ from config import setupVariables
 
 import RUIANConnection
 
+USE_DATA_LISTS = True
 SERVICES_PATH = '' # 'services'
 
 def getPageTemplate():
@@ -79,6 +81,8 @@ def getIssueHTML():
         return result
 
 class ServicesHTMLPageBuilder:
+    def __init__(self):
+        self.dataListHTML = ""
 
     def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
@@ -109,13 +113,32 @@ class ServicesHTMLPageBuilder:
             result += '<td align="right">' + param.caption + ' </td><td>'
 
         if param.name == '/Format':
-            result += '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
+            buildRotatingCircle = False
+            selectHTML = '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
                             '<option value="text">text</option>' + \
                             '<option value="textToOneRow">text do řádku</option>' + \
                             '<option value="xml">xml</option>' + \
                             '<option value="html">html</option>' + \
                             '<option value="htmlToOneRow">html do řádku</option>' + \
                             '<option value="json">json</option>' + \
+                    '</select>'
+            if buildRotatingCircle:
+                result += '<span>%s</span><span id="%s_WaitCursorSpan" class="WAITCURSORSPAN" style="width:100%%;text-align:right;"><img src="http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif" /></span>' % (selectHTML, formName)
+            else:
+                result += selectHTML
+        elif param.name == "DistrictNumber":
+            result += '<select id="%s_%s" title="%s" onchange="districtNumberChanged(\'%s\')">' % (formName, param.name, param.shortDesc, formName)+ \
+                            '<option value=""></option>' + \
+                            '<option value="1">Praha 1</option>' + \
+                            '<option value="2">Praha 2</option>' + \
+                            '<option value="3">Praha 3</option>' + \
+                            '<option value="4">Praha 4</option>' + \
+                            '<option value="5">Praha 5</option>' + \
+                            '<option value="6">Praha 6</option>' + \
+                            '<option value="7">Praha 7</option>' + \
+                            '<option value="8">Praha 8</option>' + \
+                            '<option value="9">Praha 9</option>' + \
+                            '<option value="10">Praha 10</option>' + \
                     '</select>'
         elif param.name == 'ExtraInformation':
             if formName == "form_1":
@@ -129,7 +152,7 @@ class ServicesHTMLPageBuilder:
                     '</select>'
 
         elif param.name == 'FillAddressButton':
-            result += '<input type="checkbox" id="%s_SmartAutocompleteCB" checked title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input>' % (formName)
+            result += '<span class="SMARTAUTOCOMPLETECB"><input type="checkbox" id="%s_SmartAutocompleteCB" checked onchange="setupInputs(\'%s\')" title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input></span>' % (formName, formName)
             result += '&nbsp;&nbsp;<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
                       '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
         else:
@@ -139,14 +162,24 @@ class ServicesHTMLPageBuilder:
                 disabledStr = ''
 
             elemID = formName + '_' + param.name
+
+            dataListRef = ""
+            if USE_DATA_LISTS and param.name in ["HouseNumber", "OrientationNumber", "RecordNumber", "OrientationNumberCharacter"]:
+                dataListID = "%s_%s_DataList" % (formName, param.name)
+                self.dataListHTML += '<datalist id="%s" class="DATALIST_CLASS">\n</datalist>\n' % (dataListID)
+                dataListRef = ' list="%s"' % dataListID
+
             result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + \
-                      ' id="' + elemID + '"' + ' />'
+                      ' id="' + elemID + '"' + dataListRef + ' />'
 
         result += '</tr>\n'
+
         return result
 
-    def getServicesHTMLPage(self, pathInfo, queryParams):
+    def getServicesHTMLPage(self, scriptName, pathInfo, queryParams):
+        scriptName = os.path.basename(scriptName)
+        self.dataListHTML = ""
         result = getPageTemplate().replace("#PAGETITLE#", u"Webové služby RÚIAN")
         servicesURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH
         result = result.replace("<#SERVICES_URL>", servicesURL)
@@ -216,8 +249,8 @@ class ServicesHTMLPageBuilder:
             tabDivs += '</div>\n'
 
             tabDivs += '<br>'
-            tabDivs += '<input style="float: right;" type="button" value="Nové zadání" onclick="clearInputs(\'' + formName + '\')">\n'
-            tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s;%s">\n' % (service.sendButtonCaption, onChangeProcCode, displayResultProcCode)
+            tabDivs += '<input style="float: right;" type="button" value="Nové zadání" onclick="clearInputs(\'%s\')">\n' % formName
+            tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s">\n' % (service.sendButtonCaption, displayResultProcCode)
             tabDivs += '</form>\n'
             tabDivs += "</td>"
             tabDivs += '<td><textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea></td>'
@@ -257,6 +290,13 @@ class ServicesHTMLPageBuilder:
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
+        result = result.replace("#USE_DATA_LISTS#", str(USE_DATA_LISTS).lower())
+        result = result.replace("#SCRIPT_NAME#", scriptName)
+        result = result.replace("#DISABLEGUISWITCH#", str(configmodule.config.disableGUISwitch).lower())
+
+
+        result = result.replace("</body>", self.dataListHTML + "</body>")
+
         return result
 
 def createServices():
@@ -277,7 +317,7 @@ def main():
     sys.setdefaultencoding('utf-8')
     # Build HTML page with service description
     pageBuilder = ServicesHTMLPageBuilder()
-    pageContent = pageBuilder.getServicesHTMLPage("", {})
+    pageContent = pageBuilder.getServicesHTMLPage(__file__, "", {})
 
     # Write result into file
     file = codecs.open("..//html//WebServices.html", "w", "utf-8")

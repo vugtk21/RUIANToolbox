@@ -12,19 +12,21 @@ import urllib
 
 services = []
 
+def getQueryValue(queryParams, id, defValue):
+    # Vrací hodnotu URL Query parametruy id, pokud neexistuje, vrací hodnotu defValue
+    if queryParams.has_key(id):
+        return queryParams[id]
+    else:
+        return defValue
+
 def getResultFormatParam():
     return RestParam("/Format", u"Formát", u"Formát výsledku služby (HTML, XML, Text, JSON)")
 
 def getSearchTextParam():
-    return URLParam("SearchText", u"Adresa", u"Textový řetězec adresy, jednotlivé položky oddělené čárkou", htmlTags = ' class="RUIAN_TEXTSEARCH_INPUT" ')
+    return URLParam("SearchText", u"Adresa", u"Adresa ve tvaru ulice číslo, část obce, obec, PSČ", htmlTags = ' class="RUIAN_TEXTSEARCH_INPUT" ')
 
 def getAddressPlaceIdParamRest():
     return RestParam("/AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa")
-
-def getAddressPlaceIdParamURL():
-    # gid = 19..72628626
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa, maximálně 8 číslic", "", True,
-                    htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')#onpaste="return isNumber(event, this, 8, 0)"')
 
 def getZIPCodeURL(disabled = True):
     # psc = 10000...79862
@@ -34,30 +36,36 @@ def getZIPCodeURL(disabled = True):
 def getHouseNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
     return URLParam("HouseNumber",       u"Číslo popisné", "Číslo popisné v rozsahu 1 až 9999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
+                    htmlTags = ' class="RUIAN_HOUSENUMBER_INPUT" onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
 
 def getRecordNumberURL(disabled = True):
     # cislo_domovni (cislo popisne a cislo evidencni) = 1..9999
     return URLParam("RecordNumber",      u"Číslo evidenční", u"Číslo evidenční, pokud je přiděleno, v rozsahu 1 až 9999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
+                    htmlTags = ' class="RUIAN_RECORDNUMBER_INPUT"  onkeypress="return isNumber(event, this, 4, 0)" ')#onpaste="return isNumber(event, this, 4, 0)"')
 
 def getOrientationNumberURL(disabled = True):
     # cislo_orientacni = 1..999
     return URLParam("OrientationNumber", u"Číslo orientační", "Číslo orientační v rozsahu 1 až 999", "", disabled,
-                    htmlTags = ' onkeypress="return isNumber(event, this, 3, 0)" ')#onpaste="return isNumber(event, this, 3, 0)"')
+                    htmlTags = ' class="RUIAN_ORIENTATIONNUMBER_INPUT" onkeypress="return isNumber(event, this, 3, 0)" ')#onpaste="return isNumber(event, this, 3, 0)"')
 
 def getOrientationNumberCharacterURL(disabled = True):
     # Písmeno čísla orientačního a..z, A..Z
     return URLParam("OrientationNumberCharacter", u"Písmeno čísla<br>orientačního", "Písmeno čísla orientačního a..z, A..Z", "", disabled,
-                    htmlTags = ' onkeypress="return isENLetter(event, this)" ')
+                    htmlTags = ' class="RUIAN_ORIENTATIONNUMBERCHARACTER_INPUT" onkeypress="return isENLetter(event, this)" ')
 
 def getDistrictNumberURL(disabled = True):
     # 1..10
-    return URLParam("DistrictNumber", u"Číslo městského<br>obvodu v Praze", u"Číslo městského obvodu v Praze v rozsahu 1 až 10",
+    return URLParam("DistrictNumber", u"Městský obvod", u"Číslo městského obvodu v Praze",
                     "", disabled, htmlTags = ' class="RUIAN_DISTRICTNUMBER_INPUT" onkeypress="return isNumber(event, this, 2, 10)" ')#onpaste="return isNumber(event, this, 2, 10)"')
 
+def getAddressPlaceIdParamURL():
+    # gid = 19..72628626
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa, maximálně 8 číslic", "", True,
+                    htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
+
 def getAddressPlaceIdParamURL_IdNotDisabled():
-    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa", "", False,  htmlTags = ' class="RUIAN_ID_INPUT" ')
+    return URLParam("AddressPlaceId", u"Identifikátor", u"Identifikátor adresního místa, maximálně 8 číslic", "", False,
+                    htmlTags = ' class="RUIAN_ID_INPUT" onkeypress="return isNumber(event, this, 8, 0)" ')
 
 class HTTPResponse():
     def __init__(self, handled, mimeFormat = "text/html", htmlData = ""):
@@ -101,7 +109,7 @@ def noneToString(item):
 class MimeBuilder:
     def __init__(self, formatText = "text"):
         self.formatText = formatText.lower()
-        self.recordSeparator = "EndOfRecord\n"
+        self.recordSeparator = "\n"
 
         if self.formatText in ["xml", "json"]:
             self.lineSeparator = "\n"
