@@ -95,7 +95,7 @@ def ProcessRequest(fullPathList, queryParams, response):
 
     pageBuilder = addresswebservices.ServicesHTMLPageBuilder()
     if fullPathList in [["/"], []]:
-        response.htmlData = pageBuilder.getServicesHTMLPage("", {})
+        response.htmlData = pageBuilder.getServicesHTMLPage(__file__,"", {})
         response.handled = True
     else:
         if fullPathList == []:
@@ -138,7 +138,7 @@ def ProcessRequest(fullPathList, queryParams, response):
             if not response.handled:
                 if pathInfos != []:
                     addresswebservices.console.addMsg(u"Neznámá služba: " + servicePathInfo)
-                response.htmlData = pageBuilder.getServicesHTMLPage(servicePathInfo, queryParams)
+                response.htmlData = pageBuilder.getServicesHTMLPage(__file__, servicePathInfo, queryParams)
                 response.handled = True
 
     return response

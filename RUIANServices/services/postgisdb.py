@@ -85,28 +85,15 @@ def _findAddress(ID):
 
 
 
-def _getNearbyLocalities(y,x,distance):
+def _getNearbyLocalities(y, x, distance):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
-    query = "SELECT gid, nazev_obce, nazev_casti_obce, nazev_ulice, typ_so, cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_mop FROM " + TABLE_NAME + " WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)" % (str(x), str(y), str(distance),)
-    query += " LIMIT 25;"
+    query = "SELECT gid, nazev_obce, nazev_casti_obce, nazev_ulice, typ_so, cislo_domovni, cislo_orientacni, " + \
+                   "znak_cisla_orientacniho, psc, nazev_mop FROM" + \
+                   " %s WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)  LIMIT 25;" % (TABLE_NAME, str(x), str(y), str(distance),)
     cur.execute(query)
     rows = cur.fetchall()
     return rows
-    #addresses = []
-    #for row in rows:
-    #    if row[4][-3:] == ".p.":
-    #        houseNumber = numberToString(row[5])
-    #        recordNumber = ""
-    #    elif row[4][-3:] == "ev.":
-    #        houseNumber = ""
-    #        recordNumber = numberToString(row[5])
-    #    else:
-    #        continue
-    #    #psc = (numberToString(row[5]).decode("utf-8"))
-    #    adr = Address((noneToString(row[1]).decode("utf-8")),houseNumber,recordNumber,(noneToString(row[4]).decode("utf-8")),(noneToString(row[5]).decode("utf-8")),(numberToString(row[6]).decode("utf-8")),(noneToString(row[7]).decode("utf-8")),(noneToString(row[8]).decode("utf-8")),(noneToString(row[9]).decode("utf-8")))
-    #    addresses.append(adr)
-    #return addresses
 
 def addToQuery(atribute, comparator, first):
     if first:

@@ -313,8 +313,8 @@ def selectSQL(searchSQL):
 
 def getFillResults(queryParams, maxCount = 10):
     sqlItems = {
-        "HouseNumber"  : "cast(cislo_domovni as text) like '%s%%'",
-        #"RecordNumber" : "cislo_domovni ilike '%s%%'",
+        "HouseNumber"  : "cast(cislo_domovni as text) like '%s%%' and typ_so='č.p.'",
+        "RecordNumber" : "cast(cislo_domovni as text) ilike '%s%%' and typ_so<>'č.p.'",
         "OrientationNumber" : "cast(cislo_orientacni as text) like '%s%%'",
         "OrientationNumberCharacter" : "znak_cisla_orientacniho = '%s'",
         "ZIPCode" : "cast(psc as text) like '%s%%'",
@@ -403,6 +403,12 @@ def getZIPResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
 
     return rows
 
+def getIDResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
+    searchSQL = "select cast(gid as text), address from ac_gids where cast(gid as text) like '" + nameToken + "%'"
+    rows = getAutocompleteRows(searchSQL, 0, maxCount)
+
+    return rows
+
 def getHouseNumberAutocompleteResults(queryParams, nameToken, maxCount = 10):
     whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce", "Street" : "nazev_ulice"}, False)
 
@@ -415,33 +421,10 @@ def getHouseNumberAutocompleteResults(queryParams, nameToken, maxCount = 10):
 
     return rows
 
-def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, smartAutocomplete, maxCount = 10):
-    if ruianType == "": ruianType == "town"
-    nameToken = nameToken.lower()
+def getFullTextAutocompleteResults(queryParams, nameToken, resultFormat, maxCount = 10):
+    hasNumber, searchSQL = parseFullTextToken(queryParams, nameToken)
 
     rows = []
-
-    joinSeparator = ", "
-    hasNumber = False
-    if ruianType == "townpart":
-        return getTownPartResults(queryParams, nameToken, smartAutocomplete, maxCount)
-    elif ruianType == "town":
-        return getTownAutocompleteResults(queryParams, nameToken, smartAutocomplete, maxCount)
-    elif ruianType == "housenumber":
-        return getHouseNumberAutocompleteResults(queryParams, nameToken, maxCount)
-    elif ruianType == ID_VALUE:
-        searchSQL = "select cast(gid as text), address from ac_gids where cast(gid as text) like '" + nameToken + "%'"
-    elif ruianType == "zip":
-        return getZIPResults(queryParams, nameToken, smartAutocomplete, maxCount)
-        #searchSQL = "select psc, nazev_obce from " + AC_PSC + " where psc like '" + nameToken + "%'" + \
-        #    getSQLWhereClause(queryParams, { "Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce" }
-        #    ) + " group by psc, nazev_obce order by psc, nazev_obce"
-    elif ruianType == "street":
-        return getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount)
-    else:
-        # street or textsearch
-        hasNumber, searchSQL = parseFullTextToken(queryParams, nameToken)
-
     if searchSQL != "":
         searchSQL += " limit " + str(maxCount)
 
@@ -467,27 +450,24 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, smar
 
                 rowLabel = None
 
-            if ruianType == "textsearch":
-                if hasNumber:
-                    street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
+            if hasNumber:
+                street, houseNumber, locality, zipCode, orientationNumber, orientationNumberCharacter, localityPart, typ_so, nazev_mop = row
 
-                    houseNumber, recordNumber = analyseRow(typ_so, houseNumber)
-                    districtNumber = extractDictrictNumber(nazev_mop)
+                houseNumber, recordNumber = analyseRow(typ_so, houseNumber)
+                districtNumber = extractDictrictNumber(nazev_mop)
 
-                    rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-                    if resultFormat.lower() == "addressparts":
-                        idValue =  itemToStr(street) + "," + itemToStr(houseNumber) + "," + itemToStr(recordNumber) + "," + itemToStr(orientationNumber) + "," + \
-                               itemToStr(orientationNumberCharacter) + "," + itemToStr(zipCode) + "," + \
-                               itemToStr(locality) + "," + itemToStr(localityPart) + "," + itemToStr(districtNumber)
-                    else:
-                        idValue = rowLabel[rowLabel.find(", ") + 2:]
+                rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+                if resultFormat.lower() == "addressparts":
+                    idValue =  itemToStr(street) + "," + itemToStr(houseNumber) + "," + itemToStr(recordNumber) + "," + itemToStr(orientationNumber) + "," + \
+                            itemToStr(orientationNumberCharacter) + "," + itemToStr(zipCode) + "," + \
+                            itemToStr(locality) + "," + itemToStr(localityPart) + "," + itemToStr(districtNumber)
                 else:
-                    idValue = row[1] # + ", " + row[2]
+                    idValue = rowLabel[rowLabel.find(", ") + 2:]
             else:
-                idValue = row[1]
+                idValue = row[0] + ", " + row[1]
 
             if rowLabel == None:
-                rowLabel = joinSeparator.join(htmlItems)
+                rowLabel = ", ".join(htmlItems)
 
             rowValue = rowLabel
 
@@ -499,6 +479,25 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, smar
                 break
 
     return rows
+
+def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, smartAutocomplete, maxCount = 10):
+    if ruianType == "": ruianType == "town"
+    nameToken = nameToken.lower()
+
+    if ruianType == "townpart":
+        return getTownPartResults(queryParams, nameToken, smartAutocomplete, maxCount)
+    elif ruianType == "town":
+        return getTownAutocompleteResults(queryParams, nameToken, smartAutocomplete, maxCount)
+    elif ruianType == "housenumber":
+        return getHouseNumberAutocompleteResults(queryParams, nameToken, maxCount)
+    elif ruianType == ID_VALUE:
+        return getIDResults(queryParams, nameToken, smartAutocomplete, maxCount)
+    elif ruianType == "zip":
+        return getZIPResults(queryParams, nameToken, smartAutocomplete, maxCount)
+    elif ruianType == "street":
+        return getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount)
+    else:
+        return getFullTextAutocompleteResults(queryParams, nameToken, resultFormat, maxCount)
 
 def geDataListResponse(searchSQL, maxCount = 0):
     result = ""
@@ -524,6 +523,20 @@ def geDataListResponse(searchSQL, maxCount = 0):
                 break
         result = ",".join(resultList)
 
+    return result
+
+def sortNumberListAndLeaveEmpty(list):
+    foundEmpty = False
+    result = []
+    for item in list:
+        if item == "":
+            if not foundEmpty:
+               foundEmpty = True
+        elif not item in result:
+            result.append(item)
+    result.sort(key=int)
+    if foundEmpty:
+        result.insert(0, "")
     return result
 
 def getDataListValues(queryParams, maxCount = 50):
@@ -564,10 +577,10 @@ def getDataListValues(queryParams, maxCount = 50):
 
             if maxCount != 0 and rowCount >= maxCount:
                 break
-        houseNumberList.sort(key=int)
-        houseNumberList.sort(key=int)
-        orientationNumberList.sort(key=int)
-        orientationNumberCharacterList.sort(key=int)
+        houseNumberList = sortNumberListAndLeaveEmpty(houseNumberList)
+        houseNumberList = sortNumberListAndLeaveEmpty(houseNumberList)
+        orientationNumberList = sortNumberListAndLeaveEmpty(orientationNumberList)
+        orientationNumberCharacterList.sort()
         result = ",".join(houseNumberList) + ";"
         result += ",".join(recordNumberList) + ";"
         result += ",".join(orientationNumberList) + ";"

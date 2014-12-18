@@ -9,6 +9,7 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 import codecs
+import os.path
 
 import fulltextsearch
 import validate
@@ -151,7 +152,7 @@ class ServicesHTMLPageBuilder:
                     '</select>'
 
         elif param.name == 'FillAddressButton':
-            result += '<input type="checkbox" id="%s_SmartAutocompleteCB" checked onchange="setupInputs(\'%s\')" title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input>' % (formName, formName)
+            result += '<span class="SMARTAUTOCOMPLETECB"><input type="checkbox" id="%s_SmartAutocompleteCB" checked onchange="setupInputs(\'%s\')" title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input></span>' % (formName, formName)
             result += '&nbsp;&nbsp;<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
                       '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
         else:
@@ -176,7 +177,8 @@ class ServicesHTMLPageBuilder:
 
         return result
 
-    def getServicesHTMLPage(self, pathInfo, queryParams):
+    def getServicesHTMLPage(self, scriptName, pathInfo, queryParams):
+        scriptName = os.path.basename(scriptName)
         self.dataListHTML = ""
         result = getPageTemplate().replace("#PAGETITLE#", u"Webové služby RÚIAN")
         servicesURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH
@@ -236,8 +238,8 @@ class ServicesHTMLPageBuilder:
             tabDivs += '</div>\n'
 
             tabDivs += '<br>'
-            tabDivs += '<input style="float: right;" type="button" value="Nové zadání" onclick="clearInputs(\'' + formName + '\')">\n'
-            tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s;%s">\n' % (service.sendButtonCaption, onChangeProcCode, displayResultProcCode)
+            tabDivs += '<input style="float: right;" type="button" value="Nové zadání" onclick="clearInputs(\'%s\')">\n' % formName
+            tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s">\n' % (service.sendButtonCaption, displayResultProcCode)
             tabDivs += '</form>\n'
             tabDivs += "</td>"
             tabDivs += '<td><textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea></td>'
@@ -270,6 +272,9 @@ class ServicesHTMLPageBuilder:
         result = result.replace("<#TABCAPTIONS#/>", tabCaptions)
         result = result.replace("<#TABDIVS#/>", tabDivs)
         result = result.replace("#USE_DATA_LISTS#", str(USE_DATA_LISTS).lower())
+        result = result.replace("#SCRIPT_NAME#", scriptName)
+        result = result.replace("#DISABLEGUISWITCH#", str(configmodule.config.disableGUISwitch).lower())
+
 
         result = result.replace("</body>", self.dataListHTML + "</body>")
 
@@ -293,7 +298,7 @@ def main():
     sys.setdefaultencoding('utf-8')
     # Build HTML page with service description
     pageBuilder = ServicesHTMLPageBuilder()
-    pageContent = pageBuilder.getServicesHTMLPage("", {})
+    pageContent = pageBuilder.getServicesHTMLPage(__file__, "", {})
 
     # Write result into file
     file = codecs.open("..//html//WebServices.html", "w", "utf-8")

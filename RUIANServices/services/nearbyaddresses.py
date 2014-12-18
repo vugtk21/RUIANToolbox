@@ -50,6 +50,10 @@ def FormatAddress(address):
     return FormatedAddress
 
 def nearByAddresses(builder, JTSKY, JTSKX, Distance, withID):
+    if JTSKY.find(".") >= 0: JTSKY = JTSKY[:JTSKY.find(".")]
+    if JTSKY.find(",") >= 0: JTSKY = JTSKY[:JTSKY.find(",")]
+    if JTSKX.find(".") >= 0: JTSKX = JTSKX[:JTSKX.find(".")]
+    if JTSKX.find(",") >= 0: JTSKX = JTSKX[:JTSKX.find(",")]
     if JTSKX.isdigit() and JTSKY.isdigit() and Distance.isdigit():
         addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
         parser = parseaddress.AddressParser()
@@ -87,11 +91,11 @@ def createServiceHandlers():
             [
                 getResultFormatParam(),
                 RestParam("/JTSKY", u"JTSK Y [m]", u"Souřadnice Y v systému S-JTSK v metrech",
-                          htmlTags = ' required placeholder="Souřadnice Y v metrech" onkeypress="return isNumber(event, this, 6, 900000)" '),
+                          htmlTags = ' required title="Souřadnice Y v metrech" onkeypress="return isNumber(event, this, 6, 900000)" '),
                 RestParam("/JTSKX", u"JTSK X [m]", u"Souřadnice X v systému S-JTSK v metrech",
-                          htmlTags = ' required placeholder="Souřadnice X v metrech" onkeypress="return isNumber(event, this, 7, 1230000)" '),
+                          htmlTags = ' required title="Souřadnice X v metrech" onkeypress="return isNumber(event, this, 7, 1230000)" '),
                 RestParam("/Distance", u"Vzdálenost [m]", u"Vzdálenost v metrech od vloženého bodu",
-                          htmlTags = ' required placeholder="Vzdálenost v metrech od vloženého bodu" onkeypress="return isNumber(event, this, 6, 0)" ')
+                          htmlTags = ' required title="Vzdálenost v metrech od vloženého bodu" onkeypress="return isNumber(event, this, 6, 0)" ')
             ],
             [
                 URLParam("ExtraInformation", u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)
