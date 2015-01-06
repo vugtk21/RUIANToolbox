@@ -369,10 +369,12 @@ def getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
         whereClause = ""
 
     searchSQL = (u"select nazev_ulice, nazev_obce, nazev_casti_obce from %s where nazev_obce <> nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
-                u"order by nazev_casti_obce, nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
+                 u" group by nazev_casti_obce, nazev_obce, nazev_ulice " + \
+                 u" order by nazev_casti_obce, nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
     rows = getAutocompleteRows(searchSQL, 0, maxCount)
 
     searchSQL = (u"select nazev_ulice, nazev_casti_obce from %s where nazev_obce = nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
+                u" group by nazev_casti_obce, nazev_ulice "
                 u"order by nazev_casti_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
 
     rows.extend(getAutocompleteRows(searchSQL, 3, maxCount))
