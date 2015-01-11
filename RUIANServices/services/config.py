@@ -60,6 +60,9 @@ def convertServicesCfg(config):
 <br>Po vybrání adresy se kromě vyplnění vstupních polí adresa zobrazí na stránce.
 <br>
 <br>Příklad: školní, nádražní, budovatelů, rooseveltova apod.
+<br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/132">#132 Zobrazený text při rozbalení našeptávače Ulice</a>
+<br>Tak myslím že to funguje. Opět je to otázka názoru jak moc je to intuitivní, ale uvidíme.
 """
 
     # htmlDataURL nemá mít lomítko na začátku
