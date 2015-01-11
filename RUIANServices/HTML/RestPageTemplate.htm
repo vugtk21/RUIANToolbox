@@ -380,11 +380,11 @@ function requestAndFillDataLists(formName)
         localityPartName = document.getElementById(formName + "_LocalityPart").value
         streetName = document.getElementById(formName + "_Street").value
 
+		fillDataList(formName + "_HouseNumber_DataList", "", ",", true);
+		fillDataList(formName + "_RecordNumber_DataList", "", ",", true);
+		fillDataList(formName + "_OrientationNumber_DataList", "", ",", true);
+		fillDataList(formName + "_OrientationNumberCharacter_DataList", "", ",", true);
         if (localityName == "" && localityPartName == "" && streetName == "") {
-		    fillDataList(formName + "_HouseNumber_DataList", "", ",", true);
-		    fillDataList(formName + "_RecordNumber_DataList", "", ",", true);
-		    fillDataList(formName + "_OrientationNumber_DataList", "", ",", true);
-		    fillDataList(formName + "_OrientationNumberCharacter_DataList", "", ",", true);
 		    showNumberInputs(formName);
 	    }
 	    else {
@@ -396,7 +396,7 @@ function requestAndFillDataLists(formName)
 	                hideWaitCursor("requestAndFillDataLists(" + formName + ")");
 	                log("requesting DataList in  requestAndFillDataLists(" + formName + ")");
 		            resultStr = xmlHttp.responseText.replace("\\n","");
-		            dataLists = resultStr.split(";");
+		            dataLists = resultStr.split("#");
 		            fillDataList(formName + "_HouseNumber_DataList", dataLists[0], ",", false);
 		            fillDataList(formName + "_RecordNumber_DataList", dataLists[1], ",", false);
 		            fillDataList(formName + "_OrientationNumber_DataList", dataLists[2], ",", false);
@@ -1050,6 +1050,8 @@ $(document).ready(function() {
     $(".AddressesDiv" ).hide();
     $(".AddressDiv" ).hide();
     $(".RESULTTEXTAREA" ).hide();
+    $(".NOADDRESSHINTDIV" ).hide();
+
 
     // Přiřadíme vyvolání události při přepnutí mezi Radio buttony na stránkách geocode a compileaddress
     $('input:radio[name="radio/Geocode"],input:radio[name="radio/CompileAddress"]').change(function() {

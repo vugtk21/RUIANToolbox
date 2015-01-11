@@ -525,7 +525,7 @@ def getAutocompleteResults(queryParams, ruianType, nameToken, resultFormat, smar
     else:
         return getFullTextAutocompleteResults(queryParams, nameToken, resultFormat, maxCount)
 
-def geDataListResponse(searchSQL, maxCount = 0):
+def __old_geDataListResponse(searchSQL, maxCount = 0):
     result = ""
     if searchSQL != "":
         if maxCount != 0:
@@ -566,57 +566,62 @@ def sortNumberListAndLeaveEmpty(alist):
         result.insert(0, "")
     return result
 
+def getNumberValues(fieldName, whereClause, maxCount, noneValue = None):
+    result = []
+
+    searchSQL = "select %s from %s where %s group by %s" % (fieldName, ADDRESSPOINTS_TABLENAME, whereClause, fieldName)
+    if maxCount != 0:
+        searchSQL += " limit " + str(maxCount)
+
+    try:
+        db = PostGISDatabase()
+        cursor = db.conection.cursor()
+        cursor.execute(searchSQL)
+    except:
+        import sys
+        return[sys.exc_info()[0]]
+        # TODO ošetřit výjimku
+
+    rowCount = 0
+    for row in cursor:
+        rowCount += 1
+        if row[0] == None:
+            if noneValue != None:result.append(noneValue)
+        else:
+            result.append(str(row[0]))
+
+        if maxCount != 0 and rowCount >= maxCount:break
+
+    return result
+
+
 def getDataListValues(queryParams, maxCount = 50):
     result = ';;;'
     whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce", "Street" : "nazev_ulice"}, False)
     whereClause = whereClause[:whereClause.rfind(" and")]
 
     if whereClause != "":
-        searchSQL = "select cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, typ_so from %s where %s order by cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, typ_so" % (ADDRESSPOINTS_TABLENAME, whereClause)
-        if maxCount != 0:
-            searchSQL += " limit " + str(maxCount)
+        houseNumberList = getNumberValues("cislo_domovni", whereClause + " and typ_so='č.j' ", maxCount)
+        recordNumberList = getNumberValues("cislo_domovni", whereClause + " and typ_so<>'č.j' ", maxCount)
+        orientationNumberList = getNumberValues("cislo_orientacni", whereClause, maxCount)
+        orientationNumberCharacterList = getNumberValues("znak_cisla_orientacniho", whereClause, maxCount, "&nbsp;")
 
-        try:
-            db = PostGISDatabase()
-            cursor = db.conection.cursor()
-            cursor.execute(searchSQL)
-        except:
-            import sys
-            return[sys.exc_info()[0]]
-            # TODO ošetřit výjimku
-
-        houseNumberList = []
-        recordNumberList = []
-        orientationNumberList = []
-        orientationNumberCharacterList = []
-
-        rowCount = 0
-        for row in cursor:
-            rowCount += 1
-            (houseNumber, orientationNumber, orientationNumberCharacter, typ_so) = row
-            if typ_so == "č.p.":
-                houseNumberList.append(valueToStr(houseNumber))
-            else:
-                recordNumberList.append(valueToStr(houseNumber))
-            orientationNumberList.append(valueToStr(orientationNumber))
-            #if orientationNumberCharacter != None:
-            orientationNumberCharacterList.append(valueToStr(orientationNumberCharacter))
-
-            if maxCount != 0 and rowCount >= maxCount:
-                break
         houseNumberList = sortNumberListAndLeaveEmpty(houseNumberList)
-        houseNumberList = sortNumberListAndLeaveEmpty(houseNumberList)
+        recordNumberList = sortNumberListAndLeaveEmpty(recordNumberList)
         orientationNumberList = sortNumberListAndLeaveEmpty(orientationNumberList)
 
         orientationNumberCharacterList = list(set(orientationNumberCharacterList))
         orientationNumberCharacterList.sort()
+        if orientationNumberCharacterList == ["&nbsp;"]:
+            orientationNumberCharacterList = []
 
-        result = ",".join(houseNumberList) + ";"
-        result += ",".join(recordNumberList) + ";"
-        result += ",".join(orientationNumberList) + ";"
+        result = ",".join(houseNumberList) + "#"
+        result += ",".join(recordNumberList) + "#"
+        result += ",".join(orientationNumberList) + "#"
         result += ",".join(orientationNumberCharacterList)
 
     return result
+
 
 def main():
     #print getAutocompleteResults("zip", "16")

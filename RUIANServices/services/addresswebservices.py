@@ -69,7 +69,7 @@ console = Console()
 
 def getNoAddressAvailableHTML(formName):
     result =  u"""
-<div class="ui-widget" id="#FORMNAME#_NoAddressHintDiv">
+<div class="ui-widget NOADDRESSHINTDIV" id="#FORMNAME#_NoAddressHintDiv">
     <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
         <p>
             <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>

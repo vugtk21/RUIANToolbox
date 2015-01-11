@@ -23,7 +23,8 @@ def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
         if page.lower().startswith("fill"):
             response.htmlData = jqueryautocompletePostGIS.getFillResults(queryParams)
         elif page.lower().startswith("datalists"):
-            response.htmlData = jqueryautocompletePostGIS.getDataListValues(queryParams, max_matches)
+            dataListsLimit = int(getQueryValue(queryParams, 'max_matches', 150))
+            response.htmlData = jqueryautocompletePostGIS.getDataListValues(queryParams, dataListsLimit)
         else:
             token = getQueryValue(queryParams, 'term', "")
             ruian_type = getQueryValue(queryParams, 'RUIANType', "zip")
