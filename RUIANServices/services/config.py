@@ -51,8 +51,16 @@ def convertServicesCfg(config):
     config.disableGUISwitch = config.disableGUISwitch.lower() == "true"
 
     config.issueNumber = "pro úpravy po 5.1.2015"
-    config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22%C3%9Apravy+po+jedn%C3%A1n%C3%AD+13.10.%22+is%3Aclosed">podrobnosti na GitHub</a>.
-<br><br>"""
+    config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>.
+<br>
+<br>
+<a href="https://github.com/vugtk21/RUIANToolbox/issues/133">#133 Funkce doplň adresu při více než jednom záznamu</a>
+<br>Zvolil jsem stránku o 15 záznamech tak, aby byla podobně vysoká jako blok vstupních polí adresy. Dynamicky se tlačítka Další, případně Předchozí, pokud je to potřeba. Také se zobrazí celkový počet záznamů, pokud je seznam větší než stránka.
+<br>
+<br>Po vybrání adresy se kromě vyplnění vstupních polí adresa zobrazí na stránce.
+<br>
+<br>Příklad: školní, nádražní, budovatelů, rooseveltova apod.
+"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":

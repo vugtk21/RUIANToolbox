@@ -255,7 +255,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += "</td>"
             tabDivs += '<td>'
             tabDivs += '<div id="%s_addressesDiv" class="AddressesDiv" title="Vyber adresu"></div>' % formName
-            tabDivs += '<div id="%s_addressDiv" class="AddressDiv"</div>' % formName
+            tabDivs += '<div id="%s_addressDiv" class="AddressDiv"></div>' % formName
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea></td>'
             tabDivs += "</tr></table>"
 
