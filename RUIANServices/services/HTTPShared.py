@@ -451,8 +451,8 @@ def p(queryParams, name, defValue = ""):
         return defValue
 
 def numberCheck(possibleNumber):
-    if possibleNumber != None and possibleNumber.isdigit():
-        return possibleNumber
+    if possibleNumber != None and str(possibleNumber).isdigit():
+        return str(possibleNumber)
     else:
         return ""
 
@@ -484,6 +484,7 @@ def formatZIPCode(code):
     if code == None:
         return ""
     else:
+        code = str(code)
         code = code.replace(" ", "")
         if code.isdigit():
             return code

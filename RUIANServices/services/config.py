@@ -50,11 +50,9 @@ def convertServicesCfg(config):
 
     config.disableGUISwitch = config.disableGUISwitch.lower() == "true"
 
-    config.issueNumber = "1.9.72"
-    config.issueShortDescription = ""
-    #u"""<br><br>
-#<a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22%C3%9Apravy+po+jedn%C3%A1n%C3%AD+13.10.%22+is%3Aclosed">Podrobnosti na GitHub</a>
-#"""
+    config.issueNumber = "pro úpravy po 5.1.2015"
+    config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22%C3%9Apravy+po+jedn%C3%A1n%C3%AD+13.10.%22+is%3Aclosed">podrobnosti na GitHub</a>.
+<br><br>"""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":

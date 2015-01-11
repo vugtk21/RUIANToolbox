@@ -217,7 +217,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += u'<p class = "enhancedGUI">Adresa služby:' + service.pathName + '</p>\n'
             formName = "form_" + str(i)
             urlSpanName = formName + "_urlSpan"
-            onChangeProcCode = 'onChangeProc(' + formName + "," + urlSpanName + ", '" + service.pathName + "')"
+            onChangeProcCode = 'onChangeProc(' + formName + ', true)'
             displayResultProcCode = "runOrHookDisplayResult('" + formName + "', '" + service.pathName + "')"
             if service.pathName == pathInfo:
                 tabIndex = i
@@ -253,15 +253,10 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<input style="float: right;" type="button" value="%s" onclick="%s">\n' % (service.sendButtonCaption, displayResultProcCode)
             tabDivs += '</form>\n'
             tabDivs += "</td>"
-            tabDivs += '<td><textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea></td>'
-            tabDivs += '<td><div class="resizeAbleDiv">' \
-                       '<table class="resultsTable" id=' + formName + '_resultsTable>' \
-                       '<tr><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
-                       '<tr class="altColor"><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
-                       '<tr><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
-                       '<tr class="altColor"><td>The resize property specifies whether or not an element is resizable by the user.</td></tr>' \
-                       '</table>' \
-                       '</td>'
+            tabDivs += '<td>'
+            tabDivs += '<div id="%s_addressesDiv" class="AddressesDiv" title="Vyber adresu"></div>' % formName
+            tabDivs += '<div id="%s_addressDiv" class="AddressDiv"</div>' % formName
+            tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50"></textarea></td>'
             tabDivs += "</tr></table>"
 
             tabDivs += "<a class = 'enhancedGUI' href='" + restPyURL + "testing" + service.pathName + ".html'>Výsledky testů</a>"

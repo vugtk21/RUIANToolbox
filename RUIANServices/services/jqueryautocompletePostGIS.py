@@ -21,6 +21,8 @@ AC_CASTI_OBCE = "ac_casti_obce"
 ADDRESSPOINTS_TABLENAME = "address_points"
 LOCALITY_QUERY_ID = "Locality"
 LOCALITY_PART_QUERY_ID = "LocalityPart"
+PAGESIZE_QUERYPARAM = "PageSize"
+FIRSTROW_QUERYPARAM = "FirstRow"
 
 class PostGISDatabase():
 
@@ -311,7 +313,7 @@ def selectSQL(searchSQL):
         import sys
         return[sys.exc_info()[0]]
 
-def getFillResults(queryParams, maxCount = 10):
+def getFillResults(queryParams):
     sqlItems = {
         "HouseNumber"  : "cast(cislo_domovni as text) like '%s%%' and typ_so='č.p.'",
         "RecordNumber" : "cast(cislo_domovni as text) ilike '%s%%' and typ_so<>'č.p.'",
@@ -324,6 +326,15 @@ def getFillResults(queryParams, maxCount = 10):
         "DistrictNumber" : "nazev_mop ilike '%s%%'"
     }
 
+    firstRow = int(getQueryValue(queryParams, FIRSTROW_QUERYPARAM, "0"))
+    if firstRow < 0: firstRow = 0
+    pageSize = int(getQueryValue(queryParams, PAGESIZE_QUERYPARAM, "15"))
+
+    limitValue = 100
+    if limitValue < firstRow + pageSize:
+        limitValue = firstRow + pageSize
+
+
     fields = " cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop, nazev_ulice, typ_so "
     result = ""
 
@@ -335,20 +346,39 @@ def getFillResults(queryParams, maxCount = 10):
 
     if len(sqlParts) == 0: return ""
 
-    searchSQL = u"select %s from %s where " % (fields, ADDRESSPOINTS_TABLENAME) + " and ".join(sqlParts) + " limit 2"
+    sqlBase = u" from %s where " % (ADDRESSPOINTS_TABLENAME) + " and ".join(sqlParts)
+
+    searchSQL = u"select %s %s order by  nazev_obce, nazev_casti_obce, psc, nazev_ulice, nazev_mop, typ_so, cislo_domovni, cislo_orientacni, znak_cisla_orientacniho limit %d" % (fields, sqlBase, limitValue)
     rows = selectSQL(searchSQL)
 
-    rowCount = 0
+    resultArray = []
+    rowNumber = 0
     for row in rows:
-        rowCount += 1
-        if rowCount > 1:  return ""
+        if rowNumber >= firstRow:
+            htmlItems = []
+            for i in range(len(row)):
+                htmlItems.append(numberToString(row[i]))
 
-        htmlItems = []
-        for i in range(len(row)):
-            htmlItems.append(numberToString(row[i]))
-        result = ",".join(htmlItems) + ","
+            houseNumber, orientationNumber, orientationNumberCharacter, zipCode, locality,   localityPart, nazev_mop, street,  typ_so = row
+            houseNumber, recordNumber = analyseRow(typ_so, houseNumber)
+            districtNumber = extractDictrictNumber(nazev_mop)
 
-    return result
+            rowLabel = compileaddress.compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+
+            resultArray.append(":".join(htmlItems) + ":" + rowLabel)
+            if len(resultArray) >= pageSize: break
+        rowNumber = rowNumber + 1
+
+    rowCount = rows.rowcount
+    if rowCount == limitValue:
+        countSQL = u"select count(*) " + sqlBase
+        countRows = selectSQL(countSQL)
+        countRow = countRows.fetchone()
+        rowCount = countRow[0]
+
+
+    result = "%d#%d#%d#%s" % (firstRow, len(resultArray), rowCount, ";".join(resultArray))
+    return  result
 
 def getTownPartResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
     localityClause = ""
@@ -368,16 +398,10 @@ def getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
     else:
         whereClause = ""
 
-    searchSQL = (u"select nazev_ulice, nazev_obce, nazev_casti_obce from %s where nazev_obce <> nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
-                 u" group by nazev_casti_obce, nazev_obce, nazev_ulice " + \
-                 u" order by nazev_casti_obce, nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
+    searchSQL = (u"select nazev_ulice, nazev_obce from %s where %s nazev_ulice ilike '%%%s%%'" + \
+                u" group by nazev_obce, nazev_ulice "
+                u"order by nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
     rows = getAutocompleteRows(searchSQL, 0, maxCount)
-
-    searchSQL = (u"select nazev_ulice, nazev_casti_obce from %s where nazev_obce = nazev_casti_obce and %s nazev_ulice ilike '%%%s%%'" + \
-                u" group by nazev_casti_obce, nazev_ulice "
-                u"order by nazev_casti_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
-
-    rows.extend(getAutocompleteRows(searchSQL, 3, maxCount))
 
     return rows
 
@@ -527,10 +551,11 @@ def geDataListResponse(searchSQL, maxCount = 0):
 
     return result
 
-def sortNumberListAndLeaveEmpty(list):
+def sortNumberListAndLeaveEmpty(alist):
+    alist = list(set(alist))
     foundEmpty = False
     result = []
-    for item in list:
+    for item in alist:
         if item == "":
             if not foundEmpty:
                foundEmpty = True
@@ -574,15 +599,18 @@ def getDataListValues(queryParams, maxCount = 50):
             else:
                 recordNumberList.append(valueToStr(houseNumber))
             orientationNumberList.append(valueToStr(orientationNumber))
-            if orientationNumberCharacter != None:
-                orientationNumberCharacterList.append(valueToStr(orientationNumberCharacter))
+            #if orientationNumberCharacter != None:
+            orientationNumberCharacterList.append(valueToStr(orientationNumberCharacter))
 
             if maxCount != 0 and rowCount >= maxCount:
                 break
         houseNumberList = sortNumberListAndLeaveEmpty(houseNumberList)
         houseNumberList = sortNumberListAndLeaveEmpty(houseNumberList)
         orientationNumberList = sortNumberListAndLeaveEmpty(orientationNumberList)
+
+        orientationNumberCharacterList = list(set(orientationNumberCharacterList))
         orientationNumberCharacterList.sort()
+
         result = ",".join(houseNumberList) + ";"
         result += ",".join(recordNumberList) + ";"
         result += ",".join(orientationNumberList) + ";"
