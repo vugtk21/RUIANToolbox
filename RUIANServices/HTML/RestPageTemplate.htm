@@ -100,7 +100,7 @@
 				padding-right: 5px;
 				cursor: hand;
 			}
-			
+
 			.AddressesDiv, .AddressDiv {
 				padding: 10px 10px 10px 10px;
                 margin:0px 0px 10px 0px;
@@ -144,10 +144,29 @@ var DEBUG_MODE = true;
 var CALL_TEXTAREA = "";
 var CALL_PATH = "";
 var USE_DATA_LISTS = #USE_DATA_LISTS#;
-var lastFindAddressParamsList = []
+var lastFindAddressParamsList = [];
+var NOADDRESSHINT_IDSUFFIX = "_NoAddressHintDiv";
 
 var _logLevel = -1;
 var _logPrefix = "";
+
+function showNumberInputs(formName)
+{
+    showElement(formName + "_row_HouseNumber");
+    showElement(formName + "_row_RecordNumber");
+    showElement(formName + "_row_OrientationNumber");
+    showElement(formName + "_row_OrientationNumberCharacter");
+}
+
+function showNoAddressHint(formName)
+{
+    showElement(formName + NOADDRESSHINT_IDSUFFIX);
+}
+
+function hideNoAddressHint(formName)
+{
+    hideElement(formName + NOADDRESSHINT_IDSUFFIX);
+}
 
 function setLogLevel(newLevelValue)
 {
@@ -245,6 +264,7 @@ function clearInputs(formName)
 	showOrHideElement(formName + "_textArea", isProgrammersGUI);
 	hideElement(formName + "_addressesDiv");
 	hideElement(formName + "_addressDiv");
+    hideNoAddressHint(formName);
     setupInputs(formName, false);
     closeLogSection("");
 }
@@ -365,10 +385,7 @@ function requestAndFillDataLists(formName)
 		    fillDataList(formName + "_RecordNumber_DataList", "", ",", true);
 		    fillDataList(formName + "_OrientationNumber_DataList", "", ",", true);
 		    fillDataList(formName + "_OrientationNumberCharacter_DataList", "", ",", true);
-            showElement(formName + "row_HouseNumber");
-            showElement(formName + "row_RecordNumber");
-            showElement(formName + "row_OrientationNumber");
-            showElement(formName + "row_OrientationNumberCharacter");
+		    showNumberInputs(formName);
 	    }
 	    else {
 	        var xmlHttp = getxmlHTTP(1);
@@ -567,6 +584,7 @@ function fillAddressFromString(formName, values)
 function showAddress(formName, address)
 {
 	document.getElementById(formName + "_addressDiv").innerHTML = address;
+	hideNoAddressHint(formName);
 	showElement(formName + "_addressDiv");
 	hideElement(formName + "_addressesDiv");
 	hideElement(formName + "_row_FillAddressButton");
@@ -605,7 +623,8 @@ function createAddressesList(formName, addressItemsArrays, firstRecordNumber, lo
 			isOdd = ! isOdd;
 		}
 		innerHTML = innerHTML + '</table>';
-		showElement(formName + "_addressesDiv");	
+		showElement(formName + "_addressesDiv");
+        hideNoAddressHint(formName);
 	    showElement(formName + "_row_FillAddressButton");
 		hideElement(formName + "_addressDiv");
 		hideElement(formName + "_textArea");
@@ -634,6 +653,7 @@ function createAddressesList(formName, addressItemsArrays, firstRecordNumber, lo
 	
 	document.getElementById(formName + "_addressesDiv").innerHTML = innerHTML;
 	showElement(formName + "_addressesDiv");
+    hideNoAddressHint(formName);
 	showElement(formName + "_row_FillAddressButton");
 	hideElement(formName + "_addressDiv");
 	hideElement(formName + "_textArea");
@@ -646,7 +666,7 @@ function fillFormInputs(formName, url, doShowMsg)
 */
 {
     doShowMsg = false;
-
+    hideNoAddressHint(formName);
 	var xmlHttp = getxmlHTTP(0);
 
     xmlHttp.onreadystatechange = function()
@@ -663,7 +683,11 @@ function fillFormInputs(formName, url, doShowMsg)
 				loadedRecordCount = parseInt(items[1]);
 				recordCount = parseInt(items[2]);
 			
-				if (items[3] != "") {
+				if (items[3] == "") {
+                    showNoAddressHint(formName);
+                    showNumberInputs(formName);
+				}
+				else {
 					records = items[3].split(";");
 					if (records.length == 1) {
 						addressItems = records[0].split(":");
@@ -1015,7 +1039,9 @@ function showOrHideFindAddressButton(formName)
 
 function onAddressKeyPress(event)
 {
-    showOrHideFindAddressButton(getFormName(event.target.id));
+    formName = getFormName(event.target.id);
+    showOrHideFindAddressButton(formName);
+    hideNoAddressHint(formName);
 }
 
 $(document).ready(function() {

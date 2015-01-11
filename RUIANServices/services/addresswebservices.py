@@ -67,6 +67,19 @@ class Console():
 
 console = Console()
 
+def getNoAddressAvailableHTML(formName):
+    result =  u"""
+<div class="ui-widget" id="#FORMNAME#_NoAddressHintDiv">
+    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+        <p>
+            <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+            Adresa v této kombinaci prvků nebyla nenalezena
+        </p>
+    </div>
+</div>"""
+    result = result.replace("#FORMNAME#", formName)
+    return result
+
 def getIssueHTML():
     if configmodule.config.issueShortDescription == "":
         return ""
@@ -255,6 +268,7 @@ class ServicesHTMLPageBuilder:
             tabDivs += "</td>"
             tabDivs += '<td>'
             tabDivs += '<div id="%s_addressesDiv" class="AddressesDiv" title="Vyber adresu"></div>' % formName
+            tabDivs += getNoAddressAvailableHTML(formName)
             tabDivs += '<div id="%s_addressDiv" class="AddressDiv"></div>' % formName
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50" class="RESULTTEXTAREA"></textarea></td>'
             tabDivs += "</tr></table>"
