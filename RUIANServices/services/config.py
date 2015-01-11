@@ -67,6 +67,8 @@ def convertServicesCfg(config):
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/134">#134 Zobrazený text při rozbalení našeptávače Ulice</a>
 <br>Po úpravě viz #133 se najdou tři záznamy 187, 188, 1800 a je možno si z nich vybrat.
 <br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/135">#135 Písmeno čísla orientačního může být také prázdné</a>
+<br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/136">#136 Nádražní, Lhotka neumožní číslo popisné</a>
 <br>Doplněna hláška, když v dané kombinaci nejde nalézt adresu.
 <br>

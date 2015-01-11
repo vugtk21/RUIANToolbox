@@ -596,7 +596,7 @@ def getNumberValues(fieldName, whereClause, maxCount, noneValue = None):
 
 
 def getDataListValues(queryParams, maxCount = 50):
-    result = ';;;'
+    result = '###'
     whereClause = getSQLWhereClause(queryParams, {"Locality" : u"nazev_obce", "LocalityPart" : u"nazev_casti_obce", "Street" : "nazev_ulice"}, False)
     whereClause = whereClause[:whereClause.rfind(" and")]
 

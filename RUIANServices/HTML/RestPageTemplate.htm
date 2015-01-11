@@ -375,6 +375,7 @@ function requestAndFillDataLists(formName)
 {
     if (formName == "" || formName == undefined) { return }
 
+    log("requestAndFillDataLists");
     if (USE_DATA_LISTS) {
         localityName = document.getElementById(formName + "_Locality").value
         localityPartName = document.getElementById(formName + "_LocalityPart").value
@@ -1299,6 +1300,11 @@ function updateServiceSpan(formName)
 function onChangeProc(formElem, callFillAddress)
 {
     openLogSection("onChangeProc('" + formElem.name + "')");
+    value = getInputValue(formElem.name, "OrientationNumberCharacter", "");
+    if (value != "" && value.length==1 && value.charCodeAt(0) == 160) {
+        document.getElementById(formName + "_OrientationNumberCharacter").value = "";
+        log("Nahrazuji pevnou mezeru v pismenu cisla orientacniho.");
+    }
     updateServiceSpan(formElem.name);
     setupInputs(formElem.name, callFillAddress);
     closeLogSection("");
