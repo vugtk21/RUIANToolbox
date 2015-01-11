@@ -54,15 +54,18 @@ def convertServicesCfg(config):
     config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>.
 <br>
 <br>
-<a href="https://github.com/vugtk21/RUIANToolbox/issues/133">#133 Funkce doplň adresu při více než jednom záznamu</a>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/132">#132 Zobrazený text při rozbalení našeptávače Ulice</a>
+<br>Tak myslím že to funguje. Opět je to otázka názoru jak moc je to intuitivní, ale uvidíme.
+<br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/133">#133 Funkce doplň adresu při více než jednom záznamu</a>
 <br>Zvolil jsem stránku o 15 záznamech tak, aby byla podobně vysoká jako blok vstupních polí adresy. Dynamicky se tlačítka Další, případně Předchozí, pokud je to potřeba. Také se zobrazí celkový počet záznamů, pokud je seznam větší než stránka.
 <br>
 <br>Po vybrání adresy se kromě vyplnění vstupních polí adresa zobrazí na stránce.
 <br>
 <br>Příklad: školní, nádražní, budovatelů, rooseveltova apod.
 <br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/132">#132 Zobrazený text při rozbalení našeptávače Ulice</a>
-<br>Tak myslím že to funguje. Opět je to otázka názoru jak moc je to intuitivní, ale uvidíme.
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/134">#134 Zobrazený text při rozbalení našeptávače Ulice</a>
+<br>Po úpravě viz #133 se najdou tři záznamy 187, 188, 1800 a je možno si z nich vybrat.
 """
 
     # htmlDataURL nemá mít lomítko na začátku
