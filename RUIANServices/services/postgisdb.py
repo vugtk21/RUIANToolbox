@@ -185,6 +185,9 @@ def _findCoordinates(ID):
         return []
 
 def _findCoordinatesByAddress(dictionary):
+    if dictionary.has_key("districtNumber") and dictionary["districtNumber"] != "":
+        dictionary["districtNumber"] = "Praha " + dictionary["districtNumber"]
+
     first = True
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()

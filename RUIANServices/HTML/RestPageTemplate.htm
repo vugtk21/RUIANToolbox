@@ -613,7 +613,7 @@ function showAddress(formName, address)
 {
 	document.getElementById(formName + "_addressDiv").innerHTML = address;
 	showAddressHint(formName);
-	hideElement(formName + "_row_FillAddressButton");
+	// hideElement(formName + "_row_FillAddressButton");
 }
 
 function createAddressesList(formName, addressItemsArrays, firstRecordNumber, loadedRecordCount, recordCount)
@@ -1336,6 +1336,10 @@ function onChangeProc(formElem, callFillAddress)
         log("Nahrazuji pevnou mezeru v pismenu cisla orientacniho.");
     }
     updateServiceSpan(formElem.name);
+	showElement(formName + "_row_FillAddressButton");
+    hideElement(formElem.name + ADDRESS_IDSUFFIX);
+    showElement(formElem.name + NOADDRESSHINT_IDSUFFIX);
+
     setupInputs(formElem.name, callFillAddress);
     closeLogSection("");
 }
