@@ -72,6 +72,12 @@ def convertServicesCfg(config):
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/136">#136 Nádražní, Lhotka neumožní číslo popisné</a>
 <br>Doplněna hláška, když v dané kombinaci nejde nalézt adresu.
 <br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/138">#138 Neověří adresu Mezilesní 550</a>
+<br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/139">#139 Neověří a nedoplní Mezilesní 550 bez PSČ</a>
+<br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/140">#140 Nedoplní PSČ pro Mezilesní 550 s vyplněným MOP</a>
+<br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/141">#141 Ošetření asynchronních volání</a>
 <br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/145">#145 Doplnit datalisty u obcí bez ulic</a>

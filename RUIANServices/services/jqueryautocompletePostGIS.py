@@ -323,7 +323,7 @@ def getFillResults(queryParams):
         "Locality" : "nazev_obce ilike '%%%s%%'",
         "Street" : "nazev_ulice ilike '%%%s%%'",
         "LocalityPart" : "nazev_casti_obce ilike '%%%s%%'",
-        "DistrictNumber" : "nazev_mop ilike '%s%%'"
+        "DistrictNumber" : "nazev_mop = 'Praha %s'"
     }
 
     firstRow = int(getQueryValue(queryParams, FIRSTROW_QUERYPARAM, "0"))

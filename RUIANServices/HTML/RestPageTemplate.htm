@@ -358,7 +358,7 @@ function getSubParamsQuery(formName)
     return result;
 }
 
-function fillDataList(dataListID, dataStr, separator, canBeEmpty)
+function fillDataList(formName, dataListID, dataStr, separator, canBeEmpty)
 {
     if (USE_DATA_LISTS) {
         id = dataListID.substring(0, dataListID.lastIndexOf("_"));
@@ -407,10 +407,10 @@ function requestAndFillDataLists(formName)
         if (params == DataListsActiveParams) { return; }
         else DataListsActiveParams = params;
 
-		fillDataList(formName + "_HouseNumber_DataList", "", ",", true);
-		fillDataList(formName + "_RecordNumber_DataList", "", ",", true);
-		fillDataList(formName + "_OrientationNumber_DataList", "", ",", true);
-		fillDataList(formName + "_OrientationNumberCharacter_DataList", "", ",", true);
+		fillDataList(formName, formName + "_HouseNumber_DataList", "", ",", true);
+		fillDataList(formName, formName + "_RecordNumber_DataList", "", ",", true);
+		fillDataList(formName, formName + "_OrientationNumber_DataList", "", ",", true);
+		fillDataList(formName, formName + "_OrientationNumberCharacter_DataList", "", ",", true);
         if (localityName == "" && localityPartName == "" && streetName == "") {
 		    showNumberInputs(formName);
 	    }
@@ -424,10 +424,10 @@ function requestAndFillDataLists(formName)
 	                log("Received DataList in requestAndFillDataLists(" + formName + ")");
 		            resultStr = xmlHttp.responseText.replace("\\n","");
 		            dataLists = resultStr.split("#");
-		            fillDataList(formName + "_HouseNumber_DataList", dataLists[0], ",", false);
-		            fillDataList(formName + "_RecordNumber_DataList", dataLists[1], ",", false);
-		            fillDataList(formName + "_OrientationNumber_DataList", dataLists[2], ",", false);
-		            fillDataList(formName + "_OrientationNumberCharacter_DataList", dataLists[3], ",", false);
+		            fillDataList(formName, formName + "_HouseNumber_DataList", dataLists[0], ",", false);
+		            fillDataList(formName, formName + "_RecordNumber_DataList", dataLists[1], ",", false);
+		            fillDataList(formName, formName + "_OrientationNumber_DataList", dataLists[2], ",", false);
+		            fillDataList(formName, formName + "_OrientationNumberCharacter_DataList", dataLists[3], ",", false);
 	            }
             }
 
@@ -445,7 +445,8 @@ function districtNumberChanged(formName)
     if (document.getElementById(formName + "_DistrictNumber").value != "") {
         document.getElementById(formName + "_Locality").value = "Praha";
     }
-    setupInputs(formName, true);
+
+    onChangeProc(document.getElementById(formName), true);
 }
 
 function selectDistrictNumberByValue(formName, value)
@@ -1254,8 +1255,9 @@ function getServiceURL(formName)
     openLogSection("getServiceURL('" + formName + "')");
     formNameLen = formName.length + 1;
 
-    addressFields = "&Locality&LocalityPart&DistrictNumber&Street&HouseNumber&RecordNumber&OrientationNumber&OrientationNumberCharacter&ZIPCode";
 
+    // Nastavíme seznam přeskakovaných vstupních položek podle nastavení RB, pokud na záložce jsou
+    addressFields = "&Locality&LocalityPart&DistrictNumber&Street&HouseNumber&RecordNumber&OrientationNumber&OrientationNumberCharacter&ZIPCode";
     var skippedInputs = ""
     var elem = document.getElementById(formName + "_AddressRB");
     if (elem && elem.checked) {
@@ -1275,20 +1277,20 @@ function getServiceURL(formName)
     }
 
     elements = document.getElementById(formName).elements;
-    s = ""
-    needToOpenQuery = true
-    for (i=0; i < elements.length; i++){
+    s = "";
+    needToOpenQuery = true;
+    for (i=0; i < elements.length; i++) {
         name = elements[i].name.substr(formNameLen);
-	    if (name.charAt(0) == "/") {
-		    if (elements[i].value == "") {
-			    s = s + "/" + name.substr(1);
+	    if (name.charAt(0) == "/") { // Je položka přímo v pathinfo???
+		    if (elements[i].value == "") { // Není nastaveno nic?
+			    s = s + "/" + name.substr(1); // Použijeme první hodnotu ze seznamu
 		    }
 		    else {
 			    s = s + "/" + elements[i].value;
 		    }
 	    }
 	    else {
-		    if (needToOpenQuery) {
+		    if (needToOpenQuery) { // Zatím jsme neoddělili pathinfo od query
 			    delimeter = "";
 			    s = s + "?"
 			    needToOpenQuery = false;
@@ -1301,8 +1303,10 @@ function getServiceURL(formName)
                 if (! isOK) {
                    isOK = skippedInputs.indexOf(name) == -1
                 }
-		        if (isOK && elements[i].value != "") {
-			        s = s + delimeter + name + "=" + encodeURI(elements[i].value);
+		        if (isOK) {
+		            if (elements[i].value != "") {
+			            s = s + delimeter + name + "=" + encodeURI(elements[i].value);
+			        }
 			    }
 		    }
 	    }

@@ -140,7 +140,8 @@ class ServicesHTMLPageBuilder:
             else:
                 result += selectHTML
         elif param.name == "DistrictNumber":
-            result += '<select id="%s_%s" title="%s" onchange="districtNumberChanged(\'%s\')">' % (formName, param.name, param.shortDesc, formName)+ \
+            idValue = "%s_%s" % (formName, param.name)
+            result += '<select id="%s" name="%s" title="%s" onchange="districtNumberChanged(\'%s\')">' % (idValue, idValue, param.shortDesc, formName)+ \
                             '<option value=""></option>' + \
                             '<option value="1">Praha 1</option>' + \
                             '<option value="2">Praha 2</option>' + \
