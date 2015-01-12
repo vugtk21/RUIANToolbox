@@ -146,6 +146,9 @@ var CALL_PATH = "";
 var USE_DATA_LISTS = #USE_DATA_LISTS#;
 var lastFindAddressParamsList = [];
 var NOADDRESSHINT_IDSUFFIX = "_NoAddressHintDiv";
+var ADDRESSES_IDSUFFIX     = "_addressesDiv";
+var ADDRESS_IDSUFFIX       = "_addressDiv";
+var DataListsActiveParams = "";
 
 var _logLevel = -1;
 var _logPrefix = "";
@@ -158,14 +161,30 @@ function showNumberInputs(formName)
     showElement(formName + "_row_OrientationNumberCharacter");
 }
 
-function showNoAddressHint(formName)
-{
-    showElement(formName + NOADDRESSHINT_IDSUFFIX);
-}
-
 function hideNoAddressHint(formName)
 {
     hideElement(formName + NOADDRESSHINT_IDSUFFIX);
+}
+
+function showNoAddressHint(formName)
+{
+    hideElement(formName + ADDRESSES_IDSUFFIX);
+    hideElement(formName + ADDRESS_IDSUFFIX);
+    showElement(formName + NOADDRESSHINT_IDSUFFIX);
+}
+
+function showAddressHint(formName)
+{
+	hideElement(formName + ADDRESSES_IDSUFFIX);
+    showElement(formName + ADDRESS_IDSUFFIX);
+	hideNoAddressHint(formName);
+}
+
+function showAddressesHint(formName)
+{
+    showElement(formName + ADDRESSES_IDSUFFIX);
+	hideElement(formName + ADDRESS_IDSUFFIX);
+	hideNoAddressHint(formName);
 }
 
 function setLogLevel(newLevelValue)
@@ -344,7 +363,10 @@ function fillDataList(dataListID, dataStr, separator, canBeEmpty)
     if (USE_DATA_LISTS) {
         id = dataListID.substring(0, dataListID.lastIndexOf("_"));
         rowID = id.substring(0, id.lastIndexOf("_")) + "_row" + id.substring(id.lastIndexOf("_"));
-        showOrHideElement(rowID, canBeEmpty || dataStr != "");
+
+        if (!document.getElementById(formName).isAddressValidated) {
+            showOrHideElement(rowID, canBeEmpty || dataStr != "");
+        }
 
         if (dataStr == undefined) {
            dataItems = [];
@@ -381,6 +403,10 @@ function requestAndFillDataLists(formName)
         localityPartName = document.getElementById(formName + "_LocalityPart").value
         streetName = document.getElementById(formName + "_Street").value
 
+        params = [localityName, localityPartName, streetName].join("#");
+        if (params == DataListsActiveParams) { return; }
+        else DataListsActiveParams = params;
+
 		fillDataList(formName + "_HouseNumber_DataList", "", ",", true);
 		fillDataList(formName + "_RecordNumber_DataList", "", ",", true);
 		fillDataList(formName + "_OrientationNumber_DataList", "", ",", true);
@@ -395,7 +421,7 @@ function requestAndFillDataLists(formName)
             {
 	            if (xmlHttp.readyState == 4) {
 	                hideWaitCursor("requestAndFillDataLists(" + formName + ")");
-	                log("requesting DataList in  requestAndFillDataLists(" + formName + ")");
+	                log("Received DataList in requestAndFillDataLists(" + formName + ")");
 		            resultStr = xmlHttp.responseText.replace("\\n","");
 		            dataLists = resultStr.split("#");
 		            fillDataList(formName + "_HouseNumber_DataList", dataLists[0], ",", false);
@@ -464,9 +490,9 @@ function setupInputs(formName, callFillAddress)
         showDistrictNumber = true;
     }
     else {
-        if (!isAddressPartsSelected(formName) || document.getElementById(formName).isLoadingAddress == true) {
-            return;
-        }
+        //if (!isAddressPartsSelected(formName) || document.getElementById(formName).isLoadingAddress == true) {
+        //    return;
+        //}
         showDetails = true;
         localityName = document.getElementById(formName + "_Locality").value;
         showDistrictNumber = localityName == "" || localityName.toLowerCase() == "praha";
@@ -572,7 +598,7 @@ function fillAddressInputs(formName, addressItems)
         setValueOrHideElement(formName, "_RecordNumber", addressItems[0]);
     }
     showAddress(formName, addressItems[9]);
-    onChangeProc(document.getElementById(formName), false);
+    //onChangeProc(document.getElementById(formName), false);
     log(getServiceURL(formName));
 }
 
@@ -585,9 +611,7 @@ function fillAddressFromString(formName, values)
 function showAddress(formName, address)
 {
 	document.getElementById(formName + "_addressDiv").innerHTML = address;
-	hideNoAddressHint(formName);
-	showElement(formName + "_addressDiv");
-	hideElement(formName + "_addressesDiv");
+	showAddressHint(formName);
 	hideElement(formName + "_row_FillAddressButton");
 }
 
@@ -1300,6 +1324,8 @@ function updateServiceSpan(formName)
 function onChangeProc(formElem, callFillAddress)
 {
     openLogSection("onChangeProc('" + formElem.name + "')");
+    stopAllXMLRequests();
+    document.getElementById(formElem.name).isAddressValidated = false;
     value = getInputValue(formElem.name, "OrientationNumberCharacter", "");
     if (value != "" && value.length==1 && value.charCodeAt(0) == 160) {
         document.getElementById(formName + "_OrientationNumberCharacter").value = "";

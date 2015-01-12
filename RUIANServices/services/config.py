@@ -72,6 +72,8 @@ def convertServicesCfg(config):
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/136">#136 Nádražní, Lhotka neumožní číslo popisné</a>
 <br>Doplněna hláška, když v dané kombinaci nejde nalézt adresu.
 <br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/141">#141 </a>
+<br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/145">#145 Doplnit datalisty u obcí bez ulic</a>
 """
 

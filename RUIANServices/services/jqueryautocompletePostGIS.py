@@ -601,8 +601,8 @@ def getDataListValues(queryParams, maxCount = 50):
     whereClause = whereClause[:whereClause.rfind(" and")]
 
     if whereClause != "":
-        houseNumberList = getNumberValues("cislo_domovni", whereClause + " and typ_so='č.j' ", maxCount)
-        recordNumberList = getNumberValues("cislo_domovni", whereClause + " and typ_so<>'č.j' ", maxCount)
+        houseNumberList = getNumberValues("cislo_domovni", whereClause + " and typ_so='č.p.' ", maxCount)
+        recordNumberList = getNumberValues("cislo_domovni", whereClause + " and typ_so<>'č.p.' ", maxCount)
         orientationNumberList = getNumberValues("cislo_orientacni", whereClause, maxCount)
         orientationNumberCharacterList = getNumberValues("znak_cisla_orientacniho", whereClause, maxCount, "&nbsp;")
 
