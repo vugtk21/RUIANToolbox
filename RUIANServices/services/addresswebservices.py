@@ -176,6 +176,8 @@ class ServicesHTMLPageBuilder:
         elif param.name == 'ExtraInformation':
             if formName == "form_1":
                 addressOption = '<option value="address">přidat adresu</option>'
+            elif formName == "form_5":
+                addressOption = '<option value="distance">přidat vzdálenost</option>'
             else:
                 addressOption = ""
 

@@ -167,7 +167,7 @@ class MimeBuilder:
             result += line
         return result
 
-    def listToResponseText(self, ListOfLines, ignoreOneRow=False, recordSeparator = ""):
+    def listToResponseText(self, ListOfLines, ignoreOneRow=False, recordSeparator = "\n"):
         if recordSeparator == "":
             lineSeparator = self.lineSeparator
         else:

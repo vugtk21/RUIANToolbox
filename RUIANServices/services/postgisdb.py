@@ -82,18 +82,19 @@ def _findAddress(ID):
             return None
         a= numberValue(noneToString(row[8]))
         return Address(noneToString(row[0]),houseNumber,recordNumber,numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),a)
-        #(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
     else:
         return None
 
 
 
-def _getNearbyLocalities(y, x, distance):
+def _getNearbyLocalities(y, x, distance, maxCount = 100):
+    maxCount = int(maxCount)
+    if maxCount > 10000:maxCount = 10000
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
+    geom = "the_geom,ST_GeomFromText('POINT(-%s -%s)',5514)" % (str(x), str(y))
     query = "SELECT gid, nazev_obce, nazev_casti_obce, nazev_ulice, typ_so, cislo_domovni, cislo_orientacni, " + \
-                   "znak_cisla_orientacniho, psc, nazev_mop FROM" + \
-                   " %s WHERE ST_DWithin(the_geom,ST_GeomFromText('POINT(-%s -%s)',5514),%s)  LIMIT 25;" % (TABLE_NAME, str(x), str(y), str(distance),)
+                   "znak_cisla_orientacniho, psc, nazev_mop, ST_Distance(%s) d1 FROM %s WHERE ST_DWithin(%s,%s) order by d1 LIMIT %s;" % (geom, TABLE_NAME, geom, str(distance), str(maxCount))
     cur.execute(query)
     rows = cur.fetchall()
     return rows

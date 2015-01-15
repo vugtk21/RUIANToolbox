@@ -472,7 +472,7 @@ class AddressParser:
 
         return True
 
-    def buildAddress(self, builder, candidates, withID):
+    def buildAddress(self, builder, candidates, withID, withDistance = False):
         items = []
         for item in candidates:
             if item[4] == "č.p.":
@@ -502,19 +502,18 @@ class AddressParser:
                 districtNumber
             )
 
-            if withID:
-                subStr = self.addId(str(item[0]), subStr, builder)
-                #subStr = str(item[0]) + builder.lineSeparator + subStr
+            if withID:subStr = self.addId("id", str(item[0]), subStr, builder)
+            if withDistance:subStr = self.addId("distance", str(item[10]), subStr, builder)
             items.append(subStr)
         return items
 
-    def addId(self, id, str, builder):
+    def addId(self, id, value, str, builder):
         if builder.formatText == "json":
-            return '\t"id": ' + id + ",\n" + str
+            return '\t"%s": %s,\n%s' % (id, value, str)
         elif builder.formatText == "xml":
-            return "\t<id>" + id + "</id>\n" + str
+            return '\t<%s>%s</%s>\n%s' % (id, value, id, str)
         else:
-            return id + builder.lineSeparator + str
+            return value + builder.lineSeparator + str
 
     def fullTextSearchAddress(self, address):
         items = self.analyse(address, False)

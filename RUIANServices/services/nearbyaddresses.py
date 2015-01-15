@@ -49,15 +49,15 @@ def FormatAddress(address):
 
     return FormatedAddress
 
-def nearByAddresses(builder, JTSKY, JTSKX, Distance, withID):
+def nearByAddresses(builder, JTSKY, JTSKX, Distance, withID, withDistance, maxCount):
     if JTSKY.find(".") >= 0: JTSKY = JTSKY[:JTSKY.find(".")]
     if JTSKY.find(",") >= 0: JTSKY = JTSKY[:JTSKY.find(",")]
     if JTSKX.find(".") >= 0: JTSKX = JTSKX[:JTSKX.find(".")]
     if JTSKX.find(",") >= 0: JTSKX = JTSKX[:JTSKX.find(",")]
     if JTSKX.isdigit() and JTSKY.isdigit() and Distance.isdigit():
-        addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance)
+        addresses = RUIANConnection.getNearbyLocalities(JTSKX, JTSKY, Distance, maxCount)
         parser = parseaddress.AddressParser()
-        FormattedAddress = parser.buildAddress(builder,addresses,withID)
+        FormattedAddress = parser.buildAddress(builder, addresses, withID, withDistance)
         s = builder.listToResponseText(FormattedAddress, True)
         return s
     else:
@@ -68,18 +68,20 @@ def nearByAddressesServiceHandler(queryParams, response):
     response.mimeFormat = builder.getMimeFormat()
     if queryParams.has_key("ExtraInformation"):
         withID = queryParams["ExtraInformation"].lower() == "id"
+        withDistance = queryParams["ExtraInformation"].lower() == "distance"
     else:
         withID = False
+        withDistance = False
 
     s = nearByAddresses(
         builder,
         p(queryParams, "JTSKY", ""),
         p(queryParams, "JTSKX", ""),
         p(queryParams, "Distance", ""),
-        withID
+        withID, withDistance,
+        p(queryParams, "MaxCount", "1000"),
     )
     response.htmlData = s
-    #response.mimeFormat = getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response
 
@@ -95,7 +97,9 @@ def createServiceHandlers():
                 RestParam("/JTSKX", u"JTSK X [m]", u"Souřadnice X v systému S-JTSK v metrech",
                           htmlTags = ' required title="Souřadnice X v metrech" onkeypress="return isNumber(event, this, 7, 1230000)" '),
                 RestParam("/Distance", u"Vzdálenost [m]", u"Vzdálenost v metrech od vloženého bodu",
-                          htmlTags = ' required title="Vzdálenost v metrech od vloženého bodu" onkeypress="return isNumber(event, this, 6, 0)" ')
+                          htmlTags = ' required title="Vzdálenost v metrech od vloženého bodu" onkeypress="return isNumber(event, this, 6, 0)" '),
+                RestParam("MaxCount", u"Počet záznamů", u"Maximální počet záznamů, implicitně 1000, maximálně 10000",
+                          htmlTags = ' title="Maximální počet záznamů, implicitně 1000, maximálně 10000" onkeypress="return isNumber(event, this, 6, 10000)" '),
             ],
             [
                 URLParam("ExtraInformation", u"Další informace", u"Vypíše zvolený druh dodatečných informací", "", False)

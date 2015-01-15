@@ -51,13 +51,19 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
     else:
         return builder.listToResponseText(compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
 
+
 def compileAddressServiceHandler(queryParams, response):
+
+    def addId(self, id, str, builder):
+        if builder.formatText == "json":
+            return '\t"id": ' + id + ",\n" + str
+        elif builder.formatText == "xml":
+            return "\t<id>" + id + "</id>\n" + str
+        else:
+            return id + builder.lineSeparator + str
 
     def p(name, defValue = ""):
         if queryParams.has_key(name):
-            #a = urllib.unquote(queryParams[name])
-            #a = a.replace("%u017E",u"ž")
-            #return mapping(a)
             return urllib.unquote(queryParams[name]) #decode("utf-8"))
         else:
             return defValue
@@ -98,7 +104,6 @@ def compileAddressServiceHandler(queryParams, response):
             p("DistrictNumber")
         )
         response.htmlData = builder.listToResponseText([s])
-    #response.mimeFormat = builder.getMimeFormat() #getMimeFormat(p("Format", "xml"))
     response.handled = True
     return response
 
