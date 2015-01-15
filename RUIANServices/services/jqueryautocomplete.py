@@ -18,7 +18,11 @@ def getQueryValue(queryParams, id, defValue):
         return defValue
 
 def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
-    if queryParams:
+    if page.lower().startswith("mopdistricts"):
+        response.htmlData = jqueryautocompletePostGIS.getMOPDistricts()
+    elif page.lower().startswith("districtmops"):
+        response.htmlData = jqueryautocompletePostGIS.getDistrictMOPs()
+    elif queryParams:
         max_matches = int(getQueryValue(queryParams, 'max_matches', 40))
         if page.lower().startswith("fill"):
             response.htmlData = jqueryautocompletePostGIS.getFillResults(queryParams)

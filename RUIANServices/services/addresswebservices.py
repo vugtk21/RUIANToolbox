@@ -30,6 +30,17 @@ import RUIANConnection
 USE_DATA_LISTS = True
 SERVICES_PATH = '' # 'services'
 
+def getAddressTabName(itemName):
+    ADDRESSTABNAMES = {
+        "vstup" : ["FillAddressButton", "Locality", "LocalityPart", "DistrictNumber", "Street", "HouseNumber", "RecordNumber", "OrientationNumber", "OrientationNumberCharacter", "ZIPCode"],
+        "id" : ["AddressPlaceId"],
+        "adresa" : ["SearchText"]
+    }
+    for key in ADDRESSTABNAMES:
+        if itemName in ADDRESSTABNAMES[key]:
+            return key
+    return ""
+
 def getPageTemplate():
     f = codecs.open("..//HTML//RestPageTemplate.htm", "r", "utf-8")
     result = f.read()
@@ -69,7 +80,7 @@ console = Console()
 
 def getNoAddressAvailableHTML(formName):
     result =  u"""
-<div class="ui-widget NOADDRESSHINTDIV" id="#FORMNAME#_NoAddressHintDiv">
+<div class="ui-widget NOADDRESSHINTDIV" id="#FORMNAME#_NoAddressHintDiv" isvisible="false" tabname="vstup">
     <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
         <p>
             <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
@@ -106,7 +117,7 @@ class ServicesHTMLPageBuilder:
             result[key[key.find("/") + 1:]] = queryParams[key]
         return result
 
-    def tablePropertyRow(self, param, formName, paramTypeStr, queryParams, onChangeProcCode):
+    def tablePropertyRow(self, param, formName, paramTypeStr, queryParams, onChangeProcCode, hasAddressTabs):
         keyName = param.name[1:]
         if queryParams.has_key(keyName):
             valueStr = 'value = "' + queryParams[keyName] + '"'
@@ -118,7 +129,15 @@ class ServicesHTMLPageBuilder:
         else:
             visibilityStr = ''
 
-        result = '<tr id="' + formName + '_row_' + param.name + '"' + visibilityStr + '>'
+        if hasAddressTabs:
+            tagsStr = ' isvisible="true" '
+            tabName = getAddressTabName(param.name)
+            if tabName:
+                tagsStr += ' tabname="%s" ' % (tabName)
+        else:
+            tagsStr = ''
+
+        result = '<tr id="%s_row_%s"%s%s>' % (formName, param.name, visibilityStr, tagsStr)
 
         if param.name == 'FillAddressButton':
             result += '<td align="right" colspan = "2">'
@@ -178,10 +197,13 @@ class ServicesHTMLPageBuilder:
             elemID = formName + '_' + param.name
 
             dataListRef = ""
-            if USE_DATA_LISTS and param.name in ["HouseNumber", "OrientationNumber", "RecordNumber", "OrientationNumberCharacter"]:
+            if USE_DATA_LISTS and param.name in ["HouseNumber", "OrientationNumber", "RecordNumber", "OrientationNumberCharacter", "LocalityPart"]:
                 dataListID = "%s_%s_DataList" % (formName, param.name)
                 self.dataListHTML += '<datalist id="%s" class="DATALIST_CLASS">\n</datalist>\n' % (dataListID)
                 dataListRef = ' list="%s"' % dataListID
+
+            if param.name == 'LocalityPart':
+                onChangeProcCode = onChangeProcCode.replace("onChangeProc(", "localityPartChanged(")
 
             result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + \
@@ -238,13 +260,15 @@ class ServicesHTMLPageBuilder:
 
             restPyURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/"
             tabDivs += u'<span name="' + urlSpanName + '" class = "enhancedGUI" id="' + urlSpanName + '" >' + "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/" + service.pathName[1:] + "</span>\n" #service.getServicePath() + "</span>\n"
-            if service.pathName == "/CompileAddress" or service.pathName == "/Geocode":
+            hasAddressTabs = service.pathName == "/CompileAddress" or service.pathName == "/Geocode"
+            if hasAddressTabs:
+                updateServiceSpanCode = ' onclick="updateServiceSpan(\'%s\')"' % formName
                 tabDivs += u"""
                 <br><br>
-                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked onclick="%s">Adresa</input>
-                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB" onclick="%s">Prvky adresy</input>
-                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB" onclick="%s">Identifikátor RÚIAN</input>
-                """ % (service.pathName, formName, onChangeProcCode, service.pathName, formName, onChangeProcCode, service.pathName, formName, onChangeProcCode)
+                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked %s>Adresa</input>
+                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB" %s>Prvky adresy</input>
+                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB" %s>Identifikátor RÚIAN</input>
+                """ % (service.pathName, formName, updateServiceSpanCode, service.pathName, formName, updateServiceSpanCode, service.pathName, formName, updateServiceSpanCode)
 
             tabDivs += "<br><br>"
             tabDivs += "<table><tr valign=\"top\"><td>"
@@ -254,10 +278,10 @@ class ServicesHTMLPageBuilder:
             tabDivs += '<div class="warning">\n'
             tabDivs += '<table id="' + formName + '_ParamsTable">\n'
             for param in service.restPathParams:
-                tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams, onChangeProcCode)
+                tabDivs += self.tablePropertyRow(param, formName, u"REST", queryParams, onChangeProcCode, hasAddressTabs)
 
             for param in service.queryParams:
-                tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode)
+                tabDivs += self.tablePropertyRow(param, formName, u"Query", queryParams, onChangeProcCode, hasAddressTabs)
 
             tabDivs += '</table>\n'
             tabDivs += '</div>\n'
@@ -268,15 +292,16 @@ class ServicesHTMLPageBuilder:
             tabDivs += '</form>\n'
             tabDivs += "</td>"
             tabDivs += '<td>'
-            tabDivs += '<div id="%s_addressesDiv" class="AddressesDiv" title="Vyber adresu"></div>' % formName
+            tabDivs += '<div id="%s_addressesDiv" class="AddressesDiv" title="Vyber adresu" isvisible="false" tabname="vstup"></div>' % formName
+
             tabDivs += getNoAddressAvailableHTML(formName)
-            tabDivs += '<div id="%s_addressDiv" class="AddressDiv"></div>' % formName
+            tabDivs += '<div id="%s_addressDiv" class="AddressDiv" isvisible="false" tabname="vstup"></div>' % formName
             tabDivs += '<textarea id=' + formName + '_textArea rows ="12" cols="50" class="RESULTTEXTAREA"></textarea></td>'
             tabDivs += "</tr></table>"
 
             tabDivs += "<a class = 'enhancedGUI' href='" + restPyURL + "testing" + service.pathName + ".html'>Výsledky testů</a>"
             url = configmodule.getHTMLDataURL() + service.pathName[1:] + ".png"
-            tabDivs += '<p>\n<img class = "enhancedGUI" src="' + url + '"></p>\n'
+            tabDivs += '<p>\n<center><img width="80%" class="enhancedGUI" src="' + url + '"></center></p>\n'
 
             tabDivs += '</div>\n'
             i = i + 1

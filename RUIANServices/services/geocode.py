@@ -122,7 +122,7 @@ def createServiceHandlers():
             [
                 getAddressPlaceIdParamURL(),
                 getSearchTextParam(),
-                URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' required class="RUIAN_TOWN_INPUT" '),
+                URLParam("Locality",          u"Obec",  u"Obec", "", True, htmlTags = ' class="RUIAN_TOWN_INPUT" '),
                 URLParam("LocalityPart",      u"Část obce", u"Část obce, pokud je známa", "", True, htmlTags = ' class="RUIAN_TOWNPART_INPUT" '),
                 getDistrictNumberURL(),
                 URLParam("Street",            u"Ulice", u"Název ulice", "", True, htmlTags = ' class="RUIAN_STREET_INPUT" '),

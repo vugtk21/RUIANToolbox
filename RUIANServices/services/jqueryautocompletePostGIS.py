@@ -195,7 +195,7 @@ def parseFullTextToken(queryParams, nameToken):
 
 def getRows(searchSQL, maxCount = 15):
     rows = []
-    if searchSQL != "":
+    if searchSQL != "" and maxCount != 0:
         searchSQL += " limit " + str(maxCount)
 
         try:
@@ -623,10 +623,42 @@ def getDataListValues(queryParams, maxCount = 50):
     return result
 
 
+def getMOPList(sqlQuery):
+    try:
+        db = PostGISDatabase()
+        cursor = db.conection.cursor()
+        cursor.execute(sqlQuery)
+        resultList = {}
+        for row in cursor:
+            key = row[0]
+            if resultList.has_key(key):
+                resultList[key].append(row[1])
+            else:
+                resultList[key] = [row[1]]
+
+        smallList = []
+        for key in resultList:
+            smallList.append('\t\t"%s" : "%s"' % (key, (",").join(resultList[key])))
+
+        result = '{\n%s\n}' % (",\n").join(smallList)
+    except:
+        import sys
+        return[sys.exc_info()[0]]
+
+    return result
+
+def getDistrictMOPs():
+    return getMOPList("select nazev_casti_obce, nazev_mop from address_points where nazev_mop <> '' group by nazev_mop, nazev_casti_obce order by nazev_mop, nazev_casti_obce")
+
+def getMOPDistricts():
+    return getMOPList("select nazev_mop, nazev_casti_obce from address_points where nazev_mop <> '' group by nazev_casti_obce, nazev_mop order by nazev_mop, nazev_casti_obce")
+
 def main():
     #print getAutocompleteResults("zip", "16")
     #print getAutocompleteResults("street", "Mrkvičkova 13")
     #print getAutocompleteResults("street", "Budovatelů 6")
+    print getDistrictMOPs()
+    #print getMOPDistricts()
     pass
 
 if __name__ == '__main__':
