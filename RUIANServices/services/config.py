@@ -72,6 +72,11 @@ def convertServicesCfg(config):
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/136">#136 Nádražní, Lhotka neumožní číslo popisné</a>
 <br>Doplněna hláška, když v dané kombinaci nejde nalézt adresu.
 <br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/137">#137 Omezení hodnot v poli městský obvod</a>
+<br>Pole Obec, Část obce a Číslo městského obvodu mají pro Obec=Praha následující chování:
+<br>1. Vložení části obce omezí možnosti v poli Číslo městského obvodu, jestliže je jen jedno, tak ho přímo nastaví
+<br>2. Výběr Čísla městského obvodu nastaví datalist pro Část obce na patřičné hodnoty.
+<br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/138">#138 Neověří adresu Mezilesní 550</a>
 <br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/139">#139 Neověří a nedoplní Mezilesní 550 bez PSČ</a>

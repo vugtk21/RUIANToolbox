@@ -1,45 +1,19 @@
+// Číselníky pro Prahu vygenerované při importu do databáze.
 var PRAHA_NAME = "praha";
 var MOPDistricts = {
     "Praha 1": "Holešovice,Hradčany,Josefov,Malá Strana,Nové Město,Staré Město,Vinohrady",
     "Praha 3": "Strašnice,Vinohrady,Vysočany,Žižkov",
     "Praha 2": "Nové Město,Nusle,Vinohrady,Vyšehrad",
-    "Praha 5": "Hlubočepy,Holyně,Jinonice,Košíře,Lahovice,Lipence,Lochkov,Malá Chuchle," +
-        "Malá Strana,Motol,Radlice,Radotín,Řeporyje,Řepy,Slivenec,Smíchov,Sobín," +
-        "Stodůlky,Třebonice,Velká Chuchle,Zadní Kopanina,Zbraslav,Zličín",
-    "Praha 4": "Braník,Háje,Hodkovičky,Chodov,Cholupice,Kamýk,Komořany,Krč,Kunratice," +
-        "Lhotka,Libuš,Michle,Modřany,Nusle,Písnice,Podolí,Šeberov,Točná,Újezd," +
-        "Vinohrady,Záběhlice",
+    "Praha 5": "Hlubočepy,Holyně,Jinonice,Košíře,Lahovice,Lipence,Lochkov,Malá Chuchle,Malá Strana,Motol,Radlice,Radotín,Řeporyje,Řepy,Slivenec,Smíchov,Sobín,Stodůlky,Třebonice,Velká Chuchle,Zadní Kopanina,Zbraslav,Zličín",
+    "Praha 4": "Braník,Háje,Hodkovičky,Chodov,Cholupice,Kamýk,Komořany,Krč,Kunratice,Lhotka,Libuš,Michle,Modřany,Nusle,Písnice,Podolí,Šeberov,Točná,Újezd,Vinohrady,Záběhlice",
     "Praha 7": "Bubeneč,Holešovice,Troja",
-    "Praha 6": "Břevnov,Bubeneč,Dejvice,Hradčany,Liboc,Lysolaje,Nebušice,Přední Kopanina," +
-        "Ruzyně,Řepy,Sedlec,Střešovice,Suchdol,Veleslavín,Vokovice",
-    "Praha 9": "Běchovice,Čakovice,Černý Most,Dolní Počernice,Hloubětín,Horní Počernice," +
-        "Hostavice,Hrdlořezy,Kbely,Klánovice,Koloděje,Kyje,Letňany,Libeň,Malešice," +
-        "Miškovice,Prosek,Satalice,Střížkov,Třeboradice,Újezd nad Lesy,Vinoř,Vysočany",
-    "Praha 8": "Bohnice,Březiněves,Čimice,Ďáblice,Dolní Chabry,Karlín,Kobylisy,Libeň," +
-        "Nové Město,Střížkov,Troja",
-    "Praha 10": "Benice,Dolní Měcholupy,Dubeč,Hájek,Horní Měcholupy,Hostivař,Kolovraty," +
-        "Královice,Křeslice,Lipany,Malešice,Michle,Nedvězí,Petrovice,Pitkovice," +
-        "Strašnice,Štěrboholy,Uhříněves,Vinohrady,Vršovice,Záběhlice,Žižkov"
+    "Praha 6": "Břevnov,Bubeneč,Dejvice,Hradčany,Liboc,Lysolaje,Nebušice,Přední Kopanina,Ruzyně,Řepy,Sedlec,Střešovice,Suchdol,Veleslavín,Vokovice",
+    "Praha 9": "Běchovice,Čakovice,Černý Most,Dolní Počernice,Hloubětín,Horní Počernice,Hostavice,Hrdlořezy,Kbely,Klánovice,Koloděje,Kyje,Letňany,Libeň,Malešice,Miškovice,Prosek,Satalice,Střížkov,Třeboradice,Újezd nad Lesy,Vinoř,Vysočany",
+    "Praha 8": "Bohnice,Březiněves,Čimice,Ďáblice,Dolní Chabry,Karlín,Kobylisy,Libeň,Nové Město,Střížkov,Troja",
+    "Praha 10": "Benice,Dolní Měcholupy,Dubeč,Hájek,Horní Měcholupy,Hostivař,Kolovraty,Královice,Křeslice,Lipany,Malešice,Michle,Nedvězí,Petrovice,Pitkovice,Strašnice,Štěrboholy,Uhříněves,Vinohrady,Vršovice,Záběhlice,Žižkov"
 };
 
-var PRAGUE_DISTRICTS = "Holešovice,Hradčany,Josefov,Malá Strana,Nové Město,Staré Město,Vinohrady" +
-    "Strašnice,Vinohrady,Vysočany,Žižkov,Nové Město,Nusle,Vinohrady,Vyšehrad," +
-    "Hlubočepy,Holyně,Jinonice,Košíře,Lahovice,Lipence,Lochkov,Malá Chuchle," +
-        "Malá Strana,Motol,Radlice,Radotín,Řeporyje,Řepy,Slivenec,Smíchov,Sobín," +
-        "Stodůlky,Třebonice,Velká Chuchle,Zadní Kopanina,Zbraslav,Zličín," +
-    "Braník,Háje,Hodkovičky,Chodov,Cholupice,Kamýk,Komořany,Krč,Kunratice," +
-        "Lhotka,Libuš,Michle,Modřany,Nusle,Písnice,Podolí,Šeberov,Točná,Újezd," +
-        "Vinohrady,Záběhlice,Bubeneč,Holešovice,Troja," +
-    "Břevnov,Bubeneč,Dejvice,Hradčany,Liboc,Lysolaje,Nebušice,Přední Kopanina," +
-        "Ruzyně,Řepy,Sedlec,Střešovice,Suchdol,Veleslavín,Vokovice," +
-    "Běchovice,Čakovice,Černý Most,Dolní Počernice,Hloubětín,Horní Počernice," +
-        "Hostavice,Hrdlořezy,Kbely,Klánovice,Koloděje,Kyje,Letňany,Libeň,Malešice," +
-        "Miškovice,Prosek,Satalice,Střížkov,Třeboradice,Újezd nad Lesy,Vinoř,Vysočany," +
-    "Bohnice,Březiněves,Čimice,Ďáblice,Dolní Chabry,Karlín,Kobylisy,Libeň," +
-        "Nové Město,Střížkov,Troja," +
-    "Benice,Dolní Měcholupy,Dubeč,Hájek,Horní Měcholupy,Hostivař,Kolovraty," +
-        "Královice,Křeslice,Lipany,Malešice,Michle,Nedvězí,Petrovice,Pitkovice," +
-        "Strašnice,Štěrboholy,Uhříněves,Vinohrady,Vršovice,Záběhlice,Žižkov";
+var PRAGUE_DISTRICTS = "Holešovice,Hradčany,Josefov,Malá Strana,Nové Město,Staré Město,Vinohrady,Strašnice,Vinohrady,Vysočany,Žižkov,Nové Město,Nusle,Vinohrady,Vyšehrad,Hlubočepy,Holyně,Jinonice,Košíře,Lahovice,Lipence,Lochkov,Malá Chuchle,Malá Strana,Motol,Radlice,Radotín,Řeporyje,Řepy,Slivenec,Smíchov,Sobín,Stodůlky,Třebonice,Velká Chuchle,Zadní Kopanina,Zbraslav,Zličín,Braník,Háje,Hodkovičky,Chodov,Cholupice,Kamýk,Komořany,Krč,Kunratice,Lhotka,Libuš,Michle,Modřany,Nusle,Písnice,Podolí,Šeberov,Točná,Újezd,Vinohrady,Záběhlice,Bubeneč,Holešovice,Troja,Břevnov,Bubeneč,Dejvice,Hradčany,Liboc,Lysolaje,Nebušice,Přední Kopanina,Ruzyně,Řepy,Sedlec,Střešovice,Suchdol,Veleslavín,Vokovice,Běchovice,Čakovice,Černý Most,Dolní Počernice,Hloubětín,Horní Počernice,Hostavice,Hrdlořezy,Kbely,Klánovice,Koloděje,Kyje,Letňany,Libeň,Malešice,Miškovice,Prosek,Satalice,Střížkov,Třeboradice,Újezd nad Lesy,Vinoř,Vysočany,Bohnice,Březiněves,Čimice,Ďáblice,Dolní Chabry,Karlín,Kobylisy,Libeň,Nové Město,Střížkov,Troja,Benice,Dolní Měcholupy,Dubeč,Hájek,Horní Měcholupy,Hostivař,Kolovraty,Královice,Křeslice,Lipany,Malešice,Michle,Nedvězí,Petrovice,Pitkovice,Strašnice,Štěrboholy,Uhříněves,Vinohrady,Vršovice,Záběhlice,Žižkov";
 
 var DISTRICTMOPS = {
 		"pitkovice" : "Praha 10",
@@ -157,13 +131,13 @@ var DISTRICTMOPS = {
 };
 
 defaultDistrictNumberInnerHTML = '<option value=""></option>' +
-                            '<option value="1">Praha 1</option>' +
-                            '<option value="2">Praha 2</option>' +
-                            '<option value="3">Praha 3</option>' +
-                            '<option value="4">Praha 4</option>' +
-                            '<option value="5">Praha 5</option>' +
-                            '<option value="6">Praha 6</option>' +
-                            '<option value="7">Praha 7</option>' +
-                            '<option value="8">Praha 8</option>' +
-                            '<option value="9">Praha 9</option>' +
-                            '<option value="10">Praha 10</option>';
+    '<option value="1">Praha 1</option>' +
+    '<option value="2">Praha 2</option>' +
+    '<option value="3">Praha 3</option>' +
+    '<option value="4">Praha 4</option>' +
+    '<option value="5">Praha 5</option>' +
+    '<option value="6">Praha 6</option>' +
+    '<option value="7">Praha 7</option>' +
+    '<option value="8">Praha 8</option>' +
+    '<option value="9">Praha 9</option>' +
+    '<option value="10">Praha 10</option>';

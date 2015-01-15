@@ -158,6 +158,8 @@ var CALL_TEXTAREA = "";
 var CALL_PATH = "";
 var USE_DATA_LISTS = #USE_DATA_LISTS#;
 var lastFindAddressParamsList = [];
+
+// Element addressing constants for DRY
 var NOADDRESSHINT_IDSUFFIX = "_NoAddressHintDiv";
 var ADDRESSES_IDSUFFIX     = "_addressesDiv";
 var ADDRESS_IDSUFFIX       = "_addressDiv";
@@ -167,6 +169,7 @@ var LOCALITYPART_IDSUFFIX = "_LocalityPart";
 var LOCALITYPARTDATALIST_IDSUFFIX = LOCALITYPART_IDSUFFIX + "_DataList";
 var DataListsActiveParams = "";
 
+// Persistence variables for logging
 var _logLevel = -1;
 var _logPrefix = "";
 
@@ -521,7 +524,7 @@ function requestAndFillDataLists(formName)
 function districtNumberChanged(formName)
 {
     if (document.getElementById(formName + DISTRICTNUMBER_IDSUFFIX).value != "") {
-        document.getElementById(formName + "_Locality").value.lower = PRAHA_NAME;
+        document.getElementById(formName + "_Locality").value = "Praha";
     }
     onChangeProc(document.getElementById(formName), true);
 }
@@ -538,6 +541,7 @@ function setupDistrictListToDefault(formName)
 
 function localityPartChanged(formElem, callFillAddress)
 {
+    openLogSection("localityPartChanged");
     var allowedMOPS;
     var innerHTML = '';
     var localityPart = document.getElementById(formElem.name + "_LocalityPart").value.toLowerCase();
@@ -546,6 +550,7 @@ function localityPartChanged(formElem, callFillAddress)
         allowedMOPS = DISTRICTMOPS[localityPart];
         var item = "";
         var value = "";
+        var newIndex = 0;
         var dataItems = allowedMOPS.split(",");
         for (var i = 0; i < dataItems.length; i++) {
             item = dataItems[i];
@@ -555,9 +560,14 @@ function localityPartChanged(formElem, callFillAddress)
             else {
                 value = item.substr(item.indexOf(" ") + 1);
             }
+            if (dataItems[i].toLowerCase() == localityPart) {
+                newIndex = i;
+            }
             innerHTML = innerHTML + '<option value="' + value + '">' + dataItems[i] + '</option>\n';
         }
-        document.getElementById(formElem.name + DISTRICTNUMBER_IDSUFFIX).innerHTML = innerHTML;
+        var elm = document.getElementById(formElem.name + DISTRICTNUMBER_IDSUFFIX);
+        elm.innerHTML = innerHTML;
+        elm.selectedIndex = newIndex;
     }
     else {
         setupDistrictListToDefault(formElem.name);
@@ -565,6 +575,7 @@ function localityPartChanged(formElem, callFillAddress)
 
 
     onChangeProc(formElem, callFillAddress);
+    closeLogSection("localityPartChanged");
 }
 
 function assignLocalityPartDataList(formName)
@@ -1236,6 +1247,9 @@ $(document).ready(function() {
 		});
       });
 
+    document.getElementById('form_1_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_1, true); });
+    document.getElementById('form_3_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_3, true); });
+    document.getElementById('form_4_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_4, true); });
 
     hideWaitCursor("$(document).ready(function()");
     if (disableGUISwitch) {
@@ -1451,12 +1465,12 @@ function onChangeProc(formElem, callFillAddress)
     openLogSection("onChangeProc('" + formElem.name + "')");
     updateServiceSpan(formElem.name);
 
-    if (isSelectedAddressPartsTab(formName)) {
+    if (isSelectedAddressPartsTab(formElem.name)) {
         stopAllXMLRequests();
         document.getElementById(formElem.name).isAddressValidated = false;
         value = getInputValue(formElem.name, "OrientationNumberCharacter", "");
         if (value != "" && value.length==1 && value.charCodeAt(0) == 160) {
-            document.getElementById(formName + "_OrientationNumberCharacter").value = "";
+            document.getElementById(formElem.name + "_OrientationNumberCharacter").value = "";
             log("Nahrazuji pevnou mezeru v pismenu cisla orientacniho.");
         }
 	    showElement(formElem.name + "_row_FillAddressButton");
@@ -1530,13 +1544,16 @@ function onChangeProc(formElem, callFillAddress)
 <div style="width:80%">
  <p>
 <center>
-<table>
+<table width="100%">
     <tr>
         <td><img src="#HTMLDATA_URL#tacr_eng.png" height="55"></td>
         <td>
 Webové služby RÚIAN byly vytvořeny v rámci projektu
 TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURADIN v podmínkách RUIAN (2012-2014).<br>
             RÚIAN Toolbox verze #VERSIONNUMBER#, <a href="#SERVICES_URL_PATH#/#SCRIPT_NAME#/dbdetails">data RÚIAN</a> aktuální k #RUIANVERSIONDATE#.
+        </td>
+        <td align="right">
+            <img src="#HTMLDATA_URL#SupportedBrowsers.png" title="Podporované prohlížeče: Chrome 20.0, Internet Explorer 10.0, Mozilla Firefox 4.0, Opera 9.0">
         </td>
     </tr>
 </table>

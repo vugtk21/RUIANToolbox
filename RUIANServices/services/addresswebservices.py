@@ -196,14 +196,21 @@ class ServicesHTMLPageBuilder:
 
             elemID = formName + '_' + param.name
 
+            if param.name == 'LocalityPart':
+                onChangeProcCode = onChangeProcCode.replace("onChangeProc(", "localityPartChanged(")
+
             dataListRef = ""
             if USE_DATA_LISTS and param.name in ["HouseNumber", "OrientationNumber", "RecordNumber", "OrientationNumberCharacter", "LocalityPart"]:
                 dataListID = "%s_%s_DataList" % (formName, param.name)
-                self.dataListHTML += '<datalist id="%s" class="DATALIST_CLASS">\n</datalist>\n' % (dataListID)
+                if param.name == 'LocalityPart':
+                    dataListChangeProcCode = ' onchange="%s"' % onChangeProcCode
+                    dataListChangeProcCode = ' onchange="alert(\'ahoj\')"'
+                else:
+                    dataListChangeProcCode = ""
+
+                self.dataListHTML += '<datalist id="%s" class="DATALIST_CLASS" %s>\n</datalist>\n' % (dataListID, dataListChangeProcCode)
                 dataListRef = ' list="%s"' % dataListID
 
-            if param.name == 'LocalityPart':
-                onChangeProcCode = onChangeProcCode.replace("onChangeProc(", "localityPartChanged(")
 
             result += '<input name="' + elemID + '" ' + valueStr.decode('utf8') + 'title="' + \
                   param.shortDesc + '" onchange="' + onChangeProcCode + '" ' + disabledStr + param.htmlTags + \
