@@ -173,6 +173,21 @@ var DataListsActiveParams = "";
 var _logLevel = -1;
 var _logPrefix = "";
 
+function selectValueByOptionText(elementName, optionText)
+{
+    var elm = document.getElementById(elementName);
+    if (elm) {
+        var options = elm.options;
+        for (var i=0; i<elm.options.length;i++) {
+            if (elm.options[i].text == optionText) {
+                elm.selectedIndex = i;
+                return
+            }
+        }
+        elm.selectedIndex = 0;
+    }
+}
+
 function getSelectedAddressTabName(elementName)
 {
     var nameParts = elementName.split("_");
@@ -547,10 +562,9 @@ function localityPartChanged(formElem, callFillAddress)
     var localityPart = document.getElementById(formElem.name + "_LocalityPart").value.toLowerCase();
     if (document.getElementById(formElem.name + "_Locality").value.toLowerCase() == PRAHA_NAME && localityPart != "" &&
         localityPart in DISTRICTMOPS) {
-        allowedMOPS = DISTRICTMOPS[localityPart];
+        allowedMOPS = "," + DISTRICTMOPS[localityPart];
         var item = "";
         var value = "";
-        var newIndex = 0;
         var dataItems = allowedMOPS.split(",");
         for (var i = 0; i < dataItems.length; i++) {
             item = dataItems[i];
@@ -560,19 +574,15 @@ function localityPartChanged(formElem, callFillAddress)
             else {
                 value = item.substr(item.indexOf(" ") + 1);
             }
-            if (dataItems[i].toLowerCase() == localityPart) {
-                newIndex = i;
-            }
             innerHTML = innerHTML + '<option value="' + value + '">' + dataItems[i] + '</option>\n';
         }
         var elm = document.getElementById(formElem.name + DISTRICTNUMBER_IDSUFFIX);
         elm.innerHTML = innerHTML;
-        elm.selectedIndex = newIndex;
+        selectValueByOptionText(formElem.name + DISTRICTNUMBER_IDSUFFIX, localityPart);
     }
     else {
         setupDistrictListToDefault(formElem.name);
     }
-
 
     onChangeProc(formElem, callFillAddress);
     closeLogSection("localityPartChanged");
@@ -598,16 +608,7 @@ function assignLocalityPartDataList(formName)
 
 function selectDistrictNumberByValue(formName, value)
 {
-    var selIndex = 0;
- if (value == "") {
-    selIndex = 0;
- }
- else {
-    var idx = value.indexOf(" ");
-    selIndex = value.substring(idx);
- }
- showOrHideElement(formName + "_row_DistrictNumber", isProgrammersGUI || value != "");
- document.getElementById(formName + DISTRICTNUMBER_IDSUFFIX).selectedIndex = selIndex;
+    selectValueByOptionText(formName + DISTRICTNUMBER_IDSUFFIX, value);
 }
 
 function isAddressPartsSelected(formName)
@@ -737,6 +738,7 @@ function fillAddressInputs(formName, addressItems)
     setValueOrHideElement(formName, "_ZIPCode", addressItems[3]);
     setValueOrHideElement(formName, "_Locality", addressItems[4]);
     setValueOrHideElement(formName, "_LocalityPart", addressItems[5]);
+    setValueOrHideElement(formName, "_Street", addressItems[7]);
     selectDistrictNumberByValue(formName, addressItems[6]);
     if (addressItems[8] == "č.p.") {
         setValueOrHideElement(formName, "_HouseNumber", addressItems[0]);
@@ -1543,9 +1545,9 @@ function onChangeProc(formElem, callFillAddress)
 
 <div style="width:80%">
  <p>
-<center>
-<table width="100%">
-    <tr>
+
+<table style="margin-left:auto;margin-right:auto;text-align:center;">
+    <tr style="text-align:left;">
         <td><img src="#HTMLDATA_URL#tacr_eng.png" height="55"></td>
         <td>
 Webové služby RÚIAN byly vytvořeny v rámci projektu
@@ -1557,10 +1559,10 @@ TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURAD
         </td>
     </tr>
 </table>
-</center>
+
 </p>
 </div>
 </div>
-        </center>
+
     </body>
 </html>
