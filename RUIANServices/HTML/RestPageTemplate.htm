@@ -15,7 +15,7 @@
                 background-repeat: no-repeat;
             }
 
-            input:required:valid {
+            _input:required:valid {
                 background-image: url(#SERVICES_URL_PATH#/#SCRIPT_NAME#/html/valid.png);
                 background-position: right top;
                 background-repeat: no-repeat;
@@ -1043,8 +1043,8 @@ function isENLetter(event, scope)
 function setInputValue(id, value)
 // Nastaví element <INPUT>, zadaného parametrem id na hodnotu value.
 {
-	var streetElement = document.getElementById(id);
-	streetElement.value = value;
+	var element = document.getElementById(id);
+    if (element) { element.value = value; }
 }
 
 function extractFormName(elemName)
@@ -1068,9 +1068,8 @@ function setInputValueFromMaster(masterElemId, suffix, value)
 	else {
 	    value = "";
 	}
-	var id = extractFormName(masterElemId) + suffix;
-	var elem = document.getElementById(id);
-	elem.value = value;
+
+    setInputValue(extractFormName(masterElemId) + suffix, value);
 }
 
 function clearInputList(list)

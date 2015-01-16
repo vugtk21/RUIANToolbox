@@ -86,6 +86,10 @@ def convertServicesCfg(config):
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/141">#141 Ošetření asynchronních volání</a>
 <br>
 <br><a href="https://github.com/vugtk21/RUIANToolbox/issues/145">#145 Doplnit datalisty u obcí bez ulic</a>
+<br>
+<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/149">#149 Služba Fulltextové vyhledávání - našeptávač</a>
+<br>Na záložce fulltext nejsou textová pole, do kterých by se mohly vyplnit nalezené hodnoty, takže docházelo k chybě
+při zápisu a našeptávač se neuzavřel.
 """
 
     # htmlDataURL nemá mít lomítko na začátku
