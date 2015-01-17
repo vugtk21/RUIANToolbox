@@ -23,6 +23,8 @@ PORT_NUMBER = config.portNumber
 SERVICES_WEB_PATH = config.servicesWebPath
 
 TABLE_NAME = "address_points"
+ADDRESSPOINTS_TABLENAME = "address_points"
+
 
 ITEM_TO_DBFIELDS = {
     "id": "gid",
@@ -66,6 +68,36 @@ def numberValue(str):
     else:
         return ""
 
+class PostGISDatabase():
+
+    def __init__(self):
+        self.conection = psycopg2.connect(host = config.databaseHost, database = config.databaseName,
+                                          port = config.databasePort, user = config.databaseUserName,
+                                          password = config.databasePassword)
+
+    def getQueryResult(self, query):
+        cursor = self.conection.cursor()
+        cursor.execute(query)
+
+        rows = []
+        row_count = 0
+        for row in cursor:
+            row_count += 1
+            rows.append(row)
+        return rows
+
+def selectSQL(searchSQL):
+    if searchSQL == None or searchSQL == "": return None
+
+    try:
+        db = PostGISDatabase()
+        cursor = db.conection.cursor()
+        cursor.execute(searchSQL)
+        return cursor
+    except:
+        import sys
+        return[sys.exc_info()[0]]
+
 def _findAddress(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cur = con.cursor()
@@ -106,13 +138,13 @@ def addToQuery(atribute, comparator, first):
         query = " AND " + atribute + " " + comparator + " %s"
     return query
 
-def _validateAddress(dictionary):
+def _validateAddress(dictionary, returnRow = False):
     first = True
     oneHouseNumber = False
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
     cursor = con.cursor()
 
-    query = "SELECT * FROM " + TABLE_NAME + " WHERE "
+    query = "SELECT gid, cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop, nazev_ulice, typ_so FROM " + TABLE_NAME + " WHERE "
     tuple = ()
     for key in dictionary:
         if key == "houseNumber":
@@ -151,22 +183,17 @@ def _validateAddress(dictionary):
         query += addToQuery(ITEM_TO_DBFIELDS[key], comparator, first)
         first = False
 
-    a = cursor.mogrify(query,tuple)
+    a = cursor.mogrify(query, tuple)
     cursor.execute(a)
     row = cursor.fetchone()
-    if row:
-        return ["True"]
+
+    result = None
+    if returnRow:
+        if row:result = row
     else:
-        return ["False"]
-
-#    rows = []
-#    row_count = 0
-#    for row in cursor:
-#        row_count += 1
-#        strRow = str(row[0])
-#        rows.append(str(row[0]))
-
-#    return rows
+        if row:result = ["True"]
+        else: result = ["False"]
+    return result
 
 def _findCoordinates(ID):
     con = psycopg2.connect(host=DATABASE_HOST, database=DATABASE_NAME, port= PORT, user=USER_NAME, password=PASSWORD)
@@ -321,11 +348,39 @@ def _getDBDetails(servicePathInfo, queryParams, response):
 
     pass
 
+def _getAddresses(queryParams):
+    sqlItems = {
+        "HouseNumber"  : "cast(cislo_domovni as text) like '%s%%' and typ_so='č.p.'",
+        "RecordNumber" : "cast(cislo_domovni as text) ilike '%s%%' and typ_so<>'č.p.'",
+        "OrientationNumber" : "cast(cislo_orientacni as text) like '%s%%'",
+        "OrientationNumberCharacter" : "znak_cisla_orientacniho = '%s'",
+        "ZIPCode" : "cast(psc as text) like '%s%%'",
+        "Locality" : "nazev_obce ilike '%%%s%%'",
+        "Street" : "nazev_ulice ilike '%%%s%%'",
+        "LocalityPart" : "nazev_casti_obce ilike '%%%s%%'",
+        "DistrictNumber" : "nazev_mop = 'Praha %s'"
+    }
+
+
+    fields = " cislo_domovni, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop, nazev_ulice, typ_so "
+    result = ""
+
+    sqlParts = []
+    for key in sqlItems:
+        dictKey = key[:1].lower() + key[1:]
+        if queryParams.has_key(dictKey) and queryParams[dictKey] != "":
+            sqlParts.append(sqlItems[key] % (queryParams[dictKey]))
+
+    if len(sqlParts) == 0: return []
+
+    sqlBase = u" from %s where " % (ADDRESSPOINTS_TABLENAME) + " and ".join(sqlParts)
+
+    searchSQL = u"select %s %s order by nazev_obce, nazev_casti_obce, psc, nazev_ulice, nazev_mop, typ_so, cislo_domovni, cislo_orientacni, znak_cisla_orientacniho limit 2" % (fields, sqlBase)
+    rows = selectSQL(searchSQL)
+    result = []
+    for row in rows: result.append(row)
+
+    return  result
+
 def _getTableNames():
     return '"ahoj", "table2"'
-
-#_saveRUIANVersionDateToday()
-
-#DROP TABLE IF EXISTS ruian_dates;
-#CREATE TABLE ruian_dates (id serial PRIMARY KEY, validfor varchar);
-#INSERT INTO ruian_dates (validfor) VALUES ('16.10.2014');

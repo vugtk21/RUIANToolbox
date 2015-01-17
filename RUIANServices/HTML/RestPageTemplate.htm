@@ -749,6 +749,7 @@ function fillAddressInputs(formName, addressItems)
         setValueOrHideElement(formName, "_RecordNumber", addressItems[0]);
     }
     showAddress(formName, addressItems[9]);
+    updateServiceSpan(formName);
     //onChangeProc(document.getElementById(formName), false);
     log(getServiceURL(formName));
 }

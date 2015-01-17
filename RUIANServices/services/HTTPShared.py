@@ -12,13 +12,6 @@ import urllib
 
 services = []
 
-def getQueryValue(queryParams, id, defValue):
-    # Vrací hodnotu URL Query parametruy id, pokud neexistuje, vrací hodnotu defValue
-    if queryParams.has_key(id):
-        return queryParams[id]
-    else:
-        return defValue
-
 def getResultFormatParam():
     return RestParam("/Format", u"Formát", u"Formát výsledku služby (HTML, XML, Text, JSON)")
 
@@ -101,10 +94,35 @@ def getMimeFormat(self, formatText):
         return "text/plain"
 
 def noneToString(item):
-    if item is None:
-        return ""
+    """
+    Converts item to string, unlike str or repr, None is represented as "".
+
+    1. None is represented as "".
+    2. For tuple items, tupple with values as string returned
+    3. For list items, list with values as string returned
+
+    noneToString(None) = ""
+    noneToString(3) = "3"
+    noneToString('3') = "3"
+    noneToString((None, 3, None)) = ("", "3", "")
+    noneToString([None, 3, None]) = ["", "3", ""]
+
+    :param item: Value to be converted to string.
+    :return: String representation of item, none represented as ""
+"""
+    if isinstance(item, tuple):
+        result = ()
+        for subItem in item:
+            result = result + (noneToString(subItem),)
+        return result
+    elif isinstance(item, list):
+        result = []
+        for subItem in item:
+            result.append(noneToString(subItem))
+        return result
     else:
-        return str(item)
+        return [str(item), ""][item is None]
+
 
 class MimeBuilder:
     def __init__(self, formatText = "text"):
@@ -445,12 +463,27 @@ class WebService:
 
 def p(queryParams, name, defValue = ""):
     if queryParams.has_key(name):
-        a = urllib.unquote(queryParams[name])
+        return urllib.unquote(queryParams[name])
+    else:
+        return defValue
+
+def getQueryValue(queryParams, id, defValue):
+    # Vrací hodnotu URL Query parametruy id, pokud neexistuje, vrací hodnotu defValue
+    return getQueryParam(queryParams, id, defValue)
+
+def getQueryParam(queryParams, name, defValue = ""):
+    if queryParams.has_key(name):
         return urllib.unquote(queryParams[name])
     else:
         return defValue
 
 def numberCheck(possibleNumber):
+    if possibleNumber != None and str(possibleNumber).isdigit():
+        return str(possibleNumber)
+    else:
+        return ""
+
+def emptyStringIfNoNumber(possibleNumber):
     if possibleNumber != None and str(possibleNumber).isdigit():
         return str(possibleNumber)
     else:
@@ -552,9 +585,9 @@ def compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, or
 def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
     addressStr = ""
     zipCode = formatZIPCode(zipCode)
-    houseNumber = numberCheck(houseNumber)
-    orientationNumber = numberCheck(orientationNumber)
-    districtNumber = numberCheck(districtNumber)
+    houseNumber = emptyStringIfNoNumber(houseNumber)
+    orientationNumber = emptyStringIfNoNumber(orientationNumber)
+    districtNumber = emptyStringIfNoNumber(districtNumber)
     orientationNumberCharacter = alphaCheck(orientationNumberCharacter)
 
     townInfo = zipCode + " " + locality#unicode(locality, "utf-8")
@@ -596,49 +629,72 @@ def strIsNotEmpty(v):
     return v != None and v != ""
 
 def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
-    lines = []
-    zipCode = formatZIPCode(zipCode)
-    houseNumber = numberCheck(houseNumber)
-    orientationNumber = numberCheck(orientationNumber)
-    districtNumber = numberCheck(districtNumber)
-    orientationNumberCharacter = alphaCheck(orientationNumberCharacter)
+    """
+    Sestaví adresu dle hodnot v parametrech, prázdný parametr je "" nebo None.
 
-    townInfo = zipCode + " " + locality#unicode(locality, "utf-8")
-    if districtNumber != "":
-        townInfo += " " + districtNumber
+    @param: street : String                     Jméno ulice
+    @param: houseNumber : String                Číslo popisné
+    @param: recordNumber : String               Číslo evidenční
+    @param: orientationNumber : String          Číslo orientační
+    @param: orientationNumberCharacter : String Písmeno čísla orientačního
+    @param: zipCode : object String             Poštovní směrovací číslo
+    @param: locality : object String            Obec
+    @param: localityPart : String Street        Část obce
+    @param: districtNumber : String             Číslo městského obvodu v Praze
+    """
+    lines = [] # Result list, initiated for case of error
 
-    if houseNumber != "":
-        houseNumberStr = " " + houseNumber
-        if orientationNumber != "":
-            houseNumberStr += u"/" + orientationNumber + orientationNumberCharacter
-    elif recordNumber != "":
-        houseNumberStr = u" č.ev. " + recordNumber
-    else:
-        houseNumberStr = ""
+    try:
+        # Convert None values to "".
+        (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, \
+         localityPart, districtNumber) = noneToString((street, houseNumber, recordNumber, orientationNumber, \
+                                                       orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
 
-    if locality.upper() == "PRAHA":
-        if street != "":
-            lines.append(street + houseNumberStr)#(unicode(street, "utf-8") + houseNumberStr)
-            lines.append(localityPart)#(unicode(localityPart, "utf-8"))
-            lines.append(townInfo)
+        zipCode = formatZIPCode(zipCode)
+        houseNumber = numberCheck(houseNumber)
+        orientationNumber = numberCheck(orientationNumber)
+        districtNumber = numberCheck(districtNumber)
+        orientationNumberCharacter = alphaCheck(orientationNumberCharacter)
+
+        townInfo = zipCode + " " + locality
+
+        if districtNumber != "":
+            townInfo += " " + districtNumber
+
+        if houseNumber != "":
+            houseNumberStr = " " + houseNumber
+            if orientationNumber != "":
+                houseNumberStr += u"/" + orientationNumber + orientationNumberCharacter
+        elif recordNumber != "":
+            houseNumberStr = u" č.ev. " + recordNumber
         else:
-            lines.append(localityPart + houseNumberStr)#(unicode(localityPart, "utf-8") + houseNumberStr)
-            lines.append(townInfo)
-    else:
-        if street != "":
-            lines.append(street + houseNumberStr)#(unicode(street, "utf-8") + houseNumberStr)
-            if localityPart != locality:
-                lines.append(localityPart)#(unicode(localityPart, "utf-8"))
-            lines.append(townInfo)
-        else:
-            if localityPart != locality:
-                lines.append(localityPart + houseNumberStr)#(unicode(localityPart, "utf-8") + houseNumberStr)
+            houseNumberStr = ""
+
+        if locality.upper() == "PRAHA":
+            if street != "":
+                lines.append(street + houseNumberStr)
+                lines.append(localityPart)
+                lines.append(townInfo)
             else:
-                if houseNumber != "":
-                    lines.append(u"č.p."+houseNumberStr)
+                lines.append(localityPart + houseNumberStr)
+                lines.append(townInfo)
+        else:
+            if street != "":
+                lines.append(street + houseNumberStr)
+                if localityPart != locality:lines.append(localityPart)
+                lines.append(townInfo)
+            else:
+                if localityPart != locality:
+                    lines.append(localityPart + houseNumberStr)
                 else:
-                    lines.append(houseNumberStr[1:])
-            lines.append(townInfo)
+                    if houseNumber != "":
+                        lines.append(u"č.p."+houseNumberStr)
+                    else:
+                        lines.append(houseNumberStr[1:])
+                lines.append(townInfo)
+    except:
+        pass
+
     return lines
 
 def numberToString(number):
@@ -671,3 +727,6 @@ def itemToStr(item):
         return ""
     else:
         return str(item)
+
+if __name__ == "__main__":
+    print "This is module file, it can not be run!"

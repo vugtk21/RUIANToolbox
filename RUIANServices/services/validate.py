@@ -14,22 +14,26 @@ __author__ = 'Radek Augustýn'
 from HTTPShared import *
 import RUIANConnection
 
+def buildValidateDict(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+    return {
+        "street": street,
+        "houseNumber": houseNumber,
+        "recordNumber": recordNumber,
+        "orientationNumber": orientationNumber,
+        "orientationNumberCharacter": orientationNumberCharacter,
+        "zipCode": str(zipCode).replace(" ", ""),
+        "locality": locality,
+        "localityPart": localityPart,
+        "districtNumber": districtNumber
+    }
+
 def validateAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
 
     if not rightAddress(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
         return "False"
 
-    dict = {
-    "street": street,
-    "houseNumber": houseNumber,
-    "recordNumber": recordNumber,
-    "orientationNumber": orientationNumber,
-    "orientationNumberCharacter": orientationNumberCharacter,
-    "zipCode": zipCode.replace(" ", ""),
-    "locality": locality,
-    "localityPart": localityPart,
-    "districtNumber": districtNumber
-}
+    dict = buildValidateDict(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+
     result = RUIANConnection.validateAddress(dict)
     return builder.listToResponseText(result)
 

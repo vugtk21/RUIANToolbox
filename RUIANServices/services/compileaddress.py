@@ -10,14 +10,15 @@
 # Copyright:   (c) Radek Augustýn 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-__author__ = 'Radek Augustýn'
 
 import codecs
-
 from HTTPShared import *
 import urllib
 import IDCheck
 import fulltextsearch
+import RUIANConnection
+import validate
+import HTTPShared
 
 def errorMessage(msg):
     pass
@@ -28,7 +29,7 @@ class TextFormat:
     json      = 2
     html      = 3
 
-def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, doValidate = False):
     """
         @param street            string  Název ulice
         @param locality          string  Obec
@@ -38,19 +39,31 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
         @param orientationNumber number  Číslo orientační
         @param orientationNumberCharacter string  Písmeno čísla orientačního
     """
+    dict = validate.buildValidateDict(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+    if doValidate:
+        rows = RUIANConnection.getAddresses(dict)
 
-    if builder.formatText == "json":
+        if len(rows) == 1:
+            (houseNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, nazevMOP, street, typSO) = rows[0]
+            if typSO != "č.p.":
+                recordNumber = houseNumber
+                houseNumber = ""
+            if nazevMOP != None and nazevMOP != "":
+                districtNumber = nazevMOP[nazevMOP.find(" ") + 1:]
+        else:
+            return ""
+
+
+    if builder == None:
+        return str((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
+    elif builder.formatText == "json":
         return compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-
     elif builder.formatText == "xml":
         return compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-
     elif builder.formatText == "texttoonerow" or builder.formatText == "htmltoonerow":
         return compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-
     else:
         return builder.listToResponseText(compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
-
 
 def compileAddressServiceHandler(queryParams, response):
 
@@ -63,10 +76,7 @@ def compileAddressServiceHandler(queryParams, response):
             return id + builder.lineSeparator + str
 
     def p(name, defValue = ""):
-        if queryParams.has_key(name):
-            return urllib.unquote(queryParams[name]) #decode("utf-8"))
-        else:
-            return defValue
+        return HTTPShared.getQueryParam(queryParams, name, defValue)
 
     resultFormat = p("Format", "text")
     builder = MimeBuilder(resultFormat)
@@ -91,6 +101,7 @@ def compileAddressServiceHandler(queryParams, response):
         response.htmlData = s
 
     else:
+        doValidate = p("Validate", "true").lower() == "true"
         s = compileAddress(
             builder,
             p("Street"),
@@ -101,7 +112,8 @@ def compileAddressServiceHandler(queryParams, response):
             p("ZIPCode"),
             p("Locality"),
             p("LocalityPart"),
-            p("DistrictNumber")
+            p("DistrictNumber"),
+            doValidate
         )
         response.htmlData = builder.listToResponseText([s])
     response.handled = True
@@ -143,5 +155,8 @@ def createServiceHandlers():
     )
 
 if __name__ == '__main__':
-    import compileaddress_UnitTests
-    compileaddress_UnitTests.main()
+    import SharedTools.sharetools
+    SharedTools.sharetools.setupUTF()
+    #print compileAddress(None, u"Mrkvičkova", u"1370", "", "", "", "", "", "", "")
+    print compileAddress(MimeBuilder("texttoonerow"), u"", u"14", "", "", "", "", "", "Stará Chodovská", "")
+

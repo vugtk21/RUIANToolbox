@@ -27,7 +27,7 @@ if (False):
          _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails, _getTableNames
 else:
     from postgisdb import _findAddress, _getNearbyLocalities, _validateAddress, _findCoordinates, \
-         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails, _getTableNames
+         _findCoordinatesByAddress, _getRUIANVersionDate, _saveRUIANVersionDateToday, _getDBDetails, _getTableNames, _getAddresses
 
 
 findAddress = _findAddress
@@ -39,3 +39,4 @@ getRUIANVersionDate = _getRUIANVersionDate
 saveRUIANVersionDateToday = _saveRUIANVersionDateToday
 getDBDetails = _getDBDetails
 getTableNames = _getTableNames
+getAddresses = _getAddresses

@@ -12,8 +12,8 @@ def IDCheckServiceHandler(queryParams, response, builder):
     response.mimeFormat = builder.getMimeFormat()
     address = RUIANConnection.findAddress(sharetools.getKeyValue(queryParams, "AddressPlaceId"))
     response.handled = True
-    if not address:
-        return response
-    html = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
-    response.htmlData = builder.listToResponseText([html])
+    if address:
+        html = compileaddress.compileAddress(builder, address.street, address.houseNumber, address.recordNumber, address.orientationNumber, address.orientationNumberCharacter, address.zipCode, address.locality, address.localityPart, address.districtNumber)
+        response.htmlData = builder.listToResponseText([html])
+
     return response
