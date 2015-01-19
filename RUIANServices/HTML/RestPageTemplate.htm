@@ -1251,6 +1251,7 @@ $(document).ready(function() {
 			    }
 			}
 		});
+        showOrHideElement(formName + "_row_ExtraInformation", !(formName == "form_3" && document.getElementById(formName + "_RuianIdRB").checked));
       });
 
     document.getElementById('form_1_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_1, true); });
