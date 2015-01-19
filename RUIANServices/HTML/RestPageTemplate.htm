@@ -164,6 +164,7 @@ var NOADDRESSHINT_IDSUFFIX = "_NoAddressHintDiv";
 var ADDRESSES_IDSUFFIX     = "_addressesDiv";
 var ADDRESS_IDSUFFIX       = "_addressDiv";
 var DISTRICTNUMBER_IDSUFFIX = "_DistrictNumber";
+var DISTRICTNUMBERROW_IDSUFFIX = "_row_DistrictNumber";
 var LOCALITY_IDSUFFIX = "_Locality";
 var LOCALITYPART_IDSUFFIX = "_LocalityPart";
 var LOCALITYPARTDATALIST_IDSUFFIX = LOCALITYPART_IDSUFFIX + "_DataList";
@@ -606,9 +607,12 @@ function assignLocalityPartDataList(formName)
     fillDataList(formName, formName + "_LocalityPart_DataList", districtList, ",", true);
 }
 
-function selectDistrictNumberByValue(formName, value)
+function selectDistrictNumberByValue(formName, value, disableIfEmpty)
 {
     selectValueByOptionText(formName + DISTRICTNUMBER_IDSUFFIX, value);
+    if (disableIfEmpty) {
+        showOrHideElement(formName + DISTRICTNUMBERROW_IDSUFFIX, value != "");
+    }
 }
 
 function isAddressPartsSelected(formName)
@@ -739,7 +743,7 @@ function fillAddressInputs(formName, addressItems)
     setValueOrHideElement(formName, "_Locality", addressItems[4]);
     setValueOrHideElement(formName, "_LocalityPart", addressItems[5]);
     setValueOrHideElement(formName, "_Street", addressItems[7]);
-    selectDistrictNumberByValue(formName, addressItems[6]);
+    selectDistrictNumberByValue(formName, addressItems[6], true);
     if (addressItems[8] == "č.p.") {
         setValueOrHideElement(formName, "_HouseNumber", addressItems[0]);
         setValueOrHideElement(formName, "_RecordNumber", "");
@@ -853,13 +857,13 @@ function fillFormInputs(formName, url, doShowMsg)
 	        hideWaitCursor("received result of fillFormInputs" + formName + "," + url + ",??)");
 		    resultStr = xmlHttp.responseText.replace("\\n","");
 		    resultStr = resultStr.replace("\\r","");
-			items = resultStr.split("#");
-			msg = "Adresa nebyla nalezena."
+			var items = resultStr.split("#");
+			var msg = "Adresa nebyla nalezena."
 			hideElement(formName + "_addressesDiv");
 			if (items.length == 4) { // oky
-				firstRecordNumber = parseInt(items[0]);
-				loadedRecordCount = parseInt(items[1]);
-				recordCount = parseInt(items[2]);
+				var firstRecordNumber = parseInt(items[0]);
+				var loadedRecordCount = parseInt(items[1]);
+				var recordCount = parseInt(items[2]);
 			
 				if (items[3] == "") {
                     showNoAddressHint(formName);
@@ -1147,8 +1151,8 @@ function attachAutocompleteListeners(formName, subParams)
         source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/zipcode?RUIANType=zip&" + subParams,
         minLength: 0,
         select: function( event, ui ) {
-	        idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
-		    id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
+	        var idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
+		    var id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
 		    townElem = document.getElementById(id);
 		    townElem.value = ui.item.id;
             inputChanged(this.id, ui.item.value);
@@ -1378,7 +1382,7 @@ function inputChanged(inputId, inputValue)
   if (!inputId) return;
 
   if (inputValue) {
-    inputElem = document.getElementById(inputId);
+    var inputElem = document.getElementById(inputId);
     inputElem.value = inputValue;
   }
   formName = inputId.substring(0, inputId.lastIndexOf("_"));
@@ -1414,10 +1418,10 @@ function getServiceURL(formName)
     }
 
     elements = document.getElementById(formName).elements;
-    s = "";
+    var s = "";
     needToOpenQuery = true;
-    for (i=0; i < elements.length; i++) {
-        name = elements[i].name.substr(formNameLen);
+    for (var i=0; i < elements.length; i++) {
+        var name = elements[i].name.substr(formNameLen);
 	    if (name.charAt(0) == "/") { // Je položka přímo v pathinfo???
 		    if (elements[i].value == "") { // Není nastaveno nic?
 			    s = s + "/" + name.substr(1); // Použijeme první hodnotu ze seznamu
@@ -1436,7 +1440,7 @@ function getServiceURL(formName)
 			    delimeter = "&";
 		    }
 		    if (name != "" && name != "de") {
-                isOK = skippedInputs == "";
+                var isOK = skippedInputs == "";
                 if (! isOK) {
                    isOK = skippedInputs.indexOf(name) == -1
                 }
