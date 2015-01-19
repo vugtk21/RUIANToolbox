@@ -1256,6 +1256,7 @@ $(document).ready(function() {
     document.getElementById('form_1_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_1, true); });
     document.getElementById('form_3_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_3, true); });
     document.getElementById('form_4_LocalityPart').addEventListener('input', function () {  localityPartChanged(form_4, true); });
+    $("#form_3_row_DistrictNumber").hide();
 
     hideWaitCursor("$(document).ready(function()");
     if (disableGUISwitch) {
