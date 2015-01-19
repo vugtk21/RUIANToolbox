@@ -524,7 +524,8 @@ def formatZIPCode(code):
         else:
             return ""
 
-def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
+    (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
     if houseNumber != "":
         sign = u"č.p."
         addressNumber = houseNumber
@@ -535,25 +536,31 @@ def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, o
     if orientationNumber != "":
         houseNumberStr = '\t"' + sign +'": ' + addressNumber + ',\n\t"orientační_číslo": ' + orientationNumber + orientationNumberCharacter + ','
     else:
-        houseNumberStr ='\t"' + sign +'": ' + addressNumber + ','
+        houseNumberStr ='\t"' + sign +'":"%s", ' % addressNumber
 
     if street != "":
-        street = '\t"ulice": ' + street + ",\n"
+        street = '\t"ulice": "%s",\n' % street
 
     if districtNumber != "":
-        districtNumberStr = ',\n\t"číslo_městského_obvodu": ' + districtNumber
+        districtNumberStr = ',\n\t"číslo_městského_obvodu": %s,\n ' % districtNumber
     else:
         districtNumberStr = ""
 
     if locality == localityPart or localityPart == "":
-        townDistrict = '\t"obec": ' + locality + districtNumberStr
+        townDistrict = '\t"obec":"%s"%s' % (locality , districtNumberStr)
     else:
-        townDistrict = '\t"obec": ' + locality + districtNumberStr + ',\n\t"část_obce": ' + localityPart
+        townDistrict = '\t"obec": "%s"%s\t"část_obce": "%s" ' % (locality, districtNumberStr, localityPart)
 
-    result = street + houseNumberStr + '\n\t"PSČ" :' + zipCode + ",\n" + townDistrict + "\n"
+    if ruianId != "":
+        ruianIdText = '\t"ruianId": %s,\n' % ruianId
+    else:
+        ruianIdText = ""
+
+    result = ruianIdText + street + houseNumberStr + '\n\t"PSČ": "%s",\n%s\n' % (zipCode, townDistrict)
     return result
 
-def compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+def compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
+    (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
     if houseNumber != "":
         sign = "c.p."
         addressNumber = houseNumber
@@ -579,10 +586,15 @@ def compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, or
     else:
         townDistrict = '\t<obec>' + locality + '</obec>' + districtNumberStr + '\n\t<cast_obce>' + localityPart + '</cast_obce>'
 
-    result = street + houseNumberStr + '\n\t<PSC>' + zipCode + "</PSC>\n" + townDistrict + "\n"
+    if ruianId != "":
+        ruianIdStr = "\t<ruianId>%s</ruianId>\n" % ruianId
+    else:
+        ruianIdStr = ""
+
+    result = street + houseNumberStr + '\n\t<PSC>' + zipCode + "</PSC>\n" + townDistrict + "\n" + ruianIdStr
     return result
 
-def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
     addressStr = ""
     zipCode = formatZIPCode(zipCode)
     houseNumber = emptyStringIfNoNumber(houseNumber)
@@ -623,12 +635,16 @@ def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber,
                 else:
                     addressStr += houseNumberStr[1:] + ", "
             addressStr += townInfo
+
+    if ruianId != "":
+        addressStr = "%s, %s" % (str(ruianId), addressStr)
+
     return addressStr
 
 def strIsNotEmpty(v):
     return v != None and v != ""
 
-def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber):
+def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
     """
     Sestaví adresu dle hodnot v parametrech, prázdný parametr je "" nebo None.
 
@@ -647,8 +663,8 @@ def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, o
     try:
         # Convert None values to "".
         (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, \
-         localityPart, districtNumber) = noneToString((street, houseNumber, recordNumber, orientationNumber, \
-                                                       orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
+         localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, \
+                                                       orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
 
         zipCode = formatZIPCode(zipCode)
         houseNumber = numberCheck(houseNumber)
@@ -692,6 +708,9 @@ def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, o
                     else:
                         lines.append(houseNumberStr[1:])
                 lines.append(townInfo)
+
+        if ruianId != "":
+            lines.insert(0, str(ruianId))
     except:
         pass
 

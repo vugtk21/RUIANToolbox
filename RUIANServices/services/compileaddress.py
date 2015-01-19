@@ -29,7 +29,7 @@ class TextFormat:
     json      = 2
     html      = 3
 
-def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, doValidate = False):
+def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, doValidate = False, withRUIANId = False):
     """
         @param street            string  Název ulice
         @param locality          string  Obec
@@ -40,30 +40,34 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
         @param orientationNumberCharacter string  Písmeno čísla orientačního
     """
     dict = validate.buildValidateDict(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
-    if doValidate:
+
+    if doValidate or withRUIANId:
         rows = RUIANConnection.getAddresses(dict)
 
         if len(rows) == 1:
-            (houseNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, nazevMOP, street, typSO) = rows[0]
+            (houseNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, nazevMOP, street, typSO, ruianId) = rows[0]
             if typSO != "č.p.":
                 recordNumber = houseNumber
                 houseNumber = ""
             if nazevMOP != None and nazevMOP != "":
                 districtNumber = nazevMOP[nazevMOP.find(" ") + 1:]
+            if not withRUIANId: ruianId = ""
         else:
             return ""
+    else:
+        ruianId = ""
 
 
     if builder == None:
-        return str((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
+        return str((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
     elif builder.formatText == "json":
-        return compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+        return compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId)
     elif builder.formatText == "xml":
-        return compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+        return compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId)
     elif builder.formatText == "texttoonerow" or builder.formatText == "htmltoonerow":
-        return compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber)
+        return compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId)
     else:
-        return builder.listToResponseText(compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber))
+        return builder.listToResponseText(compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
 
 def compileAddressServiceHandler(queryParams, response):
 
@@ -82,6 +86,11 @@ def compileAddressServiceHandler(queryParams, response):
     builder = MimeBuilder(resultFormat)
     response.mimeFormat = builder.getMimeFormat()
 
+    if queryParams.has_key("ExtraInformation"):
+        withID = queryParams["ExtraInformation"].lower() == "id"
+    else:
+        withID = False
+
     if queryParams.has_key("AddressPlaceId"):
         queryParams["AddressPlaceId"] = numberCheck(queryParams["AddressPlaceId"])
         if queryParams["AddressPlaceId"] != "":
@@ -93,10 +102,6 @@ def compileAddressServiceHandler(queryParams, response):
         return response
 
     elif queryParams.has_key("SearchText"):
-        if queryParams.has_key("ExtraInformation"):
-            withID = queryParams["ExtraInformation"].lower() == "id"
-        else:
-            withID = False
         s = fulltextsearch.searchAddress(builder, None, queryParams["SearchText"], withID)
         response.htmlData = s
 
@@ -113,7 +118,8 @@ def compileAddressServiceHandler(queryParams, response):
             p("Locality"),
             p("LocalityPart"),
             p("DistrictNumber"),
-            doValidate
+            doValidate,
+            withID
         )
         response.htmlData = builder.listToResponseText([s])
     response.handled = True
