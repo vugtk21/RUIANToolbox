@@ -181,7 +181,7 @@ def parseFullTextToken(queryParams, nameToken):
 
 
     else:
-        searchSQL = "select nazev_ulice, nazev_obce from " + AC_ULICE + " where nazev_ulice ilike '%" + nameToken + "%'"
+        searchSQL = "select nazev_ulice, nazev_obce from " + AC_ULICE + " where nazev_ulice ilike '%" + nameToken + "%' group by nazev_ulice, nazev_obce order by nazev_ulice, nazev_obce"
 
     localityName = getQueryValue(queryParams, "localityName", "")
     if localityName != "":
@@ -398,9 +398,7 @@ def getStreetResults(queryParams, nameToken, smartAutocomplete, maxCount = 10):
     else:
         whereClause = ""
 
-    searchSQL = (u"select nazev_ulice, nazev_obce from %s where %s nazev_ulice ilike '%%%s%%'" + \
-                u" group by nazev_obce, nazev_ulice "
-                u"order by nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
+    searchSQL = (u"select nazev_ulice, nazev_obce from %s where %s nazev_ulice ilike '%%%s%%' group by nazev_obce, nazev_ulice order by nazev_obce, nazev_ulice") % (AC_ULICE, whereClause, nameToken)
     rows = getAutocompleteRows(searchSQL, 0, maxCount)
 
     return rows
