@@ -531,6 +531,7 @@ function requestAndFillDataLists(formName)
             var subParams = getSubParamsQuery(formName).join("&");
             var url = "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/datalists?" + subParams;
             showWaitCursor("requestAndFillDataLists" + formName + ")");
+            url = encodeURI(url);
 	        xmlHttp.open("GET", url, true);
 	        xmlHttp.send(null);
 	    }
@@ -898,6 +899,7 @@ function fillFormInputs(formName, url, doShowMsg)
     if (isProgrammersGUI || DEBUG_MODE) {  msg = "\nOdeslán požadavek\n" + url + "\n" + msg  }
     if (doShowMsg) showMsg(formName, msg);
     showWaitCursor("requesting DataList in  fillFormInputs(" + formName + "," + url + ",??)");
+    url = encodeURI(url);
 	xmlHttp.open("GET", url, true);
 	xmlHttp.send(null);
 }
@@ -1110,7 +1112,16 @@ function attachAutocompleteListeners(formName, subParams)
     openLogSection("attachAutocompleteListeners(" + formName + "," + subParams + ")");
 
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
-        source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/town?RUIANType=town" + subParams,
+        //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/town?RUIANType=town" + subParams,
+        source: function (request, response)  {
+                    $.ajax(
+                    {
+                        url: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/town?RUIANType=town" + subParams,
+                        dataType: "json",
+                        data: { term: encodeURIComponent(request.term) },
+                        success: function (data) { response(data); }
+                    });
+        },
         minLength: 1,
         select: function( event, ui ) {
 	        addressItems = ui.item.label.split(",");
@@ -1126,7 +1137,16 @@ function attachAutocompleteListeners(formName, subParams)
     }
     else {
         $(".RUIAN_TOWNPART_INPUT").autocomplete({
-                                                    source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/townpart?RUIANType=townpart" + subParams,
+            //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/townpart?RUIANType=townpart" + subParams,
+        source: function (request, response)  {
+                    $.ajax(
+                    {
+                        url: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/townpart?RUIANType=townpart" + subParams,
+                        dataType: "json",
+                        data: { term: encodeURIComponent(request.term) },
+                        success: function (data) { response(data); }
+                    });
+        },
                                                     minLength: 1,
                                                     select: function (event, ui) {
                                                         setInputValueFromMaster(this.id, "_Locality", ui.item.id);
@@ -1137,7 +1157,16 @@ function attachAutocompleteListeners(formName, subParams)
     }
 
     $( ".RUIAN_STREET_INPUT" ).autocomplete({
-        source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
+        //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
+        source: function (request, response)  {
+                    $.ajax(
+                    {
+                        url: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=street&ResultFormat=AddressParts" + subParams,
+                        dataType: "json",
+                        data: { term: encodeURIComponent(request.term) },
+                        success: function (data) { response(data); }
+                    });
+        },
         minLength: 1,
         select: function( event, ui ) {
 		    addressItems = ui.item.id.split(",");
@@ -1148,7 +1177,16 @@ function attachAutocompleteListeners(formName, subParams)
     });
 
     $(".RUIAN_ZIP_INPUT").autocomplete({
-        source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/zipcode?RUIANType=zip&" + subParams,
+        //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/zipcode?RUIANType=zip&" + subParams,
+        source: function (request, response)  {
+                    $.ajax(
+                    {
+                        url: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/zipcode?RUIANType=zip&" + subParams,
+                        dataType: "json",
+                        data: { term: encodeURIComponent(request.term) },
+                        success: function (data) { response(data); }
+                    });
+        },
         minLength: 0,
         select: function( event, ui ) {
 	        var idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
@@ -1160,7 +1198,16 @@ function attachAutocompleteListeners(formName, subParams)
     });
 
     $(".RUIAN_ID_INPUT").autocomplete({
-      source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/id?RUIANType=id&",
+      //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/id?RUIANType=id&",
+        source: function (request, response)  {
+                    $.ajax(
+                    {
+                        url: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/id?RUIANType=id&",
+                        dataType: "json",
+                        data: { term: encodeURIComponent(request.term) },
+                        success: function (data) { response(data); }
+                    });
+        },
       minLength: 1,
       select: function( event, ui ) {
         inputChanged(this.id, ui.item.value);
@@ -1366,6 +1413,7 @@ function displayResult(id, servicePath)
     setTextAreaInnerText(elem, msg);
 
     showWaitCursor("displayResult");
+    url = encodeURI(url);
 	xmlHttp.open("GET", url, true);
 	xmlHttp.send(null);
 }
@@ -1541,7 +1589,7 @@ function onChangeProc(formElem, callFillAddress)
     Jednotlivé služby je možné využívat pomocí standardů Representational State Transfer (REST) v souladu s <a href="http://bivoj.vugtk.cz/euradin/Doc/WP03/MetodikaWeboveSluzby.docx">
     cerifikovanou metodikou</a>.
     Každá záložka obsahuje popis jedné služby včetně parametrů.
-    </p>
+
     <center><img src="#HTMLDATA_URL#WebServices.png"></center>
     <br>
     <a class = 'enhancedGUI' href='#SERVICES_URL_PATH#/#SCRIPT_NAME#/testing/TestResults.html'>Výsledky testů</a>
