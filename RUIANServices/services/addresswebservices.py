@@ -146,7 +146,7 @@ class ServicesHTMLPageBuilder:
 
         if param.name == '/Format':
             buildRotatingCircle = False
-            selectHTML = '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '">' + \
+            selectHTML = '<select input name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="updateServiceSpan(\'%s\')' % formName + '">' + \
                             '<option value="text">text</option>' + \
                             '<option value="textToOneRow">text do řádku</option>' + \
                             '<option value="xml">xml</option>' + \
@@ -181,7 +181,7 @@ class ServicesHTMLPageBuilder:
             else:
                 addressOption = ""
 
-            result += '<select name="' + formName + '_' + param.name + '" title="' + param.shortDesc + '" onchange="' + onChangeProcCode + '" >' + \
+            result += '<select name="%s_%s" title="%s" onchange="updateServiceSpan(\'%s\')" >' % (formName, param.name, param.shortDesc, formName) + \
                             '<option value="standard">žádné</option>' + \
                             '<option value="id">přidat ID</option>' + addressOption + \
                     '</select>'

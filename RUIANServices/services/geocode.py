@@ -87,7 +87,7 @@ def geocodeAddressServiceHandler(queryParams, response):
             #else:
             #    houseNumber = ""
             #    recordNumber = candidate[5]
-            dictionary = {"JTSKX": temp[1], "JTSKY": temp[0],"id": str(temp[2]), "locality": temp[3], "localityPart": temp[4], "street": temp[5], "houseNumber": temp[6], "recordNumber": temp[7], "orientationNumber": temp[8], "orientationNumberCharacter": temp[9], "zipCode": temp[10], "districtNumber": temp[11]}
+            dictionary = {"JTSKX": temp[0], "JTSKY": temp[1],"id": str(temp[2]), "locality": temp[3], "localityPart": temp[4], "street": temp[5], "houseNumber": temp[6], "recordNumber": temp[7], "orientationNumber": temp[8], "orientationNumberCharacter": temp[9], "zipCode": temp[10], "districtNumber": temp[11]}
             lines.append(dictionary)
         s = builder.listOfDictionariesToResponseText(lines, withID, withAddress)
         #s = builder.coordintesToResponseText(temp)
