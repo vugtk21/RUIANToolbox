@@ -456,7 +456,7 @@ function getSubParamsQuery(formName)
         elem = document.getElementById(formName + "_" + autocompleteSubParamsList[i]);
         value = elem.value;
         if (value != "") {
-            result.push(autocompleteSubParamsList[i] + "=" + value);
+            result.push(autocompleteSubParamsList[i] + "=" + encodeURIComponent(value));
         }
     }
     return result;
@@ -1121,7 +1121,6 @@ function detachAutocompleteListeners()
 function attachAutocompleteListeners(formName, subParams)
 {
     openLogSection("attachAutocompleteListeners(" + formName + "," + subParams + ")");
-    subParams = encodeURIComponent(subParams);
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
         //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/town?RUIANType=town" + subParams,
         source: function (request, response)  {

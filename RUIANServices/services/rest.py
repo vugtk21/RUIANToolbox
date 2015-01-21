@@ -206,8 +206,6 @@ if __name__ == "__main__":
 
         fullPathList = pathInfo.replace("//", "/")
         fullPathList = fullPathList.split("/")                                # REST parametry
-        #if serverPathDepth != 0:
-        #    fullPathList = fullPathList[serverPathDepth:]
 
         query = {}
         list = form.list
