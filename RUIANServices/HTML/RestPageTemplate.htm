@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
     <head>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -152,22 +153,35 @@
 	
     <script type="text/javascript" charset="utf-8">
 var disableGUISwitch = #DISABLEGUISWITCH#;
-var isProgrammersGUI = false; // Je přepnuto do režimu "Uživatelské rozhraní"
-var DEBUG_MODE = true;
+isProgrammersGUI = false; // Je přepnuto do režimu "Uživatelské rozhraní"
+DEBUG_MODE = false;
 var CALL_TEXTAREA = "";
 var CALL_PATH = "";
-var USE_DATA_LISTS = #USE_DATA_LISTS#;
+USE_DATA_LISTS = #USE_DATA_LISTS#;
 var lastFindAddressParamsList = [];
 
 // Element addressing constants for DRY
-var NOADDRESSHINT_IDSUFFIX = "_NoAddressHintDiv";
-var ADDRESSES_IDSUFFIX     = "_addressesDiv";
-var ADDRESS_IDSUFFIX       = "_addressDiv";
-var DISTRICTNUMBER_IDSUFFIX = "_DistrictNumber";
-var DISTRICTNUMBERROW_IDSUFFIX = "_row_DistrictNumber";
-var LOCALITY_IDSUFFIX = "_Locality";
-var LOCALITYPART_IDSUFFIX = "_LocalityPart";
-var LOCALITYPARTDATALIST_IDSUFFIX = LOCALITYPART_IDSUFFIX + "_DataList";
+ADDRESS_IDSUFFIX              = "_addressDiv";
+ADDRESSDIV_IDSUFFIX           = "_addressDiv";
+ADDRESSES_IDSUFFIX            = "_addressesDiv";
+ADDRESESDIV_IDSUFFIX          = "_addressesDiv";
+AUTOCOMPLETE_IDSUFFIX         = "_SmartAutocompleteCB";
+DISTRICTNUMBER_IDSUFFIX       = "_DistrictNumber";
+DISTRICTNUMBERROW_IDSUFFIX    = "_row_DistrictNumber";
+HOUSENUMBERROW_IDSUFFIX       = "_row_HouseNumber";
+LOCALITY_IDSUFFIX             = "_Locality";
+LOCALITYPART_IDSUFFIX         = "_LocalityPart";
+LOCALITYPARTDATALIST_IDSUFFIX = LOCALITYPART_IDSUFFIX + "_DataList";
+ORIENTATIONNUMBER_IDSUFFIX    = "_OrientationNumber";
+ORIENTATIONNUMBERROW_IDSUFFIX = "_row_OrientationNumber";
+ORIENTATIONNUMBERCHARACTERROW_IDSUFFIX = "_row_OrientationNumberCharacter";
+RECORDNUMBERROW_IDSUFFIX      = "_row_RecordNumber";
+STREETROW_IDSUFFIX            = "_row_Street";
+TEXTAREA_IDSUFFIX             = "_textArea";
+HOUSENUMBER_IDSUFFIX          = "_HouseNumber";
+NOADDRESSHINT_IDSUFFIX        = "_NoAddressHintDiv";
+FILLADDRESSBUTTON_IDSUFFIX    = "_FillAddressButton";
+
 var DataListsActiveParams = "";
 
 // Persistence variables for logging
@@ -178,7 +192,6 @@ function selectValueByOptionText(elementName, optionText)
 {
     var elm = document.getElementById(elementName);
     if (elm) {
-        var options = elm.options;
         for (var i=0; i<elm.options.length;i++) {
             if (elm.options[i].text == optionText) {
                 elm.selectedIndex = i;
@@ -217,10 +230,10 @@ function isSelectedAddressPartsTab(elementName)
 
 function showNumberInputs(formName)
 {
-    showElement(formName + "_row_HouseNumber");
-    showElement(formName + "_row_RecordNumber");
-    showElement(formName + "_row_OrientationNumber");
-    showElement(formName + "_row_OrientationNumberCharacter");
+    showElement(formName + HOUSENUMBERROW_IDSUFFIX);
+    showElement(formName + RECORDNUMBERROW_IDSUFFIX);
+    showElement(formName + ORIENTATIONNUMBERROW_IDSUFFIX);
+    showElement(formName + ORIENTATIONNUMBERCHARACTERROW_IDSUFFIX);
 }
 
 function hideNoAddressHint(formName)
@@ -329,9 +342,7 @@ function clearInputs(formName)
 	var formElem = $('#' + formName);
 	formElem.find("td input").each(
 		function(index, elem) {
-		    if (elem.type != "button") {
-		        elem.value = "";
-		    }
+		    if (elem.type != "button") { elem.value = "";  }
 		}
 	);
 
@@ -339,11 +350,11 @@ function clearInputs(formName)
     var elem = document.getElementById(formName + DISTRICTNUMBER_IDSUFFIX);
     if (elem) elem.selectedIndex = 0;
 
-    elem = document.getElementById(formName + "_textArea");
+    elem = document.getElementById(formName + TEXTAREA_IDSUFFIX);
     setTextAreaInnerText(elem, "");
-	showOrHideElement(formName + "_textArea", isProgrammersGUI);
-	hideElement(formName + "_addressesDiv");
-	hideElement(formName + "_addressDiv");
+	showOrHideElement(formName + TEXTAREA_IDSUFFIX, isProgrammersGUI);
+	hideElement(formName + ADDRESESDIV_IDSUFFIX);
+	hideElement(formName + ADDRESSDIV_IDSUFFIX);
     clearLocalityPartDataList(formName);
     setupDistrictListToDefault(formName);
     hideNoAddressHint(formName);
@@ -411,7 +422,7 @@ function showOrHideElement(elementName, value)
 function getFindAddressButtonId(formName)
 // Vrací hodnotu id tlačítka FillAddressButton pro formulář formName.
 {
- return formName + "_FillAddressButton";
+ return formName + FILLADDRESSBUTTON_IDSUFFIX;
 }
 
 function getFindAddressButton(formName)
@@ -436,7 +447,7 @@ function disableElement(elementName)
 
 function getSubParamsQuery(formName)
 {
-    var autocompleteSubParamsList = ["Locality", "LocalityPart", "DistrictNumber", "Street", "HouseNumber", "RecordNumber", "OrientationNumber", "OrientationNumberCharacter", "ZIPCode"]
+    var autocompleteSubParamsList = ["Locality", "LocalityPart", "DistrictNumber", "Street", "HouseNumber", "RecordNumber", "OrientationNumber", "OrientationNumberCharacter", "ZIPCode"];
 
     var result = [];
     var elem = "";
@@ -494,9 +505,9 @@ function requestAndFillDataLists(formName)
 
     log("requestAndFillDataLists");
     if (USE_DATA_LISTS) {
-        var localityName = document.getElementById(formName + "_Locality").value
-        var localityPartName = document.getElementById(formName + "_LocalityPart").value
-        var streetName = document.getElementById(formName + "_Street").value
+        var localityName = document.getElementById(formName + "_Locality").value;
+        var localityPartName = document.getElementById(formName + "_LocalityPart").value;
+        var streetName = document.getElementById(formName + "_Street").value;
 
         var params = [localityName, localityPartName, streetName].join("#");
         if (params == DataListsActiveParams) {
@@ -526,7 +537,7 @@ function requestAndFillDataLists(formName)
 		            fillDataList(formName, formName + "_OrientationNumber_DataList", dataLists[2], ",", false);
 		            fillDataList(formName, formName + "_OrientationNumberCharacter_DataList", dataLists[3], ",", false);
 	            }
-            }
+            };
 
             var subParams = getSubParamsQuery(formName).join("&");
             var url = "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/datalists?" + subParams;
@@ -652,20 +663,20 @@ function setupInputs(formName, callFillAddress)
         showDistrictNumber = localityName == "" || localityName.toLowerCase() == "praha";
     }
 
-    showOrHideElement(formName + "_row_DistrictNumber", showDistrictNumber);
-    showOrHideElement(formName + "_row_HouseNumber", showDetails);
-    showOrHideElement(formName + "_row_RecordNumber", showDetails);
-    showOrHideElement(formName + "_row_OrientationNumber", showDetails);
-    showOrHideElement(formName + "_row_OrientationNumberCharacter", showDetails);
-    showOrHideElement(formName + "_row_Street", showDetails);
-    hideElement(formName + "_FillAddressButton");
-    showOrHideElement(formName + "_SmartAutocompleteCB", showDetails);
+    showOrHideElement(formName + DISTRICTNUMBERROW_IDSUFFIX,             showDistrictNumber);
+    showOrHideElement(formName + HOUSENUMBERROW_IDSUFFIX,                showDetails);
+    showOrHideElement(formName + RECORDNUMBERROW_IDSUFFIX,               showDetails);
+    showOrHideElement(formName + ORIENTATIONNUMBERROW_IDSUFFIX,          showDetails);
+    showOrHideElement(formName + ORIENTATIONNUMBERCHARACTERROW_IDSUFFIX, showDetails);
+    showOrHideElement(formName + STREETROW_IDSUFFIX,                     showDetails);
+    showOrHideElement(formName + AUTOCOMPLETE_IDSUFFIX,                  showDetails);
+    hideElement(formName + FILLADDRESSBUTTON_IDSUFFIX);
 
     assignLocalityPartDataList(formName);
 
     if (! isProgrammersGUI) {
         var subParamsList = getSubParamsQuery(formName);
-        if (document.getElementById(formName + "_SmartAutocompleteCB").checked) {
+        if (document.getElementById(formName + AUTOCOMPLETE_IDSUFFIX).checked) {
             subParamsList.push("SmartAutocomplete=true");
         }
         var subParams = "&" + subParamsList.join("&");
@@ -679,7 +690,7 @@ function setupInputs(formName, callFillAddress)
 * V tomto poli se uchovávají otevřené XML requesty, aby se případně daly uzavřít
 * 0-fillFormInputs, 1-requestAndFillDataLists
 */
-_xmlHTTPRequests = [null, null]
+_xmlHTTPRequests = [null, null];
 
 function getxmlHTTP(index)
 /*
@@ -714,13 +725,13 @@ function getxmlHTTP(index)
 function showMsg(formName, msg)
 // Zobrazí zprávu msg v textovém poli formuláře formName.
 {
-    var elem = document.getElementById(formName + "_textArea");
+    var elem = document.getElementById(formName + TEXTAREA_IDSUFFIX);
     if (elem) { setTextAreaInnerText(elem, msg); }
 }
 
 function runOrHookDisplayResult(formName, path)
 {
-    var textAreaName = formName + "_textArea";
+    var textAreaName = formName + TEXTAREA_IDSUFFIX;
     if (isAddressPartsSelected(formName) && document.getElementById(formName).isLoadingAddress == true) {
         CALL_TEXTAREA = textAreaName;
         CALL_PATH = path;
@@ -737,8 +748,8 @@ function setValueOrHideElement(formName, inputId, value)
 
 function fillAddressInputs(formName, addressItems)
 {
-    setValueOrHideElement(formName, "_HouseNumber", addressItems[0]);
-    setValueOrHideElement(formName, "_OrientationNumber", addressItems[1]);
+    setValueOrHideElement(formName, HOUSENUMBER_IDSUFFIX, addressItems[0]);
+    setValueOrHideElement(formName, ORIENTATIONNUMBER_IDSUFFIX, addressItems[1]);
     setValueOrHideElement(formName, "_OrientationNumberCharacter", addressItems[2]);
     setValueOrHideElement(formName, "_ZIPCode", addressItems[3]);
     setValueOrHideElement(formName, "_Locality", addressItems[4]);
@@ -746,11 +757,11 @@ function fillAddressInputs(formName, addressItems)
     setValueOrHideElement(formName, "_Street", addressItems[7]);
     selectDistrictNumberByValue(formName, addressItems[6], true);
     if (addressItems[8] == "č.p.") {
-        setValueOrHideElement(formName, "_HouseNumber", addressItems[0]);
+        setValueOrHideElement(formName, HOUSENUMBER_IDSUFFIX, addressItems[0]);
         setValueOrHideElement(formName, "_RecordNumber", "");
     }
     else {
-        setValueOrHideElement(formName, "_HouseNumber", "");
+        setValueOrHideElement(formName, HOUSENUMBER_IDSUFFIX, "");
         setValueOrHideElement(formName, "_RecordNumber", addressItems[0]);
     }
     showAddress(formName, addressItems[9]);
@@ -767,13 +778,13 @@ function fillAddressFromString(formName, values)
 
 function showAddress(formName, address)
 {
-	document.getElementById(formName + "_addressDiv").innerHTML = address;
+	document.getElementById(formName + ADDRESSDIV_IDSUFFIX).innerHTML = address;
 	showAddressHint(formName);
 }
 
 function createAddressesList(formName, addressItemsArrays, firstRecordNumber, loadedRecordCount, recordCount)
 {
-	var classStrings = { true: ' class="altColor" ', false: '' }
+	var classStrings = { true: ' class="altColor" ', false: '' };
 
 	var innerHTML = "";
 	if (addressItemsArrays.length > 0) {
@@ -806,14 +817,14 @@ function createAddressesList(formName, addressItemsArrays, firstRecordNumber, lo
 			isOdd = ! isOdd;
 		}
 		innerHTML = innerHTML + '</table>';
-		showElement(formName + "_addressesDiv");
+		showElement(formName + ADDRESESDIV_IDSUFFIX);
         hideNoAddressHint(formName);
 	    showElement(formName + "_row_FillAddressButton");
-		hideElement(formName + "_addressDiv");
-		hideElement(formName + "_textArea");
+		hideElement(formName + ADDRESSDIV_IDSUFFIX);
+		hideElement(formName + TEXTAREA_IDSUFFIX);
 	}
 
-	var buttonHTML = ""
+	var buttonHTML = "";
     var baseFillURL = "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/fill?RUIANType=fill" + getAddressParams(formName);
 			
 	if (firstRecordNumber + loadedRecordCount < recordCount) {
@@ -823,8 +834,8 @@ function createAddressesList(formName, addressItemsArrays, firstRecordNumber, lo
 	}
 	
 	if (firstRecordNumber != 0) {
-		url = baseFillURL + '&PageSize=15&FirstRow=' + (firstRecordNumber-15).toString();
-		onClickStr = ' onclick=\'fillFormInputs("' + formName + '", "' + url + '", false)\' ';
+		var url = baseFillURL + '&PageSize=15&FirstRow=' + (firstRecordNumber-15).toString();
+		var onClickStr = ' onclick=\'fillFormInputs("' + formName + '", "' + url + '", false)\' ';
 		buttonHTML = buttonHTML + '<input style="float: right;" type="button" ' + onClickStr + ' value="Předchozí" />';
 	}
 
@@ -834,12 +845,12 @@ function createAddressesList(formName, addressItemsArrays, firstRecordNumber, lo
 	    innerHTML = innerHTML + '<span style="float: right;background:#FFFFFF;padding:0px 5px 0px 5px;margin:0px 5px 0px 5px">Celkem ' + recordCount.toString() + ' adres</span>';
 	}
 
-	document.getElementById(formName + "_addressesDiv").innerHTML = innerHTML;
-	showElement(formName + "_addressesDiv");
+	document.getElementById(formName + ADDRESESDIV_IDSUFFIX).innerHTML = innerHTML;
+	showElement(formName + ADDRESESDIV_IDSUFFIX);
     hideNoAddressHint(formName);
 	showElement(formName + "_row_FillAddressButton");
-	hideElement(formName + "_addressDiv");
-	hideElement(formName + "_textArea");
+	hideElement(formName + ADDRESSDIV_IDSUFFIX);
+	hideElement(formName + TEXTAREA_IDSUFFIX);
 }		
 
 function fillFormInputs(formName, url, doShowMsg)
@@ -856,11 +867,11 @@ function fillFormInputs(formName, url, doShowMsg)
     {
 	    if (xmlHttp.readyState == 4) {
 	        hideWaitCursor("received result of fillFormInputs" + formName + "," + url + ",??)");
-		    resultStr = xmlHttp.responseText.replace("\\n","");
+		    var resultStr = xmlHttp.responseText.replace("\\n","");
 		    resultStr = resultStr.replace("\\r","");
 			var items = resultStr.split("#");
 			var msg = "Adresa nebyla nalezena."
-			hideElement(formName + "_addressesDiv");
+			hideElement(formName + ADDRESESDIV_IDSUFFIX);
 			if (items.length == 4) { // oky
 				var firstRecordNumber = parseInt(items[0]);
 				var loadedRecordCount = parseInt(items[1]);
@@ -893,9 +904,9 @@ function fillFormInputs(formName, url, doShowMsg)
                 CALL_PATH = "";
 		    }
 	    }
-    }
+    };
 
-    msg = "Hledám odpovídající adresu...";
+    var msg = "Hledám odpovídající adresu...";
     if (isProgrammersGUI || DEBUG_MODE) {  msg = "\nOdeslán požadavek\n" + url + "\n" + msg  }
     if (doShowMsg) showMsg(formName, msg);
     showWaitCursor("requesting DataList in  fillFormInputs(" + formName + "," + url + ",??)");
@@ -946,9 +957,9 @@ function getAddressParamsList(formName)
 {
     var result = ["", "", "", "", "", "", "", "", "", ""];
     result[0] = formName;
-    result[1] = getInputValue(formName, formName + "_HouseNumber", "");
+    result[1] = getInputValue(formName, formName + HOUSENUMBER_IDSUFFIX, "");
     result[2] = getInputValue(formName, formName + "_RecordNumber", "");
-    result[3] = getInputValue(formName, formName + "_OrientationNumber", "");
+    result[3] = getInputValue(formName, formName + ORIENTATIONNUMBER_IDSUFFIX, "");
     result[4] = getInputValue(formName, formName + "_OrientationNumberCharacter", "");
     result[5] = getInputValue(formName, formName + "_ZIPCode", "");
     result[6] = getInputValue(formName, formName + "_Locality", "");
@@ -1110,7 +1121,7 @@ function detachAutocompleteListeners()
 function attachAutocompleteListeners(formName, subParams)
 {
     openLogSection("attachAutocompleteListeners(" + formName + "," + subParams + ")");
-
+    subParams = encodeURIComponent(subParams);
     $( ".RUIAN_TOWN_INPUT" ).autocomplete({
         //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/town?RUIANType=town" + subParams,
         source: function (request, response)  {
@@ -1231,16 +1242,16 @@ function attachAutocompleteListeners(formName, subParams)
       source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
       minLength: 1,
       select: function( event, ui ) {	
-		addressItems = ui.item.id.split(",");
+		var addressItems = ui.item.id.split(",");
 
 		if (addressItems.length == 2) {
 			addressItems = [addressItems[0], "", "", "", "", "", addressItems[1], "", ""];
 		}
 			
 		setInputValueFromMaster(this.id, "_Street", addressItems[0]);  
-		setInputValueFromMaster(this.id, "_HouseNumber", addressItems[1]);  
+		setInputValueFromMaster(this.id, HOUSENUMBER_IDSUFFIX, addressItems[1]);
 		setInputValueFromMaster(this.id, "_RecordNumber", addressItems[2]);  
-		setInputValueFromMaster(this.id, "_OrientationNumber", addressItems[3]);  
+		setInputValueFromMaster(this.id, ORIENTATIONNUMBER_IDSUFFIX, addressItems[3]);
 		setInputValueFromMaster(this.id, "_OrientationNumberCharacter", addressItems[4]);  		
 		setInputValueFromMaster(this.id, "_ZIPCode", addressItems[5]);  
 		setInputValueFromMaster(this.id, "_Locality", addressItems[6]);
@@ -1322,7 +1333,7 @@ $(document).ready(function() {
     $("#enhancedGUIButton").click(function(){
         $(".enhancedGUI").toggle();
 
-		button = document.getElementById("enhancedGUIButton");
+		var button = document.getElementById("enhancedGUIButton");
 		if (button.value == "Programátorské rozhraní") {
 	        isProgrammersGUI = true;
 		    button.value = "Uživatelské rozhraní";
@@ -1351,20 +1362,17 @@ $(document).ready(function() {
 
 function displayResultInTable(textAreaID, resultStr)
 {
- classStrings = {
-   true: ' class="altColor" ',
-   false: ''
- }
+    classStrings = { true: ' class="altColor" ', false: '' }
 
- id = '#' + textAreaID.substr(0, textAreaID.length - ("_textarea").length) + "_resultsTable";
- $(id + " tr").remove();
+    id = '#' + textAreaID.substr(0, textAreaID.length - (TEXTAREA_IDSUFFIX).length) + "_resultsTable";
+    $(id + " tr").remove();
 
- items = resultStr.split("EndOfRecord");
- var isOdd = false;
- for (var i=0; i < items.length; i++) {
-	$(id).append('<tr' + classStrings[isOdd] + '><td>' + items[i] + '</td></tr>');
-	isOdd = ! isOdd;
- }
+    items = resultStr.split("EndOfRecord");
+    var isOdd = false;
+    for (var i=0; i < items.length; i++) {
+	    $(id).append('<tr' + classStrings[isOdd] + '><td>' + items[i] + '</td></tr>');
+	    isOdd = ! isOdd;
+    }
 }
 
 function displayResult(id, servicePath)

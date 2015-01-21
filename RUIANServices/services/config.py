@@ -51,46 +51,7 @@ def convertServicesCfg(config):
     config.disableGUISwitch = config.disableGUISwitch.lower() == "true"
 
     config.issueNumber = "pro úpravy po 5.1.2015"
-    config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>.
-<br>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/132">#132 Zobrazený text při rozbalení našeptávače Ulice</a>
-<br>Tak myslím že to funguje. Opět je to otázka názoru jak moc je to intuitivní, ale uvidíme.
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/133">#133 Funkce doplň adresu při více než jednom záznamu</a>
-<br>Zvolil jsem stránku o 15 záznamech tak, aby byla podobně vysoká jako blok vstupních polí adresy. Dynamicky se tlačítka Další, případně Předchozí, pokud je to potřeba. Také se zobrazí celkový počet záznamů, pokud je seznam větší než stránka.
-<br>
-<br>Po vybrání adresy se kromě vyplnění vstupních polí adresa zobrazí na stránce.
-<br>
-<br>Příklad: školní, nádražní, budovatelů, rooseveltova apod.
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/134">#134 Zobrazený text při rozbalení našeptávače Ulice</a>
-<br>Po úpravě viz #133 se najdou tři záznamy 187, 188, 1800 a je možno si z nich vybrat.
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/135">#135 Písmeno čísla orientačního může být také prázdné</a>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/136">#136 Nádražní, Lhotka neumožní číslo popisné</a>
-<br>Doplněna hláška, když v dané kombinaci nejde nalézt adresu.
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/137">#137 Omezení hodnot v poli městský obvod</a>
-<br>Pole Obec, Část obce a Číslo městského obvodu mají pro Obec=Praha následující chování:
-<br>1. Vložení části obce omezí možnosti v poli Číslo městského obvodu, jestliže je jen jedno, tak ho přímo nastaví
-<br>2. Výběr Čísla městského obvodu nastaví datalist pro Část obce na patřičné hodnoty.
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/138">#138 Neověří adresu Mezilesní 550</a>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/139">#139 Neověří a nedoplní Mezilesní 550 bez PSČ</a>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/140">#140 Nedoplní PSČ pro Mezilesní 550 s vyplněným MOP</a>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/141">#141 Ošetření asynchronních volání</a>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/145">#145 Doplnit datalisty u obcí bez ulic</a>
-<br>
-<br><a href="https://github.com/vugtk21/RUIANToolbox/issues/149">#149 Služba Fulltextové vyhledávání - našeptávač</a>
-<br>Na záložce fulltext nejsou textová pole, do kterých by se mohly vyplnit nalezené hodnoty, takže docházelo k chybě
-při zápisu a našeptávač se neuzavřel.
-"""
+    config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>."""
 
     # htmlDataURL nemá mít lomítko na začátku
     #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":

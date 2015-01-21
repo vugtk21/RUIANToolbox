@@ -14,6 +14,7 @@ import re
 import os
 import shared as sharedModule
 import urllib
+import codecs
 
 from HTTPShared import *
 
@@ -174,13 +175,6 @@ class handler:
         sharedModule.isCGIApplication = False
         return self.doProcessRequest(page)
 
-import codecs
-def myLog(msg):
-    return
-    f = codecs.open("c:/temp/ahoj.log","a", "utf-8")
-    f.write(msg)
-    f.close()
-
 if __name__ == "__main__":
     # Nastavení znakové sady na utf-8
     import sys
@@ -194,7 +188,6 @@ if __name__ == "__main__":
         import cgitb
         cgitb.enable()
 
-        myLog("Handling URL request\n")
         sharedModule.isCGIApplication = True
 
         path = SERVICES_WEB_PATH.split("/")
@@ -216,30 +209,16 @@ if __name__ == "__main__":
         #if serverPathDepth != 0:
         #    fullPathList = fullPathList[serverPathDepth:]
 
-        for item in os.environ:
-            v = str(item).decode('latin-1').encode("utf-8")
-            myLog(v + "\n")
-
-        myLog(os.environ["HTTP_ACCEPT_ENCODING"])
-
-        myLog("Parsing query\n")
         query = {}
         list = form.list
         for item in list:
-            myLog("Parsing item" + str(item) + "\n")
             decodedValue = urllib.unquote(item.value)
             try:
                 decodedValue = unicode(decodedValue, "utf-8")
             except:
                 decodedValue = codecs.decode(decodedValue, "latin-1")
-
             decodedValue = urllib.unquote(decodedValue)
-            myLog("Value=" + decodedValue + "\n")
-
             query[item.name] = decodedValue
-
-
-        myLog("End of Parsing query")
 
         response = ProcessRequest(fullPathList, query, HTTPResponse(False))
         if response.handled:

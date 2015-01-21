@@ -187,7 +187,7 @@ class ServicesHTMLPageBuilder:
                     '</select>'
 
         elif param.name == 'FillAddressButton':
-            result += '<span class="SMARTAUTOCOMPLETECB"><input type="checkbox" id="%s_SmartAutocompleteCB" checked onchange="setupInputs(\'%s\')" title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</input></span>' % (formName, formName)
+            result += '<span class="SMARTAUTOCOMPLETECB"><input type="checkbox" id="%s_SmartAutocompleteCB" checked onchange="setupInputs(\'%s\')" title="Našeptávače budou reagovat na již vložené hodnoty">Chytré našeptávače</span>' % (formName, formName)
             result += '&nbsp;&nbsp;<input type="button" value="Doplň adresu" id="' + formName + '_FillAddressButton' + \
                       '" title="' + param.shortDesc + '"  onclick="findAddress(\'' + formName + '\')">'
         else:
@@ -274,9 +274,9 @@ class ServicesHTMLPageBuilder:
                 updateServiceSpanCode = ' onclick="updateServiceSpan(\'%s\')"' % formName
                 tabDivs += u"""
                 <br><br>
-                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked %s>Adresa</input>
-                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB" %s>Prvky adresy</input>
-                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB" %s>Identifikátor RÚIAN</input>
+                <input type="radio" name= "radio%s" value="adresa"   id="%s_AddressRB" checked %s>Adresa
+                <input type="radio" name= "radio%s" value="vstup" id="%s_AddressItemsRB" %s>Prvky adresy
+                <input type="radio" name= "radio%s" value="id"  id="%s_RuianIdRB" %s>Identifikátor RÚIAN
                 """ % (service.pathName, formName, updateServiceSpanCode, service.pathName, formName, updateServiceSpanCode, service.pathName, formName, updateServiceSpanCode)
 
             tabDivs += "<br><br>"
