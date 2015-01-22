@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        compileaddress_UnitTests
 # Purpose:     Module compileaddress unit tests implementation.
 #
 # Author:      Radek Augustýn
 # Copyright:   (c) VUGTK, v.v.i. 2014
 # License:     CC BY-SA 4.0
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
 import unittest
 import compileaddress as AT
-import collections
 
 addressCompileSamples = []
 
@@ -21,27 +20,6 @@ class TestGlobalFunctions(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-##    def testdictToXML(self):
-##        self.assertEqual(
-##           AT.dictToXML({
-##            "obec": "chodov",
-##            "cislo" : "677",
-##            "strom" : { "list" : "listek" }
-##           }),
-##           "<obec>chodov</obec>\n<cislo>677</cislo>\n<strom><list>listek</list>\n</strom>\n"
-##        )
-##
-##        self.assertEqual(
-##           AT.dictToXML({
-##            "obec": "chodov",
-##            "cislo" : "677",
-##            "strom" : { "list" : "listek" }
-##           }, "HHH"),
-##           "<obec>chodov</obec>HHH<cislo>677</cislo>HHH<strom><list>listek</list>HHH</strom>HHH"
-##        )
-##
-##        pass
 
     def testcompileAddress(self):
         for s in addressCompileSamples:

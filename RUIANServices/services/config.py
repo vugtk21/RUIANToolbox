@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        config
 # Purpose:     Implements services config class.
 #
 # Author:      Radek Augustýn
 # Copyright:   (c) VUGTK, v.v.i. 2014
 # License:     CC BY-SA 4.0
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
-import shared; shared.setupPaths(depth = 2)
+import shared
+shared.setupPaths(depth=2)
 
 from SharedTools.config import Config, RUIANImporterConfig
 
 servicesConfigAttrs = {
-                "serverHTTP" : 'www.vugtk.cz',
-                "portNumber" : 80,
-                "servicesWebPath" : "euradin/services/rest.py/",
-                "databaseHost" : "192.168.1.93",
-                "databasePort" : "5432",
-                "databaseName" : "euradin",
-                "databaseUserName" : "postgres",
-                "databasePassword" : "postgres",
-                "noCGIAppServerHTTP" : "localhost",
-                "noCGIAppPortNumber" : 5689,
+                "serverHTTP": 'www.vugtk.cz',
+                "portNumber": 80,
+                "servicesWebPath": "euradin/services/rest.py/",
+                "databaseHost": "192.168.1.93",
+                "databasePort": "5432",
+                "databaseName": "euradin",
+                "databaseUserName": "postgres",
+                "databasePassword": "postgres",
+                "noCGIAppServerHTTP": "localhost",
+                "noCGIAppPortNumber": 5689,
                 "issueNumber": "",
-                "issueShortDescription" : "",
-                "ruianVersionDate" : "",
-                "disableGUISwitch" : "false"
+                "issueShortDescription": "",
+                "ruianVersionDate": "",
+                "disableGUISwitch": "false"
             }
 
 def convertServicesCfg(config):
@@ -70,7 +71,7 @@ def convertServicesCfg(config):
             config.setAttr(servicesAttr, importerConfig.attrs[importerAttrsMapper[servicesAttr]])
 
 
-config = Config("RUIANServices.cfg", servicesConfigAttrs, convertServicesCfg, moduleFile = __file__)
+config = Config("RUIANServices.cfg", servicesConfigAttrs, convertServicesCfg, moduleFile=__file__)
 
 def getPortSpecification():
     if config.portNumber == 80:

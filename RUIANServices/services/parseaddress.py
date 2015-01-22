@@ -448,9 +448,8 @@ class AddressParser:
                 sqlItems.append("searchstr ilike '%" + item.value + "%'")
         if sqlItems != []:
             innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
-        #idLists = ruianDatabase.getQueryResult(innerSql)
 
-            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10} limit 100)".format(
+            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10} limit 1000)".format(
                 GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
                 CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql), MOP_NUMBER)
 
@@ -465,8 +464,9 @@ class AddressParser:
             found = False
             lowerValue = item.value.lower()
             for candidate in candidateValues:
-                if str(candidate).lower().find(lowerValue) == 0:
+                if unicode(candidate).lower().find(lowerValue) == 0:
                     found = True
+                    break
             if not found:
                 return False
 
@@ -658,13 +658,11 @@ V této skupině testů je také testováno párování identifikátorů jednotl
 
 def testCase():
     parser = AddressParser()
-    tester = FormalTester("Rozpoznávání typů adresních položek",
-"""Skupina testů zajišťujících rozpoznání jednotlivých typů adresních položek v adresním řetězci.
-Jednotlivé testy spadají do kategorie tzv. "unit testů", tj. hodnoty a kombinace nemusí být zcela reálné, cílem je
-úplná sada eliminující možné chyby.
-V této skupině testů je také testováno párování identifikátorů jednotlivých položek se svými hodnotami.
-""", "Ing. Tomáš Vacek", "Ing. Radek Makovec")
-    print parser.fullTextSearchAddress("Mezilesní 550/18")
+    #print parser.fullTextSearchAddress("Mezilesní 550/18")
+    #print parser.fullTextSearchAddress("U kamene 181")
+    print parser.fullTextSearchAddress("Na lánech 598/13")
+    res = parser.fullTextSearchAddress("Fialková, Čakovičky")
+    print len(res), res
 
 initModule()
 
@@ -676,8 +674,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#create table
-#fulltext
-#as
-#select gid, concat(nazev_obce, ',', nazev_ulice, ',', nazev_casti_obce) searchstr from addresspoints

@@ -153,7 +153,7 @@
 	
     <script type="text/javascript" charset="utf-8">
 var disableGUISwitch = #DISABLEGUISWITCH#;
-isProgrammersGUI = false; // Je přepnuto do režimu "Uživatelské rozhraní"
+var isProgrammersGUI = false; // Je přepnuto do režimu "Uživatelské rozhraní"
 DEBUG_MODE = false;
 var CALL_TEXTAREA = "";
 var CALL_PATH = "";
@@ -870,7 +870,7 @@ function fillFormInputs(formName, url, doShowMsg)
 		    var resultStr = xmlHttp.responseText.replace("\\n","");
 		    resultStr = resultStr.replace("\\r","");
 			var items = resultStr.split("#");
-			var msg = "Adresa nebyla nalezena."
+			var msg = "Adresa nebyla nalezena.";
 			hideElement(formName + ADDRESESDIV_IDSUFFIX);
 			if (items.length == 4) { // oky
 				var firstRecordNumber = parseInt(items[0]);
@@ -882,9 +882,9 @@ function fillFormInputs(formName, url, doShowMsg)
                     showNumberInputs(formName);
 				}
 				else {
-					records = items[3].split(";");
+					var records = items[3].split(";");
 					if (records.length == 1) {
-						addressItems = records[0].split(":");
+						var addressItems = records[0].split(":");
 					    if (addressItems.length == 10) {
 							document.getElementById(formName).isAddressValidated = addressItems.length == 11;
 						    fillAddressInputs(formName, addressItems);
@@ -981,7 +981,7 @@ function didAddressParamsChange(formName)
 
 function getAddressParams(formName)
 {
-    params = "";
+    var params = "";
     params = addParam(formName, params, "HouseNumber");
     params = addParam(formName, params, "RecordNumber");
     params = addParam(formName, params, "OrientationNumber");
@@ -1134,7 +1134,7 @@ function attachAutocompleteListeners(formName, subParams)
         },
         minLength: 1,
         select: function( event, ui ) {
-	        addressItems = ui.item.label.split(",");
+	        var addressItems = ui.item.label.split(",");
 		    if (addressItems.length == 2) {
 		        setInputValueFromMaster(this.id, "_LocalityPart", addressItems[1]);
 		    }
@@ -1179,7 +1179,7 @@ function attachAutocompleteListeners(formName, subParams)
         },
         minLength: 1,
         select: function( event, ui ) {
-		    addressItems = ui.item.id.split(",");
+		    var addressItems = ui.item.id.split(",");
 		    setInputValueFromMaster(this.id, "_Locality", addressItems[0]);
 		    // setInputValueFromMaster(this.id, "_LocalityPart", addressItems[1]);
             inputChanged(this.id, ui.item.value);
@@ -1201,7 +1201,7 @@ function attachAutocompleteListeners(formName, subParams)
         select: function( event, ui ) {
 	        var idPart = this.id.substring(5, this.id.length); // form_1_ZIPCode
 		    var id = "form_" + idPart.substring(0, idPart.indexOf("_")) + "_Locality";
-		    townElem = document.getElementById(id);
+		    var townElem = document.getElementById(id);
 		    townElem.value = ui.item.id;
             inputChanged(this.id, ui.item.value);
         }
@@ -1361,12 +1361,12 @@ $(document).ready(function() {
 
 function displayResultInTable(textAreaID, resultStr)
 {
-    classStrings = { true: ' class="altColor" ', false: '' }
+    var classStrings = { true: ' class="altColor" ', false: '' };
 
-    id = '#' + textAreaID.substr(0, textAreaID.length - (TEXTAREA_IDSUFFIX).length) + "_resultsTable";
+    var id = '#' + textAreaID.substr(0, textAreaID.length - (TEXTAREA_IDSUFFIX).length) + "_resultsTable";
     $(id + " tr").remove();
 
-    items = resultStr.split("EndOfRecord");
+    var items = resultStr.split("EndOfRecord");
     var isOdd = false;
     for (var i=0; i < items.length; i++) {
 	    $(id).append('<tr' + classStrings[isOdd] + '><td>' + items[i] + '</td></tr>');
@@ -1397,7 +1397,7 @@ function displayResult(id, servicePath)
 		    // Get the response from the server and extract the section that comes in the body section of the second
 		    // html page avoid inserting the header part of the second page in your first page's element
 	        hideWaitCursor("displayResult");
-		    resultStr = xmlHttp.responseText.replace(/<br>/g,"\\n");
+		    var resultStr = xmlHttp.responseText.replace(/<br>/g,"\\n");
 		    if (resultStr == "") {
 		        if (isProgrammersGUI) {
 		            resultStr = "Výsledkem dotazu je prázdný řetězec.";
@@ -1411,11 +1411,11 @@ function displayResult(id, servicePath)
 			showElement(elem.id);
 		    displayResultInTable(id, resultStr);
 	    }
-    }
+    };
 
     var elem = document.getElementById(id);
 
-    msg = "Odeslal jsem požadavek, čekám na odpověď ze serveru...";
+    var msg = "Odeslal jsem požadavek, čekám na odpověď ze serveru...";
     if (isProgrammersGUI) { msg = "Odeslán požadavek\n" + url + "\n" + msg  }
     setTextAreaInnerText(elem, msg);
 
@@ -1439,11 +1439,11 @@ function inputChanged(inputId, inputValue)
   if (!inputId) return;
 
   if (inputValue) {
-    var inputElem = document.getElementById(inputId);
-    inputElem.value = inputValue;
+      var inputElem = document.getElementById(inputId);
+      inputElem.value = inputValue;
   }
-  formName = inputId.substring(0, inputId.lastIndexOf("_"));
-  formElem = document.getElementById(formName);
+  var formName = inputId.substring(0, inputId.lastIndexOf("_"));
+  var formElem = document.getElementById(formName);
 
   onChangeProc(formElem, true);
 }
@@ -1451,12 +1451,12 @@ function inputChanged(inputId, inputValue)
 function getServiceURL(formName)
 {
     openLogSection("getServiceURL('" + formName + "')");
-    formNameLen = formName.length + 1;
+    var formNameLen = formName.length + 1;
 
 
     // Nastavíme seznam přeskakovaných vstupních položek podle nastavení RB, pokud na záložce jsou
-    addressFields = "&Locality&LocalityPart&DistrictNumber&Street&HouseNumber&RecordNumber&OrientationNumber&OrientationNumberCharacter&ZIPCode";
-    var skippedInputs = ""
+    var addressFields = "&Locality&LocalityPart&DistrictNumber&Street&HouseNumber&RecordNumber&OrientationNumber&OrientationNumberCharacter&ZIPCode";
+    var skippedInputs = "";
     var elem = document.getElementById(formName + "_AddressRB");
     if (elem && elem.checked) {
        skippedInputs = "AddressPlaceId" + addressFields;
@@ -1474,9 +1474,9 @@ function getServiceURL(formName)
         }
     }
 
-    elements = document.getElementById(formName).elements;
+    var elements = document.getElementById(formName).elements;
     var s = "";
-    needToOpenQuery = true;
+    var needToOpenQuery = true;
     for (var i=0; i < elements.length; i++) {
         var name = elements[i].name.substr(formNameLen);
 	    if (name.charAt(0) == "/") { // Je položka přímo v pathinfo???
@@ -1488,9 +1488,10 @@ function getServiceURL(formName)
 		    }
 	    }
 	    else {
+            var delimeter;
 		    if (needToOpenQuery) { // Zatím jsme neoddělili pathinfo od query
 			    delimeter = "";
-			    s = s + "?"
+			    s = s + "?";
 			    needToOpenQuery = false;
 		    }
 		    else {
@@ -1510,7 +1511,7 @@ function getServiceURL(formName)
 	    }
     }
 
-    servicePath = document.getElementById(formName).action;
+    var servicePath = document.getElementById(formName).action;
     servicePath = servicePath.substring(servicePath.lastIndexOf("/"), servicePath.length);
 
     s = "<#SERVICES_URL>" + servicePath + s;
@@ -1531,7 +1532,7 @@ function onChangeProc(formElem, callFillAddress)
     if (isSelectedAddressPartsTab(formElem.name)) {
         stopAllXMLRequests();
         document.getElementById(formElem.name).isAddressValidated = false;
-        value = getInputValue(formElem.name, "OrientationNumberCharacter", "");
+        var value = getInputValue(formElem.name, "OrientationNumberCharacter", "");
         if (value != "" && value.length==1 && value.charCodeAt(0) == 160) {
             document.getElementById(formElem.name + "_OrientationNumberCharacter").value = "";
             log("Nahrazuji pevnou mezeru v pismenu cisla orientacniho.");
@@ -1564,7 +1565,7 @@ function onChangeProc(formElem, callFillAddress)
             <td><h1>#PAGETITLE#</h1></td>
             <td align="right">
                 <input type="button" value="Programátorské rozhraní" id="enhancedGUIButton">
-                <span id="WaitCursorSpan" class="WAITCURSORSPAN" style="width:100%%;text-align:right;">
+                <span id="WaitCursorSpan" class="WAITCURSORSPAN" style="width:100%;text-align:right;">
                     <img src="http://jqueryui.com/resources/demos/autocomplete/images/ui-anim_basic_16x16.gif" />
                 </span>
             </td>
@@ -1597,7 +1598,7 @@ function onChangeProc(formElem, callFillAddress)
     cerifikovanou metodikou</a>.
     Každá záložka obsahuje popis jedné služby včetně parametrů.
 
-    <center><img src="#HTMLDATA_URL#WebServices.png"></center>
+    <img src="#HTMLDATA_URL#WebServices.png">
     <br>
     <a class = 'enhancedGUI' href='#SERVICES_URL_PATH#/#SCRIPT_NAME#/testing/TestResults.html'>Výsledky testů</a>
     </div>
