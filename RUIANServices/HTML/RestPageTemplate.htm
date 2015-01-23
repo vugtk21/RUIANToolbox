@@ -128,7 +128,6 @@
 		    .altColor, .AddressDiv {
 				background-color: rgb(252, 248, 227);
 			}
-			<!-- #F1F1F1, background-color: #C6D9F1; -->
 
 		    textarea, .warning, .resizeAbleDiv {
 			    padding: 10px 15px;
@@ -1238,7 +1237,16 @@ function attachAutocompleteListeners(formName, subParams)
     }
 
     $(".RUIAN_TEXTSEARCH_INPUT" ).autocomplete({
-      source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
+      //source: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
+        source: function (request, response)  {
+                    $.ajax(
+                    {
+                        url: "#SERVICES_URL_PATH#/#SCRIPT_NAME#/autocomplete/street?RUIANType=textsearch&ResultFormat=AddressParts",
+                        dataType: "json",
+                        data: { term: encodeURIComponent(request.term) },
+                        success: function (data) { response(data); }
+                    });
+        },
       minLength: 1,
       select: function( event, ui ) {	
 		var addressItems = ui.item.id.split(",");
@@ -1343,7 +1351,7 @@ $(document).ready(function() {
 	        isProgrammersGUI = false;
 			button.value = "Programátorské rozhraní";
 			attachAutocompleteListeners("", "");
-			$(".SMARTAUTOCOMPLETECB").span();
+			$(".SMARTAUTOCOMPLETECB").show();
 		}
     });
 
@@ -1427,6 +1435,7 @@ function displayResult(id, servicePath)
 
 function stopRKey(evt)
 {
+    console.log(evt);
     var evt = (evt) ? evt : ((event) ? event : null);
     var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
     if ((evt.keyCode == 13) && (node.type=="text")) { return false; }
@@ -1625,6 +1634,153 @@ TB01CUZK004: Výzkum uplatnění závěrů projektu eContentplus s názvem EURAD
 </p>
 </div>
 </div>
+
+            <form>
+<input type="text" value="" list="fruits" />
+<datalist id="__fruits">
+  <option value="Apple"></option>
+  <option value="Orange"></option>
+  <option value="Peach"></option>
+  <option value="Melon"></option>
+  <option value="Strawberry"></option>
+</datalist>
+
+<datalist class="DATALIST_CLASS" id="fruits" >
+    <option value="Holešovice">
+<option value="Hradčany">
+<option value="Josefov">
+<option value="Malá Strana">
+<option value="Nové Město">
+<option value="Staré Město">
+<option value="Vinohrady">
+<option value="Strašnice">
+<option value="Vinohrady">
+<option value="Vysočany">
+<option value="Žižkov">
+<option value="Nové Město">
+<option value="Nusle">
+<option value="Vinohrady">
+<option value="Vyšehrad">
+<option value="Hlubočepy">
+<option value="Holyně">
+<option value="Jinonice">
+<option value="Košíře">
+<option value="Lahovice">
+<option value="Lipence">
+<option value="Lochkov">
+<option value="Malá Chuchle">
+<option value="Malá Strana">
+<option value="Motol">
+<option value="Radlice">
+<option value="Radotín">
+<option value="Řeporyje">
+<option value="Řepy">
+<option value="Slivenec">
+<option value="Smíchov">
+<option value="Sobín">
+<option value="Stodůlky">
+<option value="Třebonice">
+<option value="Velká Chuchle">
+<option value="Zadní Kopanina">
+<option value="Zbraslav">
+<option value="Zličín">
+<option value="Braník">
+<option value="Háje">
+<option value="Hodkovičky">
+<option value="Chodov">
+<option value="Cholupice">
+<option value="Kamýk">
+<option value="Komořany">
+<option value="Krč">
+<option value="Kunratice">
+<option value="Lhotka">
+<option value="Libuš">
+<option value="Michle">
+<option value="Modřany">
+<option value="Nusle">
+<option value="Písnice">
+<option value="Podolí">
+<option value="Šeberov">
+<option value="Točná">
+<option value="Újezd">
+<option value="Vinohrady">
+<option value="Záběhlice">
+<option value="Bubeneč">
+<option value="Holešovice">
+<option value="Troja">
+<option value="Břevnov">
+<option value="Bubeneč">
+<option value="Dejvice">
+<option value="Hradčany">
+<option value="Liboc">
+<option value="Lysolaje">
+<option value="Nebušice">
+<option value="Přední Kopanina">
+<option value="Ruzyně">
+<option value="Řepy">
+<option value="Sedlec">
+<option value="Střešovice">
+<option value="Suchdol">
+<option value="Veleslavín">
+<option value="Vokovice">
+<option value="Běchovice">
+<option value="Čakovice">
+<option value="Černý Most">
+<option value="Dolní Počernice">
+<option value="Hloubětín">
+<option value="Horní Počernice">
+<option value="Hostavice">
+<option value="Hrdlořezy">
+<option value="Kbely">
+<option value="Klánovice">
+<option value="Koloděje">
+<option value="Kyje">
+<option value="Letňany">
+<option value="Libeň">
+<option value="Malešice">
+<option value="Miškovice">
+<option value="Prosek">
+<option value="Satalice">
+<option value="Střížkov">
+<option value="Třeboradice">
+<option value="Újezd nad Lesy">
+<option value="Vinoř">
+<option value="Vysočany">
+<option value="Bohnice">
+<option value="Březiněves">
+<option value="Čimice">
+<option value="Ďáblice">
+<option value="Dolní Chabry">
+<option value="Karlín">
+<option value="Kobylisy">
+<option value="Libeň">
+<option value="Nové Město">
+<option value="Střížkov">
+<option value="Troja">
+<option value="Benice">
+<option value="Dolní Měcholupy">
+<option value="Dubeč">
+<option value="Hájek">
+<option value="Horní Měcholupy">
+<option value="Hostivař">
+<option value="Kolovraty">
+<option value="Královice">
+<option value="Křeslice">
+<option value="Lipany">
+<option value="Malešice">
+<option value="Michle">
+<option value="Nedvězí">
+<option value="Petrovice">
+<option value="Pitkovice">
+<option value="Strašnice">
+<option value="Štěrboholy">
+<option value="Uhříněves">
+<option value="Vinohrady">
+<option value="Vršovice">
+<option value="Záběhlice">
+<option value="Žižkov">
+</option></datalist>
+                </form>
 
     </body>
 </html>
