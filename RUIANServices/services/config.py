@@ -51,12 +51,8 @@ def convertServicesCfg(config):
 
     config.disableGUISwitch = config.disableGUISwitch.lower() == "true"
 
-    config.issueNumber = "pro úpravy po 5.1.2015"
-    config.issueShortDescription = u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>."""
-
-    # htmlDataURL nemá mít lomítko na začátku
-    #if config.htmlDataURL != "" and config.htmlDataURL[:1] == "/":
-    #    config.htmlDataURL = config.htmlDataURL[1:]
+    config.issueNumber = "1.9.72"
+    config.issueShortDescription = '' # u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>."""
 
     importerAttrsMapper = {
         "databaseHost" : "host",
