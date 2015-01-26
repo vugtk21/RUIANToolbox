@@ -178,17 +178,22 @@ class RUIANDownloader:
         if self.ignoreHistoricalData:
             newResult = []
             stateMonth = datetime.date.today().month - 1
+            stateYear = datetime.date.today().year
+            if stateMonth == 0:
+                stateYear = stateYear - 1
+                stateMonth = 12
+
             for url in result:
                 date = url[url.rfind("/") + 1:]
                 date = date[:date.find("_")]
                 month = int(date[4:6])
-                if month >= stateMonth:
+                year = int(date[:4])
+                if year == stateYear and month >= stateMonth:
                     newResult.append(url)
             result = newResult
 
         if DEBUG_MODE:
             result = result[:5]
-            #result = result[len(result)-5:]
         return result
 
     def getUpdateList(self, fromDate = ""):
