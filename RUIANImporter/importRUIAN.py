@@ -72,7 +72,7 @@ def convertFileToDownloadLists(HTTPListName):
 
     inFile = open(HTTPListName, "r")
     try:
-        fileName = "%s_list.tmp" % (HTTPListName[:HTTPListName.find(".txt")])
+        fileName = "%s_list.txt" % (HTTPListName[:HTTPListName.find(".txt")])
         outFile = open(fileName, "w")
         result.append(fileName)
         linesInFile = 0

@@ -162,9 +162,9 @@ class RUIANDownloader:
     def getFullSetList(self):
         logger.debug("RUIANDownloader.getFullSetList")
         self._fullDownload = True
-        return self.getList(self.pageURLs)
+        return self.getList(self.pageURLs, False)
 
-    def getList(self, urls):
+    def getList(self, urls, isPatchList):
         urls = urls.split(";")
         result = []
         for url in urls:
@@ -173,9 +173,8 @@ class RUIANDownloader:
             content = urllib2.urlopen(url).read()
             lines = content.splitlines()
             result.extend(lines)
-            #break
 
-        if self.ignoreHistoricalData:
+        if self.ignoreHistoricalData and not isPatchList:
             newResult = []
             stateMonth = datetime.date.today().month - 1
             stateYear = datetime.date.today().year
@@ -203,7 +202,7 @@ class RUIANDownloader:
             v = infoFile.validFor()
             dateStr = v[8:10] + "." + v[5:7] + "." + v[0:4]
             firstPageURL = self.pageURLs.split(";")[0]
-            return self.getList(getUpdateURL(firstPageURL, dateStr))
+            return self.getList(getUpdateURL(firstPageURL, dateStr), True)
         else:
             return []
 
