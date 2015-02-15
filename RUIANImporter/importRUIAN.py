@@ -48,21 +48,24 @@ config = RUIANImporterConfig()
 def joinPaths(basePath, relativePath):
     basePath = basePath.replace("/", os.sep)
     relativePath = relativePath.replace("/", os.sep)
-    basePathItems = basePath.split(os.sep)
-    relativePathItems = relativePath.split(os.sep)
-    endBaseIndex = len(basePathItems) + 1
-    startRelative = 0
-    for subPath in relativePathItems:
-        if subPath == "..":
-            endBaseIndex = endBaseIndex - 1
-            startRelative = startRelative + 1
-        elif subPath == ".":
-            startRelative = startRelative + 1
-        else:
-            break
+    if (os.path.exists(relativePath)):
+        return relativePath
+    else:
+        basePathItems = basePath.split(os.sep)
+        relativePathItems = relativePath.split(os.sep)
+        endBaseIndex = len(basePathItems)
+        startRelative = 0
+        for subPath in relativePathItems:
+            if subPath == "..":
+                endBaseIndex = endBaseIndex - 1
+                startRelative = startRelative + 1
+            elif subPath == ".":
+                startRelative = startRelative + 1
+            else:
+                break
 
-    fullPath = os.sep.join(basePathItems[:endBaseIndex]) + os.sep + os.sep.join(relativePathItems[startRelative:])
-    return fullPath
+        fullPath = os.sep.join(basePathItems[:endBaseIndex]) + os.sep + os.sep.join(relativePathItems[startRelative:])
+        return fullPath
 
 def getOSGeoPath():
     return joinPaths(os.path.dirname(__file__), config.os4GeoPath)
