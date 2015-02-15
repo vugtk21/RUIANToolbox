@@ -246,7 +246,8 @@ def buildServicesTables():
         SQLInfo("AddressPoints.sql" , "Table address_points"),
         SQLInfo("FullText.sql" , "Table fulltext"),
         SQLInfo("ExplodeArray.sql" , "Table explode_array"),
-        SQLInfo("gids.sql" , "Table gids")
+        SQLInfo("gids.sql" , "Table gids"),
+        SQLInfo("AfterImport.sql" , "User SQL commands AfterImport.sql")
     ]
 
     for sqlInfo in scriptList:
