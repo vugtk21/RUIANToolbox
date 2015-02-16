@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
+from collections import defaultdict
 import psycopg2
 import codecs
 import compileaddress
@@ -142,7 +143,7 @@ class AddressItem:
 
     def __repr__(self):
         result = ""
-        if self.isZIP: result += "PSČ "
+        if self.isZIP:result += "PSČ "
 
         if self.isOrientationNumber: result += "č.or. "
 
@@ -156,6 +157,38 @@ class AddressItem:
             result += self.number
 
         return result
+
+    def matchPercent(self, candidateValue, fieldIndex):
+        # fieldIndex meaning:
+        # 0=GID_FIELDNAME
+        # 1=TOWNNAME_FIELDNAME
+        # 2=TOWNPART_FIELDNAME
+        # 3=STREETNAME_FIELDNAME
+        # 4=TYP_SO_FIELDNAME
+        # 5=CISLO_DOMOVNI_FIELDNAME
+        # 6=CISLO_ORIENTACNI_FIELDNAME
+        # 7=ZNAK_CISLA_ORIENTACNIHO_FIELDNAME
+        # 8=ZIP_CODE_FIELDNAME
+        # 9=MOP_NUMBER
+        candidateValue = unicode(candidateValue).lower()
+        if candidateValue == "677":
+            pass
+        if self.isZIP:
+            if fieldIndex != 8 or len(candidateValue) != 5:return 0
+        else:
+            if fieldIndex == 0:
+                if len(candidateValue) != len(self.value):return 0
+            if fieldIndex == 8:
+                if len(candidateValue) == 5 and candidateValue == self.value:
+                    return 100
+                else:
+                    return 0
+
+        if candidateValue.find(self.value.lower()) != 0:
+            return 0
+        else:
+            return 1.0*len(unicode(self.value))/len(candidateValue)
+
 
     def __str__(self):
         result = ""
@@ -194,10 +227,9 @@ class AddressItem:
         else:
             self.isTextField = True
             if searchDB:
-                self.towns     = ruianDatabase.getObecByName(self.value)
-                self.streets   = ruianDatabase.getUliceByName(self.value)
+                self.towns = ruianDatabase.getObecByName(self.value)
+                self.streets = ruianDatabase.getUliceByName(self.value)
                 self.townParts = ruianDatabase.getCastObceByName(self.value)
-
 
 class _SearchItem:
     def __init__(self, item, text, fieldName):
@@ -459,18 +491,24 @@ class AddressParser:
             return []
 
 
-    def compare(self, items, candidateValues):
+    def compare(self, items, fieldValues):
+        sumMatchPercent = 0
+        numMatches = 0
         for item in items:
             found = False
-            lowerValue = item.value.lower()
-            for candidate in candidateValues:
-                if unicode(candidate).lower().find(lowerValue) == 0:
+            fieldIndex = 0
+            for fieldValue in fieldValues:
+                matchPercent = item.matchPercent(fieldValue, fieldIndex)
+                if matchPercent > 0:
+                    sumMatchPercent = sumMatchPercent + matchPercent
+                    numMatches = numMatches + 1
                     found = True
                     break
-            if not found:
-                return False
+                fieldIndex = fieldIndex + 1
 
-        return True
+            if not found: return 0
+
+        return sumMatchPercent/numMatches
 
     def buildAddress(self, builder, candidates, withID, withDistance = False):
         items = []
@@ -518,12 +556,39 @@ class AddressParser:
     def fullTextSearchAddress(self, address):
         items = self.analyse(address, False)
         candidatesIDS = self.getCandidateValues(items)
-        results = []
-        for candidate in candidatesIDS:
-            if self.compare(items, candidate):
-                results.append(candidate)
 
-        #for result in results:print result
+        resultsDict = defaultdict(list)
+        for candidate in candidatesIDS:
+            matchPercent = self.compare(items, candidate)
+            if matchPercent > 0:
+                if resultsDict.has_key(matchPercent):
+                    resultsDict[matchPercent].append(candidate)
+                else:
+                    resultsDict[matchPercent] = [candidate]
+
+
+        results = []
+
+        exactMatchNeeded = False
+
+        def addCandidate(key, candidate):
+            if not results:
+                global exactMatchNeeded
+                exactMatchNeeded = key == 1
+
+            continueLoop = not exactMatchNeeded or (exactMatchNeeded and key == 1)
+            if continueLoop:
+                results.append(candidate)
+            return continueLoop
+
+        for key in reversed(sorted(resultsDict)):
+            candidateItem = resultsDict[key]
+            if isinstance(candidateItem, list):
+                for candidate in candidateItem:
+                    addCandidate(key, candidate)
+            else:
+                addCandidate(key, candidateItem)
+
         return results
 
 def initModule():
@@ -660,9 +725,15 @@ def testCase():
     parser = AddressParser()
     #print parser.fullTextSearchAddress("Mezilesní 550/18")
     #print parser.fullTextSearchAddress("U kamene 181")
-    print parser.fullTextSearchAddress("Na lánech 598/13")
-    res = parser.fullTextSearchAddress("Fialková, Čakovičky")
-    print len(res), res
+    #print parser.fullTextSearchAddress("Na lánech 598/13")
+    #res = parser.fullTextSearchAddress("Fialková, Čakovičky")
+    #print len(res), res
+
+    #print parser.fullTextSearchAddress("22316418 praha")
+    #print parser.fullTextSearchAddress("1 Cílkova")
+    print parser.fullTextSearchAddress("67 budovatelů")
+
+
 
 initModule()
 
@@ -673,4 +744,7 @@ def main():
 
 
 if __name__ == '__main__':
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     main()
