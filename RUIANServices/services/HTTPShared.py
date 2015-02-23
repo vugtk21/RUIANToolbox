@@ -595,6 +595,8 @@ def compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, or
     return result
 
 def compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
+    street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
+
     addressStr = ""
     zipCode = formatZIPCode(zipCode)
     houseNumber = emptyStringIfNoNumber(houseNumber)
@@ -717,31 +719,37 @@ def compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, o
     return lines
 
 def numberToString(number):
+    # This function return str representation of item and if item is empty then empty string.
     if number is None:
         return ""
     else:
         return str(number)
 
 def extractDictrictNumber(nazev_mop):
-    # Praha 10 -> 10
+    # Extracts district number for Prague: Praha 10 -> 10
     if (nazev_mop != "") and (nazev_mop != None) and (nazev_mop.find(" ") >= 0):
         return nazev_mop.split(" ")[1]
     else:
         return ""
 
 def analyseRow(typ_so, cislo_domovni):
-    if typ_so[-3:] == ".p.":
-        houseNumber = numberToString(cislo_domovni)
-        recordNumber = ""
-    elif typ_so[-3:] == "ev.":
-        houseNumber = ""
-        recordNumber = numberToString(cislo_domovni)
-    else:
-        pass
-
-    return houseNumber, recordNumber
+    # Analyses typ_so value and sets either houseNumber or recordNumber to cislo_domovni.
+    houseNumber = cislo_domovni
+    recordNumber = 0
+    try:
+        if typ_so[-3:] == ".p.":
+            houseNumber = numberToString(cislo_domovni)
+            recordNumber = ""
+        elif typ_so[-3:] == "ev.":
+            houseNumber = ""
+            recordNumber = numberToString(cislo_domovni)
+        else:
+            pass
+    finally:
+        return houseNumber, recordNumber
 
 def itemToStr(item):
+    # This function return str representation of item and if item is empty then empty string.
     if item == None:
         return ""
     else:

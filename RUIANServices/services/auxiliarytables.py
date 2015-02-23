@@ -18,6 +18,16 @@ import compileaddress
 def exitApp():
     sys.exit()
 
+def logPsycopg2Error(e):
+    if e:
+        if e.pgerror:
+            msg = str(e.pgerror)
+        else:
+            msg = str(e)
+    else:
+        msg = "Not specified"
+    logger.error("Database error:" + msg)
+
 def execSQLScript(sql):
     logger.info("   Executing SQL commands")
     connection = psycopg2.connect(host=config.databaseHost, database=config.databaseName, port=config.databasePort,
@@ -34,21 +44,26 @@ def execSQLScript(sql):
                 connection.commit()
 
     except psycopg2.Error as e:
-        logger.error("ERROR:" + e.pgerror)
+        logPsycopg2Error(e)
     finally:
         cursor.close()
         connection.close()
     logger.info("   Executing SQL commands - done.")
     pass
 
-def execSQLScriptFile(sqlFileName, msg):
+def execSQLScriptFile(sqlFileName, msg, exitIfFileNotFound = True):
     logger.info(msg)
     sqlFileName = getRUIANServicesSQLScriptsPath() + sqlFileName
-    if not os.path.exists(sqlFileName):
-        logger.error("ERROR: File %s not found." % sqlFileName)
-        exitApp()
-
     logger.info("   Loading SQL commands from %s" % sqlFileName)
+
+    if not os.path.exists(sqlFileName):
+        if exitIfFileNotFound:
+            logger.error("ERROR: File %s not found." % sqlFileName)
+            exitApp()
+        else:
+            logger.warning("ERROR: File %s not found." % sqlFileName)
+            return
+
     inFile = codecs.open(sqlFileName, "r", "utf-8")
     sql = inFile.read()
     inFile.close()
@@ -165,7 +180,8 @@ def buildTownsNoStreets():
                         print str(row_count) + " rows"
 
                 except psycopg2.Error as e:
-                    print "Error: " + str(row_count) + e.pgerror
+                    logPsycopg2Error(e)
+                    logger.error(str(row_count))
                     exitApp()
                     pass
 
@@ -219,7 +235,8 @@ def buildGIDsTable():
                         logger.info(str(row_count) + " rows")
 
                 except psycopg2.Error as e:
-                    logger.info("Error: " + str(row_count) + " " + insertSQL + " failed. " + e.pgerror)
+                    logPsycopg2Error(e)
+                    logger.error(str(row_count) + " " + insertSQL + " failed. ")
                     exitApp()
                     pass
 
@@ -236,9 +253,10 @@ def buildGIDsTable():
     pass
 
 class SQLInfo:
-    def __init__(self, fileName, description):
+    def __init__(self, fileName, description, exitIfScriptNotFound = True):
         self.fileName = fileName
         self.description = description
+        self.exitIfScriptNotFound = exitIfScriptNotFound
 
 def buildServicesTables():
     scriptList = [
@@ -247,11 +265,11 @@ def buildServicesTables():
         SQLInfo("FullText.sql" , "Table fulltext"),
         SQLInfo("ExplodeArray.sql" , "Table explode_array"),
         SQLInfo("gids.sql" , "Table gids"),
-        SQLInfo("AfterImport.sql" , "User SQL commands AfterImport.sql")
+        SQLInfo("AfterImport.sql" , "User SQL commands AfterImport.sql", False)
     ]
 
     for sqlInfo in scriptList:
-        execSQLScriptFile(sqlInfo.fileName, sqlInfo.description)
+        execSQLScriptFile(sqlInfo.fileName, sqlInfo.description, sqlInfo.exitIfScriptNotFound)
 
 def buildAutocompleteTables():
     execSQLScriptFile("AutocompleteTables.sql", "Autocomplete tables.")

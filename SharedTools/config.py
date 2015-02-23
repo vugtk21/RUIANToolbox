@@ -18,6 +18,7 @@ x_RUIANDownloadConfig = None
 x_RUIANImporterConfig = None
 x_RUIANDownloadInfoFile = None
 x_RUIANToolboxPath = None
+x_RUIANDownloadInfoFile = None
 
 def strTo127(s):
     result = ""
@@ -215,8 +216,8 @@ class InfoFile(Config):
         self.loadFile()
 
 def RUIANDownloadInfoFile():
+    global x_RUIANDownloadInfoFile
     if x_RUIANDownloadInfoFile == None:
-        global x_RUIANDownloadInfoFile
         x_RUIANDownloadInfoFile = InfoFile("")
     return x_RUIANDownloadInfoFile
 

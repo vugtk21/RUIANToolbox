@@ -10,6 +10,7 @@
 
 import config
 
+print config.RUIANDownloadInfoFile()
 #print Config.getSubDirPath("RUIANServices")
 
 config = config.Config("RUIANDownload.cfg",
@@ -30,3 +31,4 @@ config = config.Config("RUIANDownload.cfg",
 
 print config.ignoreHistoricalData
 print config.fileName
+

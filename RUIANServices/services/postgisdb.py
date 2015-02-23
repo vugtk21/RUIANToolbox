@@ -8,9 +8,9 @@ import re
 from config import config
 import shared; shared.setupPaths()
 from SharedTools.log import logger
-
 from SharedTools.config import getRUIANServicesHTMLPath
 from SharedTools.sharetools import getFileContent
+import HTTPShared
 
 DATABASE_HOST = config.databaseHost
 PORT          = config.databasePort
@@ -104,14 +104,7 @@ def _findAddress(ID):
     cur.execute("SELECT nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_obce, nazev_casti_obce, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row:
-        if row[2][-3:] == ".p.":
-            houseNumber = numberToString(row[1])
-            recordNumber = ""
-        elif row[2][-3:] == "ev.":
-            houseNumber = ""
-            recordNumber = numberToString(row[1])
-        else:
-            return None
+        (houseNumber, recordNumber) = HTTPShared.analyseRow(row[2], numberToString(row[1]))
         a= numberValue(noneToString(row[8]))
         return Address(noneToString(row[0]),houseNumber,recordNumber,numberToString(row[3]), noneToString(row[4]),numberToString(row[5]),noneToString(row[6]),noneToString(row[7]),a)
     else:
@@ -201,12 +194,7 @@ def _findCoordinates(ID):
     cur.execute("SELECT latitude, longitude, gid, nazev_obce, nazev_casti_obce, nazev_ulice, cislo_domovni, typ_so, cislo_orientacni, znak_cisla_orientacniho, psc, nazev_mop FROM " + TABLE_NAME + " WHERE gid = "+ str(ID))
     row = cur.fetchone()
     if row and row[0] is not None and row[1] is not None:
-        if row[7] == "č.p.":
-            houseNumber = numberToString(row[6])
-            recordNumber = ""
-        elif row[7] == "č.ev.":
-            houseNumber = ""
-            recordNumber = numberToString(row[6])
+        (houseNumber, recordNumber) = HTTPShared.analyseRow(row[7], numberToString(row[6]))
         c = (str("{:10.2f}".format(row[1])).strip(), str("{:10.2f}".format(row[0])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), numberValue(noneToString(row[11])))
         return [c]
     else:
@@ -237,12 +225,7 @@ def _findCoordinatesByAddress(dictionary):
 
     for row in rows:
         if (row[0] is not None) and (row[1] is not None):
-            if row[7] == "č.p.":
-                houseNumber = numberToString(row[6])
-                recordNumber = ""
-            elif row[7] == "č.ev.":
-                houseNumber = ""
-                recordNumber = numberToString(row[6])
+            (houseNumber, recordNumber) = HTTPShared.analyseRow(row[7], numberToString(row[6]))
             coordinates.append((str("{:10.2f}".format(row[0])).strip(),str("{:10.2f}".format(row[1])).strip(), row[2], row[3], noneToString(row[4]), noneToString(row[5]), houseNumber, recordNumber, numberToString(row[8]), noneToString(row[9]), numberToString(row[10]), numberValue(noneToString(row[11]))))
         else:
             pass    #co se ma stat kdyz adresa nema souradnice?
@@ -338,14 +321,11 @@ def _getDBDetails(servicePathInfo, queryParams, response):
             result = result.replace("#TABLE_NAMES#", str(tableNames))
             restPyURL = "http://" + SERVER_HTTP + getPortSpecification() + "/" + SERVICES_WEB_PATH + "/"
             result = result.replace("#SERVICES_PATH#", restPyURL)
-
-
             result = result.replace("\r\n", "\n")
             response.htmlData = result
         finally:
             cursor.close()
             connection.close()
-
     pass
 
 def _getAddresses(queryParams):
