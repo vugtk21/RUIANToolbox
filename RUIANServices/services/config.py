@@ -51,7 +51,7 @@ def convertServicesCfg(config):
 
     config.disableGUISwitch = config.disableGUISwitch.lower() == "true"
 
-    config.issueNumber = "1.9.76"
+    config.issueNumber = "2.0.00"
     config.issueShortDescription = '' # u""", <a href="https://github.com/vugtk21/RUIANToolbox/issues?q=milestone%3A%22Konzultace+5.1.2014%22">podrobnosti na GitHub</a>."""
 
     importerAttrsMapper = {
