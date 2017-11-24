@@ -429,7 +429,7 @@ class RUIANDownloader:
             logger.warning("Nothing to download, list is empty.")
 
         self.buildIndexHTML()
-        htmlLog.closeSection(config.dataDir + "index.html")
+        htmlLog.closeSection(config.dataDir + "Index.html")
 
         infoFile.fullDownloadBroken = False
         infoFile.save()

@@ -10,31 +10,40 @@
 
 import os
 
+
 class HtmlLog:
     CHANGES_START_ID = "<!-- CHANGES START -->"
     CHANGES_END_ID = "<!-- CHANGES END -->"
     TEMPLATE_FILENAME = os.path.dirname(__file__) + os.sep + 'logtemplate.html'
 
+
     def __init__(self):
         self.htmlCode = ""
-        pass
+
 
     def addHeader(self, caption):
+        assert isinstance(caption, basestring)
+
         self.htmlCode += "<h2>" + caption + "</h2>\n"
+
 
     def openTable(self):
         self.htmlCode += "<table>\n"
 
+
     def closeTable(self):
         self.htmlCode += "</table>\n"
+
 
     def openTableRow(self, tags = ""):
         if tags != "" and tags[:1] != " ":
             tags = " " + tags
         self.htmlCode += '<tr' + tags + '>'
 
+
     def closeTableRow(self):
         self.htmlCode += "</tr>\n"
+
 
     def addCol(self, value, tags = ""):
         if tags != "" and tags[:1] != " ":
@@ -42,7 +51,10 @@ class HtmlLog:
 
         self.htmlCode += '<td' + tags + ' >' + str(value) + "</td>"
 
+
     def getHTMLContent(self, fileName):
+        assert isinstance(fileName, basestring)
+
         fileName = os.path.dirname(__file__) + os.sep + fileName
         if not os.path.exists(fileName):
             fileName = self.TEMPLATE_FILENAME
@@ -50,6 +62,7 @@ class HtmlLog:
             result = f.read()
             f.close()
         return result
+
 
     def saveStrToFile(self, fileName, str):
         try:
@@ -61,14 +74,20 @@ class HtmlLog:
         finally:
             pass
 
+
     def closeSection(self, fileName):
+        assert isinstance(fileName, basestring)
+
         htmlPage = self.getHTMLContent(fileName)
         htmlPage = htmlPage.replace(self.CHANGES_START_ID, "")
         htmlPage = htmlPage.replace(self.CHANGES_END_ID, self.CHANGES_START_ID + self.CHANGES_END_ID)
         htmlPage = htmlPage.replace("AutoRefresh = true", "AutoRefresh = false")
         self.saveStrToFile(fileName, htmlPage)
 
+
     def save(self, fileName):
+        assert isinstance(fileName, basestring)
+
         htmlPage = self.getHTMLContent(fileName)
         htmlPage = htmlPage.replace("AutoRefresh = false", "AutoRefresh = true")
         prefix = htmlPage[:htmlPage.find(self.CHANGES_START_ID) + len(self.CHANGES_START_ID)]
@@ -77,5 +96,6 @@ class HtmlLog:
 
     def clear(self):
         self.htmlCode = ""
+
 
 htmlLog = HtmlLog()
