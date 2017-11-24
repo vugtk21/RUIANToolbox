@@ -13,7 +13,7 @@ import os
 class HtmlLog:
     CHANGES_START_ID = "<!-- CHANGES START -->"
     CHANGES_END_ID = "<!-- CHANGES END -->"
-    TEMPLATE_FILENAME = 'logtemplate.html'
+    TEMPLATE_FILENAME = os.path.dirname(__file__) + os.sep + 'logtemplate.html'
 
     def __init__(self):
         self.htmlCode = ""
@@ -43,6 +43,7 @@ class HtmlLog:
         self.htmlCode += '<td' + tags + ' >' + str(value) + "</td>"
 
     def getHTMLContent(self, fileName):
+        fileName = os.path.dirname(__file__) + os.sep + fileName
         if not os.path.exists(fileName):
             fileName = self.TEMPLATE_FILENAME
         with open(fileName, "r") as f:

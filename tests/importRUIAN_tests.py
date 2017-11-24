@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from importRUIAN import *
+from RUIANImporter.importRUIAN import *
 
 class TestGlobalFunctions(unittest.TestCase):
 

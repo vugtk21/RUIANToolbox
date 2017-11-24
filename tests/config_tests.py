@@ -8,13 +8,12 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
-import config
+import SharedTools.config
 
-print config.RUIANDownloadInfoFile()
-#print Config.getSubDirPath("RUIANServices")
+print SharedTools.config.RUIANDownloadInfoFile()
 
-config = config.Config("RUIANDownload.cfg",
-            {
+config = SharedTools.config.Config("RUIANDownload.cfg",
+                                   {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,
                 "runImporter" : False,
@@ -26,9 +25,8 @@ config = config.Config("RUIANDownload.cfg",
                                  "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
                 "ignoreHistoricalData": True
             },
-           None,
-           defSubDir = "RUIANDownloader")
+                                   None,
+                                   defSubDir = "RUIANDownloader")
 
-print config.ignoreHistoricalData
-print config.fileName
-
+print "File name:", config.fileName
+print "Ignore historical data:", config.ignoreHistoricalData
