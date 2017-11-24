@@ -1,1 +1,0 @@
-pyuic4 configEditor.ui > configEditor.py
