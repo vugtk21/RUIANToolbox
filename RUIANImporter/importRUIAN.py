@@ -13,7 +13,7 @@ Import VFR data to database.
 Requires: Python 2.7.5 or later
           OS4Geo with WFS Support (http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip)
 
-Usage: importRUIAN.py [-dbname <database name>] [-host <host name>] [-port <database port>] [-user <user name>]
+Usage: ImportRUIAN.py [-dbname <database name>] [-host <host name>] [-port <database port>] [-user <user name>]
                       [-password <database password>] [-layers layer1,layer2,...] [-os4GeoPath <path>]
                       [-buildServicesTables <{True} {False}>] [-buildAutocompleteTables <{True} {False}>] [-help]')
 
@@ -43,9 +43,31 @@ from SharedTools.config import RUIANImporterConfig
 from SharedTools.log import logger
 import buildhtmllog
 
+RUNS_ON_WINDOWS = sys.platform.lower().startswith('win')
+RUNS_ON_LINUX = not RUNS_ON_WINDOWS
+COMMAND_FILE_EXTENSION = [".bat", ".sh"][RUNS_ON_LINUX]
+RUIAN2PG_LIBRARY_ZIP_URL = ["http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip", "https://github.com/ctu-geoforall-lab/gdal-vfr/archive/master.zip"]
+
 config = RUIANImporterConfig()
 
+
+def createCommandFile(fileName, commands):
+    assert isinstance(fileName, basestring)
+    assert isinstance(commands, basestring)
+
+    file = open(fileName, "w")
+
+    if RUNS_ON_LINUX:file.write("#!/usr/bin/env bash\n")
+    file.write(commands)
+    if RUNS_ON_LINUX:os.chmod(fileName, 0o777)
+
+    file.close()
+
+
 def joinPaths(basePath, relativePath):
+    assert isinstance(basePath, basestring)
+    assert isinstance(relativePath, basestring)
+
     basePath = basePath.replace("/", os.sep)
     relativePath = relativePath.replace("/", os.sep)
     if (os.path.exists(relativePath)):
@@ -67,10 +89,14 @@ def joinPaths(basePath, relativePath):
         fullPath = os.sep.join(basePathItems[:endBaseIndex]) + os.sep + os.sep.join(relativePathItems[startRelative:])
         return fullPath
 
+
 def getOSGeoPath():
     return joinPaths(os.path.dirname(__file__), config.os4GeoPath)
 
+
 def convertFileToDownloadLists(HTTPListName):
+    assert isinstance(HTTPListName, basestring)
+
     result = []
 
     inFile = open(HTTPListName, "r")
@@ -83,7 +109,7 @@ def convertFileToDownloadLists(HTTPListName):
             linesInFile = linesInFile + 1
             if DEMO_MODE and linesInFile > 3: continue
 
-            line = line[line.rfind("/") + 1:line.find(".xml.gz")]
+            line = line[line.rfind("/") + 1:line.find("\n")]
             outFile.write(line + "\n")
 
         outFile.close()
@@ -93,29 +119,44 @@ def convertFileToDownloadLists(HTTPListName):
 
 
 def buildDownloadBatch(fileListFileName, fileNames):
+    assert isinstance(fileListFileName, basestring)
+    assert os.path.exists(fileListFileName)
+    assert isinstance(fileNames, list)
+
     path = os.path.dirname(fileListFileName)
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
-    result = path + os.sep + "Import.bat"
-    file = open(result, "w")
-    file.write("cd %s\n" % path)
+    commandFileName = path + os.sep + "Import" + COMMAND_FILE_EXTENSION
+
+    (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(fileListFileName)
+    commands = "cd %s\n" % path
     overwriteCommand = "--o"
     for fileName in fileNames:
-        (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(fileListFileName)
 
-        importCmd = "call %s vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (os4GeoPath, fileName, config.dbname, config.user, config.password, overwriteCommand)
+        vfrCommand = "vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (fileName, config.dbname, config.user, config.password, overwriteCommand)
+
+        if RUNS_ON_WINDOWS:
+            importCmd = "call %s %s" % (os4GeoPath, vfrCommand)
+        else:
+            importCmd = "%s%s  2>>%s 3>>%s" % (os4GeoPath, vfrCommand, VFRlogFileName, VFRerrFileName)
 
         if config.layers != "": importCmd += " --layer " + config.layers
 
-        importCmd += " >%s 2>%s\n" % (VFRlogFileName, VFRerrFileName)
-
         logger.debug(importCmd)
-        file.write(importCmd)
+        commands += importCmd + "\n"
         overwriteCommand = "--append"
-    file.close()
 
-    return result
+
+    createCommandFile(commandFileName, commands)
+
+    return (commandFileName, VFRlogFileName, VFRerrFileName)
+
 
 def deleteFilesInLists(path, fileLists, extension):
+    assert isinstance(path, basestring)
+    assert os.path.exists(path)
+    assert isinstance(fileLists, list)
+    assert isinstance(extension, basestring)
+
     path = pathWithLastSlash(path)
     for fileList in fileLists:
         listFile = open(fileList, "r")
@@ -129,20 +170,24 @@ def deleteFilesInLists(path, fileLists, extension):
         listFile.close()
         os.remove(fileList)
 
-    pass
 
 def createStateDatabase(path, fileListFileName):
+    assert isinstance(path, basestring)
+    assert isinstance(fileListFileName, basestring)
+
     logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
     GDALFileListNames = convertFileToDownloadLists(fileListFileName)
-    downloadBatchFileName = buildDownloadBatch(fileListFileName, GDALFileListNames)
+    downloadBatchFileName, VFRlogFileName, VFRerrFileName = buildDownloadBatch(fileListFileName, GDALFileListNames)
 
+    logger.info("Spouštím %s, průběh viz. %s a %s." % (downloadBatchFileName, VFRlogFileName, VFRerrFileName))
     call(downloadBatchFileName)
     deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
     os.remove(downloadBatchFileName)
     renameFile(fileListFileName, "__")
-    pass
+
 
 def extractDatesAndType(patchFileList):
+    assert isinstance(patchFileList, list)
 
     def getDate(line):
         result = line[line.rfind("/") + 1:]
@@ -171,7 +216,11 @@ def extractDatesAndType(patchFileList):
 
     return (startDate, endDate, type)
 
+
 def renameFile(fileName, prefix):
+    assert isinstance(fileName, basestring)
+    assert isinstance(prefix, basestring)
+
     parts = fileName.split(os.sep)
     resultParts = parts[:len(parts) - 1]
     resultParts.append(prefix + parts[len(parts) - 1])
@@ -182,7 +231,9 @@ def renameFile(fileName, prefix):
     os.rename(fileName, newFileName)
     return newFileName
 
+
 def updateDatabase(updateFileList):
+    assert isinstance(updateFileList, list)
 
     def removeDataFiles():
         dataPath = pathWithLastSlash(os.path.split(updateFileList)[0])
@@ -204,23 +255,31 @@ def updateDatabase(updateFileList):
     logger.info("\tTyp dat:" + type)
 
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
+    if sys.platform.lower().startswith('win'):
+        os4GeoPath = os4GeoPath + " "
+    os4GeoPath = os4GeoPath + "vfr2pg"
 
     (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileList)
 
-    params = ' '.join([os4GeoPath, "vfr2pg",
+    params = ' '.join([os4GeoPath,
                 "--dbname", config.dbname,
                 "--user ", config.user,
                 "--passwd ", config.password,
                 "--date", startDate + ":" + endDate,
                 "--type", type])
-    if config.layers != "": params += " --layer " + config.layers
-    params += " >%s 2>%s" % (VFRlogFileName, VFRerrFileName)
 
-    batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import.bat"
-    file = open(batchFileName, "w")
-    file.write("cd " + os.path.dirname(os.path.abspath(updateFileList)) + "\n")
-    file.write(params)
-    file.close()
+    if config.layers != "":
+        params += " --layer " + config.layers
+
+    if RUNS_ON_WINDOWS:
+        params += " >%s 2>%s" % (VFRlogFileName, VFRerrFileName)
+    else:
+        params += " 2>%s 3>%s" % (VFRlogFileName, VFRerrFileName)
+
+    batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import" + COMMAND_FILE_EXTENSION
+    commands = "cd " + os.path.dirname(os.path.abspath(updateFileList)) + "\n"
+    commands += params + "\n"
+    createCommandFile(batchFileName, commands)
 
     call(batchFileName)
     os.remove(batchFileName)
@@ -228,9 +287,11 @@ def updateDatabase(updateFileList):
 
     renameFile(updateFileList, "__")
     logger.info("Import update data done.")
-    pass
+
 
 def processDownloadedDirectory(path):
+    assert isinstance(path, basestring)
+
     logger.info("Načítám stažené soubory do databáze...")
     logger.info("--------------------------------------")
     logger.info("Zdrojová data : " + path)
@@ -239,12 +300,11 @@ def processDownloadedDirectory(path):
     stateFileList = ""
     updatesFileList = []
     for file in os.listdir(path):
-        fileName = file.lower()
         if file.endswith(".txt"):
-            if fileName.startswith("download_"):
-                stateFileList = join(path, fileName)
-            elif fileName.startswith("patch_"):
-                updatesFileList.append(join(path, fileName))
+            if file.startswith("Download_"):
+                stateFileList = join(path, file)
+            elif file.startswith("Patch_"):
+                updatesFileList.append(join(path, file))
 
     result = False
     if stateFileList != "":
@@ -266,10 +326,15 @@ def processDownloadedDirectory(path):
     logger.info("Načítání stažených souborů do databáze - hotovo.")
     return result
 
+
 def getFullPath(configFileName, path):
+    assert isinstance(configFileName, basestring)
+    assert isinstance(path, basestring)
+
     if not os.path.exists(path):
         path = pathWithLastSlash(configFileName) + path
     return path
+
 
 def doImport(argv):
     logger.info("Importing VFR data to database.")
@@ -277,8 +342,9 @@ def doImport(argv):
 
     osGeoPath = getOSGeoPath()
     if not os.path.exists(osGeoPath):
-        print "Error: Batch file %s doesn't exist" % osGeoPath
-        print "Download file http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip, expand it and run script again."
+        print "Error: RUIAN import library %s doesn't exist" % osGeoPath
+        print "Download file %s, expand it and run script again." % RUIAN2PG_LIBRARY_ZIP_URL
+
         sys.exit()
 
     from RUIANDownloader.RUIANDownload import getDataDirFullPath
@@ -293,6 +359,7 @@ def doImport(argv):
 
     from RUIANServices.services.RUIANConnection import saveRUIANVersionDateToday
     saveRUIANVersionDateToday()
+
 
 from SharedTools.sharetools import setupUTF
 setupUTF()

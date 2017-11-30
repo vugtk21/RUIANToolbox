@@ -21,8 +21,8 @@ def setupPaths(depth = 1):
     # ####################################
     # Setup path to RUIANToolbox
     # ####################################
-    global firstCall
     global RUIANToolBoxPath
+    global firstCall
 
     if firstCall:
         import os.path, sys

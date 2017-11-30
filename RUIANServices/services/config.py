@@ -82,20 +82,18 @@ HTMLDATA_URL = "html/"
 
 _isFirstCall = True
 def setupVariables():
+    global _isFirstCall
+    global SERVER_HTTP
+    global PORT_NUMBER
+    global SERVICES_WEB_PATH
+    global HTMLDATA_URL
+
     if _isFirstCall and not shared.isCGIApplication:
-        global SERVER_HTTP
         SERVER_HTTP = config.noCGIAppServerHTTP
-
-        global PORT_NUMBER
         PORT_NUMBER = config.noCGIAppPortNumber
-
-        global SERVICES_WEB_PATH
         SERVICES_WEB_PATH = ""
-
-        global HTMLDATA_URL
         HTMLDATA_URL = "html/"
 
-    global _isFirstCall
     _isFirstCall = False
 
 def getCGIPath():

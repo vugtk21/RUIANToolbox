@@ -6,7 +6,7 @@ import ttk
 from idlelib import ToolTip
 
 from RUIANDownloader import RUIANDownload
-from RUIANImporter import importRUIAN
+from RUIANImporter import ImportRUIAN
 from RUIANServices.services import config as RUIANServicesConfig
 
 class SetupForm(Frame):
@@ -119,7 +119,7 @@ class SetupForm(Frame):
 
     def createImportTab(self, nb):
         frame = self._getFrame("importTabFrame")
-        config = importRUIAN.config
+        config = ImportRUIAN.config
 
         self._getTopLabel(frame, "RÚIAN Importer umožňuje importovat stažený stav do databáze včetně načtení aktualizačních balíčků.")
         self.editsRow = 1

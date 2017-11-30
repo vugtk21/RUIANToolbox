@@ -19,16 +19,17 @@ def setupPaths(depth = 1):
     # ####################################
     # Setup path to RUIANToolbox
     # ####################################
+    global RUIANToolBoxPath
+    global firstCall
+
     if firstCall:
         import os.path, sys
 
         pathParts = os.path.dirname(__file__).split(os.sep)
         basePath = os.sep.join(pathParts[:len(pathParts) - depth])
 
-        global RUIANToolBoxPath
         RUIANToolBoxPath = basePath
 
         if not basePath in sys.path:
             sys.path.append(basePath)
-        global firstCall
         firstCall = False

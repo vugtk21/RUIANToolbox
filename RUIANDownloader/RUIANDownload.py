@@ -125,6 +125,7 @@ def formatTimeDelta(timeDelta):
     if v == "": v = "0"
     return v + "s"
 
+
 def getUpdateURL(url, dateStr):
     url = url.replace("vf.cr=U&", "vf.cr=Z&")
     url = url.replace("vf.up=ST&", "")
@@ -134,9 +135,11 @@ def getUpdateURL(url, dateStr):
     url += "&vf.pd=" + dateStr
     return url
 
+
 class RUIANDownloader:
     def __init__(self, aTargetDir = ""):
         self._targetDir = ""
+        self.dataDir = ""
         self.setTargetDir(aTargetDir)
         self.downloadInfos = []
         self.downloadInfo = None
@@ -150,19 +153,27 @@ class RUIANDownloader:
 
     def setTargetDir(self, aTargetDir):
         if aTargetDir != "":
-            if aTargetDir.rfind("\\") != len(aTargetDir) - 1:
-                aTargetDir += "\\"
+            aTargetDir = os.path.normpath(aTargetDir)
+            if aTargetDir.rfind(os.sep) != len(aTargetDir) - 1:
+                aTargetDir += os.sep
             if not os.path.exists(aTargetDir):
                 os.makedirs(aTargetDir)
+
+        self.dataDir = aTargetDir + "data/"
+        if not os.path.exists(self.dataDir):
+            os.makedirs(self.dataDir)
+
         self._targetDir = aTargetDir
         pass
 
     targetDir = property(fget = getTargetDir, fset = setTargetDir)
 
+
     def getFullSetList(self):
         logger.debug("RUIANDownloader.getFullSetList")
         self._fullDownload = True
         return self.getList(self.pageURLs, False)
+
 
     def getList(self, urls, isPatchList):
         urls = urls.split(";")
@@ -195,6 +206,7 @@ class RUIANDownloader:
             result = result[:5]
         return result
 
+
     def getUpdateList(self, fromDate = ""):
         logger.debug("RUIANDownloader.getUpdateList since %s", infoFile.validFor())
         self._fullDownload = False
@@ -205,6 +217,7 @@ class RUIANDownloader:
             return self.getList(getUpdateURL(firstPageURL, dateStr), True)
         else:
             return []
+
 
     def buildIndexHTML(self):
         def addCol(value, tags = ""):
@@ -225,6 +238,7 @@ class RUIANDownloader:
                 htmlLog.htmlCode += "<th></th><th>Rozbaleno<br>[Bajtů]</th>"
             htmlLog.htmlCode += "<th valign='bottom'>Čas</th></tr>"
 
+
         def calcSumValues():
             calcInfo = DownloadInfo()
             calcInfo.downloadTime = 0
@@ -234,7 +248,6 @@ class RUIANDownloader:
                 elif info.fileName != "":
                         calcInfo.fileSize += info.fileSize
                         calcInfo.compressedFileSize += info.compressedFileSize
-                        #logger.info(info.fileName + ":" + info.downloadTime)
                         time = float(info.downloadTime[:len(info.downloadTime) - 1])
                         calcInfo.downloadTime = calcInfo.downloadTime + time
                 else:
@@ -246,11 +259,13 @@ class RUIANDownloader:
             calcInfo.downloadTime = str(calcInfo.downloadTime) + "s"
             self.downloadInfos.append(calcInfo)
 
+
         def intToStr(intValue):
             if int == 0:
                 return ""
             else:
                 return str(intValue)
+
 
         def addTableContent():
             altColor = True
@@ -284,7 +299,7 @@ class RUIANDownloader:
         calcSumValues()
         addTableContent()
         htmlLog.save(config.dataDir + "Index.html")
-        pass
+
 
     def downloadURLList(self, urlList):
 
@@ -304,14 +319,13 @@ class RUIANDownloader:
             fileName = self.downloadURLtoFile(href, index, len(urlList))
             if config.uncompressDownloadedFiles:
                 self.uncompressFile(fileName, not config.runImporter)
-        #self.buildIndexHTML()
-        pass
+
 
     def downloadURLtoFile(self, url, fileIndex, filesCount):
-        # Downloads to temporary file, if suceeded, then rename result
-        tmpFileName = pathWithLastSlash(self.targetDir) + "tmpfile.bin"
+        """ Downloads to temporary file. If suceeded, then rename result. """
+        tmpFileName = pathWithLastSlash(self.dataDir) + "tmpfile.bin"
         logger.debug("RUIANDownloader.downloadURLtoFile")
-        file_name = self.targetDir + url.split('/')[-1]
+        file_name = self.dataDir + url.split('/')[-1]
         startTime = datetime.datetime.now()
 
         if os.path.exists(file_name):
@@ -342,6 +356,7 @@ class RUIANDownloader:
         self.downloadInfo.fileName = file_name
         self.downloadInfo.compressedFileSize = fileSize
         return file_name
+
 
     def uncompressFile(self, fileName, deleteSource = True):
         """
@@ -379,6 +394,7 @@ class RUIANDownloader:
             return outFileName
         else:
             return fileName
+
 
     def download(self):
         def wasItToday(dateTimeStr):
@@ -438,6 +454,7 @@ class RUIANDownloader:
             self._fullDownload = False
             self.download()
 
+
     def saveFileList(self, fileList):
         infoFile.numPatches = infoFile.numPatches + 1
         v = str(datetime.datetime.now())
@@ -450,6 +467,7 @@ class RUIANDownloader:
         for line in fileList:
             outFile.write(line + "\n")
         outFile.close()
+
 
     def _downloadURLtoFile(self, url):
         logger.debug("RUIANDownloader._downloadURLtoFile")
@@ -473,12 +491,12 @@ class RUIANDownloader:
             f.write(blockBuffer)
             filePercentageInfo(file_size, file_size_dl)
         f.close()
-        pass
 
 
 def printUsageInfo():
     logger.info(helpStr)
     sys.exit(1)
+
 
 def getDataDirFullPath():
     result = config.dataDir
@@ -487,6 +505,7 @@ def getDataDirFullPath():
         result = os.path.normpath(result)
         result = pathWithLastSlash(result)
     return result
+
 
 def main(argv = sys.argv):
     config.loadFromCommandLine(argv, helpStr)
@@ -511,7 +530,7 @@ def main(argv = sys.argv):
     logger.info("Download done.")
     if config.runImporter:
         logger.info("Executing RUIANImporter.importRUIAN.doImport().")
-        from RUIANImporter.importRUIAN import doImport
+        from RUIANImporter.ImportRUIAN import doImport
         doImport(argv)
         logger.info("Done - RUIANImporter.importRUIAN.doImport().")
 

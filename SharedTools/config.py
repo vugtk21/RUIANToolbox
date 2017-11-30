@@ -240,8 +240,9 @@ def convertRUIANDownloadCfg(config):
     pass
 
 def RUIANDownloadConfig():
+    global x_RUIANDownloadConfig
+
     if x_RUIANDownloadConfig == None:
-        global x_RUIANDownloadConfig
         x_RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
             {
                 "downloadFullDatabase" : False,
@@ -270,9 +271,10 @@ def convertRUIANImporterConfig(config):
     pass
 
 def RUIANImporterConfig():
+    global x_RUIANImporterConfig
+
     if x_RUIANImporterConfig == None:
-        global x_RUIANImporterConfig
-        x_RUIANImporterConfig = Config("importRUIAN.cfg",
+        x_RUIANImporterConfig = Config("ImportRUIAN.cfg",
             {
                 "dbname" : "euradin",
                 "host" : "localhost",
