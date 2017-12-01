@@ -31,6 +31,10 @@ def pathWithLastSlash(path):
     return path
 
 
+def createDirForFile(fileName):
+    safeMkDir(os.path.dirname(fileName))
+
+
 def safeMkDir(path):
     assert isinstance(path, basestring)
 

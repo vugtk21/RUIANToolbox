@@ -8,6 +8,7 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 import logging
+from sharetools import createDirForFile
 
 
 logger = None
@@ -35,6 +36,7 @@ def createLogger(logFileName):
     logger.addHandler(ch)
 
     # Create and setup log file parameters
+    createDirForFile(logFileName)
     fileHandler = logging.FileHandler(logFileName)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     fileHandler.setFormatter(formatter)
