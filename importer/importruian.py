@@ -91,7 +91,12 @@ def joinPaths(basePath, relativePath):
 
 
 def getOSGeoPath():
-    return joinPaths(os.path.dirname(__file__), config.os4GeoPath)
+    if RUNS_ON_WINDOWS:
+        path = config.os4GeoPath
+    else:
+        path = config.vfr2pgPath
+
+    return joinPaths(os.path.dirname(__file__), path)
 
 
 def convertFileToDownloadLists(HTTPListName):
