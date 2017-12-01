@@ -45,7 +45,7 @@ def safeMkDir(path):
     for pathItem in pathParts:
         actPathList.append(pathItem)
         actPathStr = os.sep.join(actPathList)
-        if not os.path.exists(actPathStr):
+        if actPathStr and not os.path.exists(actPathStr):
             os.mkdir(actPathStr)
 
 

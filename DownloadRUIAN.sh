@@ -12,4 +12,4 @@ echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd RUIANDownloader
 python downloadruian.py 2>>DownloadRUIAN.log 3>>DownloadRUIANErr.log
 cd ..
-mv RUIANDownloader/*.log ./
+mv downloader/*.log ./

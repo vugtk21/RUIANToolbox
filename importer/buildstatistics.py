@@ -5,6 +5,7 @@ Builds statistics from vfr2pg.py log file.
 Usage: buildstatistics.py [logfilename]
 """
 
+
 def convertFile(fileName):
     FILE_PREFIX = "Processing "
     FILE_SUFFIX = "..."
@@ -30,12 +31,12 @@ def convertFile(fileName):
                 outFile.write("%d,%s,%s\n" % (fileCount, timeSec, fileName))
 
             lineCount = lineCount + 1
-            pass
 
         print lineCount, " lines read."
     finally:
         inFile.close()
         outFile.close()
+
 
 if __name__ == "__main__":
     import sys

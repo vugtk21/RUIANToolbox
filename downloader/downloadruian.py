@@ -524,7 +524,7 @@ if __name__ == '__main__':
 
     log.logger.info("Download done.")
     if config.runImporter:
-        log.logger.info("Executing RUIANImporter.importRUIAN.doImport().")
-        from importer.ImportRUIAN import doImport
+        log.logger.info("Executing importer.importruian.doImport().")
+        from importer.importruian import doImport
         doImport(sys.argv)
-        log.logger.info("Done - RUIANImporter.importRUIAN.doImport().")
+        log.logger.info("Done - importer.importruian.doImport().")
