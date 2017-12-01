@@ -152,7 +152,7 @@ class RUIANDownloader:
 
         self.dataDir = targetDir
         if RUNS_ON_LINUX:
-            self.dataDir = + "data/"
+            self.dataDir += "data/"
             if not os.path.exists(self.dataDir):
                 os.makedirs(self.dataDir)
 
