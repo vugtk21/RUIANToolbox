@@ -8,11 +8,11 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
-import SharedTools.config
+import sharedtools.config
 
-print SharedTools.config.RUIANDownloadInfoFile()
+print sharedtools.config.RUIANDownloadInfoFile()
 
-config = SharedTools.config.Config("RUIANDownload.cfg",
+config = sharedtools.config.Config("RUIANDownload.cfg",
                                    {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,

@@ -8,7 +8,7 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 import logging
-from sharetools import createDirForFile
+from base import createDirForFile
 
 
 logger = None

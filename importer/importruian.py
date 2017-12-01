@@ -29,7 +29,7 @@ Usage: ImportRUIAN.py [-dbname <database name>] [-host <host name>] [-port <data
        -Help         Print help
 """
 
-DEMO_MODE = False # If set to true, there will be just 50 rows in every state database import lines applied.
+DEMO_MODE = False # If set to true, there will be just few rows in every state database import lines applied.
 
 import os
 import sys
@@ -38,23 +38,32 @@ from subprocess import call
 
 import shared; shared.setupPaths()
 
-from SharedTools.config import pathWithLastSlash
-from SharedTools.config import RUIANImporterConfig
-from SharedTools.log import logger
+from sharedtools import pathWithLastSlash, RUIANImporterConfig, getDataDirFullPath, extractFileName, RUNS_ON_WINDOWS, RUNS_ON_LINUX, COMMAND_FILE_EXTENSION
+import sharedtools.log as log
 import buildhtmllog
 
-RUNS_ON_WINDOWS = sys.platform.lower().startswith('win')
-RUNS_ON_LINUX = not RUNS_ON_WINDOWS
-COMMAND_FILE_EXTENSION = [".bat", ".sh"][RUNS_ON_LINUX]
-RUIAN2PG_LIBRARY_ZIP_URL = ["http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip", "https://github.com/ctu-geoforall-lab/gdal-vfr/archive/master.zip"]
+RUIAN2PG_LIBRARY_ZIP_URL = [
+    "http://www.vugtk.cz/euradin/VFRLibrary/OSGeo4W_vfr_1.9.73.zip",
+    "https://github.com/ctu-geoforall-lab/gdal-vfr/archive/master.zip"
+][RUNS_ON_LINUX]
+LIST_FILE_TAIL = "_list.txt"
 
-config = RUIANImporterConfig()
+
+config = None
 
 
-def createCommandFile(fileName, commands):
-    assert isinstance(fileName, basestring)
+def createCommandFile(fileNameBase, commands):
+    """Creates either fileNameBase.bat file or fileNameBase.sh file, depending on the operating system.
+    If runs on Linux, then chmod 777 fileName is applied.
+
+    :param fileNameBase: Base of the command script file name.
+    :param commands: Context of the command file.
+    :return:
+    """
+    assert isinstance(fileNameBase, basestring)
     assert isinstance(commands, basestring)
 
+    fileName = fileNameBase + COMMAND_FILE_EXTENSION
     file = open(fileName, "w")
 
     if RUNS_ON_LINUX:file.write("#!/usr/bin/env bash\n")
@@ -62,6 +71,8 @@ def createCommandFile(fileName, commands):
     if RUNS_ON_LINUX:os.chmod(fileName, 0o777)
 
     file.close()
+
+    return fileName
 
 
 def joinPaths(basePath, relativePath):
@@ -92,9 +103,9 @@ def joinPaths(basePath, relativePath):
 
 def getOSGeoPath():
     if RUNS_ON_WINDOWS:
-        path = config.os4GeoPath
+        path = config.WINDOWS_os4GeoPath
     else:
-        path = config.vfr2pgPath
+        path = config.LINUX_vfr2pgPath
 
     return joinPaths(os.path.dirname(__file__), path)
 
@@ -106,7 +117,7 @@ def convertFileToDownloadLists(HTTPListName):
 
     inFile = open(HTTPListName, "r")
     try:
-        fileName = "%s_list.txt" % (HTTPListName[:HTTPListName.find(".txt")])
+        fileName = (HTTPListName[:HTTPListName.find(".txt")]) + LIST_FILE_TAIL
         outFile = open(fileName, "w")
         result.append(fileName)
         linesInFile = 0
@@ -129,15 +140,14 @@ def buildDownloadBatch(fileListFileName, fileNames):
     assert isinstance(fileNames, list)
 
     path = os.path.dirname(fileListFileName)
-    os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
-    commandFileName = path + os.sep + "Import" + COMMAND_FILE_EXTENSION
+    os4GeoPath = getOSGeoPath()
 
     (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(fileListFileName)
     commands = "cd %s\n" % path
     overwriteCommand = "--o"
     for fileName in fileNames:
 
-        vfrCommand = "vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (fileName, config.dbname, config.user, config.password, overwriteCommand)
+        vfrCommand = "vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (extractFileName(fileName), config.dbname, config.user, config.password, overwriteCommand)
 
         if RUNS_ON_WINDOWS:
             importCmd = "call %s %s" % (os4GeoPath, vfrCommand)
@@ -146,12 +156,11 @@ def buildDownloadBatch(fileListFileName, fileNames):
 
         if config.layers != "": importCmd += " --layer " + config.layers
 
-        logger.debug(importCmd)
+        log.logger.debug(importCmd)
         commands += importCmd + "\n"
         overwriteCommand = "--append"
 
-
-    createCommandFile(commandFileName, commands)
+        commandFileName = createCommandFile(path + os.sep + "Import", commands)
 
     return (commandFileName, VFRlogFileName, VFRerrFileName)
 
@@ -171,7 +180,7 @@ def deleteFilesInLists(path, fileLists, extension):
             fileName = path + line.rstrip() + extension
             if os.path.exists(fileName):
                 os.remove(fileName)
-            logger.debug(str(i), ":", fileName)
+            log.logger.debug(str(i), ":", fileName)
         listFile.close()
         os.remove(fileList)
 
@@ -180,11 +189,11 @@ def createStateDatabase(path, fileListFileName):
     assert isinstance(path, basestring)
     assert isinstance(fileListFileName, basestring)
 
-    logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
+    log.logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
     GDALFileListNames = convertFileToDownloadLists(fileListFileName)
     downloadBatchFileName, VFRlogFileName, VFRerrFileName = buildDownloadBatch(fileListFileName, GDALFileListNames)
 
-    logger.info("Spouštím %s, průběh viz. %s a %s." % (downloadBatchFileName, VFRlogFileName, VFRerrFileName))
+    log.logger.info("Spouštím %s, průběh viz. %s a %s." % (downloadBatchFileName, VFRlogFileName, VFRerrFileName))
     call(downloadBatchFileName)
     deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
     os.remove(downloadBatchFileName)
@@ -252,12 +261,12 @@ def updateDatabase(updateFileList):
             inFile.close()
         pass
 
-    logger.info("Importing update data from " + updateFileList)
+    log.logger.info("Importing update data from " + updateFileList)
 
     (startDate, endDate, type) = extractDatesAndType(updateFileList)
-    logger.info("\tPočáteční datum:" + startDate)
-    logger.info("\tKonečné datum:" + endDate)
-    logger.info("\tTyp dat:" + type)
+    log.logger.info("\tPočáteční datum:" + startDate)
+    log.logger.info("\tKonečné datum:" + endDate)
+    log.logger.info("\tTyp dat:" + type)
 
     os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
     if sys.platform.lower().startswith('win'):
@@ -281,32 +290,31 @@ def updateDatabase(updateFileList):
     else:
         params += " 2>%s 3>%s" % (VFRlogFileName, VFRerrFileName)
 
-    batchFileName = os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import" + COMMAND_FILE_EXTENSION
     commands = "cd " + os.path.dirname(os.path.abspath(updateFileList)) + "\n"
     commands += params + "\n"
-    createCommandFile(batchFileName, commands)
+    batchFileName = createCommandFile(os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import" , commands)
 
     call(batchFileName)
     os.remove(batchFileName)
     removeDataFiles()
 
     renameFile(updateFileList, "__")
-    logger.info("Import update data done.")
+    log.logger.info("Import update data done.")
 
 
 def processDownloadedDirectory(path):
     assert isinstance(path, basestring)
 
-    logger.info("Načítám stažené soubory do databáze...")
-    logger.info("--------------------------------------")
-    logger.info("Zdrojová data : " + path)
+    log.logger.info("Načítám stažené soubory do databáze...")
+    log.logger.info("--------------------------------------")
+    log.logger.info("Zdrojová data : " + path)
 
     path = pathWithLastSlash(path)
     stateFileList = ""
     updatesFileList = []
     for file in os.listdir(path):
         if file.endswith(".txt"):
-            if file.startswith("Download_"):
+            if file.startswith("Download_") and not file.endswith(LIST_FILE_TAIL):
                 stateFileList = join(path, file)
             elif file.startswith("Patch_"):
                 updatesFileList.append(join(path, file))
@@ -316,19 +324,19 @@ def processDownloadedDirectory(path):
         createStateDatabase(path, stateFileList)
         result = True
     else:
-        logger.info("Stavová data nejsou obsahem zdrojových dat.")
+        log.logger.info("Stavová data nejsou obsahem zdrojových dat.")
 
     if len(updatesFileList) == 0:
-        logger.info("Denní aktualizace nejsou obsahem zdrojových dat.")
+        log.logger.info("Denní aktualizace nejsou obsahem zdrojových dat.")
     else:
         result = True
         for updateFileName in updatesFileList:
             updateDatabase(updateFileName)
 
-    logger.info(u"Generuji sestavu importů.")
+    log.logger.info(u"Generuji sestavu importů.")
     buildhtmllog.buildHTMLLog()
 
-    logger.info("Načítání stažených souborů do databáze - hotovo.")
+    log.logger.info("Načítání stažených souborů do databáze - hotovo.")
     return result
 
 
@@ -342,17 +350,23 @@ def getFullPath(configFileName, path):
 
 
 def doImport(argv):
-    logger.info("Importing VFR data to database.")
+    global config
+    
+    from sharedtools import setupUTF
+    setupUTF()
+
+    config = RUIANImporterConfig()
     config.loadFromCommandLine(argv, helpStr)
+    log.createLogger(getDataDirFullPath() + "Download.log")
+    log.logger.info("Importing VFR data to database.")
 
     osGeoPath = getOSGeoPath()
     if not os.path.exists(osGeoPath):
         print "Error: RUIAN import library %s doesn't exist" % osGeoPath
-        print "Download file %s, expand it and run script again." % RUIAN2PG_LIBRARY_ZIP_URL
+        print "Download file %s, expand it into RUIANToolbox base directory and run script again." % RUIAN2PG_LIBRARY_ZIP_URL
 
         sys.exit()
 
-    from downloader.downloadruian import getDataDirFullPath
     rebuildAuxiliaryTables = processDownloadedDirectory(getDataDirFullPath())
 
     if config.buildServicesTables and rebuildAuxiliaryTables:
@@ -366,8 +380,6 @@ def doImport(argv):
     saveRUIANVersionDateToday()
 
 
-from SharedTools.sharetools import setupUTF
-setupUTF()
-
 if __name__ == "__main__":
+
     doImport(sys.argv)

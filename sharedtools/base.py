@@ -11,6 +11,11 @@
 import os, sys, codecs
 
 
+RUNS_ON_WINDOWS = sys.platform.lower().startswith('win')
+RUNS_ON_LINUX = not RUNS_ON_WINDOWS
+COMMAND_FILE_EXTENSION = [".bat", ".sh"][RUNS_ON_LINUX]
+
+
 def extractFileName(fileName):
     lastDel = fileName.rfind(os.sep)
     return fileName[lastDel + 1:]
@@ -47,6 +52,11 @@ def safeMkDir(path):
         actPathStr = os.sep.join(actPathList)
         if actPathStr and not os.path.exists(actPathStr):
             os.mkdir(actPathStr)
+
+def extractFileName(path):
+    head, tail = os.path.split(path)
+
+    return tail
 
 
 def getPythonModules():

@@ -8,9 +8,9 @@ import os, codecs, sys
 from config import config
 
 import shared; shared.setupPaths()
-from SharedTools.log import logger
+from sharedtools.log import logger
 
-from SharedTools.config import getRUIANServicesSQLScriptsPath
+from sharedtools.config import getRUIANServicesSQLScriptsPath
 
 import HTTPShared
 import compileaddress

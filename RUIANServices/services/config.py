@@ -11,7 +11,7 @@
 import shared
 shared.setupPaths(depth=2)
 
-from SharedTools.config import Config, RUIANImporterConfig
+from sharedtools.config import Config, RUIANImporterConfig
 
 servicesConfigAttrs = {
                 "serverHTTP": 'www.vugtk.cz',

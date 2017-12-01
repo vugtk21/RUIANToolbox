@@ -7,9 +7,9 @@ import re
 
 from config import config
 import shared; shared.setupPaths()
-from SharedTools.log import logger
-from SharedTools.config import getRUIANServicesHTMLPath
-from SharedTools.sharetools import getFileContent
+from sharedtools.log import logger
+from sharedtools.config import getRUIANServicesHTMLPath
+from sharedtools.base import getFileContent
 import HTTPShared
 
 DATABASE_HOST = config.databaseHost

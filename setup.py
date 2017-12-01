@@ -20,12 +20,12 @@ setup(
     #put them into the package directory - they will be found
     #recursively.)
     packages = [
-        "RUIANDownloader",
-        "RUIANImporter",
+        "downloader",
+        "importer",
         "RUIANServices",
         "RUIANServices.services",
         "RUIANServices.testing",
-        "SharedTools"
+        "sharedtools"
     ],
 
     # This is a list of files to install, and where (relative to the 'root' dir, where setup.py is.
@@ -43,7 +43,7 @@ setup(
             "RUIANServices/img/*",
             "RUIANServices/soap/*"
         ],
-        "SharedTools"     : ["SharedTools/*"]
+        "sharedtools"     : ["sharedtools/*"]
     },
 
     #'RUIANToolbox.py' is in the root.

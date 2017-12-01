@@ -10,7 +10,7 @@
 
 import os, codecs, sys
 import log
-import sharetools
+import base
 
 x_RUIANDownloadConfig = None
 x_RUIANImporterConfig = None
@@ -45,28 +45,28 @@ def isTrue(value):
 def getSubDirPath(subDir):
     path = os.path.dirname(__file__)
     masterPath = os.path.split(path)[0]
-    return sharetools.pathWithLastSlash(os.path.join(masterPath, subDir))
+    return base.pathWithLastSlash(os.path.join(masterPath, subDir))
 
 
 def getParentPath(moduleFile):
     if moduleFile == "": moduleFile = __file__
     path = os.path.dirname(moduleFile)
     parentPath = os.path.split(path)[0]
-    return sharetools.pathWithLastSlash(parentPath)
+    return base.pathWithLastSlash(parentPath)
 
 
 def getMasterPath(moduleFile):
     path = getParentPath(moduleFile)
     masterPath = os.path.split(path)[0]
-    return sharetools.pathWithLastSlash(masterPath)
+    return base.pathWithLastSlash(masterPath)
 
 
 class Config:
     def __init__(self, fileName, attrs = {}, afterLoadProc = None, basePath = "", defSubDir = "", moduleFile = "", createIfNotFound = True):
         if basePath != "":
-            basePath = sharetools.pathWithLastSlash(basePath)
+            basePath = base.pathWithLastSlash(basePath)
             if not os.path.exists(basePath):
-                log.logger.warning("Config.__init__, cesta " + basePath + " neexistuje.")
+                log.logger.error("Config.__init__, cesta " + basePath + " neexistuje.")
                 basePath = ""
 
         self.fileName = basePath + fileName
@@ -86,7 +86,7 @@ class Config:
         if os.path.exists(basePath + fileName):
             self.fileName = basePath + fileName
         else:
-            path = sharetools.normalizePathSep(os.path.dirname(__file__))
+            path = base.normalizePathSep(os.path.dirname(__file__))
             pathItems = path.split(os.sep)
             for i in range(0, len(pathItems)):
                 path = os.sep.join(pathItems[0:i]) + os.sep + fileName
@@ -97,7 +97,7 @@ class Config:
         if self.fileName == "":
             self.fileName = basePath + fileName
             if createIfNotFound:
-                msg = u"Konfigurační soubor %s nebyl nenalezen." % (sharetools.pathWithLastSlash(basePath) + self.fileName)
+                msg = u"Konfigurační soubor %s nebyl nenalezen." % (base.pathWithLastSlash(basePath) + self.fileName)
                 log.logger.error(msg)
                 self.save()
                 log.logger.error(u"Soubor byl vytvořen ze šablony. Nastavte prosím jeho hodnoty a spusťte program znovu.")
@@ -152,7 +152,7 @@ class Config:
 
 
         pathParts = self.fileName.split(os.sep)
-        sharetools.safeMkDir(os.sep.join(pathParts[:len(pathParts)-1]))
+        base.safeMkDir(os.sep.join(pathParts[:len(pathParts) - 1]))
 
         outFile = codecs.open(self.fileName, "w", "utf-8")
         for key in self.attrs:
@@ -230,11 +230,11 @@ def convertRUIANDownloadCfg(config):
     config.runImporter = isTrue(config.runImporter)
     config.dataDir = config.dataDir.replace("/", os.sep)
     config.dataDir = config.dataDir.replace("\\", os.sep)
-    config.dataDir = sharetools.pathWithLastSlash(config.dataDir)
+    config.dataDir = base.pathWithLastSlash(config.dataDir)
     if not os.path.isabs(config.dataDir):
         result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
         result = os.path.normpath(result)
-        config.dataDir = sharetools.pathWithLastSlash(result)
+        config.dataDir = base.pathWithLastSlash(result)
 
     config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
     RUIANDownloadInfoFile().load(config.dataDir + "Info.txt")
@@ -285,12 +285,13 @@ def RUIANImporterConfig():
                 "password" : "postgres",
                 "schemaName" : "",
                 "layers" : "AdresniMista,Ulice,StavebniObjekty,CastiObci,Obce,Mop,Momc",
-                "os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                "WINDOWS_os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                "LINUX_vfr2pgPath": "../gdal-vfr-master/",
                 "buildServicesTables" : "True",
                 "buildAutocompleteTables" : "False"
             },
             convertRUIANImporterConfig,
-            defSubDir = "RUIANImporter",
+            defSubDir = "importer",
             moduleFile = __file__,
             basePath = getRUIANImporterPath()
            )
@@ -300,14 +301,14 @@ def RUIANImporterConfig():
 def getRUIANToolboxPath():
     global x_RUIANToolboxPath
     if x_RUIANToolboxPath == None:
-        x_RUIANToolboxPath = sharetools.pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
+        x_RUIANToolboxPath = base.pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
         x_RUIANToolboxPath = x_RUIANToolboxPath.replace("/", os.sep)
         x_RUIANToolboxPath = x_RUIANToolboxPath.replace("\\", os.sep)
     return x_RUIANToolboxPath
 
 
 def getRUIANImporterPath():
-    return getRUIANToolboxPath() + "RUIANImporter" + os.sep
+    return getRUIANToolboxPath() + "importer" + os.sep
 
 
 def getRUIANDownloaderPath():
@@ -335,7 +336,7 @@ def getDataDirFullPath():
     if not os.path.isabs(result):
         result = getRUIANDownloaderPath() + result
         result = os.path.normpath(result)
-        result = sharetools.pathWithLastSlash(result)
+        result = base.pathWithLastSlash(result)
     return result
 
 

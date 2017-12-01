@@ -30,10 +30,10 @@ import urllib2, os, sys, datetime
 
 import shared; shared.setupPaths()
 
-import SharedTools.log as log
+import sharedtools.log as log
 from htmllog import htmlLog
 
-from SharedTools import pathWithLastSlash, RUIANDownloadConfig, RUIANDownloadInfoFile, safeMkDir, getFileExtension, extractFileName
+from sharedtools import pathWithLastSlash, RUIANDownloadConfig, RUIANDownloadInfoFile, safeMkDir, getFileExtension, extractFileName, getDataDirFullPath, RUNS_ON_LINUX
 
 infoFile = None
 config = None
@@ -150,9 +150,11 @@ class RUIANDownloader:
             if not os.path.exists(targetDir):
                 os.makedirs(targetDir)
 
-        self.dataDir = targetDir + "data/"
-        if not os.path.exists(self.dataDir):
-            os.makedirs(self.dataDir)
+        self.dataDir = targetDir
+        if RUNS_ON_LINUX:
+            self.dataDir = + "data/"
+            if not os.path.exists(self.dataDir):
+                os.makedirs(self.dataDir)
 
         self._targetDir = targetDir
 
@@ -487,15 +489,6 @@ class RUIANDownloader:
 def printUsageInfo():
     log.logger.info(helpStr)
     sys.exit(1)
-
-
-def getDataDirFullPath():
-    result = config.dataDir
-    if not os.path.isabs(config.dataDir):
-        result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
-        result = os.path.normpath(result)
-        result = pathWithLastSlash(result)
-    return result
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ import compileaddress
 from HTTPShared import *
 
 import shared; shared.setupPaths()
-from SharedTools.log import logger
+from sharedtools.log import logger
 
 from config import config
 

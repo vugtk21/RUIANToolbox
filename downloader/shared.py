@@ -12,11 +12,6 @@ firstCall = True
 RUIANToolBoxPath = ""
 
 
-def moduleExists(moduleName):
-    import os
-    return os.path.exists(RUIANToolBoxPath + os.sep + moduleName)
-
-
 def setupPaths(depth = 1):
     # ####################################
     # Setup path to RUIANToolbox

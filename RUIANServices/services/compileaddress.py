@@ -161,8 +161,8 @@ def createServiceHandlers():
     )
 
 if __name__ == '__main__':
-    import SharedTools.sharetools
-    SharedTools.sharetools.setupUTF()
+    import sharedtools.base
+    sharedtools.base.setupUTF()
     #print compileAddress(None, u"Mrkvičkova", u"1370", "", "", "", "", "", "", "")
     print compileAddress(MimeBuilder("texttoonerow"), u"", u"14", "", "", "", "", "", "Stará Chodovská", "")
 

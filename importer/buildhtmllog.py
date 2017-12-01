@@ -23,7 +23,7 @@ DATE_STR_EXAMPLE = "2014.11.09"
 DETAILS = [".VFRlog", ".VFRerr"]
 
 import shared; shared.setupPaths()
-from SharedTools.config import getDataDirFullPath, RUIANImporterConfig
+from sharedtools.config import getDataDirFullPath, RUIANImporterConfig
 import sys, codecs, os, time
 
 def getLogFileNames(fileName):
@@ -181,7 +181,7 @@ def buildHTMLLog():
 
 
 def main(argv = sys.argv):
-    from SharedTools.config import RUIANDownloadConfig
+    from sharedtools.config import RUIANDownloadConfig
     config = RUIANDownloadConfig()
     config.loadFromCommandLine(argv, helpStr)
     print "Building import HTML Log file."
