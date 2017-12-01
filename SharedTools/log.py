@@ -9,25 +9,35 @@
 #-------------------------------------------------------------------------------
 import logging
 
-LOG_FILENAME = 'RUIANToolbox.log'
+
+logger = None
 
 
-def clearLogFile():
+def clearLogFile(logFileName):
     " This procedure creates empty log file with file name LOG_FILENAME "
-    f = open(LOG_FILENAME, 'w')
+    f = open(logFileName, 'w')
     f.close()
 
-# create logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s %(message)s', datefmt="%H:%M:%S")
+def createLogger(logFileName):
+    # create logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
-# Create and setup log file parameters
-fileHandler = logging.FileHandler(LOG_FILENAME)
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-fileHandler.setFormatter(formatter)
-logger.addHandler(fileHandler)
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s %(message)s', datefmt="%H:%M:%S")
+
+    # Create and setup console log parameters
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s %(message)s', "%H:%M:%S"))
+    logger.addHandler(ch)
+
+    # Create and setup log file parameters
+    fileHandler = logging.FileHandler(logFileName)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
+
 
 if __name__ == '__main__':
     logger.info("Logger test info")

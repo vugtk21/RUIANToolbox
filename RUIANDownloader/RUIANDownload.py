@@ -25,28 +25,17 @@ Usage: RUIANDownload.py [-DownloadFullDatabase {True | False}] [-DataDir data_di
 
 from cgitb import html
 
-DEBUG_MODE = False
 
 __author__ = 'raugustyn'
 
-# ####################################
-# Standard modules import
-# ####################################
-import urllib2
-import os
-import sys
-import datetime
+import urllib2, os, sys, datetime
 
 import shared; shared.setupPaths()
 
-# ####################################
-# Specific modules import
-# ####################################
-from log import logger, clearLogFile
+import SharedTools.log
 from htmllog import htmlLog
 
-from SharedTools.config import pathWithLastSlash, RUIANDownloadConfig, RUIANDownloadInfoFile
-from SharedTools.sharetools import safeMkDir
+from SharedTools import pathWithLastSlash, RUIANDownloadConfig, RUIANDownloadInfoFile, safeMkDir
 
 infoFile = RUIANDownloadInfoFile()
 config = RUIANDownloadConfig()
@@ -202,8 +191,6 @@ class RUIANDownloader:
                     newResult.append(url)
             result = newResult
 
-        if DEBUG_MODE:
-            result = result[:5]
         return result
 
 

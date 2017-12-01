@@ -8,9 +8,22 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
-import os
+import os, sys, codecs
+
+
+def pathWithLastSlash(path):
+    assert isinstance(path, basestring)
+
+    path = normalizePathSep(path)
+    if path != "" and path[len(path) - 1:] != os.sep:
+        path = path + os.sep
+
+    return path
+
 
 def safeMkDir(path):
+    assert isinstance(path, basestring)
+
     if path == "" or os.path.exists(path): return
 
     pathParts = path.split(os.sep)
@@ -20,25 +33,32 @@ def safeMkDir(path):
         actPathStr = os.sep.join(actPathList)
         if not os.path.exists(actPathStr):
             os.mkdir(actPathStr)
-    pass
+
 
 def getPythonModules():
-    import sys
     return sys.modules.keys()
+
 
 def setupUTF():
     import sys
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
+
 def normalizePathSep(path):
+    assert isinstance(path, basestring)
+
     path = path.replace("/", os.sep)
     path = path.replace("\\", os.sep)
+
     return path
 
+
 def getFileContent(fileName, charSet = "utf-8"):
+    assert isinstance(fileName, basestring)
+    assert isinstance(charSet, basestring)
+
     if os.path.exists(fileName):
-        import codecs
         inFile = codecs.open(fileName, "r", charSet)
         result = inFile.read()
         inFile.close()

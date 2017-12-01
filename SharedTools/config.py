@@ -8,10 +8,8 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
-import os
-import codecs
-import sys
-from log import logger
+import os, codecs, sys
+import log
 import sharetools
 
 x_RUIANDownloadConfig = None
@@ -19,6 +17,16 @@ x_RUIANImporterConfig = None
 x_RUIANDownloadInfoFile = None
 x_RUIANToolboxPath = None
 x_RUIANDownloadInfoFile = None
+
+TRUE_ID = "true"
+
+
+def boolToStr(v):
+    if v:
+        return TRUE_ID
+    else:
+        return "false"
+
 
 def strTo127(s):
     result = ""
@@ -28,39 +36,37 @@ def strTo127(s):
             result += ch
     return result
 
+
 def isTrue(value):
-    return value != None and value.lower() == "true"
+    return value != None and value.lower() == TRUE_ID
 
-def pathWithLastSlash(path):
-    if path != "" and path[len(path) - 1:] != os.sep:
-        path = path + os.sep
 
-    return path
 
 def getSubDirPath(subDir):
     path = os.path.dirname(__file__)
     masterPath = os.path.split(path)[0]
-    return pathWithLastSlash(os.path.join(masterPath, subDir))
+    return sharetools.pathWithLastSlash(os.path.join(masterPath, subDir))
+
 
 def getParentPath(moduleFile):
     if moduleFile == "": moduleFile = __file__
     path = os.path.dirname(moduleFile)
     parentPath = os.path.split(path)[0]
-    return pathWithLastSlash(parentPath)
+    return sharetools.pathWithLastSlash(parentPath)
+
 
 def getMasterPath(moduleFile):
     path = getParentPath(moduleFile)
     masterPath = os.path.split(path)[0]
-    return pathWithLastSlash(masterPath)
+    return sharetools.pathWithLastSlash(masterPath)
+
 
 class Config:
-    TRUE_ID = "true"
-
     def __init__(self, fileName, attrs = {}, afterLoadProc = None, basePath = "", defSubDir = "", moduleFile = "", createIfNotFound = True):
         if basePath != "":
-            basePath = pathWithLastSlash(basePath)
+            basePath = sharetools.pathWithLastSlash(basePath)
             if not os.path.exists(basePath):
-                logger.warning("Config.__init__, cesta " + basePath + " neexistuje.")
+                log.logger.warning("Config.__init__, cesta " + basePath + " neexistuje.")
                 basePath = ""
 
         self.fileName = basePath + fileName
@@ -91,10 +97,10 @@ class Config:
         if self.fileName == "":
             self.fileName = basePath + fileName
             if createIfNotFound:
-                msg = u"Konfigurační soubor %s nebyl nenalezen." % (pathWithLastSlash(basePath) + self.fileName)
-                logger.error(msg)
+                msg = u"Konfigurační soubor %s nebyl nenalezen." % (sharetools.pathWithLastSlash(basePath) + self.fileName)
+                log.logger.error(msg)
                 self.save()
-                logger.error(u"Soubor byl vytvořen ze šablony. Nastavte prosím jeho hodnoty a spusťte program znovu.")
+                log.logger.error(u"Soubor byl vytvořen ze šablony. Nastavte prosím jeho hodnoty a spusťte program znovu.")
                 import sys
                 sys.exit()
         else:
@@ -144,11 +150,6 @@ class Config:
         if configFileName != "":
             self.fileName = configFileName
 
-        def boolToStr(v):
-            if v:
-                return self.TRUE_ID
-            else:
-                return "false"
 
         pathParts = self.fileName.split(os.sep)
         sharetools.safeMkDir(os.sep.join(pathParts[:len(pathParts)-1]))
@@ -176,8 +177,8 @@ class Config:
                                 foundCommand = True
 
                     if not foundCommand:
-                        logger.warning('Unrecognised command option: %s' % arg)
-                        logger.info(usageMessage)
+                        log.logger.warning('Unrecognised command option: %s' % arg)
+                        log.logger.info(usageMessage)
                         sys.exit()
                 i = i + 1
         pass
@@ -229,11 +230,11 @@ def convertRUIANDownloadCfg(config):
     config.runImporter = isTrue(config.runImporter)
     config.dataDir = config.dataDir.replace("/", os.sep)
     config.dataDir = config.dataDir.replace("\\", os.sep)
-    config.dataDir = pathWithLastSlash(config.dataDir)
+    config.dataDir = sharetools.pathWithLastSlash(config.dataDir)
     if not os.path.isabs(config.dataDir):
         result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
         result = os.path.normpath(result)
-        config.dataDir = pathWithLastSlash(result)
+        config.dataDir = sharetools.pathWithLastSlash(result)
 
     config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
     RUIANDownloadInfoFile().load(config.dataDir + "Info.txt")
@@ -297,7 +298,7 @@ def RUIANImporterConfig():
 def getRUIANToolboxPath():
     global x_RUIANToolboxPath
     if x_RUIANToolboxPath == None:
-        x_RUIANToolboxPath = pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
+        x_RUIANToolboxPath = sharetools.pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
         x_RUIANToolboxPath = x_RUIANToolboxPath.replace("/", os.sep)
         x_RUIANToolboxPath = x_RUIANToolboxPath.replace("\\", os.sep)
     return x_RUIANToolboxPath
@@ -325,7 +326,7 @@ def getDataDirFullPath():
     if not os.path.isabs(result):
         result = getRUIANDownloaderPath() + result
         result = os.path.normpath(result)
-        result = pathWithLastSlash(result)
+        result = sharetools.pathWithLastSlash(result)
     return result
 
 def main():
