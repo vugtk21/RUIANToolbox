@@ -26,7 +26,7 @@ from config import SERVICES_WEB_PATH
 from config import HTMLDATA_URL
 from config import config
 
-from RUIANDownloader.RUIANDownload import getDataDirFullPath
+from downloader.downloadruian import getDataDirFullPath
 
 serverPathDepth = 0
 

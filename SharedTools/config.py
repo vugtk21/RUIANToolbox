@@ -258,18 +258,19 @@ def RUIANDownloadConfig():
 
             },
            convertRUIANDownloadCfg,
-           defSubDir = "RUIANDownloader",
+           defSubDir = "downloader",
            moduleFile = __file__,
            basePath = getRUIANDownloaderPath()
         )
     return x_RUIANDownloadConfig
+
 
 def convertRUIANImporterConfig(config):
     if config == None: return
 
     config.buildServicesTables = isTrue(config.buildServicesTables)
     config.buildAutocompleteTables = isTrue(config.buildAutocompleteTables)
-    pass
+
 
 def RUIANImporterConfig():
     global x_RUIANImporterConfig
@@ -295,6 +296,7 @@ def RUIANImporterConfig():
            )
     return x_RUIANImporterConfig
 
+
 def getRUIANToolboxPath():
     global x_RUIANToolboxPath
     if x_RUIANToolboxPath == None:
@@ -303,23 +305,30 @@ def getRUIANToolboxPath():
         x_RUIANToolboxPath = x_RUIANToolboxPath.replace("\\", os.sep)
     return x_RUIANToolboxPath
 
+
 def getRUIANImporterPath():
     return getRUIANToolboxPath() + "RUIANImporter" + os.sep
 
+
 def getRUIANDownloaderPath():
-    return getRUIANToolboxPath() + "RUIANDownloader" + os.sep
+    return getRUIANToolboxPath() + "downloader" + os.sep
+
 
 def getRUIANServicesBasePath():
     return getRUIANToolboxPath() + "RUIANServices" + os.sep
 
+
 def getRUIANServicesPath():
     return getRUIANToolboxPath() + "RUIANServices" + os.sep + "services" + os.sep
+
 
 def getRUIANServicesHTMLPath():
     return getRUIANToolboxPath() + "RUIANServices" + os.sep + "HTML" + os.sep
 
+
 def getRUIANServicesSQLScriptsPath():
     return getRUIANToolboxPath() + "RUIANServices" + os.sep + "SqlScripts" + os.sep
+
 
 def getDataDirFullPath():
     result = RUIANDownloadConfig().dataDir
@@ -328,6 +337,7 @@ def getDataDirFullPath():
         result = os.path.normpath(result)
         result = sharetools.pathWithLastSlash(result)
     return result
+
 
 def main():
     print "This module is a library, it can't be run as an application."

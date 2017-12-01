@@ -10,6 +10,6 @@ echo do databaze, muze byt cely ukoncen az za nekolik hodin.
 echo -------------------------------
 echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd RUIANDownloader
-python RUIANDownload.py 2>>DownloadRUIAN.log 3>>DownloadRUIANErr.log
+python downloadruian.py 2>>DownloadRUIAN.log 3>>DownloadRUIANErr.log
 cd ..
 mv RUIANDownloader/*.log ./

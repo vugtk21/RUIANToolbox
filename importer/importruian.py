@@ -347,7 +347,7 @@ def doImport(argv):
 
         sys.exit()
 
-    from RUIANDownloader.RUIANDownload import getDataDirFullPath
+    from downloader.downloadruian import getDataDirFullPath
     rebuildAuxiliaryTables = processDownloadedDirectory(getDataDirFullPath())
 
     if config.buildServicesTables and rebuildAuxiliaryTables:

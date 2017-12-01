@@ -8,6 +8,6 @@
 # License:     CC BY-SA 4.0
 #-------------------------------------------------------------------------------
 
-import RUIANDownloader.RUIANDownload
+import downloader.downloadruian
 
-print RUIANDownloader.RUIANDownload.getDataDirFullPath()
+print downloader.downloadruian.getDataDirFullPath()

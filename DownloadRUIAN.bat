@@ -10,5 +10,5 @@ echo do databaze, muze byt cely ukoncen az za nekolik hodin.
 echo -------------------------------
 echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd RUIANDownloader
-RUIANDownload.py >>..\DownloadRUIAN.log 2>>&1 3>>..\DownloadRUIANErr.log
+downloadruian.py >>..\DownloadRUIAN.log 2>>&1 3>>..\DownloadRUIANErr.log
 cd ..

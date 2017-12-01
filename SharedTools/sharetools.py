@@ -11,6 +11,16 @@
 import os, sys, codecs
 
 
+def extractFileName(fileName):
+    lastDel = fileName.rfind(os.sep)
+    return fileName[lastDel + 1:]
+
+
+def getFileExtension(fileName):
+    """ Returns fileName extension part dot including (.txt,.png etc.)"""
+    return fileName[fileName.rfind("."):]
+
+
 def pathWithLastSlash(path):
     assert isinstance(path, basestring)
 

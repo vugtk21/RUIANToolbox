@@ -5,8 +5,8 @@ from Tkinter import *
 import ttk
 from idlelib import ToolTip
 
-from RUIANDownloader import RUIANDownload
-from RUIANImporter import ImportRUIAN
+from downloader import downloadruian
+from RUIANImporter import importRUIAN
 from RUIANServices.services import config as RUIANServicesConfig
 
 class SetupForm(Frame):
@@ -82,7 +82,7 @@ class SetupForm(Frame):
     def createDownloaderTab(self, nb):
         frame = self._getFrame("download")
 
-        config = RUIANDownload.config
+        config = downloadruian.config
 
         self._getTopLabel(frame, "RÚIAN Downloader umožňuje stáhnout aktuální databázi včetně stahování aktualizací.")
         self.editsRow = 1
@@ -119,7 +119,7 @@ class SetupForm(Frame):
 
     def createImportTab(self, nb):
         frame = self._getFrame("importTabFrame")
-        config = ImportRUIAN.config
+        config = importRUIAN.config
 
         self._getTopLabel(frame, "RÚIAN Importer umožňuje importovat stažený stav do databáze včetně načtení aktualizačních balíčků.")
         self.editsRow = 1
