@@ -1,4 +1,4 @@
-#!C:\Python27\python.exe -u
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import cgitb; cgitb.enable()
 
