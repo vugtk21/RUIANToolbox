@@ -8,8 +8,7 @@ echo Download muze trvat pri pomalem pripojeni k internetu nekolik desitek minut
 echo Pokud je konfigurace nastavena tak, aby ihned po stazeni byla data importovana
 echo do databaze, muze byt cely ukoncen az za nekolik hodin.
 echo -------------------------------
-echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd downloader
-python downloadruian.py 2>>DownloadRUIAN.log 3>>DownloadRUIANErr.log
+# Edit note: Presmerovani vystupu do logu odebrano kvuli kontajnerizaci
+python downloadruian.py
 cd ..
-mv downloader/*.log ./

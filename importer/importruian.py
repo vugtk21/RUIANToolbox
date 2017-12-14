@@ -147,7 +147,7 @@ def buildDownloadBatch(fileListFileName, fileNames):
     overwriteCommand = "--o"
     for fileName in fileNames:
 
-        vfrCommand = "vfr2pg --file %s --dbname %s --user %s --passwd %s %s" % (extractFileName(fileName), config.dbname, config.user, config.password, overwriteCommand)
+        vfrCommand = "vfr2pg --file %s --host %s --dbname %s --user %s --passwd %s %s" % (extractFileName(fileName), config.host, config.dbname, config.user, config.password, overwriteCommand)
 
         if RUNS_ON_WINDOWS:
             importCmd = "call %s %s" % (os4GeoPath, vfrCommand)
@@ -201,7 +201,7 @@ def createStateDatabase(path, fileListFileName):
 
 
 def extractDatesAndType(patchFileList):
-    assert isinstance(patchFileList, list)
+    isinstance(patchFileList, basestring)
 
     def getDate(line):
         result = line[line.rfind("/") + 1:]
@@ -247,7 +247,7 @@ def renameFile(fileName, prefix):
 
 
 def updateDatabase(updateFileList):
-    assert isinstance(updateFileList, list)
+    assert isinstance(updateFileList, basestring)
 
     def removeDataFiles():
         dataPath = pathWithLastSlash(os.path.split(updateFileList)[0])
@@ -268,14 +268,17 @@ def updateDatabase(updateFileList):
     log.logger.info("\tKonečné datum:" + endDate)
     log.logger.info("\tTyp dat:" + type)
 
-    os4GeoPath = joinPaths(os.path.dirname(__file__), config.os4GeoPath)
+    os4GeoPath = getOSGeoPath()
+
     if sys.platform.lower().startswith('win'):
         os4GeoPath = os4GeoPath + " "
+
     os4GeoPath = os4GeoPath + "vfr2pg"
 
     (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileList)
 
     params = ' '.join([os4GeoPath,
+                "--host", config.host,
                 "--dbname", config.dbname,
                 "--user ", config.user,
                 "--passwd ", config.password,
