@@ -10,7 +10,7 @@ setup(
     name = "RUIANToolbox",
     version = "100",
     description = "Knihovna RUIAN Toolbox",
-    author = "Radek Augustyn, Petr Liska, Tomas Diblik, Tomas Vacek",
+    author = "Radek Augustyn, Petr Liska, Tomas Vacek",
     author_email = "radek.augustyn@vugtk.cz",
     url = "https://github.com/vugtk21/RUIANToolbox",
     requires  = ['psycopg2 (>=2.5)', 'web (>=0.37)'],
