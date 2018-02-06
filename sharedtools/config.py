@@ -12,11 +12,12 @@ import os, codecs, sys
 import log
 import base
 
-x_RUIANDownloadConfig = None
-x_RUIANImporterConfig = None
-x_RUIANDownloadInfoFile = None
-x_RUIANToolboxPath = None
-x_RUIANDownloadInfoFile = None
+__RUIANDownloadConfig = None
+__RUIANImporterConfig = None
+__RUIANDownloadInfoFile = None
+__RUIANToolboxPath = None
+__RUIANDownloadInfoFile = None
+
 
 TRUE_ID = "true"
 
@@ -105,6 +106,7 @@ class Config:
                 sys.exit()
         else:
             self.loadFile()
+
 
     def loadFile(self):
         if os.path.exists(self.fileName):
@@ -217,11 +219,11 @@ class InfoFile(Config):
         self.loadFile()
 
 def RUIANDownloadInfoFile():
-    global x_RUIANDownloadInfoFile
+    global __RUIANDownloadInfoFile
 
-    if x_RUIANDownloadInfoFile == None:
-        x_RUIANDownloadInfoFile = InfoFile("")
-    return x_RUIANDownloadInfoFile
+    if __RUIANDownloadInfoFile == None:
+        __RUIANDownloadInfoFile = InfoFile("")
+    return __RUIANDownloadInfoFile
 
 def convertRUIANDownloadCfg(config):
     if config == None: return
@@ -242,11 +244,11 @@ def convertRUIANDownloadCfg(config):
     pass
 
 def RUIANDownloadConfig():
-    global x_RUIANDownloadConfig
+    global __RUIANDownloadConfig
 
-    if x_RUIANDownloadConfig == None:
-        x_RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
-            {
+    if __RUIANDownloadConfig == None:
+        __RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
+                                       {
                 "downloadFullDatabase" : False,
                 "uncompressDownloadedFiles" : False,
                 "runImporter" : False,
@@ -258,12 +260,12 @@ def RUIANDownloadConfig():
                 "ignoreHistoricalData": True
 
             },
-           convertRUIANDownloadCfg,
-           defSubDir = "downloader",
-           moduleFile = __file__,
-           basePath = getRUIANDownloaderPath()
-        )
-    return x_RUIANDownloadConfig
+                                       convertRUIANDownloadCfg,
+                                       defSubDir = "downloader",
+                                       moduleFile = __file__,
+                                       basePath = getRUIANDownloaderPath()
+                                       )
+    return __RUIANDownloadConfig
 
 
 def convertRUIANImporterConfig(config):
@@ -274,11 +276,11 @@ def convertRUIANImporterConfig(config):
 
 
 def RUIANImporterConfig():
-    global x_RUIANImporterConfig
+    global __RUIANImporterConfig
 
-    if x_RUIANImporterConfig == None:
-        x_RUIANImporterConfig = Config("ImportRUIAN.cfg",
-            {
+    if __RUIANImporterConfig == None:
+        __RUIANImporterConfig = Config("ImportRUIAN.cfg",
+                                       {
                 "dbname" : "euradin",
                 "host" : "localhost",
                 "port" : "5432",
@@ -291,22 +293,22 @@ def RUIANImporterConfig():
                 "buildServicesTables" : "True",
                 "buildAutocompleteTables" : "False"
             },
-            convertRUIANImporterConfig,
-            defSubDir = "importer",
-            moduleFile = __file__,
-            basePath = getRUIANImporterPath()
-           )
-    return x_RUIANImporterConfig
+                                       convertRUIANImporterConfig,
+                                       defSubDir = "importer",
+                                       moduleFile = __file__,
+                                       basePath = getRUIANImporterPath()
+                                       )
+    return __RUIANImporterConfig
 
 
 def getRUIANToolboxPath():
-    global x_RUIANToolboxPath
+    global __RUIANToolboxPath
 
-    if x_RUIANToolboxPath == None:
-        x_RUIANToolboxPath = base.pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
-        x_RUIANToolboxPath = x_RUIANToolboxPath.replace("/", os.sep)
-        x_RUIANToolboxPath = x_RUIANToolboxPath.replace("\\", os.sep)
-    return x_RUIANToolboxPath
+    if __RUIANToolboxPath == None:
+        __RUIANToolboxPath = base.pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
+        __RUIANToolboxPath = __RUIANToolboxPath.replace("/", os.sep)
+        __RUIANToolboxPath = __RUIANToolboxPath.replace("\\", os.sep)
+    return __RUIANToolboxPath
 
 
 def getRUIANImporterPath():

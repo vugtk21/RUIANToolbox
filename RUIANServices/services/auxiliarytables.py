@@ -4,19 +4,17 @@ __author__ = 'raugustyn'
 
 import psycopg2
 import os, codecs, sys
-
 from config import config
-
 import shared; shared.setupPaths()
 from sharedtools.log import logger
-
 from sharedtools.config import getRUIANServicesSQLScriptsPath
-
 import HTTPShared
 import compileaddress
 
+
 def exitApp():
     sys.exit()
+
 
 def logPsycopg2Error(e):
     if e:
@@ -27,6 +25,7 @@ def logPsycopg2Error(e):
     else:
         msg = "Not specified"
     logger.error("Database error:" + msg)
+
 
 def execSQLScript(sql):
     logger.info("   Executing SQL commands")
@@ -49,7 +48,7 @@ def execSQLScript(sql):
         cursor.close()
         connection.close()
     logger.info("   Executing SQL commands - done.")
-    pass
+
 
 def execSQLScriptFile(sqlFileName, msg, exitIfFileNotFound = True):
     logger.info(msg)
@@ -70,6 +69,7 @@ def execSQLScriptFile(sqlFileName, msg, exitIfFileNotFound = True):
     logger.info("   Loading SQL commands - done.")
     execSQLScript(sql)
 
+
 def createTempTable(connection):
     logger.info("Creating table ac_gids")
     cursor = connection.cursor()
@@ -79,6 +79,7 @@ def createTempTable(connection):
         logger.info("Done.")
     finally:
         cursor.close()
+
 
 def getAddressRows(connection):
     logger.info("Retrieving address rows")
@@ -92,12 +93,14 @@ def getAddressRows(connection):
         logger.error("Error:Selecting address rows failed.")
         exitApp()
 
+
 def renameTempTable(connection):
     logger.info("Renaming table _ac_gids to ac_gids.")
     cursor = connection.cursor()
     cursor.execute("drop table if exists ac_gids;alter table _ac_gids rename to ac_gids;")
     cursor.close()
     logger.info("Done.")
+
 
 def buildTownsNoStreets():
 
@@ -110,6 +113,7 @@ def buildTownsNoStreets():
             print " - done."
         finally:
             cursor.close()
+
 
     def _getRows(connection):
         sys.stdout.write("Retrieving records to be processes")
@@ -189,11 +193,9 @@ def buildTownsNoStreets():
 
         finally:
             cursor.close()
-
-
-
     finally:
         connection.close()
+
 
 def buildGIDsTable():
     logger.info("Building table ac_gids")
@@ -252,11 +254,13 @@ def buildGIDsTable():
         connection.close()
     pass
 
+
 class SQLInfo:
     def __init__(self, fileName, description, exitIfScriptNotFound = True):
         self.fileName = fileName
         self.description = description
         self.exitIfScriptNotFound = exitIfScriptNotFound
+
 
 def buildServicesTables():
     scriptList = [
@@ -271,14 +275,16 @@ def buildServicesTables():
     for sqlInfo in scriptList:
         execSQLScriptFile(sqlInfo.fileName, sqlInfo.description, sqlInfo.exitIfScriptNotFound)
 
+
 def buildAutocompleteTables():
     execSQLScriptFile("AutocompleteTables.sql", "Autocomplete tables.")
     buildGIDsTable()
 
+
 def buildAll():
     buildServicesTables()
     buildAutocompleteTables()
-    pass
+
 
 if __name__ == '__main__':
     import sys

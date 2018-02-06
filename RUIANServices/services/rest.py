@@ -181,6 +181,11 @@ if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
+    import sharedtools.log as log
+    import logging
+    log.createLogger("rest_py.log")
+    log.logger.setLevel(logging.DEBUG)
+
     import os
     if os.environ.has_key('SERVER_SOFTWARE'):
         # Script spuštěn jako CGI

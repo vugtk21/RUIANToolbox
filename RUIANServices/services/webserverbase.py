@@ -1,4 +1,3 @@
-#!C:/Python27/python.exe
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
@@ -29,22 +28,26 @@ import os
 
 from config import SERVER_HTTP, PORT_NUMBER, SERVICES_WEB_PATH
 
+
 path = SERVICES_WEB_PATH.split("/")
 serverPathDepth = 0
 for item in path:
     if item != "":
         serverPathDepth = serverPathDepth + 1
 
-SERVER_PATH_DEPTH = serverPathDepth
 
+SERVER_PATH_DEPTH = serverPathDepth
 EMPTY_HTML_DATA = "<html><body>Empty</body></html>"
+
 
 def _parsedProcessRequestProc(page, servicePathInfo, pathInfos, queryParams, response):
     response.htmlData = EMPTY_HTML_DATA
     response.handled = True
     return response
 
+
 processRequestProc = _parsedProcessRequestProc
+
 
 def _processRequestProc(page, queryParams, response):
     if page in ["/", ""]:
@@ -74,16 +77,20 @@ def _processRequestProc(page, queryParams, response):
 
     return response
 
+
 urls = ('/(.*)', 'handler')
+
 
 class ServerApplication(web.application):
     def run(self, port, *middleware):
         func = self.wsgifunc(*middleware)
         return web.httpserver.runsimple(func, (SERVER_HTTP, port))
 
+
 class favicon:
     def GET(self):
         pass
+
 
 class handler:
     def doProcessRequest(self, page):
@@ -99,6 +106,7 @@ class handler:
 
     def POST(self, page):
         return self.doProcessRequest(page)
+
 
 def mainProcess(aProcessRequestProc):
     global processRequestProc
