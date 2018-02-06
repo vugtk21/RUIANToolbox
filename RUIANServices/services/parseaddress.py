@@ -552,6 +552,7 @@ class AddressParser:
             items.append(subStr)
         return items
 
+
     def addId(self, id, value, str, builder):
         if builder.formatText == "json":
             return '\t"%s": %s,\n%s' % (id, value, str)
@@ -744,7 +745,6 @@ def testCase():
     #print parser.fullTextSearchAddress("1 Cílkova")
     #print parser.fullTextSearchAddress("67 budovatelů")
     log.logger.info(str(parser.fullTextSearchAddress("Gočárova třída 516/18 50002 Hradec Králové")))
-    log.logger.info(str(parser.fullTextSearchAddress("Nádražní 1")))
 
 
 
