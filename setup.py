@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
-import sys
+import sys, os
 from distutils.core import setup
 
 PLATFORM_IS_WINDOWS = sys.platform.lower().startswith('win')
@@ -10,7 +10,7 @@ setup(
     name = "RUIANToolbox",
     version = "100",
     description = "Knihovna RUIAN Toolbox",
-    author = "Radek Augustyn, Petr Liska, Tomas Diblik, Tomas Vacek",
+    author = "Radek Augustyn, Petr Liska, Tomas Vacek",
     author_email = "radek.augustyn@vugtk.cz",
     url = "https://github.com/vugtk21/RUIANToolbox",
     requires  = ['psycopg2 (>=2.5)', 'web (>=0.37)'],
@@ -53,5 +53,13 @@ Všechny moduly jsou dostupné jako spustitelné aplikace včetně zdrojového k
 """
 )
 
-if not PLATFORM_IS_WINDOWS:
-    print "Delete BAT files."
+if PLATFORM_IS_WINDOWS:
+    unknownCommandExtension = ".sh"
+else:
+    unknownCommandExtension = ".bat"
+
+print "Deleting ." + unknownCommandExtension+ " files...."
+for fileName in ["DownloadRUIAN", "ImportRUIAN"]:
+    path = fileName + unknownCommandExtension
+    print "\t", path
+    os.remove(path)

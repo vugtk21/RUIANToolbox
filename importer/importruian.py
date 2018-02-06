@@ -13,7 +13,7 @@ Import VFR data to database.
 Requires: Python 2.7.5 or later
           OS4Geo with WFS Support (http://geo1.fsv.cvut.cz/landa/vfr/OSGeo4W_vfr.zip)
 
-Usage: ImportRUIAN.py [-dbname <database name>] [-host <host name>] [-port <database port>] [-user <user name>]
+Usage: importruian.py [-dbname <database name>] [-host <host name>] [-port <database port>] [-user <user name>]
                       [-password <database password>] [-layers layer1,layer2,...] [-os4GeoPath <path>]
                       [-buildServicesTables <{True} {False}>] [-buildAutocompleteTables <{True} {False}>] [-help]')
 
@@ -385,5 +385,4 @@ def doImport(argv):
 
 
 if __name__ == "__main__":
-
     doImport(sys.argv)

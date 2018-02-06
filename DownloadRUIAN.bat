@@ -9,6 +9,7 @@ echo Pokud je konfigurace nastavena tak, aby ihned po stazeni byla data importov
 echo do databaze, muze byt cely ukoncen az za nekolik hodin.
 echo -------------------------------
 echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
-cd RUIANDownloader
-downloadruian.py >>..\DownloadRUIAN.log 2>>&1 3>>..\DownloadRUIANErr.log
+cd downloader
+rem downloadruian.py >>..\DownloadRUIAN.log 2>>&1 3>>..\DownloadRUIANErr.log
+downloadruian.py 
 cd ..
