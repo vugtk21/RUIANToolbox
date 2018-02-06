@@ -43,6 +43,7 @@ def processRequest(page, servicePathInfo, pathInfos, queryParams, response):
     response.handled = True
     return response
 
+
 if __name__ == '__main__':
     # Nastavení kódování češtiny na UTF-8
     import sys

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        addresswebservices
@@ -50,6 +49,7 @@ def getPageTemplate():
     result = result.replace("\r\n", "\n")
     return result
 
+
 class Console():
     consoleLines = ""
     infoLines = ""
@@ -78,6 +78,7 @@ class Console():
 
 console = Console()
 
+
 def getNoAddressAvailableHTML(formName):
     result =  u"""
 <div class="ui-widget NOADDRESSHINTDIV" id="#FORMNAME#_NoAddressHintDiv" isvisible="false" tabname="vstup">
@@ -90,6 +91,7 @@ def getNoAddressAvailableHTML(formName):
 </div>"""
     result = result.replace("#FORMNAME#", formName)
     return result
+
 
 def getIssueHTML():
     if configmodule.config.issueShortDescription == "":
@@ -104,9 +106,11 @@ def getIssueHTML():
 
         return result
 
+
 class ServicesHTMLPageBuilder:
     def __init__(self):
         self.dataListHTML = ""
+
 
     def normalizeQueryParams(self, queryParams):
         """ Parametry odesílané v URL requestu do query z HTML fomulářů musí být použity bez jména formuláře,
@@ -116,6 +120,7 @@ class ServicesHTMLPageBuilder:
         for key in queryParams:
             result[key[key.find("/") + 1:]] = queryParams[key]
         return result
+
 
     def tablePropertyRow(self, param, formName, paramTypeStr, queryParams, onChangeProcCode, hasAddressTabs):
         keyName = param.name[1:]
@@ -221,6 +226,7 @@ class ServicesHTMLPageBuilder:
         result += '</tr>\n'
 
         return result
+
 
     def getServicesHTMLPage(self, scriptName, pathInfo, queryParams):
         scriptName = os.path.basename(scriptName)
@@ -343,6 +349,7 @@ class ServicesHTMLPageBuilder:
 
         return result
 
+
 def createServices():
     geocode.createServiceHandlers()
     fulltextsearch.createServiceHandlers()
@@ -350,8 +357,7 @@ def createServices():
     validate.createServiceHandlers()
     nearbyaddresses.createServiceHandlers()
     validateaddressid.createServiceHandlers()
-#    IDCheck.createServiceHandlers()
-    pass
+
 
 createServices()
 

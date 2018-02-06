@@ -8,7 +8,7 @@ import compileaddress
 from HTTPShared import *
 
 import shared; shared.setupPaths()
-from sharedtools.log import logger
+import sharedtools.log as log
 
 from config import config
 
@@ -49,7 +49,7 @@ class RUIANDatabase():
         try:
             self.conection = psycopg2.connect(host = DATABASE_HOST, database = DATABASE_NAME, port = PORT, user = USER_NAME, password = PASSWORD)
         except psycopg2.Error as e:
-            logger.info("Error: Could not connect to database %s at %s:%s as %s\n%s" % (DATABASE_NAME, DATABASE_HOST, PORT, USER_NAME, str(e)))
+            log.logger.error("Could not connect to database %s at %s:%s as %s\n%s" % (DATABASE_NAME, DATABASE_HOST, PORT, USER_NAME, str(e)))
             self.conection = None
 
     def getQueryResult(self, query):
@@ -318,15 +318,19 @@ class AddressParser:
         return address
 
     def parse(self, address, searchDB = True):
+        log.logger.openSection("AddressParser.parse('%s')" % address)
         address = self.normalize(address)
         stringItems = address.split(",")
         items = []
         for value in stringItems:
             item = AddressItem(value, searchDB)
             items.append(item)
+
+        log.logger.closeSection("Done : %s" % str(items))
         return items
 
     def analyseItems(self, items):
+        log.logger.openSection("AddressParser.analyseItems(%s)" % str(items))
         newItems = []
         index = 0
         nextItemToBeSkipped = False
@@ -373,12 +377,15 @@ class AddressParser:
 
             index = index + 1
 
+        log.logger.closeSection("Done : %s" % str(newItems))
         return newItems
 
 
     def analyse(self, address, searchDB = True):
         items = self.parse(address, searchDB)
-        return self.analyseItems(items)
+        items = self.analyseItems(items)
+
+        return items
 
     def old_getCombinedTextSearches(self, items):
         sqlList = []
@@ -554,12 +561,13 @@ class AddressParser:
             return value + builder.lineSeparator + str
 
     def fullTextSearchAddress(self, address):
-        items = self.analyse(address, False)
-        candidatesIDS = self.getCandidateValues(items)
+        log.logger.openSection("AddressParser.fullTextSearchAddress('%s')" % address)
+        addressItems = self.analyse(address, False)
+        candidates = self.getCandidateValues(addressItems)
 
         resultsDict = defaultdict(list)
-        for candidate in candidatesIDS:
-            matchPercent = self.compare(items, candidate)
+        for candidate in candidates:
+            matchPercent = self.compare(addressItems, candidate)
             if matchPercent > 0:
                 if resultsDict.has_key(matchPercent):
                     resultsDict[matchPercent].append(candidate)
@@ -589,6 +597,7 @@ class AddressParser:
             else:
                 addCandidate(key, candidateItem)
 
+        log.logger.closeSection("Done:%s" % str(results))
         return results
 
 def initModule():
@@ -731,7 +740,8 @@ def testCase():
 
     #print parser.fullTextSearchAddress("22316418 praha")
     #print parser.fullTextSearchAddress("1 Cílkova")
-    print parser.fullTextSearchAddress("67 budovatelů")
+    #print parser.fullTextSearchAddress("67 budovatelů")
+    log.logger.info(str(parser.fullTextSearchAddress("Gočárova třída 516/18 50002 Hradec Králové")))
 
 
 
@@ -747,4 +757,10 @@ if __name__ == '__main__':
     import sys
     reload(sys)
     sys.setdefaultencoding('utf-8')
+
+    log.createLogger("parseaddress")
+    import logging
+    log.logger.setLevel(logging.DEBUG)
+
+
     main()

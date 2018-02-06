@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        compileaddress
@@ -165,4 +164,3 @@ if __name__ == '__main__':
     sharedtools.base.setupUTF()
     #print compileAddress(None, u"Mrkvičkova", u"1370", "", "", "", "", "", "", "")
     print compileAddress(MimeBuilder("texttoonerow"), u"", u"14", "", "", "", "", "", "Stará Chodovská", "")
-

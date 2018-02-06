@@ -18,6 +18,7 @@ def moduleExists(moduleName):
     import os
     return os.path.exists(RUIANToolBoxPath + os.sep + moduleName)
 
+
 def setupPaths(depth = 1):
     # ####################################
     # Setup path to RUIANToolbox
@@ -36,6 +37,7 @@ def setupPaths(depth = 1):
         if not basePath in sys.path:
             sys.path.append(basePath)
         firstCall = False
+
 
 def initApp(pathDepth = 1):
     setupPaths(pathDepth)

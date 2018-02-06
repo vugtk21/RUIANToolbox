@@ -13,6 +13,7 @@ shared.setupPaths(depth=2)
 
 from sharedtools.config import Config, RUIANImporterConfig
 
+
 servicesConfigAttrs = {
                 "serverHTTP": 'www.vugtk.cz',
                 "portNumber": 80,
@@ -29,6 +30,7 @@ servicesConfigAttrs = {
                 "ruianVersionDate": "",
                 "disableGUISwitch": "false"
             }
+
 
 def convertServicesCfg(config):
     if config == None: return
@@ -69,11 +71,13 @@ def convertServicesCfg(config):
 
 config = Config("RUIANServices.cfg", servicesConfigAttrs, convertServicesCfg, moduleFile=__file__)
 
+
 def getPortSpecification():
     if config.portNumber == 80:
         return ""
     else:
         return ":" + str(config.portNumber)
+
 
 SERVER_HTTP = config.serverHTTP
 PORT_NUMBER = config.portNumber
@@ -81,6 +85,8 @@ SERVICES_WEB_PATH = config.servicesWebPath
 HTMLDATA_URL = "html/"
 
 _isFirstCall = True
+
+
 def setupVariables():
     global _isFirstCall
     global SERVER_HTTP
@@ -96,9 +102,11 @@ def setupVariables():
 
     _isFirstCall = False
 
+
 def getCGIPath():
     serverItems = "/".split(SERVER_HTTP)
     return "/".join(serverItems[:len(serverItems) - 1])
+
 
 def getHTMLDataURL():
     result = getServicesURL()
@@ -106,12 +114,14 @@ def getHTMLDataURL():
         result = result + "/" + HTMLDATA_URL
     return result
 
+
 def getServicesURL():
     setupVariables()
     result = "http://" + SERVER_HTTP + getPortSpecification()
     if SERVICES_WEB_PATH != "":
         result = result + "/" + SERVICES_WEB_PATH
     return result
+
 
 def getServicesPath():
     result = getServicesURL().split("/")

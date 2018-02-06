@@ -146,7 +146,6 @@ def buildDownloadBatch(fileListFileName, fileNames):
     commands = "cd %s\n" % path
     overwriteCommand = "--o"
     for fileName in fileNames:
-
         vfrCommand = "vfr2pg --file %s --host %s --dbname %s --user %s --passwd %s --schema %s %s" % (extractFileName(fileName), config.host, config.dbname, config.user, config.password, config.schemaName, overwriteCommand)
 
         if RUNS_ON_WINDOWS:
@@ -200,8 +199,8 @@ def createStateDatabase(path, fileListFileName):
     renameFile(fileListFileName, "__")
 
 
-def extractDatesAndType(patchFileList):
-    isinstance(patchFileList, basestring)
+def extractDatesAndType(patchListFileName):
+    assert isinstance(patchListFileName, basestring)
 
     def getDate(line):
         result = line[line.rfind("/") + 1:]
@@ -217,7 +216,7 @@ def extractDatesAndType(patchFileList):
     endDate = ""
     type = ""
 
-    inFile = open(patchFileList, "r")
+    inFile = open(patchListFileName, "r")
     firstLine = True
     for line in inFile:
         if firstLine:
@@ -246,12 +245,12 @@ def renameFile(fileName, prefix):
     return newFileName
 
 
-def updateDatabase(updateFileList):
-    assert isinstance(updateFileList, basestring)
+def updateDatabase(updateFileName):
+    assert isinstance(updateFileName, basestring)
 
     def removeDataFiles():
-        dataPath = pathWithLastSlash(os.path.split(updateFileList)[0])
-        inFile = open(updateFileList, "r")
+        dataPath = pathWithLastSlash(os.path.split(updateFileName)[0])
+        inFile = open(updateFileName, "r")
         try:
             for line in inFile:
                 fileName = os.path.basename(line)
@@ -261,9 +260,9 @@ def updateDatabase(updateFileList):
             inFile.close()
         pass
 
-    log.logger.info("Importing update data from " + updateFileList)
+    log.logger.info("Importing update data from " + updateFileName)
 
-    (startDate, endDate, type) = extractDatesAndType(updateFileList)
+    (startDate, endDate, type) = extractDatesAndType(updateFileName)
     log.logger.info("\tPočáteční datum:" + startDate)
     log.logger.info("\tKonečné datum:" + endDate)
     log.logger.info("\tTyp dat:" + type)
@@ -275,7 +274,7 @@ def updateDatabase(updateFileList):
 
     os4GeoPath = os4GeoPath + "vfr2pg"
 
-    (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileList)
+    (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileName)
 
     params = ' '.join([os4GeoPath,
                 "--host", config.host,
@@ -294,15 +293,15 @@ def updateDatabase(updateFileList):
     else:
         params += " 2>%s 3>%s" % (VFRlogFileName, VFRerrFileName)
 
-    commands = "cd " + os.path.dirname(os.path.abspath(updateFileList)) + "\n"
+    commands = "cd " + os.path.dirname(os.path.abspath(updateFileName)) + "\n"
     commands += params + "\n"
-    batchFileName = createCommandFile(os.path.dirname(os.path.abspath(updateFileList)) + os.sep + "Import" , commands)
+    batchFileName = createCommandFile(os.path.dirname(os.path.abspath(updateFileName)) + os.sep + "Import", commands)
 
     call(batchFileName)
     os.remove(batchFileName)
     removeDataFiles()
 
-    renameFile(updateFileList, "__")
+    renameFile(updateFileName, "__")
     log.logger.info("Import update data done.")
 
 
