@@ -6,6 +6,7 @@ echo Pokud je konfigurace nastavena tak, aby ihned po stazeni byla data importov
 echo do databaze, muze byt cely ukoncen az za nekolik hodin.
 echo -------------------------------
 echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
+
 cd downloader
 python downloadruian.py
 cd ..

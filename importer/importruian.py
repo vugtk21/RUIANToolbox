@@ -148,7 +148,6 @@ def buildDownloadBatch(fileListFileName, fileNames):
     for fileName in fileNames:
         vfrCommand = "vfr2pg --file %s --host %s --dbname %s --user %s --passwd %s --schema %s %s" % (extractFileName(fileName), config.host, config.dbname, config.user, config.password, config.schemaName, overwriteCommand)
 
-
         if RUNS_ON_WINDOWS:
             importCmd = "call %s %s" % (os4GeoPath, vfrCommand)
         else:
@@ -269,8 +268,10 @@ def updateDatabase(updateFileName):
     log.logger.info("\tTyp dat:" + type)
 
     os4GeoPath = getOSGeoPath()
+
     if sys.platform.lower().startswith('win'):
         os4GeoPath = os4GeoPath + " "
+
     os4GeoPath = os4GeoPath + "vfr2pg"
 
     (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileName)

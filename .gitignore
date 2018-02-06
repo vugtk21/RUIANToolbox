@@ -1,4 +1,7 @@
-/RUIANServices.cfg
-/DownloadRUIAN.cfg
-/ImportRUIAN.cfg
+# Config files
+DownloadRUIAN.cfg
+ImportRUIAN.cfg
+RUIANServices.cfg
+
+# OSX
 .DS_Store
