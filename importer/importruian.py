@@ -147,7 +147,7 @@ def buildDownloadBatch(fileListFileName, fileNames):
     overwriteCommand = "--o"
     for fileName in fileNames:
 
-        vfrCommand = "vfr2pg --file %s --host %s --dbname %s --user %s --passwd %s %s" % (extractFileName(fileName), config.host, config.dbname, config.user, config.password, overwriteCommand)
+        vfrCommand = "vfr2pg --file %s --host %s --dbname %s --user %s --passwd %s --schema %s %s" % (extractFileName(fileName), config.host, config.dbname, config.user, config.password, config.schemaName, overwriteCommand)
 
         if RUNS_ON_WINDOWS:
             importCmd = "call %s %s" % (os4GeoPath, vfrCommand)
@@ -282,6 +282,7 @@ def updateDatabase(updateFileList):
                 "--dbname", config.dbname,
                 "--user ", config.user,
                 "--passwd ", config.password,
+                "--schema ", config.schemaName,
                 "--date", startDate + ":" + endDate,
                 "--type", type])
 
