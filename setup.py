@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'raugustyn'
 
-import sys
+import sys, os
 from distutils.core import setup
 
 PLATFORM_IS_WINDOWS = sys.platform.lower().startswith('win')
@@ -53,5 +53,13 @@ Všechny moduly jsou dostupné jako spustitelné aplikace včetně zdrojového k
 """
 )
 
-if not PLATFORM_IS_WINDOWS:
-    print "Delete BAT files."
+if PLATFORM_IS_WINDOWS:
+    unknownCommandExtension = ".sh"
+else:
+    unknownCommandExtension = ".bat"
+
+print "Deleting ." + unknownCommandExtension+ " files...."
+for fileName in ["DownloadRUIAN", "ImportRUIAN"]:
+    path = fileName + unknownCommandExtension
+    print "\t", path
+    os.remove(path)
