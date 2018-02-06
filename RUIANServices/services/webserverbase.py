@@ -102,6 +102,7 @@ class handler:
 
 def mainProcess(aProcessRequestProc):
     global processRequestProc
+
     processRequestProc = aProcessRequestProc
     import os
     if os.environ.has_key('SERVER_SOFTWARE'):

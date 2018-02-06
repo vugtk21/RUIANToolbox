@@ -218,6 +218,7 @@ class InfoFile(Config):
 
 def RUIANDownloadInfoFile():
     global x_RUIANDownloadInfoFile
+
     if x_RUIANDownloadInfoFile == None:
         x_RUIANDownloadInfoFile = InfoFile("")
     return x_RUIANDownloadInfoFile
@@ -300,6 +301,7 @@ def RUIANImporterConfig():
 
 def getRUIANToolboxPath():
     global x_RUIANToolboxPath
+
     if x_RUIANToolboxPath == None:
         x_RUIANToolboxPath = base.pathWithLastSlash(os.path.split(os.path.dirname(__file__))[0])
         x_RUIANToolboxPath = x_RUIANToolboxPath.replace("/", os.sep)
