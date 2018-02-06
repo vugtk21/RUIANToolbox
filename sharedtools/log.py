@@ -14,6 +14,7 @@ from base import createDirForFile
 logger = None
 
 __tabLevel = 0
+__indentLines = []
 indent = ""
 
 
@@ -23,6 +24,9 @@ def __calcIndent():
     indent = ""
     for i in range(__tabLevel):
         indent += "    "
+
+    while len(__indentLines) < __tabLevel:
+        __indentLines.append(0)
 
 
 def incTabLevel():

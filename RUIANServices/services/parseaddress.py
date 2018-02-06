@@ -560,6 +560,7 @@ class AddressParser:
         else:
             return value + builder.lineSeparator + str
 
+
     def fullTextSearchAddress(self, address):
         log.logger.openSection("AddressParser.fullTextSearchAddress('%s')" % address)
         addressItems = self.analyse(address, False)
@@ -730,6 +731,7 @@ V této skupině testů je také testováno párování identifikátorů jednotl
         outFile.write(htmlContent.decode("utf-8"))
         outFile.close()
 
+
 def testCase():
     parser = AddressParser()
     #print parser.fullTextSearchAddress("Mezilesní 550/18")
@@ -742,6 +744,7 @@ def testCase():
     #print parser.fullTextSearchAddress("1 Cílkova")
     #print parser.fullTextSearchAddress("67 budovatelů")
     log.logger.info(str(parser.fullTextSearchAddress("Gočárova třída 516/18 50002 Hradec Králové")))
+    log.logger.info(str(parser.fullTextSearchAddress("Nádražní 1")))
 
 
 
@@ -758,9 +761,8 @@ if __name__ == '__main__':
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
-    log.createLogger("parseaddress")
+    log.createLogger("parseaddress.log")
     import logging
     log.logger.setLevel(logging.DEBUG)
-
 
     main()

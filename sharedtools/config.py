@@ -132,6 +132,7 @@ class Config:
         setattr(self, name, value)
         self.attrs[name] = value
 
+
     def _getAttrName(self, name):
         name = name.lower()
         if name in self._remapTable:
