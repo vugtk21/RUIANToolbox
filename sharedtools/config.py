@@ -163,6 +163,7 @@ class Config:
             outFile.write(name + "=" + str(value) + "\n")
         outFile.close()
 
+
     def loadFromCommandLine(self, argv, usageMessage):
         if (argv is not None) or (len(argv) > 1):
             i = 1
@@ -286,7 +287,7 @@ def RUIANImporterConfig():
                 "port" : "5432",
                 "user" : "postgres",
                 "password" : "postgres",
-                "schemaName" : "",
+                "schemaName" : "public",
                 "layers" : "AdresniMista,Ulice,StavebniObjekty,CastiObci,Obce,Mop,Momc",
                 "WINDOWS_os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
                 "LINUX_vfr2pgPath": "../gdal-vfr-master/",
