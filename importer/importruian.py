@@ -49,7 +49,23 @@ RUIAN2PG_LIBRARY_ZIP_URL = [
 LIST_FILE_TAIL = "_list.txt"
 
 
+
 config = None
+
+
+def renameFile(fileName, prefix):
+    assert isinstance(fileName, basestring)
+    assert isinstance(prefix, basestring)
+
+    parts = fileName.split(os.sep)
+    resultParts = parts[:len(parts) - 1]
+    resultParts.append(prefix + parts[len(parts) - 1])
+
+    newFileName = os.sep.join(resultParts)
+    if os.path.exists(newFileName): os.remove(newFileName)
+
+    os.rename(fileName, newFileName)
+    return newFileName
 
 
 def createCommandFile(fileNameBase, commands):
@@ -66,13 +82,36 @@ def createCommandFile(fileNameBase, commands):
     fileName = fileNameBase + COMMAND_FILE_EXTENSION
     file = open(fileName, "w")
 
-    if RUNS_ON_LINUX:file.write("#!/usr/bin/env bash\n")
+    if RUNS_ON_LINUX:
+        file.write("#!/usr/bin/env bash\n")
+
     file.write(commands)
-    if RUNS_ON_LINUX:os.chmod(fileName, 0o777)
+    if RUNS_ON_LINUX:
+        os.chmod(fileName, 0o777)
 
     file.close()
 
     return fileName
+
+
+def deleteFilesInLists(path, fileLists, extension):
+    assert isinstance(path, basestring)
+    assert os.path.exists(path)
+    assert isinstance(fileLists, list)
+    assert isinstance(extension, basestring)
+
+    path = pathWithLastSlash(path)
+    for fileList in fileLists:
+        listFile = open(fileList, "r")
+        i = 0
+        for line in listFile:
+            i += 1
+            fileName = path + line.rstrip() + extension
+            if os.path.exists(fileName):
+                os.remove(fileName)
+            log.logger.debug(str(i), ":", fileName)
+        listFile.close()
+        os.remove(fileList)
 
 
 def joinPaths(basePath, relativePath):
@@ -107,7 +146,27 @@ def getOSGeoPath():
     else:
         path = config.LINUX_vfr2pgPath
 
-    return joinPaths(os.path.dirname(__file__), path)
+    path = joinPaths(os.path.dirname(__file__), path)
+    path = os.path.normpath(path)
+    path = os.path.abspath(path)
+    return path
+
+
+def vfr2pgPath():
+    if RUNS_ON_WINDOWS:
+        return 'call "%s" vfr2pg' % getOSGeoPath()
+    else:
+        return "%svfr2pg  2>>%s 3>>%s" % getOSGeoPath()
+
+
+def redirectLogsToFile(command, logFileName, errorsLogFileName):
+    if config.CREATE_LOG_FILES:
+        if RUNS_ON_WINDOWS:
+            return "%s >%s 2>%s" % (command, logFileName, errorsLogFileName)
+        else:
+            return "%s 2>%s 3>%s" % (command, logFileName, errorsLogFileName)
+    else:
+        return command
 
 
 def convertFileToDownloadLists(HTTPListName):
@@ -123,7 +182,9 @@ def convertFileToDownloadLists(HTTPListName):
         linesInFile = 0
         for line in inFile:
             linesInFile = linesInFile + 1
-            if DEMO_MODE and linesInFile > 3: continue
+            if config.DEBUG_MAX_FILECOUNT and linesInFile > config.DEBUG_MAX_FILECOUNT:
+                log.logger.warning("Stopping import at file #config.DEBUG_MAX_FILECOUNT.")
+                break
 
             line = line[line.rfind("/") + 1:line.find("\n")]
             outFile.write(line + "\n")
@@ -134,69 +195,21 @@ def convertFileToDownloadLists(HTTPListName):
     return result
 
 
-def buildDownloadBatch(fileListFileName, fileNames):
-    assert isinstance(fileListFileName, basestring)
-    assert os.path.exists(fileListFileName)
-    assert isinstance(fileNames, list)
-
-    path = os.path.dirname(fileListFileName)
-    os4GeoPath = getOSGeoPath()
-
-    (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(fileListFileName)
-    commands = "cd %s\n" % path
-    overwriteCommand = "--o"
-    for fileName in fileNames:
-        vfrCommand = "vfr2pg --file %s --host %s --dbname %s --user %s --passwd %s --schema %s %s" % (extractFileName(fileName), config.host, config.dbname, config.user, config.password, config.schemaName, overwriteCommand)
-
-        if RUNS_ON_WINDOWS:
-            importCmd = "call %s %s" % (os4GeoPath, vfrCommand)
-        else:
-            importCmd = "%s%s  2>>%s 3>>%s" % (os4GeoPath, vfrCommand, VFRlogFileName, VFRerrFileName)
-
-        if config.layers != "": importCmd += " --layer " + config.layers
-
-        log.logger.debug(importCmd)
-        commands += importCmd + "\n"
-        overwriteCommand = "--append"
-
-        commandFileName = createCommandFile(path + os.sep + "Import", commands)
-
-    return (commandFileName, VFRlogFileName, VFRerrFileName)
-
-
-def deleteFilesInLists(path, fileLists, extension):
+def getFullPath(configFileName, path):
+    assert isinstance(configFileName, basestring)
     assert isinstance(path, basestring)
-    assert os.path.exists(path)
-    assert isinstance(fileLists, list)
-    assert isinstance(extension, basestring)
 
-    path = pathWithLastSlash(path)
-    for fileList in fileLists:
-        listFile = open(fileList, "r")
-        i = 0
-        for line in listFile:
-            i += 1
-            fileName = path + line.rstrip() + extension
-            if os.path.exists(fileName):
-                os.remove(fileName)
-            log.logger.debug(str(i), ":", fileName)
-        listFile.close()
-        os.remove(fileList)
+    if not os.path.exists(path):
+        path = pathWithLastSlash(configFileName) + path
+    return path
 
 
-def createStateDatabase(path, fileListFileName):
-    assert isinstance(path, basestring)
-    assert isinstance(fileListFileName, basestring)
-
-    log.logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
-    GDALFileListNames = convertFileToDownloadLists(fileListFileName)
-    downloadBatchFileName, VFRlogFileName, VFRerrFileName = buildDownloadBatch(fileListFileName, GDALFileListNames)
-
-    log.logger.info("Spouštím %s, průběh viz. %s a %s." % (downloadBatchFileName, VFRlogFileName, VFRerrFileName))
-    call(downloadBatchFileName)
-    deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
-    os.remove(downloadBatchFileName)
-    renameFile(fileListFileName, "__")
+def paramsToCommandLine(params):
+    result = ""
+    for paramName, paramValue in  params.iteritems():
+        if paramValue:
+            result += " --" + paramName + " " + paramValue
+    return result
 
 
 def extractDatesAndType(patchListFileName):
@@ -230,19 +243,55 @@ def extractDatesAndType(patchListFileName):
     return (startDate, endDate, type)
 
 
-def renameFile(fileName, prefix):
-    assert isinstance(fileName, basestring)
-    assert isinstance(prefix, basestring)
+def buildDownloadBatch(fileListFileName, fileNames):
+    assert isinstance(fileListFileName, basestring)
+    assert os.path.exists(fileListFileName)
+    assert isinstance(fileNames, list)
 
-    parts = fileName.split(os.sep)
-    resultParts = parts[:len(parts) - 1]
-    resultParts.append(prefix + parts[len(parts) - 1])
+    path = os.path.dirname(fileListFileName)
 
-    newFileName = os.sep.join(resultParts)
-    if os.path.exists(newFileName): os.remove(newFileName)
+    (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(fileListFileName)
+    commands = "cd %s\n" % path
+    overwriteCommand = "--o"
+    for fileName in fileNames:
+        params = {
+                "file": extractFileName(fileName),
+                "host": config.host,
+                "dbname": config.dbname,
+                "user": config.user,
+                "passwd": config.password,
+                "layer": config.layers
+            }
+        if RUNS_ON_LINUX:
+            params["schema"] = config.schemaName
 
-    os.rename(fileName, newFileName)
-    return newFileName
+        importCmd = vfr2pgPath() + " " + paramsToCommandLine(params)
+
+        importCmd += " " + overwriteCommand
+        importCmd = redirectLogsToFile(importCmd, VFRlogFileName, VFRerrFileName)
+
+        log.logger.debug(importCmd)
+        commands += importCmd + "\n"
+        overwriteCommand = "--append"
+
+        commandFileName = createCommandFile(path + os.sep + "Import", commands)
+
+    return (commandFileName, VFRlogFileName, VFRerrFileName)
+
+
+def createStateDatabase(path, fileListFileName):
+    assert isinstance(path, basestring)
+    assert isinstance(fileListFileName, basestring)
+
+    log.logger.info("Načítám stavovou databázi ze seznamu " + fileListFileName)
+    GDALFileListNames = convertFileToDownloadLists(fileListFileName)
+    downloadBatchFileName, VFRlogFileName, VFRerrFileName = buildDownloadBatch(fileListFileName, GDALFileListNames)
+
+    log.logger.info("Spouštím %s, průběh viz. %s a %s." % (downloadBatchFileName, VFRlogFileName, VFRerrFileName))
+    call(downloadBatchFileName)
+    deleteFilesInLists(path, GDALFileListNames, ".xml.gz")
+    #os.remove(downloadBatchFileName) # @TODO
+    renameFile(fileListFileName, "__")
 
 
 def updateDatabase(updateFileName):
@@ -267,39 +316,27 @@ def updateDatabase(updateFileName):
     log.logger.info("\tKonečné datum:" + endDate)
     log.logger.info("\tTyp dat:" + type)
 
-    os4GeoPath = getOSGeoPath()
-
-    if sys.platform.lower().startswith('win'):
-        os4GeoPath = os4GeoPath + " "
-
-    os4GeoPath = os4GeoPath + "vfr2pg"
 
     (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileName)
-
-    params = ' '.join([os4GeoPath,
-                "--host", config.host,
-                "--dbname", config.dbname,
-                "--user ", config.user,
-                "--passwd ", config.password,
-                "--schema ", config.schemaName,
-                "--date", startDate + ":" + endDate,
-                "--type", type])
-
-    if config.layers != "":
-        params += " --layer " + config.layers
-
-    if RUNS_ON_WINDOWS:
-        params += " >%s 2>%s" % (VFRlogFileName, VFRerrFileName)
-    else:
-        params += " 2>%s 3>%s" % (VFRlogFileName, VFRerrFileName)
+    importCmd = vfr2pgPath() + " " + paramsToCommandLine({
+                                        "host": config.host,
+                                        "dbname": config.dbname,
+                                        "user": config.user,
+                                        "passwd": config.password,
+                                        "schema": config.schemaName,
+                                        "date": startDate + ":" + endDate,
+                                        "type": type,
+                                        "layer": config.layers
+                                    })
+    importCmd = redirectLogsToFile(importCmd, VFRlogFileName, VFRerrFileName)
 
     commands = "cd " + os.path.dirname(os.path.abspath(updateFileName)) + "\n"
-    commands += params + "\n"
+    commands += importCmd + "\n"
     batchFileName = createCommandFile(os.path.dirname(os.path.abspath(updateFileName)) + os.sep + "Import", commands)
 
     call(batchFileName)
-    os.remove(batchFileName)
-    removeDataFiles()
+    #os.remove(batchFileName) # @TODO
+    #removeDataFiles()
 
     renameFile(updateFileName, "__")
     log.logger.info("Import update data done.")
@@ -343,14 +380,6 @@ def processDownloadedDirectory(path):
     return result
 
 
-def getFullPath(configFileName, path):
-    assert isinstance(configFileName, basestring)
-    assert isinstance(path, basestring)
-
-    if not os.path.exists(path):
-        path = pathWithLastSlash(configFileName) + path
-    return path
-
 
 def doImport(argv):
     global config
@@ -365,7 +394,7 @@ def doImport(argv):
 
     osGeoPath = getOSGeoPath()
     if not os.path.exists(osGeoPath):
-        print "Error: RUIAN import library %s doesn't exist" % osGeoPath
+        print "Error: VFR import library %s not found" % osGeoPath
         print "Download file %s, expand it into RUIANToolbox base directory and run script again." % RUIAN2PG_LIBRARY_ZIP_URL
 
         sys.exit()

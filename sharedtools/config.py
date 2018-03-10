@@ -39,8 +39,21 @@ def strTo127(s):
 
 
 def isTrue(value):
-    return value != None and value.lower() == TRUE_ID
+    if isinstance(value, bool):
+        return value
+    else:
+        return value != None and value.lower().strip() == TRUE_ID
 
+
+def strToInt(value):
+    if isinstance(value, int):
+        return value
+    elif isinstance(value, basestring):
+        value = value.strip()
+        if value:
+            return int(value)
+
+    return 0
 
 
 def getSubDirPath(subDir):
@@ -116,10 +129,12 @@ class Config:
                     line = line[:line.find("#") - 1]
                 line = strTo127(line.strip())
                 delPos = line.find("=")
-                name = self._getAttrName(line[:delPos])
-                value = line[delPos + 1:]
-                self.setAttr(name, value)
-                pass
+                if delPos >= 0:
+                    name = self._getAttrName(line[:delPos])
+                    value = line[delPos + 1:]
+                    if name == 'DEBUG_MAX_FILECOUNT':
+                        pass
+                    self.setAttr(name, value)
 
             file.close()
             if self.afterLoadProc != None:
@@ -134,7 +149,7 @@ class Config:
 
 
     def _getAttrName(self, name):
-        name = name.lower()
+        name = name.lower().strip()
         if name in self._remapTable:
             return self._remapTable[name]
         else:
@@ -228,53 +243,78 @@ def RUIANDownloadInfoFile():
     return __RUIANDownloadInfoFile
 
 def convertRUIANDownloadCfg(config):
-    if config == None: return
+    if config:
+        config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
+        config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
+        config.runImporter = isTrue(config.runImporter)
+        config.dataDir = config.dataDir.replace("/", os.sep)
+        config.dataDir = config.dataDir.replace("\\", os.sep)
+        config.dataDir = base.pathWithLastSlash(config.dataDir)
+        if not os.path.isabs(config.dataDir):
+            result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
+            result = os.path.normpath(result)
+            config.dataDir = base.pathWithLastSlash(result)
 
-    config.downloadFullDatabase = isTrue(config.downloadFullDatabase)
-    config.uncompressDownloadedFiles = isTrue(config.uncompressDownloadedFiles)
-    config.runImporter = isTrue(config.runImporter)
-    config.dataDir = config.dataDir.replace("/", os.sep)
-    config.dataDir = config.dataDir.replace("\\", os.sep)
-    config.dataDir = base.pathWithLastSlash(config.dataDir)
-    if not os.path.isabs(config.dataDir):
-        result = os.path.dirname(config.moduleFile) + os.path.sep + config.dataDir
-        result = os.path.normpath(result)
-        config.dataDir = base.pathWithLastSlash(result)
+        config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
+        RUIANDownloadInfoFile().load(config.dataDir + "Info.txt")
+        config.CREATE_LOG_FILES = isTrue(config.CREATE_LOG_FILES)
+        config.DEBUG_MAX_FILECOUNT = strToInt(config.DEBUG_MAX_FILECOUNT)
 
-    config.ignoreHistoricalData = isTrue(config.ignoreHistoricalData)
-    RUIANDownloadInfoFile().load(config.dataDir + "Info.txt")
-    pass
 
 def RUIANDownloadConfig():
     global __RUIANDownloadConfig
 
     if __RUIANDownloadConfig == None:
         __RUIANDownloadConfig = Config("DownloadRUIAN.cfg",
-                                       {
-                "downloadFullDatabase" : False,
-                "uncompressDownloadedFiles" : False,
-                "runImporter" : False,
-                "dataDir" : "..\\DownloadedData\\",
-                "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
-                                 "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
-                                 "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
-                                 "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
-                "ignoreHistoricalData": True
+                                    {
+                                        "downloadFullDatabase" : False,
+                                        "uncompressDownloadedFiles" : False,
+                                        "runImporter" : False,
+                                        "dataDir" : "..\\DownloadedData\\",
+                                        "downloadURLs" : "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=" + \
+                                                         "U&vf.up=ST&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&vf.vu=H&_vf.vu=on&_vf.vu=on&search=Vyhledat;" + \
+                                                         "http://vdp.cuzk.cz/vdp/ruian/vymennyformat/vyhledej?vf.pu=S&_vf.pu=on&_vf.pu=on&vf.cr=U&" +\
+                                                         "vf.up=OB&vf.ds=K&vf.vu=Z&_vf.vu=on&_vf.vu=on&_vf.vu=on&_vf.vu=on&vf.uo=A&search=Vyhledat",
+                                        "ignoreHistoricalData": True,
+                                        "DEBUG_MAX_FILECOUNT": 0,
+                                        "CREATE_LOG_FILES": True
 
-            },
-                                       convertRUIANDownloadCfg,
-                                       defSubDir = "downloader",
-                                       moduleFile = __file__,
-                                       basePath = getRUIANDownloaderPath()
-                                       )
+                                    },
+                                    convertRUIANDownloadCfg,
+                                    defSubDir = "downloader",
+                                    moduleFile = __file__,
+                                    basePath = getRUIANDownloaderPath()
+                                   )
     return __RUIANDownloadConfig
 
 
-def convertRUIANImporterConfig(config):
-    if config == None: return
+def searchForFileAtPath(path, fileName):
+    """
 
-    config.buildServicesTables = isTrue(config.buildServicesTables)
-    config.buildAutocompleteTables = isTrue(config.buildAutocompleteTables)
+    :param path:
+    :param fileName:
+    :return:
+
+    >>> searchForFileAtPath(__file__, 'ImportRUIAN.cfg')
+    'C:\Users\Radek Augustyn\Desktop\RUIAN Toolbox\Develop\ImportRUIAN.cfg'
+
+    """
+    path = ""
+    for pathItem in os.path.abspath(os.path.normpath(path)).split(os.sep):
+        path += pathItem + os.sep
+        if os.path.exists(path + fileName):
+            return path + fileName
+
+    return False
+
+
+def convertRUIANImporterConfig(config):
+    if config:
+        config.buildServicesTables = isTrue(config.buildServicesTables)
+        config.buildAutocompleteTables = isTrue(config.buildAutocompleteTables)
+        config.CREATE_LOG_FILES = isTrue(config.CREATE_LOG_FILES)
+        config.DEBUG_MAX_FILECOUNT = strToInt(config.DEBUG_MAX_FILECOUNT)
+
 
 
 def RUIANImporterConfig():
@@ -282,19 +322,21 @@ def RUIANImporterConfig():
 
     if __RUIANImporterConfig == None:
         __RUIANImporterConfig = Config("ImportRUIAN.cfg",
-                                       {
-                "dbname" : "euradin",
-                "host" : "localhost",
-                "port" : "5432",
-                "user" : "postgres",
-                "password" : "postgres",
-                "schemaName" : "public",
-                "layers" : "AdresniMista,Ulice,StavebniObjekty,CastiObci,Obce,Mop,Momc",
-                "WINDOWS_os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
-                "LINUX_vfr2pgPath": "../gdal-vfr-master/",
-                "buildServicesTables" : "True",
-                "buildAutocompleteTables" : "False"
-            },
+                                   {
+                                        "dbname" : "euradin",
+                                        "host" : "localhost",
+                                        "port" : "5432",
+                                        "user" : "postgres",
+                                        "password" : "postgres",
+                                        "schemaName" : "public",
+                                        "layers" : "AdresniMista,Ulice,StavebniObjekty,CastiObci,Obce,Mop,Momc",
+                                        "WINDOWS_os4GeoPath" : "..\\..\\OSGeo4W_vfr\\OSGeo4W.bat",
+                                        "LINUX_vfr2pgPath": "../gdal-vfr-master/",
+                                        "buildServicesTables" : "True",
+                                        "buildAutocompleteTables" : "False",
+                                        "DEBUG_MAX_FILECOUNT": 0,
+                                        "CREATE_LOG_FILES": True
+                                    },
                                        convertRUIANImporterConfig,
                                        defSubDir = "importer",
                                        moduleFile = __file__,

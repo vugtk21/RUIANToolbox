@@ -24,15 +24,10 @@ Usage: downloadruian.py [-DownloadFullDatabase {True | False}] [-DataDir data_di
        -Help                        Print help
 """
 
-from cgitb import html
-
 import urllib2, os, sys, datetime
-
 import shared; shared.setupPaths()
-
 import sharedtools.log as log
 from htmllog import htmlLog
-
 from sharedtools import pathWithLastSlash, RUIANDownloadConfig, RUIANDownloadInfoFile, safeMkDir, getFileExtension, extractFileName, getDataDirFullPath, RUNS_ON_LINUX
 
 infoFile = None
@@ -239,6 +234,7 @@ class RUIANDownloader:
                 if info.downloadTime == "":
                     return
                 elif info.fileName != "":
+                    if info.fileSize:
                         calcInfo.fileSize += info.fileSize
                         calcInfo.compressedFileSize += info.compressedFileSize
                         time = float(info.downloadTime[:len(info.downloadTime) - 1])
@@ -305,13 +301,12 @@ class RUIANDownloader:
 
         log.logger.debug("RUIANDownloader.downloadURLList")
         buildDownloadInfosList()
-        index = 0
-        for href in urlList:
-            self.downloadInfo = self.downloadInfos[index]
-            index = index + 1
-            fileName = self.downloadURLtoFile(href, index, len(urlList))
-            if config.uncompressDownloadedFiles:
-                self.uncompressFile(fileName, not config.runImporter)
+        for href, index in zip(urlList, range(len(urlList))):
+            if not config.DEBUG_MAX_FILECOUNT or index < config.DEBUG_MAX_FILECOUNT:
+                self.downloadInfo = self.downloadInfos[index]
+                fileName = self.downloadURLtoFile(href, index, len(urlList))
+                if config.uncompressDownloadedFiles:
+                    self.uncompressFile(fileName, not config.runImporter)
 
 
     def downloadURLtoFile(self, url, fileIndex, filesCount):

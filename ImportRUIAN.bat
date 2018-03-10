@@ -7,5 +7,5 @@ echo ------------------------------------------------------
 echo !!!Nezavirejte toto okno do ukonceni skriptu!!!
 cd importer
 rem importruian.py %*  >> ..\ImportRUIAN.log 2>>&1 3>>..\ImportRUIANErr.log
-importruian.py %* 
+importruian.py
 cd ..\
