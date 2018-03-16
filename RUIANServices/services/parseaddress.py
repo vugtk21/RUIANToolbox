@@ -830,6 +830,7 @@ V této skupině testů je také testováno párování identifikátorů jednotl
 
 def testAddresses():
     addresses = [
+        'Hamerská 599a',
         "Chvalínská 2078",
         "Podlusky 2278",
         "Opava, ostravská 350",
@@ -851,6 +852,7 @@ def testAddresses():
         if addressItems:
             foundCount += 1
         log.logger.debug("%s'%s': %s" % (["", "NOT FOUND!!! "][int(addressItems==[])], address, str(addressItems)))
+        break
 
     if foundCount == len(addresses):
         log.logger.info("All %d addresses found" % foundCount)

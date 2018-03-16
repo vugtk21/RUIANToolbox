@@ -535,7 +535,10 @@ def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, o
         addressNumber = recordNumber
 
     if orientationNumber != "":
-        houseNumberStr = '\t"' + sign +'": ' + addressNumber + ',\n\t"orientační_číslo": ' + orientationNumber + orientationNumberCharacter + ','
+        jsonOrientationNumber = str(orientationNumber)
+        if orientationNumberCharacter:
+            jsonOrientationNumber = '"%s%s"' % (jsonOrientationNumber, orientationNumberCharacter)
+        houseNumberStr = '\t"' + sign +'": ' + addressNumber + ',\n\t"orientační_číslo": ' + jsonOrientationNumber + ','
     else:
         houseNumberStr ='\t"' + sign +'":"%s", ' % addressNumber
 
@@ -550,7 +553,7 @@ def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, o
     if locality == localityPart or localityPart == "":
         townDistrict = '\t"obec":"%s"%s' % (locality , districtNumberStr)
     else:
-        townDistrict = '\t"obec": "%s"%s\t"část_obce": "%s" ' % (locality, districtNumberStr, localityPart)
+        townDistrict = '\t"obec": "%s"%s, \n\t"část_obce": "%s" ' % (locality, districtNumberStr, localityPart)
 
     if ruianId != "":
         ruianIdText = '\t"ruianId": %s,\n' % ruianId
