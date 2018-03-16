@@ -19,14 +19,17 @@ import RUIANConnection
 import validate
 import HTTPShared
 
+
 def errorMessage(msg):
     pass
+
 
 class TextFormat:
     plainText = 0
     xml       = 1
     json      = 2
     html      = 3
+
 
 def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, doValidate = False, withRUIANId = False):
     """
@@ -67,6 +70,7 @@ def compileAddress(builder, street, houseNumber, recordNumber, orientationNumber
         return compileAddressToOneRow(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId)
     else:
         return builder.listToResponseText(compileAddressAsText(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
+
 
 def compileAddressServiceHandler(queryParams, response):
 
@@ -123,6 +127,7 @@ def compileAddressServiceHandler(queryParams, response):
         response.htmlData = builder.listToResponseText([s])
     response.handled = True
     return response
+
 
 def createServiceHandlers():
     services.append(

@@ -524,6 +524,7 @@ def formatZIPCode(code):
         else:
             return ""
 
+
 def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
     (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
     if houseNumber != "":

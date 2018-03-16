@@ -318,16 +318,19 @@ def updateDatabase(updateFileName):
 
 
     (VFRlogFileName, VFRerrFileName) = buildhtmllog.getLogFileNames(updateFileName)
-    importCmd = vfr2pgPath() + " " + paramsToCommandLine({
-                                        "host": config.host,
-                                        "dbname": config.dbname,
-                                        "user": config.user,
-                                        "passwd": config.password,
-                                        "schema": config.schemaName,
-                                        "date": startDate + ":" + endDate,
-                                        "type": type,
-                                        "layer": config.layers
-                                    })
+
+    params = {
+            "host": config.host,
+            "dbname": config.dbname,
+            "user": config.user,
+            "passwd": config.password,
+            "date": startDate + ":" + endDate,
+            "type": type,
+            "layer": config.layers
+    }
+    if RUNS_ON_LINUX:
+        params["schema"] = config.schemaName
+    importCmd = vfr2pgPath() + " " + paramsToCommandLine(params)
     importCmd = redirectLogsToFile(importCmd, VFRlogFileName, VFRerrFileName)
 
     commands = "cd " + os.path.dirname(os.path.abspath(updateFileName)) + "\n"

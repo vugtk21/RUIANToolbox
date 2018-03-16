@@ -44,6 +44,7 @@ DESCRIPTION_NUMBER_MAX_LEN = 3
 HOUSE_NUMBER_MAX_LEN = 4
 ZIPCODE_LEN = 5
 
+
 class RUIANDatabase():
     def __init__(self):
         try:
@@ -51,6 +52,7 @@ class RUIANDatabase():
         except psycopg2.Error as e:
             log.logger.error("Could not connect to database %s at %s:%s as %s\n%s" % (DATABASE_NAME, DATABASE_HOST, PORT, USER_NAME, str(e)))
             self.conection = None
+
 
     def getQueryResult(self, query):
         cursor = self.conection.cursor()
@@ -63,6 +65,7 @@ class RUIANDatabase():
 		      rows.append(row)
         return rows
 
+
     def getObecByName(self, name):
         cursor = self.conection.cursor()
         cursor.execute("SELECT {0} FROM {1} WHERE {0} ilike '%{2}%' group by {0} limit 25".format(TOWNNAME_FIELDNAME, "obce", name))
@@ -73,6 +76,7 @@ class RUIANDatabase():
               row_count += 1
               rows.append(row[0])
         return rows
+
 
     def getUliceByName(self, name):
         cursor = self.conection.cursor()
@@ -85,6 +89,7 @@ class RUIANDatabase():
               rows.append(row[0])
         return rows
 
+
     def getCastObceByName(self, name):
         cursor = self.conection.cursor()
         cursor.execute("SELECT nazev_casti_obce FROM casti_obce WHERE nazev_casti_obce ilike '%" + name + "%' group by nazev_casti_obce limit 25")
@@ -95,6 +100,7 @@ class RUIANDatabase():
               row_count += 1
               rows.append(row[0])
         return rows
+
 
     def getSelectResults(self, sqlSelectClause):
         cursor = self.conection.cursor()
@@ -107,7 +113,9 @@ class RUIANDatabase():
               rows.append(row)
         return rows
 
+
 ruianDatabase = None
+
 
 def isInt(value):
     if value == "" or value == None:
@@ -117,119 +125,133 @@ def isInt(value):
             if "0123456789".find(value[i:i + 1]) < 0:
                 return False
         return True
-    #try:
-    #    v = int(value)
-    #    return True
-    #except ValueError:
-    #    return False
+
+
+def remove_accents(s):
+    import unicodedata
+
+    s = unicode(s)
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
 
 class AddressItem:
+    RECORD_NUMBER = 1
+    ORIENTATION_NUMBER = 2
+    DESCRIPTION_NUMBER = 3
+    ZIP = 4
+    HOUSE_NUMBER = 5
+    ORIENTATION_NUMBER_SEPARATOR = 6
+    ORIENTATION_NUMBER_LETTER = 7
+
+    GID_FIELDINDEX = 0
+    TOWNPART_FIELDINDEX = 2
+    TOWNNAME_FIELDINDEX = 1
+    STREETNAME_FIELDINDEX = 3
+    TYP_SO_FIELDINDEX = 4
+    CISLO_DOMOVNI_FIELDINDEX = 5
+    CISLO_ORIENTACNI_FIELDINDEX = 6
+    ZNAK_CISLA_ORIENTACNIHO_FIELDINDEX = 7
+    ZIP_CODE_FIELDINDEX = 8
+    MOP_NUMBER_FIELDINDEX = 9
+
+
     def __init__(self, value, searchDB = True):
+        self.type = 0
         self.value = value
         self.towns = []
         self.townParts = []
         self.streets = []
-        self.isRecordNumber = False
-        self.isOrientationNumber = False
-        self.isDescriptionNumber = False
-        self.isZIP = False
-        self.isHouseNumber = False
         self.number = None
         self.maxNumberLen = 0
         self.isNumberID = False
         self.isTextField = False
-        self.analyseValue(searchDB)
+        self.searchDB = searchDB
+        self.analyseValue()
 
-    def __repr__(self):
-        result = ""
-        if self.isZIP:result += "PSČ "
 
-        if self.isOrientationNumber: result += "č.or. "
-
-        if self.isRecordNumber: result += RECORD_NUMBER_ID + " "
-
-        if self.isDescriptionNumber: result += DESCRIPTION_NUMBER_ID + " "
-
-        if self.number == None:
-            result += '"' + self.value + '"'
-        else:
-            result += self.number
+    def matchPercent(self, candidateValue, fieldIndex, ignoreAccents = False):
+        result = self._matchPercent(candidateValue, fieldIndex, ignoreAccents)
+        if result == 0 and not ignoreAccents:
+            result = self._matchPercent(candidateValue, fieldIndex, True)
 
         return result
 
-    def matchPercent(self, candidateValue, fieldIndex):
-        # fieldIndex meaning:
-        # 0=GID_FIELDNAME
-        # 1=TOWNNAME_FIELDNAME
-        # 2=TOWNPART_FIELDNAME
-        # 3=STREETNAME_FIELDNAME
-        # 4=TYP_SO_FIELDNAME
-        # 5=CISLO_DOMOVNI_FIELDNAME
-        # 6=CISLO_ORIENTACNI_FIELDNAME
-        # 7=ZNAK_CISLA_ORIENTACNIHO_FIELDNAME
-        # 8=ZIP_CODE_FIELDNAME
-        # 9=MOP_NUMBER
+    def _matchPercent(self, candidateValue, fieldIndex, ignoreAccents = False):
         candidateValue = unicode(candidateValue).lower()
-        if candidateValue == "677":
-            pass
-        if self.isZIP:
-            if fieldIndex != 8 or len(candidateValue) != 5:return 0
+        value = self.value
+        if ignoreAccents:
+            value = remove_accents(self.value)
+            candidateValue = remove_accents(candidateValue)
+
+        if self.type == AddressItem.ZIP:
+            if fieldIndex != AddressItem.ZIP_CODE_FIELDINDEX or len(candidateValue) != 5:
+                return 0
         else:
-            if fieldIndex == 0:
-                if len(candidateValue) != len(self.value):return 0
-            if fieldIndex == 8:
-                if len(candidateValue) == 5 and candidateValue == self.value:
-                    return 100
+            if fieldIndex == AddressItem.GID_FIELDINDEX:
+                if len(candidateValue) != len(value):
+                    return 0
+            if fieldIndex == AddressItem.ZIP:
+                if len(candidateValue) == 5 and candidateValue == value:
+                    return 1
                 else:
                     return 0
 
-        if candidateValue.find(self.value.lower()) != 0:
+        lowerValue = unicode(value).lower()
+        if candidateValue.find(lowerValue) != 0:
             return 0
         else:
-            return 1.0*len(unicode(self.value))/len(candidateValue)
+            return 1.0*len(lowerValue)/len(candidateValue)
+
+
+    def __repr__(self):
+        return self.__str__()
 
 
     def __str__(self):
         result = ""
-        if self.isZIP: result += "PSČ "
 
-        if self.isOrientationNumber: result += "č.or. "
-
-        if self.isRecordNumber: result += RECORD_NUMBER_ID + " "
-
-        if self.isDescriptionNumber: result += DESCRIPTION_NUMBER_ID + " "
+        msgs =  {
+            AddressItem.ZIP: "PSČ ",
+            AddressItem.ORIENTATION_NUMBER: "č.or. ",
+            AddressItem.ORIENTATION_NUMBER_SEPARATOR: "č.or. separator ",
+            AddressItem.RECORD_NUMBER: RECORD_NUMBER_ID + " ",
+            AddressItem.DESCRIPTION_NUMBER: DESCRIPTION_NUMBER_ID + " ",
+            AddressItem.ORIENTATION_NUMBER_LETTER: "p.or. "
+        }
+        if self.type in msgs:
+            result += msgs[self.type]
 
         if self.number == None:
-            result += '"' + self.value + '" ' + str(len(self.streets)) + "," + str(len(self.towns)) + \
+            result += "'%s'" % self.value
+            if self.searchDB and self.type <> AddressItem.ORIENTATION_NUMBER_SEPARATOR:
+                result += '" ' + str(len(self.streets)) + "," + str(len(self.towns)) + \
                       "," + str(len(self.townParts))
         else:
             result += self.number
 
         return result
 
-    def analyseValue(self, searchDB = True):
+
+    def analyseValue(self):
         if isInt(self.value):
             self.number = self.value
-            pass
         elif self.value == ORIENTATION_NUMBER_ID:
-            self.isOrientationNumber = True
-            self.isNumberID = True
-            self.maxNumberLen = ORIENTATION_NUMBER_MAX_LEN
+            self.type = AddressItem.ORIENTATION_NUMBER_SEPARATOR
         elif self.value == RECORD_NUMBER_ID:
-            self.isRecordNumber = True
+            self.type = AddressItem.RECORD_NUMBER
             self.isNumberID = True
             self.maxNumberLen = RECORD_NUMBER_MAX_LEN
         elif self.value == DESCRIPTION_NUMBER_ID:
-            self.isDescriptionNumber = True
+            self.type = AddressItem.DESCRIPTION_NUMBER
             self.isNumberID = True
             self.maxNumberLen = DESCRIPTION_NUMBER_MAX_LEN
         else:
             self.isTextField = True
-            if searchDB:
+            if self.searchDB:
                 self.towns = ruianDatabase.getObecByName(self.value)
                 self.streets = ruianDatabase.getUliceByName(self.value)
                 self.townParts = ruianDatabase.getCastObceByName(self.value)
+
 
 class _SearchItem:
     def __init__(self, item, text, fieldName):
@@ -237,58 +259,90 @@ class _SearchItem:
         self.text = text
         self.fieldName = fieldName
 
+
     def __repr__(self):
         return self.text + " (" + self.item.value + ")"
+
 
     def getWhereItem(self):
         if self.item == None:
             return ""
         else:
             return self.fieldName + "= '" + self.text + "'"
+
+
     def getID(self):
         return self.fieldName + ':' + self.text
 
+
+def replaceByDict(str, valuesDict):
+    for key, value in valuesDict.iteritems():
+        str = str.replace(key, value)
+    
+    return str
+
+
+
+def replaceByPairs(str, pairs):
+    for pair in pairs:
+        key, value = pair
+        str = str.replace(key, value)
+
+    return str
+
+
+
 class AddressParser:
     def normaliseSeparators(self, address):
-        address = address.replace(ORIENTATION_NUMBER_ID, " ") # address = address.replace(ORIENTATION_NUMBER_ID, " " + ORIENTATION_NUMBER_ID)
-        address = address.replace("  ", " ")
+        address = replaceByPairs(address, [
+            (ORIENTATION_NUMBER_ID, ',' + ORIENTATION_NUMBER_ID + ","),
+            ("  ", " "),
+            (" ,", ","),
+            (", ", ","),
+            ("\r\r", "\r"),
+            ("\r", ","),
+            ("\n\n", ","),
+            ("\n", ","),
+            (",,", ",")
+        ])
 
-        address = address.replace(",,", ",")
-        address = address.replace(" ,", ",")
-        address = address.replace(", ", ",")
-
-        address = address.replace("\r\r", "\r")
-        address = address.replace("\r", ",")
-
-        address = address.replace("\n\n", ",")
-        address = address.replace("\n", ",")
+        while address.find(",,") >= 0:
+            address = address.replace(",,", ",")
 
         return address
+
 
     def normaliseDescriptionNumberID(self, address):
-        address = address.replace("čp ", DESCRIPTION_NUMBER_ID + " ")
-        address = address.replace("č. p.", DESCRIPTION_NUMBER_ID)
-        address = address.replace("čp.", DESCRIPTION_NUMBER_ID)
-        return address
+        return replaceByDict(address, {
+            "čp ": DESCRIPTION_NUMBER_ID + " ",
+            "č. p.": DESCRIPTION_NUMBER_ID,
+            "čp.": DESCRIPTION_NUMBER_ID
+        })
+
 
     def expandNadPod(self, address):
-        address = address.replace(" n ", " nad ")
-        address = address.replace(" n.", " nad ")
-        address = address.replace(" p ", " pod ")
-        address = address.replace(" p.", " pod ")
-        return address
+        return replaceByDict(address, {
+            " n ": " nad ",
+            " n.": " nad ",
+            " p ": " pod ",
+            " p.": " pod "
+        })
+
 
     def normaliseRecordNumberID(self, address):
-        address = address.replace("ev.č.",  RECORD_NUMBER_ID)
-        address = address.replace("ev č.",  RECORD_NUMBER_ID)
-        address = address.replace("evč.",   RECORD_NUMBER_ID)
-        address = address.replace("eč.",    RECORD_NUMBER_ID)
-        address = address.replace("ev. č.", RECORD_NUMBER_ID)
-        address = address.replace("č. ev.", RECORD_NUMBER_ID)
-        address = address.replace("čev.",   RECORD_NUMBER_ID)
+        address = replaceByDict(address, {
+            "ev.č.":  RECORD_NUMBER_ID,
+            "ev č.":  RECORD_NUMBER_ID,
+            "evč.":   RECORD_NUMBER_ID,
+            "eč.":    RECORD_NUMBER_ID,
+            "ev. č.": RECORD_NUMBER_ID,
+            "č. ev.": RECORD_NUMBER_ID,
+            "čev.":   RECORD_NUMBER_ID
+        })
         if address.find("č.ev") >= 0 and address.find("č.ev") != address.find(RECORD_NUMBER_ID):
             address = address.replace("č.ev",   RECORD_NUMBER_ID, 1)
         return address
+
 
     def separateNumbers(self, address):
         newAddress = ""
@@ -308,19 +362,23 @@ class AddressParser:
 
         return self.normaliseSeparators(newAddress)
 
+
     def normalize(self, address):
         address = self.normaliseSeparators(address)
         address = self.normaliseDescriptionNumberID(address)
         address = self.normaliseRecordNumberID(address)
         address = self.expandNadPod(address)
         address = self.separateNumbers(address)
+        if address[len(address)-1:] == ",":
+            address = address[:len(address)-1]
 
         return address
 
+
     def parse(self, address, searchDB = True):
         log.logger.openSection("AddressParser.parse('%s')" % address)
-        address = self.normalize(address)
-        stringItems = address.split(",")
+        normalizedAddress = self.normalize(address)
+        stringItems = normalizedAddress.split(",")
         items = []
         for value in stringItems:
             item = AddressItem(value, searchDB)
@@ -329,12 +387,13 @@ class AddressParser:
         log.logger.closeSection("Done : %s" % str(items))
         return items
 
+
     def analyseItems(self, items):
         log.logger.openSection("AddressParser.analyseItems(%s)" % str(items))
+        prevItem = None
         newItems = []
-        index = 0
         nextItemToBeSkipped = False
-        for item in items:
+        for item, index in zip(items, range(len(items))):
             if nextItemToBeSkipped:
                 nextItemToBeSkipped = False
                 continue
@@ -345,6 +404,15 @@ class AddressParser:
                 nextItem = items[index + 1]
 
             toBeSkipped = False
+
+            if item.type == AddressItem.ORIENTATION_NUMBER_SEPARATOR:
+                toBeSkipped = True
+                if prevItem and prevItem.isNumberID:
+                    prevItem.type = AddressItem.HOUSE_NUMBER
+
+                if nextItem and nextItem.isNumberID:
+                    nextItem.type = AddressItem.HOUSE_NUMBER
+
             if item.isNumberID:
                 if nextItem == None or nextItem.number == None or len(nextItem.number) > item.maxNumberLen:
                     toBeSkipped = True
@@ -359,23 +427,36 @@ class AddressParser:
                     nextItemToBeSkipped = True
 
                 if len(item.number) == ZIPCODE_LEN:
-                    item.isZIP = True
+                    item.type = AddressItem.ZIP
                 elif len(item.number) <= HOUSE_NUMBER_MAX_LEN:
-                    item.isHouseNumber = True
+                    item.type = AddressItem.HOUSE_NUMBER
                 else:
                     # Error, příliš dlouhé číslo domovní nebo evidenční
                     pass
-            else:
-                #else textový řetezec
-                # @TODO Udelat
-                #if item.streets == [] and item.streets == [] and item.streets == []:
-                #    toBeSkipped = True
-                pass
 
+            else:
+                valueLength = len(item.value)
+                if valueLength > 1:
+                    header = item.value[:valueLength-1]
+                    tail = item.value[valueLength-1:]
+                    if header.isdigit():
+                        item.value = header
+                        item.type = AddressItem.ORIENTATION_NUMBER
+                        item.number = header
+                        item.maxNumberLen = ORIENTATION_NUMBER_MAX_LEN
+                        item.isNumberID = True
+                        item.isTextField = False
+                        toBeSkipped = True
+                        newItems.append(item)
+
+                        letterItem = AddressItem(tail, False)
+                        letterItem.type = AddressItem.ORIENTATION_NUMBER_LETTER
+                        newItems.append(letterItem)
+
+            prevItem = item
             if not toBeSkipped:
                 newItems.append(item)
 
-            index = index + 1
 
         log.logger.closeSection("Done : %s" % str(newItems))
         return newItems
@@ -386,6 +467,7 @@ class AddressParser:
         items = self.analyseItems(items)
 
         return items
+
 
     def old_getCombinedTextSearches(self, items):
         sqlList = []
@@ -422,6 +504,7 @@ class AddressParser:
                     sqlList.extend(newList)
         return sqlList
 
+
     def getTextItems(self, items):
         result = []
         for item in items:
@@ -454,7 +537,6 @@ class AddressParser:
         if townParts == []:
             townParts = [_SearchItem(None, None, None)]
 
-
         return (streets, towns, townParts)
 
 
@@ -472,6 +554,7 @@ class AddressParser:
 
         return result
 
+
     def getCombinedTextSearches(self, items):
         textItems = self.getTextItems(items)
         sqlItems = []
@@ -480,42 +563,45 @@ class AddressParser:
 
         return []
 
+
     def getCandidateValues(self, analysedItems):
+        candidates = []
+
         sqlItems = []
         for item in analysedItems:
             if item.isTextField and len(item.value) >= 2:
-                sqlItems.append("searchstr ilike '%" + item.value + "%'")
-        if sqlItems != []:
+                sqlItems.append("unaccent(searchstr) ilike unaccent('%" + item.value + "%')")
+
+        if sqlItems:
             innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
 
-            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10} limit 1000)".format(
+            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10} limit 1000) order by {0}".format(
                 GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
                 CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql), MOP_NUMBER)
 
             candidates = ruianDatabase.getQueryResult(sql)
-            return candidates
-        else:
-            return []
+
+        return candidates
 
 
-    def compare(self, items, fieldValues):
+    def compare(self, items, candidates, ignoreAccents = False):
         sumMatchPercent = 0
         numMatches = 0
         for item in items:
             found = False
-            fieldIndex = 0
-            for fieldValue in fieldValues:
-                matchPercent = item.matchPercent(fieldValue, fieldIndex)
+            for candidate, fieldIndex in zip(candidates, range(len(candidates))):
+                matchPercent = item.matchPercent(candidate, fieldIndex, ignoreAccents)
                 if matchPercent > 0:
                     sumMatchPercent = sumMatchPercent + matchPercent
                     numMatches = numMatches + 1
                     found = True
                     break
-                fieldIndex = fieldIndex + 1
 
-            if not found: return 0
+            if not found:
+                return 0
 
         return sumMatchPercent/numMatches
+
 
     def buildAddress(self, builder, candidates, withID, withDistance = False):
         items = []
@@ -547,8 +633,12 @@ class AddressParser:
                 districtNumber
             )
 
-            if withID:subStr = self.addId("id", str(item[0]), subStr, builder)
-            if withDistance:subStr = self.addId("distance", str(item[10]), subStr, builder)
+            if withID:
+                subStr = self.addId("id", str(item[0]), subStr, builder)
+
+            if withDistance:
+                subStr = self.addId("distance", str(item[10]), subStr, builder)
+
             items.append(subStr)
         return items
 
@@ -562,14 +652,14 @@ class AddressParser:
             return value + builder.lineSeparator + str
 
 
-    def fullTextSearchAddress(self, address):
+    def fullTextSearchAddress(self, address, ignoreAccents = False):
         log.logger.openSection("AddressParser.fullTextSearchAddress('%s')" % address)
         addressItems = self.analyse(address, False)
         candidates = self.getCandidateValues(addressItems)
 
         resultsDict = defaultdict(list)
         for candidate in candidates:
-            matchPercent = self.compare(addressItems, candidate)
+            matchPercent = self.compare(addressItems, candidate, ignoreAccents)
             if matchPercent > 0:
                 if resultsDict.has_key(matchPercent):
                     resultsDict[matchPercent].append(candidate)
@@ -602,9 +692,11 @@ class AddressParser:
         log.logger.closeSection("Done:%s" % str(results))
         return results
 
+
 def initModule():
     global ruianDatabase
     ruianDatabase = RUIANDatabase()
+
 
 class FormalTester:
     def __init__(self, caption, desc, compilingPerson, tester):
@@ -640,6 +732,7 @@ class FormalTester:
         self.testsHTML += "    <td>" + errorMessage + "</td>"
         self.testsHTML += "</tr>\n"
 
+
     def getHTML(self):
         result = """
 <html>
@@ -656,6 +749,7 @@ class FormalTester:
 </html>"""
 
         return result
+
 
 def testAnalyse():
     parser = AddressParser()
@@ -708,6 +802,7 @@ V této skupině testů je také testováno párování identifikátorů jednotl
         outFile.write(htmlContent.decode("utf-8"))
         outFile.close()
 
+
 def testFullTextSearchAddress():
     parser = AddressParser()
     tester = FormalTester("Rozpoznávání typů adresních položek",
@@ -733,19 +828,34 @@ V této skupině testů je také testováno párování identifikátorů jednotl
         outFile.close()
 
 
-def testCase():
+def testAddresses():
+    addresses = [
+        "Chvalínská 2078",
+        "Podlusky 2278",
+        "Opava, ostravská 350",
+        "Fialková, Čakovičky",
+        "Budovatelů, Chodov 677",
+        "Klobouky u Brna 884",
+        u"Gočárova třída 516/18 50002 Hradec Králové",
+        "Mezilesní 550/18",
+        "U kamene 181",
+        "Na lánech 598/13",
+        "1 Cílkova",
+        "67 budovatelů"
+    ]
     parser = AddressParser()
-    #print parser.fullTextSearchAddress("Mezilesní 550/18")
-    #print parser.fullTextSearchAddress("U kamene 181")
-    #print parser.fullTextSearchAddress("Na lánech 598/13")
-    #res = parser.fullTextSearchAddress("Fialková, Čakovičky")
-    #print len(res), res
 
-    #print parser.fullTextSearchAddress("22316418 praha")
-    #print parser.fullTextSearchAddress("1 Cílkova")
-    #print parser.fullTextSearchAddress("67 budovatelů")
-    log.logger.info(str(parser.fullTextSearchAddress("Gočárova třída 516/18 50002 Hradec Králové")))
+    foundCount = 0
+    for address in addresses:
+        addressItems = parser.fullTextSearchAddress(address)
+        if addressItems:
+            foundCount += 1
+        log.logger.debug("%s'%s': %s" % (["", "NOT FOUND!!! "][int(addressItems==[])], address, str(addressItems)))
 
+    if foundCount == len(addresses):
+        log.logger.info("All %d addresses found" % foundCount)
+    else:
+        log.logger.info("Found %d out of %d addresses" % (foundCount, len(addresses)))
 
 
 initModule()
@@ -753,7 +863,7 @@ initModule()
 def main():
     #testAnalyse()
     #testFullTextSearchAddress()
-    testCase()
+    testAddresses()
 
 
 if __name__ == '__main__':
