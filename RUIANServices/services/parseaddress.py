@@ -575,7 +575,7 @@ class AddressParser:
         if sqlItems:
             innerSql = "select explode_array({0}) from {1} where {2}".format(GIDS_FIELDNAME, FULLTEXT_TABLENAME, " and ".join(sqlItems))
 
-            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10} limit 1000) order by {0}".format(
+            sql = "select {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {11} from {9} where gid IN ({10} limit 100000) order by {0}".format(
                 GID_FIELDNAME, TOWNNAME_FIELDNAME, TOWNPART_FIELDNAME, STREETNAME_FIELDNAME, TYP_SO_FIELDNAME, \
                 CISLO_DOMOVNI_FIELDNAME, CISLO_ORIENTACNI_FIELDNAME, ZNAK_CISLA_ORIENTACNIHO_FIELDNAME, ZIP_CODE_FIELDNAME, ADDRESSPOINTS_TABLENAME, str(innerSql), MOP_NUMBER)
 
@@ -689,7 +689,10 @@ class AddressParser:
             else:
                 addCandidate(key, candidateItem)
 
-        log.logger.closeSection("Done:%s" % str(results))
+        msg = str(results)
+        if len(results) > 1:
+            msg = "%s items: %s" % (len(results), results)
+        log.logger.closeSection("Done:%s" % msg)
         return results
 
 
@@ -830,6 +833,9 @@ V této skupině testů je také testováno párování identifikátorů jednotl
 
 def testAddresses():
     addresses = [
+        "Nádražní 279 Praha",
+        "Nádražní 1",
+        "Nádražní 1 Chornice",
         'Hamerská 599a',
         "Chvalínská 2078",
         "Podlusky 2278",
@@ -851,7 +857,12 @@ def testAddresses():
         addressItems = parser.fullTextSearchAddress(address)
         if addressItems:
             foundCount += 1
-        log.logger.debug("%s'%s': %s" % (["", "NOT FOUND!!! "][int(addressItems==[])], address, str(addressItems)))
+        if len(addressItems) == 1:
+            log.logger.debug("%s'%s': %s" % (["", "NOT FOUND!!! "][int(addressItems==[])], address, str(addressItems)))
+        else:
+            log.logger.debug("%s'" % address)
+            for item in addressItems:
+                log.logger.debug("\t\t" + str(item))
         break
 
     if foundCount == len(addresses):

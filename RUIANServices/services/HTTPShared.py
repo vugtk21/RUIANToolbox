@@ -526,7 +526,50 @@ def formatZIPCode(code):
 
 
 def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
-    (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
+    #(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
+
+    from json import dumps
+
+    items = {
+        "PSČ": str(zipCode)
+    }
+    if houseNumber != "":
+        items[u"č.p."] = houseNumber
+    else:
+        items[u"č.ev."] = recordNumber
+
+    if orientationNumber <> "":
+        jsonOrientationNumber = str(orientationNumber)
+        if orientationNumberCharacter:
+            jsonOrientationNumber = '"%s%s"' % (jsonOrientationNumber, orientationNumberCharacter)
+        items["orientační_číslo"] = jsonOrientationNumber
+
+    if street <> "":
+        items["ulice"] = street
+
+    if districtNumber <> "":
+        items["číslo_městského_obvodu"] = districtNumber
+
+    if locality:
+        items["obec"] = locality
+
+    if locality <> localityPart and localityPart:
+        items["část_obce"] = localityPart
+
+    if ruianId <> "":
+        items["ruianId"] = ruianId
+
+    result = dumps(items, indent=4).decode('unicode-escape').encode('utf8').replace('{\n', '').replace('}', '').replace('    ', "\t")
+    return result
+
+
+def oldCompileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode,
+                         locality, localityPart, districtNumber, ruianId=""):
+    (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart,
+     districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber,
+                                              orientationNumberCharacter, zipCode, locality, localityPart,
+                                              districtNumber, ruianId))
+
     if houseNumber != "":
         sign = u"č.p."
         addressNumber = houseNumber
@@ -538,9 +581,9 @@ def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, o
         jsonOrientationNumber = str(orientationNumber)
         if orientationNumberCharacter:
             jsonOrientationNumber = '"%s%s"' % (jsonOrientationNumber, orientationNumberCharacter)
-        houseNumberStr = '\t"' + sign +'": ' + addressNumber + ',\n\t"orientační_číslo": ' + jsonOrientationNumber + ','
+        houseNumberStr = '\t"' + sign + '": ' + addressNumber + ',\n\t"orientační_číslo": ' + jsonOrientationNumber + ','
     else:
-        houseNumberStr ='\t"' + sign +'":"%s", ' % addressNumber
+        houseNumberStr = '\t"' + sign + '":"%s", ' % addressNumber
 
     if street != "":
         street = '\t"ulice": "%s",\n' % street
@@ -551,7 +594,7 @@ def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, o
         districtNumberStr = ""
 
     if locality == localityPart or localityPart == "":
-        townDistrict = '\t"obec":"%s"%s' % (locality , districtNumberStr)
+        townDistrict = '\t"obec":"%s"%s' % (locality, districtNumberStr)
     else:
         townDistrict = '\t"obec": "%s"%s, \n\t"část_obce": "%s" ' % (locality, districtNumberStr, localityPart)
 
@@ -562,6 +605,8 @@ def compileAddressAsJSON(street, houseNumber, recordNumber, orientationNumber, o
 
     result = ruianIdText + street + houseNumberStr + '\n\t"PSČ": "%s",\n%s\n' % (zipCode, townDistrict)
     return result
+
+
 
 def compileAddressAsXML(street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId = ""):
     (street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId) = noneToString((street, houseNumber, recordNumber, orientationNumber, orientationNumberCharacter, zipCode, locality, localityPart, districtNumber, ruianId))
